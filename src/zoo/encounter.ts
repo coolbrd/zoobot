@@ -1,5 +1,7 @@
 import { Guild, TextChannel } from "discord.js";
 
+import Species from "../models/species";
+
 export async function guildAnimalChance(guild: Guild) {
     // Generate a random real number to use in determining animal spawning
     const chance = Math.random();
@@ -10,6 +12,7 @@ export async function guildAnimalChance(guild: Guild) {
       spawnAnimal(guild);
     }
 }
+
 
 function spawnAnimal(guild: Guild) {
     console.log(`Attempting to spawn an animal in ${guild.name}`);

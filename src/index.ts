@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import Discord, { Message } from 'discord.js';
+import mongoose from "mongoose";
+import Discord, { Message } from "discord.js";
 
-import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
-import CommandHandler from './commandHandler';
-import config from './config/botConfig';
+import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
+import CommandHandler from "./commandHandler";
+import config from "./config/botConfig";
 
 // Create a new client for the bot to use
 const client = new Discord.Client();
@@ -18,32 +18,32 @@ let readyForInput = false;
 
 // Called whenever the bot completes a stage of initialization
 function complete() {
-  // If all steps of initialization are complete
-  if (discordLoaded && databaseLoaded) {
-    // Allow the bot to receive input
-    readyForInput = true;
-    console.log("Ready for input");
-  }
+    // If all steps of initialization are complete
+    if (discordLoaded && databaseLoaded) {
+        // Allow the bot to receive input
+        readyForInput = true;
+        console.log("Ready for input");
+    }
 }
 
 // When the bot is ready to receive input
 client.on("ready", () => {
-  console.log("Logged into Discord")
-  // Indicate that the bot has logged into Discord
-  discordLoaded = true;
-  complete();
+    console.log("Logged into Discord")
+    // Indicate that the bot has logged into Discord
+    discordLoaded = true;
+    complete();
 });
 
 // When the bot receives a message
 client.on("message", (message: Message) => {
-  // If the bot is not yet ready to receive input
-  if (!readyForInput) {
-    // Don't do anything with the message
-    return;
-  }
+    // If the bot is not yet ready to receive input
+    if (!readyForInput) {
+        // Don't do anything with the message
+        return;
+    }
 
-  // Handle the incoming message
-  commandHandler.handleMessage(message);
+    // Handle the incoming message
+    commandHandler.handleMessage(message);
 });
 
 // When the bot encounters an error
@@ -53,12 +53,12 @@ client.on("error", error => console.error("Discord client error: ", error));
 client.login(DISCORD_TOKEN);
 
 // Connect to the MongoDB database
-mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true }).then(
-  () => {
-    console.log("MongoDB connected")
-    // Indicate that the bot has logged into the database
-    databaseLoaded = true;
-    complete();
-  },
-  error => console.error("MongoDB connection error: ", error)
+mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUnifiedTopology: true }).then(
+    () => {
+        console.log("MongoDB connected")
+        // Indicate that the bot has logged into the database
+        databaseLoaded = true;
+        complete();
+    },
+    error => console.error("MongoDB connection error: ", error)
 );

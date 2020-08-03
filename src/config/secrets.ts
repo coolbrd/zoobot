@@ -15,5 +15,5 @@ export const MONGODB_PATH = process.env.mongopath as string;
 
 // If no token was found
 if (!DISCORD_TOKEN) {
-  console.error("No token provided in .env file.");
+    console.error("No token provided in .env file.");
 }
