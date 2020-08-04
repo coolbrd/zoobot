@@ -7,6 +7,10 @@ const SpeciesSchema = new Schema({
         type: Array,
         required: true
     },
+    images: {
+        type: Array,
+        required: true
+    },
     scientificName: {
         type: String,
         required: true
@@ -37,4 +41,4 @@ const SpeciesSchema = new Schema({
     }
 });
 
-export default mongoose.model('species', SpeciesSchema);
+export default mongoose.model('Species', SpeciesSchema);

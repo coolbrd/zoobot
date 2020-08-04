@@ -54,11 +54,13 @@ client.login(DISCORD_TOKEN);
 
 // Connect to the MongoDB database
 mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUnifiedTopology: true }).then(
+    // When a connection is established
     () => {
         console.log("MongoDB connected")
         // Indicate that the bot has logged into the database
         databaseLoaded = true;
         complete();
     },
+    // If there was an error connecting
     error => console.error("MongoDB connection error: ", error)
 );
