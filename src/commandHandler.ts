@@ -1,20 +1,26 @@
-import { Message } from "discord.js";
+import { Message, MessageReaction, User, PartialUser } from "discord.js";
 import { GreetCommand, TimeCommand } from "./commands";
 import Command from "./commands/commandInterface";
 import CommandParser from "./utility/commandParser";
 import { guildAnimalChance } from "./zoo/encounter";
+import InteractiveMessage from "./utility/interactiveMessage";
 
 // The class responsible for parsing and executing commands
 // Will be the default item imported from this module within other modules
 export default class CommandHandler {
-    // The array of valid, executable commands
-    private commands: Command[];
-
     // The bot's prefix that it will respond to
     private readonly prefix: string;
 
+    // The array of valid, executable commands
+    private readonly commands: Command[];
+
+    readonly interactiveMessages = new Map<string, InteractiveMessage>();
+
     // Upon initialization
     constructor(prefix: string) {
+        // The prefix that the bot will respond to
+        this.prefix = prefix;
+
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
             GreetCommand,
@@ -23,8 +29,6 @@ export default class CommandHandler {
 
         // Assign the array of commands to a new instance of each command class
         this.commands = commandClasses.map(commandClass => new commandClass());
-        // Set the bot's prefix
-        this.prefix = prefix;
     }
 
     // Executes user commands contained in a message if appropriate
@@ -46,8 +50,15 @@ export default class CommandHandler {
             }
             // At this point it's known that the guild is available for operation
 
-            // Possibly spawn an animal in the guild
-            guildAnimalChance(sourceGuild);
+            // Possibly spawn an animal in the guild and get the resulting interactive message, if there is one
+            const possibleMessage = await guildAnimalChance(sourceGuild);
+            // If an animal spawned and a message was returned
+            if (possibleMessage) {
+                // Cast the message as an interactive message
+                const encounterMessage = possibleMessage as InteractiveMessage;
+                // Add the message to the map of interactive messages to handle
+                this.interactiveMessages.set(encounterMessage.getMessage().id, encounterMessage);
+            }
         }
 
         // If the message is a command
@@ -69,6 +80,20 @@ export default class CommandHandler {
                     message.reply(`'${this.echoMessage(message)}' failed because of ${error}`);
                 });
             }
+        }
+    }
+
+    // Takes a user's message reaction and potentially activates an interactive message
+    async handleReaction(messageReaction: MessageReaction) {
+        // Check the map of interactive messages for a message with the id of the one reacted to
+        const possibleMessage = this.interactiveMessages.get(messageReaction.message.id);
+        // If a message was found
+        if (possibleMessage) {
+            // Cast the possible message as an interactive message
+            const interactiveMessage = possibleMessage as InteractiveMessage;
+
+            // Activate the message's button that corresponds to the emoji reacted with
+            await interactiveMessage.buttonPress(messageReaction.emoji.toString());
         }
     }
 

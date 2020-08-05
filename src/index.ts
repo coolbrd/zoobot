@@ -4,6 +4,7 @@ import Discord, { Message } from "discord.js";
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import CommandHandler from "./commandHandler";
 import config from "./config/botConfig";
+import InteractiveMessage from "./utility/interactiveMessage";
 
 // Create a new client for the bot to use
 const client = new Discord.Client();
@@ -29,6 +30,7 @@ function complete() {
 // When the bot is ready to receive input
 client.on("ready", () => {
     console.log("Logged into Discord")
+
     // Indicate that the bot has logged into Discord
     discordLoaded = true;
     complete();
@@ -44,6 +46,18 @@ client.on("message", (message: Message) => {
 
     // Handle the incoming message
     commandHandler.handleMessage(message);
+});
+
+// When the bot observes a user adding a reaction to a message
+client.on("messageReactionAdd", (messageReaction, user) => {
+    // If the reaction was added by a bot
+    if (user.bot) {
+        // Ignore it
+        return;
+    }
+
+    // Handle the user's reaction
+    commandHandler.handleReaction(messageReaction);
 });
 
 // When the bot encounters an error
