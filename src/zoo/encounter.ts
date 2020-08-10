@@ -1,8 +1,9 @@
-import { Guild, TextChannel, Message } from "discord.js";
+import { Guild, TextChannel, Message, APIMessage, MessageEmbed } from "discord.js";
 
-import Species from "../models/species";
+import SpeciesModel from "../models/species";
 import { Document } from "mongoose";
-import InteractiveMessage from "../utility/interactiveMessage";
+import { InteractiveMessage } from "../utility/interactiveMessage";
+import Species from "./species";
 
 export async function guildAnimalChance(guild: Guild) {
     // Generate a random real number to use in determining animal spawning
@@ -16,24 +17,87 @@ export async function guildAnimalChance(guild: Guild) {
 
 // Spawn an animal encounter in a given server
 async function spawnAnimal(guild: Guild) {
-    // Get the first text channel in the server
-    const channel = guild.channels.cache.find(channel => channel.type === "text") as TextChannel;
+    let channel: TextChannel;
+    try {
+        // Get the first text channel in the server
+        channel = guild.channels.cache.find(channel => channel.type === "text") as TextChannel;
+    }
+    catch(error) {
+        console.error("Error trying to find the first text channel of a guild for encounter spawning.", error);
+        return;
+    }
     
-    // Get a random species from all animals
-    const species = (await Species.aggregate().sample(1).exec())[0] as Document;
+    let speciesDocument: any;
+    try {
+        // Get a random species from all animals
+        speciesDocument = (await SpeciesModel.aggregate().sample(1).exec())[0];
+    }
+    catch(error) {
+        console.error("Error trying to select a random species for a new encounter message.", error);
+        return;
+    }
 
-    // Create the map that will be used for message interactions
-    const messageInteractions = new Map<string, Function>();
+    let species: Species;
+    try {
+        // Convert the species document to a proper species (checks for errors and such)
+        species = new Species(speciesDocument);
+    }
+    catch(error) {
+        console.error("Error trying to convert a species document to a species instance.", error);
+        return;
+    }
 
-    messageInteractions.set("👽", () => {
-        console.log("ALIENS!");
-    });
-    messageInteractions.set("🐕", () => {
-        console.log("Just dogs.");
-    });
+    try {
+        // Send an encounter message to the channel
+        await EncounterMessage.init(channel, species);
+    }
+    catch(error) {
+        console.error("Error initializing a new encounter message.", error);
+        return;
+    }
+}
 
-    const encounterMessage = new InteractiveMessage(messageInteractions);
-    await encounterMessage.send(channel);
+// The interactive message that will represent an animal encounter
+// The primary way for users to collect new animals
+export class EncounterMessage extends InteractiveMessage {
+    // The species of the animal contained within this encounter
+    readonly species: Species;
 
-    return encounterMessage;
+    protected constructor(message: Message, buttons: string[], lifetime: number, species: Species) {
+        super(message, buttons, lifetime);
+        this.species = species;
+    }
+
+    // Asynchronous initializer for this encounter message. To be called instead of the constructor.
+    static async init(channel: TextChannel, species: Species) {
+        // Interactive message defaults for an encounter message
+        // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
+        const buttons = ["💥"];
+        const lifetime = 5000;
+
+        const embed = new MessageEmbed({ title: `${species.scientificName} appeared!`});
+
+        const content = new APIMessage(channel, { embed: embed });
+
+        let message;
+        try {
+            // Attempt to send the base message for this encounter
+            message = await this.build(content, channel, buttons) as Message;
+        }
+        catch(error) {
+            console.error("Error building the base message for an interactive message.", error);
+            return;
+        }
+
+        // Initialize the encounter message with the newly sent and built message
+        const interactiveMessage = new EncounterMessage(message, buttons, lifetime, species);
+
+        return interactiveMessage;
+    }
+
+    async buttonPress(button: string) {
+        if (this.getButtons().includes(button)) {
+            this.getMessage().channel.send(`You caught ${this.species.commonNames[0]}!`);
+        }
+    }
 }

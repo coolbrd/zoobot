@@ -3,7 +3,6 @@ import { GreetCommand, TimeCommand } from "./commands";
 import Command from "./commands/commandInterface";
 import CommandParser from "./utility/commandParser";
 import { guildAnimalChance } from "./zoo/encounter";
-import InteractiveMessage from "./utility/interactiveMessage";
 
 // The class responsible for parsing and executing commands
 // Will be the default item imported from this module within other modules
@@ -13,8 +12,6 @@ export default class CommandHandler {
 
     // The array of valid, executable commands
     private readonly commands: Command[];
-
-    readonly interactiveMessages = new Map<string, InteractiveMessage>();
 
     // Upon initialization
     constructor(prefix: string) {
@@ -50,14 +47,12 @@ export default class CommandHandler {
             }
             // At this point it's known that the guild is available for operation
 
-            // Possibly spawn an animal in the guild and get the resulting interactive message, if there is one
-            const possibleMessage = await guildAnimalChance(sourceGuild);
-            // If an animal spawned and a message was returned
-            if (possibleMessage) {
-                // Cast the message as an interactive message
-                const encounterMessage = possibleMessage as InteractiveMessage;
-                // Add the message to the map of interactive messages to handle
-                this.interactiveMessages.set(encounterMessage.getMessage().id, encounterMessage);
+            try {
+                // Possibly spawn an animal in the guild
+                await guildAnimalChance(sourceGuild);
+            }
+            catch(error) {
+                console.error("Error while attempting to spawn an animal.", error);
             }
         }
 
@@ -71,29 +66,23 @@ export default class CommandHandler {
 
             // If no matching command was found
             if (!matchedCommand) {
-                await message.reply(`I don't recognize that command. Try ${this.prefix}help.`);
+                try {
+                    await message.reply(`I don't recognize that command. Try ${this.prefix}help.`);
+                }
+                catch(error) {
+                    console.error("Error sending message.", error);
+                }
             }
             // If a matching command was found
             else {
                 // Run the command and check for errors
-                await matchedCommand.run(commandParser).catch(error => {
+                try {
+                    await matchedCommand.run(commandParser);
+                }
+                catch(error) {
                     message.reply(`'${this.echoMessage(message)}' failed because of ${error}`);
-                });
+                }
             }
-        }
-    }
-
-    // Takes a user's message reaction and potentially activates an interactive message
-    async handleReaction(messageReaction: MessageReaction) {
-        // Check the map of interactive messages for a message with the id of the one reacted to
-        const possibleMessage = this.interactiveMessages.get(messageReaction.message.id);
-        // If a message was found
-        if (possibleMessage) {
-            // Cast the possible message as an interactive message
-            const interactiveMessage = possibleMessage as InteractiveMessage;
-
-            // Activate the message's button that corresponds to the emoji reacted with
-            await interactiveMessage.buttonPress(messageReaction.emoji.toString());
         }
     }
 

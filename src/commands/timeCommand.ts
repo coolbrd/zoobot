@@ -11,6 +11,11 @@ export class TimeCommand implements Command {
 
     async run(parsedUserCommand: CommandParser): Promise<void> {
         const now = new Date();
-        await parsedUserCommand.originalMessage.channel.send(`It is currently ${now.getHours()}:${now.getMinutes()}.`);
+        try {
+            await parsedUserCommand.originalMessage.channel.send(`It is currently ${now.getHours()}:${now.getMinutes()}.`);
+        }
+        catch(error) {
+            console.error("Error sending time command response.", error);
+        }
     }
 }

@@ -1,34 +1,9 @@
 import { TextChannel } from "discord.js";
+import Species from "./species";
 
 enum Mutation {
     BigEyes,
     TwoHeads
-}
-
-class Species {
-    readonly commonNames: string[];
-    readonly images: string[];
-    readonly scientificNane: string;
-    readonly family: string;
-    readonly description: string;
-    readonly naturalHabitat: string;
-    readonly inGameRegion: string;
-    readonly tags: string[];
-    readonly item: string;
-
-    constructor(commonNames: string[], images: string[], scientificName: string,
-                family: string, description: string, naturalHabitat: string,
-                inGameRegion: string, tags: string[], item: string) {
-        this.commonNames = commonNames;
-        this.images = images;
-        this.scientificNane = scientificName;
-        this.family = family;
-        this.description = description;
-        this.naturalHabitat = naturalHabitat;
-        this.inGameRegion = inGameRegion;
-        this.tags = tags;
-        this.item = item;
-    }
 }
 
 export default class Animal {

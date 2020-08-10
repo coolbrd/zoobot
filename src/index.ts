@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import Discord, { Message } from "discord.js";
+import Discord, { Message, MessageReaction, PartialUser, User } from "discord.js";
 
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import CommandHandler from "./commandHandler";
 import config from "./config/botConfig";
-import InteractiveMessage from "./utility/interactiveMessage";
+import { InteractiveMessageHandler } from "./utility/interactiveMessage";
 
 // Create a new client for the bot to use
 const client = new Discord.Client();
@@ -50,14 +50,14 @@ client.on("message", (message: Message) => {
 
 // When the bot observes a user adding a reaction to a message
 client.on("messageReactionAdd", (messageReaction, user) => {
-    // If the reaction was added by a bot
-    if (user.bot) {
-        // Ignore it
-        return;
-    }
-
     // Handle the user's reaction
-    commandHandler.handleReaction(messageReaction);
+    InteractiveMessageHandler.handleReaction(messageReaction, user);
+});
+
+// When the bot observes a user removing a reaction from a message
+client.on("messageReactionRemove", (messageReaction, user) => {
+    // Handle the user's reaction
+    InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
 // When the bot encounters an error
