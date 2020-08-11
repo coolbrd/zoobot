@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, ReactionUserManager } from 'discord.js';
 import Command from './commands/commandInterface';
 import CommandParser from './utility/commandParser';
 import { guildAnimalChance } from './zoo/encounter';
@@ -79,7 +79,8 @@ export default class CommandHandler {
                     await matchedCommand.run(commandParser);
                 }
                 catch (error) {
-                    message.reply(`"${this.echoMessage(message)}" failed because of ${error}`);
+                    console.error(`Command execution failed.`, error);
+                    return;
                 }
             }
         }
