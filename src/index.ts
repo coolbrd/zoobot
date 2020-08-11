@@ -29,7 +29,7 @@ function complete() {
 
 // When the bot is ready to receive input
 client.on(`ready`, () => {
-    console.log(`Logged into Discord`)
+    console.log(`Logged into Discord`);
 
     // Indicate that the bot has logged into Discord
     discordLoaded = true;
@@ -70,7 +70,7 @@ client.login(DISCORD_TOKEN);
 mongoose.connect(MONGODB_PATH, { dbName: `zoobot`, useNewUrlParser: true, useUnifiedTopology: true }).then(
     // When a connection is established
     () => {
-        console.log(`MongoDB connected`)
+        console.log(`MongoDB connected`);
         // Indicate that the bot has logged into the database
         databaseLoaded = true;
         complete();
