@@ -10,12 +10,12 @@ export function capitalizeFirstLetter(string: string) {
 export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildResolvable: GuildResolvable) {
     const guild = client.guilds.resolve(guildResolvable);
     if (!guild) {
-        throw new Error("Attempted to get the display color of a user from a guild that could not be resolved.");
+        throw new Error(`Attempted to get the display color of a user from a guild that could not be resolved.`);
     }
 
     const guildMember = guild.member(userResolvable)
     if (!guildMember) {
-        throw new Error("Attempted to get the display color of a user that could not be resolved.");
+        throw new Error(`Attempted to get the display color of a user that could not be resolved.`);
     }
 
     return guildMember.displayColor;
