@@ -6,8 +6,8 @@ export class InteractiveMessageHandler {
 
     // Takes a user's message reaction and potentially activates an interactive message
     static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser) {
-        // If the user who reacted to something is a bot
-        if (user.bot) {
+        // If the user who reacted to something is a bot, or not a complete user instance
+        if (user.bot || !(user instanceof User)) {
             // Ignore the reaction entirely
             return;
         }

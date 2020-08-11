@@ -119,7 +119,7 @@ export class EncounterMessage extends InteractiveMessage {
         return interactiveMessage;
     }
 
-    async buttonPress(button: string, user: User | PartialUser) {
+    async buttonPress(button: string, user: User) {
         if (this.getButtons().includes(button)) {
             this.getMessage().channel.send(`You caught ${this.species.commonNames[0]}!`);
         }
