@@ -11,22 +11,22 @@ export default class Species {
     readonly item: string;
 
     constructor(species: any) {
-        this.commonNames = species["commonNames"];
-        this.images = species["images"];
-        this.scientificName = species["scientificName"];
-        this.family = species["family"];
-        this.description = species["description"];
-        this.naturalHabitat = species["naturalHabitat"];
-        this.inGameRegion = species["inGameRegion"];
-        this.wikiPage = species["wikiPage"];
-        this.tags = species["tags"];
-        this.item = species["item"];
+        this.commonNames = species[`commonNames`];
+        this.images = species[`images`];
+        this.scientificName = species[`scientificName`];
+        this.family = species[`family`];
+        this.description = species[`description`];
+        this.naturalHabitat = species[`naturalHabitat`];
+        this.inGameRegion = species[`inGameRegion`];
+        this.wikiPage = species[`wikiPage`];
+        this.tags = species[`tags`];
+        this.item = species[`item`];
 
         // Iterate over every newly assigned value in this species
         Object.values(this).forEach(propertyValue => {
             // If any properties are undefined
             if (propertyValue == undefined) {
-                throw new Error(`One or more necessary properties missing from species document of id ${species["_id"]}.`);
+                throw new Error(`One or more necessary properties missing from species document of id ${species[`_id`]}.`);
             }
         });
     }

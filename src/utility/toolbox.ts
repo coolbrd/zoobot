@@ -1,4 +1,4 @@
-import { User, Guild } from "discord.js";
+import { User, Guild } from 'discord.js';
 
 export function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);

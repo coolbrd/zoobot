@@ -1,5 +1,5 @@
-import { TextChannel } from "discord.js";
-import Species from "./species";
+import { TextChannel } from 'discord.js';
+import Species from './species';
 
 enum Mutation {
     BigEyes,

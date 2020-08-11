@@ -1,4 +1,4 @@
-import CommandParser from "../utility/commandParser";
+import CommandParser from '../utility/commandParser';
 
 // The template for all runnable commands
 export default interface Command {

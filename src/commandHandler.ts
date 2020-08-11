@@ -1,8 +1,8 @@
-import { Message, MessageReaction, User, PartialUser } from "discord.js";
-import { GreetCommand, TimeCommand } from "./commands";
-import Command from "./commands/commandInterface";
-import CommandParser from "./utility/commandParser";
-import { guildAnimalChance } from "./zoo/encounter";
+import { Message, MessageReaction, User, PartialUser } from 'discord.js';
+import { GreetCommand, TimeCommand } from './commands';
+import Command from './commands/commandInterface';
+import CommandParser from './utility/commandParser';
+import { guildAnimalChance } from './zoo/encounter';
 
 // The class responsible for parsing and executing commands
 // Will be the default item imported from this module within other modules
@@ -52,7 +52,7 @@ export default class CommandHandler {
                 await guildAnimalChance(sourceGuild);
             }
             catch(error) {
-                console.error("Error while attempting to spawn an animal.", error);
+                console.error(`Error while attempting to spawn an animal.`, error);
             }
         }
 
@@ -70,7 +70,7 @@ export default class CommandHandler {
                     await message.reply(`I don't recognize that command. Try ${this.prefix}help.`);
                 }
                 catch(error) {
-                    console.error("Error sending message.", error);
+                    console.error(`Error sending message.`, error);
                 }
             }
             // If a matching command was found
@@ -88,7 +88,7 @@ export default class CommandHandler {
 
     // Sends back the message content after removing the prefix.
     echoMessage(message: Message): string {
-        return message.content.replace(this.prefix, "").trim();
+        return message.content.replace(this.prefix, ``).trim();
     }
 
     // Determines whether or not a message is a user command.

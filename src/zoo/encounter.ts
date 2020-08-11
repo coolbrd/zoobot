@@ -1,10 +1,10 @@
-import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User } from "discord.js";
+import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User } from 'discord.js';
 
-import SpeciesModel from "../models/species";
-import { InteractiveMessage } from "../utility/interactiveMessage";
-import Species from "./species";
-import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
-import { client } from "..";
+import SpeciesModel from '../models/species';
+import { InteractiveMessage } from '../utility/interactiveMessage';
+import Species from './species';
+import { capitalizeFirstLetter, getGuildUserDisplayColor } from '../utility/toolbox';
+import { client } from '..';
 
 export async function guildAnimalChance(guild: Guild) {
     // Generate a random real number to use in determining animal spawning
@@ -21,10 +21,10 @@ async function spawnAnimal(guild: Guild) {
     let channel: TextChannel;
     try {
         // Get the first text channel in the server
-        channel = guild.channels.cache.find(channel => channel.type === "text") as TextChannel;
+        channel = guild.channels.cache.find(channel => channel.type === `text`) as TextChannel;
     }
     catch(error) {
-        console.error("Error trying to find the first text channel of a guild for encounter spawning.", error);
+        console.error(`Error trying to find the first text channel of a guild for encounter spawning.`, error);
         return;
     }
     
@@ -34,7 +34,7 @@ async function spawnAnimal(guild: Guild) {
         speciesDocument = (await SpeciesModel.aggregate().sample(1).exec())[0];
     }
     catch(error) {
-        console.error("Error trying to select a random species for a new encounter message.", error);
+        console.error(`Error trying to select a random species for a new encounter message.`, error);
         return;
     }
 
@@ -44,7 +44,7 @@ async function spawnAnimal(guild: Guild) {
         species = new Species(speciesDocument);
     }
     catch(error) {
-        console.error("Error trying to convert a species document to a species instance.", error);
+        console.error(`Error trying to convert a species document to a species instance.`, error);
         return;
     }
 
@@ -53,7 +53,7 @@ async function spawnAnimal(guild: Guild) {
         await EncounterMessage.init(channel, species);
     }
     catch(error) {
-        console.error("Error initializing a new encounter message.", error);
+        console.error(`Error initializing a new encounter message.`, error);
         return;
     }
 }
@@ -73,16 +73,16 @@ export class EncounterMessage extends InteractiveMessage {
     static async init(channel: TextChannel, species: Species) {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
-        const buttons = ["💥"];
+        const buttons = [`💥`];
         const lifetime = 60000;
 
         const embed = new MessageEmbed();
-        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || "DEFAULT");
+        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || `DEFAULT`);
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.setURL(species.wikiPage);
         embed.setDescription(species.scientificName);
         embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
-        embed.setFooter("Wild encounter");
+        embed.setFooter(`Wild encounter`);
 
         const content = new APIMessage(channel, { embed: embed });
 
@@ -92,7 +92,7 @@ export class EncounterMessage extends InteractiveMessage {
             message = await this.build(content, channel, buttons) as Message;
         }
         catch(error) {
-            console.error("Error building the base message for an interactive message.", error);
+            console.error(`Error building the base message for an interactive message.`, error);
             return;
         }
 
@@ -114,10 +114,10 @@ export class EncounterMessage extends InteractiveMessage {
 
         try {
             // Indicate that the encounter is over
-            await this.getMessage().edit("*(gone)*");
+            await this.getMessage().edit(`*(gone)*`);
         }
         catch(error) {
-            console.error("Error trying to edit an interactive message.", error);
+            console.error(`Error trying to edit an interactive message.`, error);
         }
     }
 }

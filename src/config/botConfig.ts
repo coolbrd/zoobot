@@ -5,7 +5,7 @@ type BotConfig = {
 
 // The bot's currently used global prefix
 const config: BotConfig = {
-    prefix: ">"
+    prefix: `>`
 };
 
 export default config;

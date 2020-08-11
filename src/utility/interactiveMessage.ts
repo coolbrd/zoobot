@@ -1,4 +1,4 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage } from "discord.js";
+import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage } from 'discord.js';
 
 export class InteractiveMessageHandler {
     // The shared list of every active interactive message to handle
@@ -24,7 +24,7 @@ export class InteractiveMessageHandler {
                 await interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
             }
             catch(error) {
-                console.error("Error activating an interactive message's button.", error);
+                console.error(`Error activating an interactive message's button.`, error);
             }
         }
     }
@@ -59,7 +59,7 @@ export class InteractiveMessage {
                 this.deactivate();
             }
             catch(error) {
-                console.error("Error trying to deactivate an interactive message.", error);
+                console.error(`Error trying to deactivate an interactive message.`, error);
             }
         }, lifetime);
 
@@ -81,7 +81,7 @@ export class InteractiveMessage {
             message = await this.build(content, channel, buttons) as Message;
         }
         catch(error) {
-            console.error("Error trying to build the base message for an interactive message.", error);
+            console.error(`Error trying to build the base message for an interactive message.`, error);
             return;
         }
 
@@ -100,7 +100,7 @@ export class InteractiveMessage {
             message = await channel.send(content);
         }
         catch(error) {
-            console.error("Error sending the base message for an interactive message.", error);
+            console.error(`Error sending the base message for an interactive message.`, error);
             return;
         }
 
@@ -111,7 +111,7 @@ export class InteractiveMessage {
                 await message.react(emoji);
             }
             catch(error) {
-                console.error("Error trying to add reactions to an interactive message.", error);
+                console.error(`Error trying to add reactions to an interactive message.`, error);
             }
         }
 
@@ -121,7 +121,7 @@ export class InteractiveMessage {
 
     // Activates a button on this message. This does nothing because it's meant to be overridden.
     async buttonPress(button: string, user: User | PartialUser) {
-        throw new Error("A basic interactive button object received a button press. This was probably a mistake.");
+        throw new Error(`A basic interactive button object received a button press. This was probably a mistake.`);
     }
 
     // Deactivates the interactive message, freeing up space in the global list
@@ -134,8 +134,8 @@ export class InteractiveMessage {
             await this.message.reactions.removeAll();
         }
         catch(error) {
-            this.message.channel.send("Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.");
-            console.error("Error trying to remove all reactions from an interactive message.", error);
+            this.message.channel.send(`Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.`);
+            console.error(`Error trying to remove all reactions from an interactive message.`, error);
         }
     }
 }
