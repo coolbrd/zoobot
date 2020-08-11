@@ -6,6 +6,7 @@ export default class Species {
     readonly description: string;
     readonly naturalHabitat: string;
     readonly inGameRegion: string;
+    readonly wikiPage: string;
     readonly tags: string[];
     readonly item: string;
 
@@ -17,6 +18,7 @@ export default class Species {
         this.description = species["description"];
         this.naturalHabitat = species["naturalHabitat"];
         this.inGameRegion = species["inGameRegion"];
+        this.wikiPage = species["wikiPage"];
         this.tags = species["tags"];
         this.item = species["item"];
 

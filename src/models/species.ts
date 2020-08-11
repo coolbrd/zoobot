@@ -31,6 +31,10 @@ const SpeciesSchema = new Schema({
         type: String,
         required: true
     },
+    wikiPage: {
+        type: String,
+        required: true
+    },
     tags: {
         type: Array,
         required: true

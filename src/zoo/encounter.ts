@@ -79,6 +79,7 @@ export class EncounterMessage extends InteractiveMessage {
         const embed = new MessageEmbed();
         embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || "DEFAULT");
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
+        embed.setURL(species.wikiPage);
         embed.setDescription(species.scientificName);
         embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
         embed.setFooter("Wild encounter");
