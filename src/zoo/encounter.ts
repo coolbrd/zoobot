@@ -10,8 +10,8 @@ import { client } from '..';
 export async function guildAnimalChance(guild: GuildResolvable) {
     // Generate a random real number to use in determining animal spawning
     const chance = Math.random();
-    // 100% of all messages (for testing purposes)
-    if (chance <= 1) {
+    // 10% of all messages (for testing purposes)
+    if (chance <= 0.1) {
         try {
             // Spawn an animal encounter
             return await spawnAnimal(guild);
