@@ -1,4 +1,4 @@
-import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User } from 'discord.js';
+import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User, GuildResolvable } from 'discord.js';
 
 import SpeciesModel from '../models/species';
 import { InteractiveMessage } from '../utility/interactiveMessage';
@@ -6,22 +6,36 @@ import Species from './species';
 import { capitalizeFirstLetter, getGuildUserDisplayColor } from '../utility/toolbox';
 import { client } from '..';
 
-export async function guildAnimalChance(guild: Guild) {
+// Performs a chance to spawn an animal encounter in a guild
+export async function guildAnimalChance(guild: GuildResolvable) {
     // Generate a random real number to use in determining animal spawning
     const chance = Math.random();
-    // 50% of all messages
+    // 100% of all messages (for testing purposes)
     if (chance <= 1) {
-        // Spawn an animal encounter
-        return await spawnAnimal(guild);
+        try {
+            // Spawn an animal encounter
+            return await spawnAnimal(guild);
+        }
+        catch(error) {
+            console.error("Error trying to spawn an animal in a guild.", error);
+        }
     }
 }
 
 // Spawn an animal encounter in a given server
-async function spawnAnimal(guild: Guild) {
+async function spawnAnimal(guildResolvable: GuildResolvable) {
+    const guild = client.guilds.resolve(guildResolvable);
+    if (!guild) {
+        throw new Error("Attempted to spawn an animal in a guild that could not be resolved.");
+    }
+
     let channel: TextChannel;
     try {
         // Get the first text channel in the server
         channel = guild.channels.cache.find(channel => channel.type === `text`) as TextChannel;
+        if (!channel) {
+            throw new Error("No valid text channel was found when attempting to retrieve the first one.");
+        }
     }
     catch(error) {
         console.error(`Error trying to find the first text channel of a guild for encounter spawning.`, error);
@@ -32,6 +46,9 @@ async function spawnAnimal(guild: Guild) {
     try {
         // Get a random species from all animals
         speciesDocument = (await SpeciesModel.aggregate().sample(1).exec())[0];
+        if (!speciesDocument) {
+            throw new Error("No document was returned when trying to select a random animal.");
+        }
     }
     catch(error) {
         console.error(`Error trying to select a random species for a new encounter message.`, error);
