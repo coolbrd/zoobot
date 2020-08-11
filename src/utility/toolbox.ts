@@ -48,12 +48,12 @@ export async function pressAndGo(message: Message, timeOut: number, emojiString:
 }
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
-export async function betterSend(channel: TextChannel | DMChannel, content: string) {
+export async function betterSend(channel: TextChannel | DMChannel | User, content: string) {
     try {
         return await channel.send(content);
     }
     catch (error) {
-        console.error(`Error trying to send message in channel ${channel.id}.`, error);
+        console.error(`Error trying to send message.`, error);
         return;
     }
 }
