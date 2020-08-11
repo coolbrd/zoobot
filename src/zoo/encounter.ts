@@ -1,15 +1,16 @@
-import { Guild, TextChannel, Message, APIMessage, MessageEmbed } from "discord.js";
+import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User } from "discord.js";
 
 import SpeciesModel from "../models/species";
-import { Document } from "mongoose";
 import { InteractiveMessage } from "../utility/interactiveMessage";
 import Species from "./species";
+import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
+import { client } from "..";
 
 export async function guildAnimalChance(guild: Guild) {
     // Generate a random real number to use in determining animal spawning
     const chance = Math.random();
     // 50% of all messages
-    if (chance <= 0.5) {
+    if (chance <= 1) {
         // Spawn an animal encounter
         return await spawnAnimal(guild);
     }
@@ -73,9 +74,14 @@ export class EncounterMessage extends InteractiveMessage {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
         const buttons = ["💥"];
-        const lifetime = 5000;
+        const lifetime = 60000;
 
-        const embed = new MessageEmbed({ title: `${species.scientificName} appeared!`});
+        const embed = new MessageEmbed();
+        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || "DEFAULT");
+        embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
+        embed.setDescription(species.scientificName);
+        embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
+        embed.setFooter("Wild encounter");
 
         const content = new APIMessage(channel, { embed: embed });
 
@@ -95,9 +101,22 @@ export class EncounterMessage extends InteractiveMessage {
         return interactiveMessage;
     }
 
-    async buttonPress(button: string) {
+    async buttonPress(button: string, user: User | PartialUser) {
         if (this.getButtons().includes(button)) {
             this.getMessage().channel.send(`You caught ${this.species.commonNames[0]}!`);
+        }
+    }
+
+    async deactivate() {
+        // Inherit parent deactivation behavior
+        super.deactivate();
+
+        try {
+            // Indicate that the encounter is over
+            await this.getMessage().edit("*(gone)*");
+        }
+        catch(error) {
+            console.error("Error trying to edit an interactive message.", error);
         }
     }
 }

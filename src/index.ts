@@ -7,7 +7,7 @@ import config from "./config/botConfig";
 import { InteractiveMessageHandler } from "./utility/interactiveMessage";
 
 // Create a new client for the bot to use
-const client = new Discord.Client();
+export const client = new Discord.Client();
 
 // Create a new commandhandler instance to parse incoming commands
 const commandHandler = new CommandHandler(config.prefix);

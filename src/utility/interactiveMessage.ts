@@ -128,11 +128,10 @@ export class InteractiveMessage {
     async deactivate() {
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
+
         try {
             // Remove all reactions on the message
             await this.message.reactions.removeAll();
-            // Indicate that the encounter is over
-            await this.message.edit("*(gone)*");
         }
         catch(error) {
             this.message.channel.send("Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.");
