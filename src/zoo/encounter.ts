@@ -16,7 +16,7 @@ export async function guildAnimalChance(guild: GuildResolvable) {
             // Spawn an animal encounter
             return await spawnAnimal(guild);
         }
-        catch(error) {
+        catch (error) {
             console.error("Error trying to spawn an animal in a guild.", error);
         }
     }
@@ -37,7 +37,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
             throw new Error("No valid text channel was found when attempting to retrieve the first one.");
         }
     }
-    catch(error) {
+    catch (error) {
         console.error(`Error trying to find the first text channel of a guild for encounter spawning.`, error);
         return;
     }
@@ -50,7 +50,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
             throw new Error("No document was returned when trying to select a random animal.");
         }
     }
-    catch(error) {
+    catch (error) {
         console.error(`Error trying to select a random species for a new encounter message.`, error);
         return;
     }
@@ -60,7 +60,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         // Convert the species document to a proper species (checks for errors and such)
         species = new Species(speciesDocument);
     }
-    catch(error) {
+    catch (error) {
         console.error(`Error trying to convert a species document to a species instance.`, error);
         return;
     }
@@ -69,7 +69,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         // Send an encounter message to the channel
         await EncounterMessage.init(channel, species);
     }
-    catch(error) {
+    catch (error) {
         console.error(`Error initializing a new encounter message.`, error);
         return;
     }
@@ -108,7 +108,7 @@ export class EncounterMessage extends InteractiveMessage {
             // Attempt to send the base message for this encounter
             message = await this.build(content, channel, buttons) as Message;
         }
-        catch(error) {
+        catch (error) {
             console.error(`Error building the base message for an interactive message.`, error);
             return;
         }
@@ -133,7 +133,7 @@ export class EncounterMessage extends InteractiveMessage {
             // Indicate that the encounter is over
             await this.getMessage().edit(`*(gone)*`);
         }
-        catch(error) {
+        catch (error) {
             console.error(`Error trying to edit an interactive message.`, error);
         }
     }

@@ -50,7 +50,7 @@ export default class CommandHandler {
                 // Possibly spawn an animal in the guild
                 await guildAnimalChance(sourceGuild);
             }
-            catch(error) {
+            catch (error) {
                 console.error(`Error while attempting to spawn an animal.`, error);
             }
         }
@@ -68,7 +68,7 @@ export default class CommandHandler {
                 try {
                     await message.reply(`I don't recognize that command. Try ${this.prefix}help.`);
                 }
-                catch(error) {
+                catch (error) {
                     console.error(`Error sending message.`, error);
                 }
             }
@@ -78,7 +78,7 @@ export default class CommandHandler {
                 try {
                     await matchedCommand.run(commandParser);
                 }
-                catch(error) {
+                catch (error) {
                     message.reply(`"${this.echoMessage(message)}" failed because of ${error}`);
                 }
             }

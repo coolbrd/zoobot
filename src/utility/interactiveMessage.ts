@@ -23,7 +23,7 @@ export class InteractiveMessageHandler {
                 // Activate the message's button that corresponds to the emoji reacted with
                 await interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
             }
-            catch(error) {
+            catch (error) {
                 console.error(`Error activating an interactive message's button.`, error);
             }
         }
@@ -58,7 +58,7 @@ export class InteractiveMessage {
             try {
                 this.deactivate();
             }
-            catch(error) {
+            catch (error) {
                 console.error(`Error trying to deactivate an interactive message.`, error);
             }
         }, lifetime);
@@ -80,7 +80,7 @@ export class InteractiveMessage {
         try {
             message = await this.build(content, channel, buttons) as Message;
         }
-        catch(error) {
+        catch (error) {
             console.error(`Error trying to build the base message for an interactive message.`, error);
             return;
         }
@@ -99,7 +99,7 @@ export class InteractiveMessage {
             // Attempt to send the base message for this encounter
             message = await channel.send(content);
         }
-        catch(error) {
+        catch (error) {
             console.error(`Error sending the base message for an interactive message.`, error);
             return;
         }
@@ -110,7 +110,7 @@ export class InteractiveMessage {
                 // Add a reaction for every button
                 await message.react(emoji);
             }
-            catch(error) {
+            catch (error) {
                 console.error(`Error trying to add reactions to an interactive message.`, error);
             }
         }
@@ -133,7 +133,7 @@ export class InteractiveMessage {
             // Remove all reactions on the message
             await this.message.reactions.removeAll();
         }
-        catch(error) {
+        catch (error) {
             this.message.channel.send(`Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.`);
             console.error(`Error trying to remove all reactions from an interactive message.`, error);
         }

@@ -26,7 +26,7 @@ export async function betterSend(channel: TextChannel, content: string) {
     try {
         return await channel.send(content);
     }
-    catch(error) {
+    catch (error) {
         console.error(`Error trying to send message in channel ${channel.id}.`, error);
         return;
     }

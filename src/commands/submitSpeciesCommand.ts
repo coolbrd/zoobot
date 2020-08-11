@@ -96,7 +96,7 @@ export class SubmitSpeciesCommand implements Command {
                 Submission process initiated. You will have 60 seconds to respond to each individual prompt. Pre-writing these answers in another document and copying them over is highly recommended.
             `);
         }
-        catch(error) {
+        catch (error) {
             console.error(`Error trying to send a message during initiation of species submission process.`, error);
             return;
         }
@@ -118,7 +118,7 @@ export class SubmitSpeciesCommand implements Command {
                     ${field.info}:
                 `);
             }
-            catch(error) {
+            catch (error) {
                 console.error(`Error trying to send a DM message during animal submission.`, error);
                 return;
             }
@@ -128,7 +128,7 @@ export class SubmitSpeciesCommand implements Command {
                     try {
                         await channel.send(`Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
                     }
-                    catch(error) {
+                    catch (error) {
                         console.error(`Error trying to send a DM message during animal submission.`, error);
                         return;
                     }
@@ -142,7 +142,7 @@ export class SubmitSpeciesCommand implements Command {
                     try {
                         await channel.send(`Time limit expired, submission aborted.`);
                     }
-                    catch(error) {
+                    catch (error) {
                         console.error(`Error trying to send a message after no messages were collected for a submission command.`, error);
                     }
                     return;
