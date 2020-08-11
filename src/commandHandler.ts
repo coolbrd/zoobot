@@ -1,4 +1,4 @@
-import { Message, MessageReaction, User, PartialUser } from 'discord.js';
+import { Message } from 'discord.js';
 import { GreetCommand, TimeCommand } from './commands';
 import Command from './commands/commandInterface';
 import CommandParser from './utility/commandParser';
@@ -80,7 +80,7 @@ export default class CommandHandler {
                     await matchedCommand.run(commandParser);
                 }
                 catch(error) {
-                    message.reply(`'${this.echoMessage(message)}' failed because of ${error}`);
+                    message.reply(`"${this.echoMessage(message)}" failed because of ${error}`);
                 }
             }
         }
