@@ -1,4 +1,4 @@
-import { UserResolvable, GuildResolvable } from 'discord.js';
+import { UserResolvable, GuildResolvable, ChannelResolvable, TextChannel } from 'discord.js';
 import { client } from '..';
 
 // Does pretty much what you'd expect it to
@@ -19,4 +19,15 @@ export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildRe
     }
 
     return guildMember.displayColor;
+}
+
+// Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
+export async function betterSend(channel: TextChannel, content: string) {
+    try {
+        return await channel.send(content);
+    }
+    catch(error) {
+        console.error(`Error trying to send message in channel ${channel.id}.`, error);
+        return;
+    }
 }
