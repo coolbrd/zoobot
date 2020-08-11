@@ -1,8 +1,8 @@
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { Message, MessageReaction, User } from 'discord.js';
+import { Message } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { capitalizeFirstLetter } from '../utility/toolbox';
+import { capitalizeFirstLetter, pressAndGo } from '../utility/toolbox';
 
 const speciesSubmission = {
     commonNames: {
@@ -41,25 +41,6 @@ const speciesSubmission = {
         prompt: `Wikipedia page`,
         info: `Enter the link for the animal's species' Wikipedia page`
     }
-}
-
-async function pressAndGo(message: Message, timeOut: number, emojiString: string) {
-    await message.react('👍');
-
-    const reactionCollectorFilter = (reaction: MessageReaction, user: User) => {
-        return !user.bot && reaction.emoji.name === emojiString;
-    };
-    const reactionCollectorOptions = { max: 1, time: timeOut, errors: ['time'] };
-
-    let collectedReactions;
-    try {
-        collectedReactions = await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
-    }
-    catch {
-        return false;
-    }
-
-    return true;
 }
 
 export class SubmitSpeciesCommand implements Command {
