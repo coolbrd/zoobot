@@ -40,7 +40,7 @@ client.on(`ready`, () => {
 client.on(`message`, (message: Message) => {
     // If the bot is not yet ready to receive input
     if (!readyForInput) {
-        // Don`t do anything with the message
+        // Don't do anything with the message
         return;
     }
 
@@ -50,13 +50,13 @@ client.on(`message`, (message: Message) => {
 
 // When the bot observes a user adding a reaction to a message
 client.on(`messageReactionAdd`, (messageReaction, user) => {
-    // Handle the user`s reaction
+    // Handle the user's reaction
     InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
 // When the bot observes a user removing a reaction from a message
 client.on(`messageReactionRemove`, (messageReaction, user) => {
-    // Handle the user`s reaction
+    // Handle the user's reaction
     InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
