@@ -1,4 +1,5 @@
 export default class Species {
+    readonly _id: string;
     readonly commonNames: string[];
     readonly images: string[];
     readonly scientificName: string;
@@ -10,7 +11,8 @@ export default class Species {
     readonly tags: string[];
     readonly item: string;
 
-    constructor(species: any) {
+    private constructor(species: Species) {
+        this._id = species[`_id`];
         this.commonNames = species[`commonNames`];
         this.images = species[`images`];
         this.scientificName = species[`scientificName`];
@@ -21,13 +23,13 @@ export default class Species {
         this.wikiPage = species[`wikiPage`];
         this.tags = species[`tags`];
         this.item = species[`item`];
+    }
 
+    // Verify that all fields within the species are filled
+    ensureFields(): void {
         // Iterate over every newly assigned value in this species
-        Object.values(this).forEach(propertyValue => {
-            // If any properties are undefined
-            if (propertyValue == undefined) {
-                throw new Error(`One or more necessary properties missing from species document of id ${species[`_id`]}.`);
-            }
-        });
+        if (Object.values(this).includes(undefined)) {
+            throw new Error(`One or more necessary properties missing from species document.`);
+        }
     }
 }

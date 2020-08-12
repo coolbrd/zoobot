@@ -1,4 +1,4 @@
-import { Guild, TextChannel, Message, APIMessage, MessageEmbed, PartialUser, User, GuildResolvable } from 'discord.js';
+import { TextChannel, Message, APIMessage, MessageEmbed, User, GuildResolvable } from 'discord.js';
 
 import SpeciesModel from '../models/species';
 import { InteractiveMessage } from '../utility/interactiveMessage';
@@ -7,14 +7,14 @@ import { capitalizeFirstLetter, getGuildUserDisplayColor } from '../utility/tool
 import { client } from '..';
 
 // Performs a chance to spawn an animal encounter in a guild
-export async function guildAnimalChance(guild: GuildResolvable) {
+export async function guildAnimalChance(guild: GuildResolvable): Promise<void> {
     // Generate a random real number to use in determining animal spawning
     const chance = Math.random();
     // 10% of all messages (for testing purposes)
     if (chance <= 0.1) {
         try {
             // Spawn an animal encounter
-            return await spawnAnimal(guild);
+            await spawnAnimal(guild);
         }
         catch (error) {
             console.error("Error trying to spawn an animal in a guild.", error);
@@ -42,11 +42,11 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         return;
     }
     
-    let speciesDocument: any;
+    let species: Species;
     try {
         // Get a random species from all animals
-        speciesDocument = (await SpeciesModel.aggregate().sample(1).exec())[0];
-        if (!speciesDocument) {
+        species = (await SpeciesModel.aggregate().sample(1).exec())[0];
+        if (!species) {
             throw new Error("No document was returned when trying to select a random animal.");
         }
     }
@@ -55,15 +55,15 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         return;
     }
 
-    let species: Species;
     try {
-        // Convert the species document to a proper species (checks for errors and such)
-        species = new Species(speciesDocument);
+        // Make sure the species has all required fields
+        species.ensureFields();
     }
     catch (error) {
-        console.error(`Error trying to convert a species document to a species instance.`, error);
+        console.error(`Species of id ${species[`_id`]} missing one or more required properties.`, error);
         return;
     }
+    // If we're down here it means the species has everything it needs
 
     try {
         // Send an encounter message to the channel
@@ -87,7 +87,7 @@ export class EncounterMessage extends InteractiveMessage {
     }
 
     // Asynchronous initializer for this encounter message. To be called instead of the constructor.
-    static async init(channel: TextChannel, species: Species) {
+    static async init(channel: TextChannel, species: Species): Promise<EncounterMessage | undefined> {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
         const buttons = [`💥`];
@@ -119,13 +119,13 @@ export class EncounterMessage extends InteractiveMessage {
         return interactiveMessage;
     }
 
-    async buttonPress(button: string, user: User) {
+    async buttonPress(button: string, user: User): Promise<void> {
         if (this.getButtons().includes(button)) {
-            this.getMessage().channel.send(`You caught ${this.species.commonNames[0]}!`);
+            this.getMessage().channel.send(`${user.tag}, You caught ${this.species.commonNames[0]}!`);
         }
     }
 
-    async deactivate() {
+    async deactivate(): Promise<void> {
         // Inherit parent deactivation behavior
         super.deactivate();
 

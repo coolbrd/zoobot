@@ -1,4 +1,5 @@
-import { Message, ReactionUserManager } from 'discord.js';
+import { Message } from 'discord.js';
+
 import Command from './commands/commandInterface';
 import CommandParser from './utility/commandParser';
 import { guildAnimalChance } from './zoo/encounter';

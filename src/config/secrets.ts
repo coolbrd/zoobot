@@ -1,7 +1,3 @@
-// The module responsible for loading all client secrets from environment variables
-// Environment variables are loaded via the .env file in the root folder
-
-// The module responsible for loading environment variables from a .env file
 import dotenv from 'dotenv';
 
 // Instruct dotenv to load variables from the .env file into the environment

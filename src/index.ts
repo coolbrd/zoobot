@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Discord, { Message, MessageReaction, PartialUser, User } from 'discord.js';
+import Discord, { Message } from 'discord.js';
 
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import CommandHandler from './commandHandler';

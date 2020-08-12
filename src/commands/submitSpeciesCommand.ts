@@ -1,7 +1,8 @@
-import Command from './commandInterface';
-import CommandParser from '../utility/commandParser';
 import { Message, DMChannel, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
+
+import Command from './commandInterface';
+import CommandParser from '../utility/commandParser';
 import { capitalizeFirstLetter, pressAndGo, betterSend } from '../utility/toolbox';
 
 // Species submission command information for each stage of the process
@@ -52,9 +53,9 @@ export class SubmitSpeciesCommand implements Command {
         return `Use ${commandPrefix}submit to begin the species submission process. Only usable in DMs.`;
     }
 
-    async run(parsedUserCommand: CommandParser) {
+    async run(parsedUserCommand: CommandParser): Promise<void> {
         // Cast the channel as a DMChannel or a TextChannel because that's what it is
-        let channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
+        const channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
 
         // If the message was sent in a guild channel and they don't know how much spam it would create
         if (channel.type === "text") {
@@ -109,6 +110,7 @@ export class SubmitSpeciesCommand implements Command {
         // Options that force the collector to finish after one message, or 60 seconds
         const messageCollectorOptions = { max: 1, time: 60000, errors: [`time`] };
 
+        const responses: string[][] = [];
         let fieldCounter = 0;
         // Iterate over every field in the submission template object
         // I'm not sure if for await is necessary or even appropriate here, but I typically just add async to anything and everything
@@ -116,8 +118,11 @@ export class SubmitSpeciesCommand implements Command {
         for await (const field of Object.values(speciesSubmission)) {
             fieldCounter++;
 
+            // Slap an empty array into the current position
+            responses.push([]);
+
             // The current list of entries given by the user for the current field. Single-response fields will just be an array with one element in them.
-            let currentEntry: string[] = [];
+            const currentEntry: string[] = [];
 
             // Prompt the user for the current field
             const promptMessage = await betterSend(channel, stripIndents`
@@ -131,7 +136,8 @@ export class SubmitSpeciesCommand implements Command {
             }
 
             // Loop until forever comes
-            while (true) {
+            // This is a wacky loop that ESLint insisted I use instead of while (true). Like it?
+            for (;;) {
                 // If this isn't the loop's first rodeo and we're not on the first entry of a multiple-response field anymore
                 if (currentEntry.length > 0) {
                     // Let the user know that this is another entry for the same field
@@ -205,6 +211,9 @@ export class SubmitSpeciesCommand implements Command {
                     break;
                 }
             }
+
+            // After input is all good and done, slot the (potentially empty) user response array into the composite array
+            responses[fieldCounter] = currentEntry;
         }
     }
 }

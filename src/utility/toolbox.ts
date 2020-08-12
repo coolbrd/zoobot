@@ -1,13 +1,14 @@
 import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage } from 'discord.js';
+
 import { client } from '..';
 
 // Does pretty much what you'd expect it to
-export function capitalizeFirstLetter(string: string) {
+export function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // Gets a user's display color in a given guild
-export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildResolvable: GuildResolvable) {
+export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildResolvable: GuildResolvable): number {
     const guild = client.guilds.resolve(guildResolvable);
     if (!guild) {
         throw new Error(`Attempted to get the display color of a user from a guild that could not be resolved.`);
@@ -23,7 +24,7 @@ export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildRe
 
 // Adds a reaction to a message and waits for a user to press the reaction.
 //Returns true if the button was pressed, and false if the timeout limit is reached.
-export async function pressAndGo(message: Message, timeOut: number, emojiString: string) {
+export async function pressAndGo(message: Message, timeOut: number, emojiString: string): Promise<boolean> {
     await message.react(emojiString);
 
     // The filter used to determine a valid button press
@@ -34,9 +35,8 @@ export async function pressAndGo(message: Message, timeOut: number, emojiString:
     const reactionCollectorOptions = { max: 1, time: timeOut, errors: ['time'] };
 
     // Wait for someone to react to the message
-    let collectedReactions;
     try {
-        collectedReactions = await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
+        await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
     }
     // If the timer expires before anybody reacts
     catch {
@@ -48,7 +48,7 @@ export async function pressAndGo(message: Message, timeOut: number, emojiString:
 }
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
-export async function betterSend(channel: TextChannel | DMChannel | User, content: string | APIMessage) {
+export async function betterSend(channel: TextChannel | DMChannel | User, content: string | APIMessage): Promise<Message | undefined> {
     try {
         return await channel.send(content);
     }

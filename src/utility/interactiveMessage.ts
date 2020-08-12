@@ -5,7 +5,7 @@ export class InteractiveMessageHandler {
     private static readonly messages = new Map<string, InteractiveMessage>();
 
     // Takes a user's message reaction and potentially activates an interactive message
-    static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser) {
+    static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<undefined> {
         // If the user who reacted to something is a bot, or not a complete user instance
         if (user.bot || !(user instanceof User)) {
             // Ignore the reaction entirely
@@ -30,12 +30,12 @@ export class InteractiveMessageHandler {
     }
 
     // Adds an existing interactive message to the global collection of them
-    static addMessage(message: InteractiveMessage) {
+    static addMessage(message: InteractiveMessage): void {
         this.messages.set(message.getMessage().id, message);
     }
 
     // Removes an interactive message from the global collection
-    static removeMessage(message: InteractiveMessage) {
+    static removeMessage(message: InteractiveMessage): void {
         this.messages.delete(message.getMessage().id);
     }
 }
@@ -67,9 +67,9 @@ export class InteractiveMessage {
         InteractiveMessageHandler.addMessage(this);
     }
 
-    getButtons() { return this.buttons; }
+    getButtons(): string[] { return this.buttons; }
 
-    getMessage() { return this.message; }
+    getMessage(): Message { return this.message; }
 
     // This class is missing a static init method, which would normally initialize the asynchronous building process and return a completed interactive message.
     // The implementation of the init method is left up to child classes, which might have different parameters and default values for initialization.
@@ -93,7 +93,7 @@ export class InteractiveMessage {
     // It should be noted that in subclass implementations of the init method, the constructor of the subclass should be called rather than that of InteractiveMessage.
 
     // Builder method for initializing an interactive message
-    protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]) {
+    protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]): Promise<Message | undefined> {
         let message: Message;
         try {
             // Attempt to send the base message for this encounter
@@ -105,7 +105,7 @@ export class InteractiveMessage {
         }
 
         // Iterate over every button's emoji
-        for (let emoji of buttons) {
+        for (const emoji of buttons) {
             try {
                 // Add a reaction for every button
                 await message.react(emoji);
@@ -120,12 +120,12 @@ export class InteractiveMessage {
     }
 
     // Activates a button on this message. This does nothing because it's meant to be overridden.
-    async buttonPress(button: string, user: User | PartialUser) {
-        throw new Error(`A basic interactive button object received a button press. This was probably a mistake.`);
+    async buttonPress(button: string, user: User | PartialUser): Promise<void> {
+        throw new Error(`A basic interactive button object received a button press. This was probably a mistake. ${button} was pressed by ${user.id}`);
     }
 
     // Deactivates the interactive message, freeing up space in the global list
-    async deactivate() {
+    async deactivate(): Promise<void> {
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
 
