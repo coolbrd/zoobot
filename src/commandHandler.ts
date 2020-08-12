@@ -4,6 +4,7 @@ import Command from './commands/commandInterface';
 import CommandParser from './utility/commandParser';
 import { guildAnimalChance } from './zoo/encounter';
 import { SubmitSpeciesCommand } from './commands/submitSpeciesCommand';
+import { betterSend } from './utility/toolbox';
 
 // The class responsible for parsing and executing commands
 // Will be the default item imported from this module within other modules
@@ -66,11 +67,10 @@ export default class CommandHandler {
 
             // If no matching command was found
             if (!matchedCommand) {
-                try {
-                    await message.reply(`I don't recognize that command. Try ${this.prefix}help.`);
-                }
-                catch (error) {
-                    console.error(`Error sending message.`, error);
+                const unknownCommandMessage = await betterSend(commandParser.originalMessage.channel, `I don't recognize that command. Try ${this.prefix}help.`);
+
+                if (!unknownCommandMessage) {
+                    console.error(`Error sending unknown command message.`);
                 }
             }
             // If a matching command was found

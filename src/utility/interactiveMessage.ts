@@ -1,4 +1,5 @@
 import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage } from 'discord.js';
+import { betterSend } from './toolbox';
 
 export class InteractiveMessageHandler {
     // The shared list of every active interactive message to handle
@@ -94,13 +95,10 @@ export class InteractiveMessage {
 
     // Builder method for initializing an interactive message
     protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]): Promise<Message | undefined> {
-        let message: Message;
-        try {
-            // Attempt to send the base message for this encounter
-            message = await channel.send(content);
-        }
-        catch (error) {
-            console.error(`Error sending the base message for an interactive message.`, error);
+        const message = await betterSend(channel, content);
+
+        if (!message) {
+            console.error(`Error sending the base message for an interactive message.`);
             return;
         }
 
@@ -134,7 +132,13 @@ export class InteractiveMessage {
             await this.message.reactions.removeAll();
         }
         catch (error) {
-            this.message.channel.send(`Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.`);
+            const missingPermsMessage = await betterSend(this.message.channel, `Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.`);
+            
+            if (!missingPermsMessage) {
+                console.error(`Error trying to send missing permissions to react message.`);
+                return
+            }
+
             console.error(`Error trying to remove all reactions from an interactive message.`, error);
         }
     }

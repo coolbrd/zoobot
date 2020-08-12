@@ -3,7 +3,7 @@ import { TextChannel, Message, APIMessage, MessageEmbed, User, GuildResolvable }
 import SpeciesModel from '../models/species';
 import { InteractiveMessage } from '../utility/interactiveMessage';
 import Species from './species';
-import { capitalizeFirstLetter, getGuildUserDisplayColor } from '../utility/toolbox';
+import { capitalizeFirstLetter, getGuildUserDisplayColor, betterSend } from '../utility/toolbox';
 import { client } from '..';
 
 // Performs a chance to spawn an animal encounter in a guild
@@ -121,7 +121,11 @@ export class EncounterMessage extends InteractiveMessage {
 
     async buttonPress(button: string, user: User): Promise<void> {
         if (this.getButtons().includes(button)) {
-            this.getMessage().channel.send(`${user.tag}, You caught ${this.species.commonNames[0]}!`);
+            const encounterCatchMessage = await betterSend(this.getMessage().channel, `${user.tag}, You caught ${this.species.commonNames[0]}!`);
+
+            if (!encounterCatchMessage) {
+                console.error(`Error trying to send a message after an encounter message was reacted to.`);
+            }
         }
     }
 
