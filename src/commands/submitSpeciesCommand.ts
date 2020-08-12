@@ -91,16 +91,21 @@ export class SubmitSpeciesCommand implements Command {
         // This is necessary for reasons other than making the user feel dumb I promise
         if (!(await pressAndGo(initialMessage, 60000, '👍'))) {
             // If we're in here, the button didn't get pressed
-            await channel.send(`Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
+            await betterSend(channel, `Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
             return;
         }
         // If we're out here that means the button was pressed. They did good.
         
         // Tell the user that the big scary submission process has started
-        await betterSend(channel, stripIndents`
+        const submissionBeginMessage = await betterSend(channel, stripIndents`
             Submission process initiated. You will have 60 seconds to respond to each individual prompt.
             Pre-writing these answers in another document and copying them over is highly recommended.
         `);
+
+        if (!submissionBeginMessage) {
+            console.error(`Error trying to send the species submission initiation message in a DM channel.`);
+            return;
+        }
 
         // The filter that'll be used to select response messages
         // This could technically just return true because we want the first message from the user, but being sure won't hurt.
