@@ -1,4 +1,4 @@
-import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel } from 'discord.js';
+import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage } from 'discord.js';
 import { client } from '..';
 
 // Does pretty much what you'd expect it to
@@ -48,7 +48,7 @@ export async function pressAndGo(message: Message, timeOut: number, emojiString:
 }
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
-export async function betterSend(channel: TextChannel | DMChannel | User, content: string) {
+export async function betterSend(channel: TextChannel | DMChannel | User, content: string | APIMessage) {
     try {
         return await channel.send(content);
     }
