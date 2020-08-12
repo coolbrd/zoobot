@@ -1,8 +1,8 @@
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { Message } from 'discord.js';
+import { Message, DMChannel, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { capitalizeFirstLetter, pressAndGo } from '../utility/toolbox';
+import { capitalizeFirstLetter, pressAndGo, betterSend } from '../utility/toolbox';
 
 const speciesSubmission = {
     commonNames: {
@@ -51,10 +51,16 @@ export class SubmitSpeciesCommand implements Command {
     }
 
     async run(parsedUserCommand: CommandParser) {
-        const channel = parsedUserCommand.originalMessage.channel;
+        let channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
 
-        const initialMessage = await channel.send(stripIndents`
-            You are about to begin the process of submitting a new animal species to The Beastiary.
+        if (channel.type === "text") {
+            await betterSend(parsedUserCommand.originalMessage.author, `The submit command can get big. Use it in here and we can get started without annoying anybody.`);
+            await betterSend(channel, `For cleanliness, the animal submission process is only done via direct messages. I've opened a chat with you so we can do this privately. ;)`);
+            return;
+        }
+
+        const initialMessage = await betterSend(channel, stripIndents`
+            You're about to begin the process of submitting a new animal species to The Beastiary.
             Please read over the following fields and prepare your submissions for them in advance.
             
             1) Common name(s): The names used to refer to the animal in everyday speech. E.g. "raven", "bottlenose dolphin". **At least one is required.**
@@ -67,20 +73,19 @@ export class SubmitSpeciesCommand implements Command {
             Press the reaction button to initiate the submission process when you're ready.
         `);
 
+        if (!initialMessage) {
+            return;
+        }
+
         if (!(await pressAndGo(initialMessage, 60000, '👍'))) {
             await channel.send(`Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
             return;
         }
 
-        try {
-            await channel.send(stripIndents`
-                Submission process initiated. You will have 60 seconds to respond to each individual prompt. Pre-writing these answers in another document and copying them over is highly recommended.
-            `);
-        }
-        catch (error) {
-            console.error(`Error trying to send a message during initiation of species submission process.`, error);
-            return;
-        }
+        await betterSend(channel, stripIndents`
+            Submission process initiated. You will have 60 seconds to respond to each individual prompt.
+            Pre-writing these answers in another document and copying them over is highly recommended.
+        `);
 
         const messageCollectorFilter = (response: Message) => {
             return response.author === parsedUserCommand.originalMessage.author;
@@ -93,24 +98,20 @@ export class SubmitSpeciesCommand implements Command {
 
             let currentEntry: string[] = [];
 
-            try {
-                await channel.send(stripIndents`
-                    Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}**:
-                    ${field.info}:
-                `);
-            }
-            catch (error) {
-                console.error(`Error trying to send a DM message during animal submission.`, error);
+            const promptMessage = await betterSend(channel, stripIndents`
+                Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}**:
+                ${field.info}:
+            `);
+
+            if (!promptMessage) {
                 return;
             }
 
             while (true) {
                 if (currentEntry.length > 0) {
-                    try {
-                        await channel.send(`Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
-                    }
-                    catch (error) {
-                        console.error(`Error trying to send a DM message during animal submission.`, error);
+                    const nextEntryMessage = await betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
+
+                    if (!nextEntryMessage) {
                         return;
                     }
                 }
@@ -120,13 +121,11 @@ export class SubmitSpeciesCommand implements Command {
                     userResponse = await channel.awaitMessages(messageCollectorFilter, messageCollectorOptions);
                 }
                 catch {
-                    try {
-                        await channel.send(`Time limit expired, submission aborted.`);
+                    const timeLimitMessage = await betterSend(channel, `Time limit expired, submission aborted.`);
+
+                    if (!timeLimitMessage) {
+                        return;
                     }
-                    catch (error) {
-                        console.error(`Error trying to send a message after no messages were collected for a submission command.`, error);
-                    }
-                    return;
                 }
 
                 if (!userResponse) {
