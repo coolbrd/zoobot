@@ -43,7 +43,7 @@ const speciesSubmission = {
         prompt: `Wikipedia page`,
         info: `Enter the link for the animal's species' Wikipedia page`
     }
-}
+};
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {

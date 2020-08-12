@@ -136,7 +136,7 @@ export class InteractiveMessage {
             
             if (!missingPermsMessage) {
                 console.error(`Error trying to send missing permissions to react message.`);
-                return
+                return;
             }
 
             console.error(`Error trying to remove all reactions from an interactive message.`, error);
