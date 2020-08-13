@@ -44,8 +44,8 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
     
     let species: Species;
     try {
-        // Get a random species from all animals
-        species = (await SpeciesModel.aggregate().sample(1).exec())[0];
+        // Get a random species from all animals and convert it to a proper species instance
+        species = new Species((await SpeciesModel.aggregate().sample(1).exec())[0]);
         if (!species) {
             throw new Error("No document was returned when trying to select a random animal.");
         }
@@ -121,7 +121,7 @@ export class EncounterMessage extends InteractiveMessage {
 
     async buttonPress(button: string, user: User): Promise<void> {
         if (this.getButtons().includes(button)) {
-            const encounterCatchMessage = await betterSend(this.getMessage().channel, `${user.tag}, You caught ${this.species.commonNames[0]}!`);
+            const encounterCatchMessage = await betterSend(this.getMessage().channel, `@${user.tag}, You caught ${this.species.commonNames[0]}!`);
 
             if (!encounterCatchMessage) {
                 console.error(`Error trying to send a message after an encounter message was reacted to.`);

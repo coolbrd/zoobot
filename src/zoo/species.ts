@@ -11,7 +11,7 @@ export default class Species {
     readonly tags: string[];
     readonly item: string;
 
-    private constructor(species: Species) {
+    constructor(species: Species) {
         this._id = species[`_id`];
         this.commonNames = species[`commonNames`];
         this.images = species[`images`];
