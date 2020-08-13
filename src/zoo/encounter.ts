@@ -14,7 +14,7 @@ export async function guildAnimalChance(guild: GuildResolvable): Promise<void> {
     if (chance <= 0.1) {
         try {
             // Spawn an animal encounter
-            await spawnAnimal(guild);
+            spawnAnimal(guild);
         }
         catch (error) {
             console.error("Error trying to spawn an animal in a guild.", error);
@@ -121,11 +121,7 @@ export class EncounterMessage extends InteractiveMessage {
 
     async buttonPress(button: string, user: User): Promise<void> {
         if (this.getButtons().includes(button)) {
-            const encounterCatchMessage = await betterSend(this.getMessage().channel, `@${user.tag}, You caught ${this.species.commonNames[0]}!`);
-
-            if (!encounterCatchMessage) {
-                console.error(`Error trying to send a message after an encounter message was reacted to.`);
-            }
+            betterSend(this.getMessage().channel, `${user}, You caught ${this.species.commonNames[0]}!`);
         }
     }
 
@@ -135,7 +131,7 @@ export class EncounterMessage extends InteractiveMessage {
 
         try {
             // Indicate that the encounter is over
-            await this.getMessage().edit(`*(gone)*`);
+            this.getMessage().edit(`*(gone)*`);
         }
         catch (error) {
             console.error(`Error trying to edit an interactive message.`, error);
