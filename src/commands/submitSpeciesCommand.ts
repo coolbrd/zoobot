@@ -1,9 +1,9 @@
-import { Message, DMChannel, TextChannel } from 'discord.js';
+import { DMChannel, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { capitalizeFirstLetter, pressAndGo, betterSend } from '../utility/toolbox';
+import { capitalizeFirstLetter, pressAndGo, betterSend, awaitUserNextMessage } from '../utility/toolbox';
 
 // Species submission command information for each stage of the process
 const speciesSubmission = {
@@ -107,14 +107,6 @@ export class SubmitSpeciesCommand implements Command {
             return;
         }
 
-        // The filter that'll be used to select response messages
-        // This could technically just return true because we want the first message from the user, but being sure won't hurt.
-        const messageCollectorFilter = (response: Message) => {
-            return response.author === parsedUserCommand.originalMessage.author;
-        };
-        // Options that force the collector to finish after one message, or 60 seconds
-        const messageCollectorOptions = { max: 1, time: 60000, errors: [`time`] };
-
         const responses: string[][] = [];
         let fieldCounter = 0;
         // Iterate over every field in the submission template object
@@ -154,14 +146,11 @@ export class SubmitSpeciesCommand implements Command {
                     }
                 }
                 
-                // Initialize the user's response up here because I have to
-                let userResponse;
-                try {
-                    // Wait for the user to respond to the given field's prompt
-                    userResponse = await channel.awaitMessages(messageCollectorFilter, messageCollectorOptions);
-                }
-                // If we enter this that means the user didn't provide an answer
-                catch {
+                // Get the next message the user sends within 60 seconds
+                const responseMessage = await awaitUserNextMessage(channel, channel.recipient, 60000);
+
+                // If the user didn't provide a response
+                if (!responseMessage) {
                     // Time's up bucko
                     const timeLimitMessage = await betterSend(channel, `Time limit expired, submission aborted.`);
 
@@ -169,22 +158,12 @@ export class SubmitSpeciesCommand implements Command {
                     if (!timeLimitMessage) {
                         throw new Error(`Unable to send the time limit expiration message to a user through DMs.`);
                     }
-                }
-                // If we're out here that means the user responded to the prompt
-                
-                // If somehow the awaitMessages function collected a message but returned nothing, throw an even weirder error
-                if (!userResponse) {
-                    throw new Error(`User response object returned from message collector is undefined???`);
+
+                    // Don't perform the rest of the operation
+                    return;
                 }
 
-                // Get the first message in a collection of the single message that the message collector returned
-                const responseMessage = userResponse.first();
-                // If somehow THIS is undefined...
-                if (!responseMessage) {
-                    throw new Error(`Message collector came back empty.`);
-                }
-
-                // Extract the user's response
+                // The actual string data of the user's response
                 const response = responseMessage.content;
 
                 // If the user in fact didn't want to respond, and would rather skip to the next field
@@ -208,7 +187,7 @@ export class SubmitSpeciesCommand implements Command {
                 }
 
                 // Add the user's most recently submitted content to this field
-                currentEntry.push(responseMessage.content);
+                currentEntry.push(response);
 
                 // If this field only requires one response
                 if (!field.multiple) {
