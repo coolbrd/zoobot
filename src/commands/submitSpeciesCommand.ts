@@ -24,8 +24,8 @@ export class SubmitSpeciesCommand implements Command {
         // If the message was sent in a guild channel and they don't know how much spam it would create
         if (channel.type === "text") {
             // Kindly inform the user of their misjudgement and open a DM chat with them to talk it out
-            await betterSend(parsedUserCommand.originalMessage.author, `The submit command can get big. Use it in here and we can get started without annoying anybody.`);
-            await betterSend(channel, `For cleanliness, the animal submission process is only done via direct messages. I've opened a chat with you so we can do this privately. ;)`);
+            betterSend(parsedUserCommand.originalMessage.author, `The submit command can get big. Use it in here and we can get started without annoying anybody.`);
+            betterSend(channel, `For cleanliness, the animal submission process is only done via direct messages. I've opened a chat with you so we can do this privately. ;)`);
             // Don't continue with the command and force them to initiate it again but in DMs. Might change but whatever
             return;
         }
@@ -56,13 +56,13 @@ export class SubmitSpeciesCommand implements Command {
         // This is necessary for reasons other than making the user feel dumb I promise
         if (!(await reactionInput(initialMessage, 60000, [`✅`]))) {
             // If we're in here, the button didn't get pressed
-            await betterSend(channel, `Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
+            betterSend(channel, `Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
             return;
         }
         // If we're out here that means the button was pressed. They did good.
         
         // Tell the user that the big scary submission process has started
-        await betterSend(channel, stripIndents`
+        betterSend(channel, stripIndents`
             Submission process initiated. You will have 60 seconds to respond to each individual prompt.
             Pre-writing these answers in another document and copying them over is highly recommended.
         `);
@@ -79,7 +79,7 @@ export class SubmitSpeciesCommand implements Command {
             const currentEntry: string[] = [];
 
             // Prompt the user for the current field
-            await betterSend(channel, stripIndents`
+            betterSend(channel, stripIndents`
                 Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}**:
                 ${field.info}:
             `);
@@ -90,7 +90,7 @@ export class SubmitSpeciesCommand implements Command {
                 // If this isn't the loop's first rodeo and we're not on the first entry of a multiple-response field anymore
                 if (currentEntry.length > 0) {
                     // Let the user know that this is another entry for the same field
-                    await betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
+                    betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
                 }
                 
                 // Get the next message the user sends within 60 seconds
@@ -99,8 +99,7 @@ export class SubmitSpeciesCommand implements Command {
                 // If the user didn't provide a response
                 if (!responseMessage) {
                     // Time's up bucko
-                    await betterSend(channel, `Time limit expired, submission aborted.`);
-
+                    betterSend(channel, `Time limit expired, submission aborted.`);
                     // Don't perform the rest of the operation
                     return;
                 }
@@ -114,7 +113,6 @@ export class SubmitSpeciesCommand implements Command {
                     if (field.required && currentEntry.length < 1) {
                         // Tell the user they're being very naughty
                         await betterSend(channel, `This field is required. You must input something at least once, try again.`);
-
                         // Repeat the loop and wait for a better response
                         continue;
                     }
@@ -184,6 +182,6 @@ export class SubmitSpeciesCommand implements Command {
         // Slap that submission into the database
         await pending.save();
 
-        await betterSend(channel, `Submission sent! Your submission will be reviewed and edited before potentially being accepted. Thank you for contributing to The Beastiary!`);
+        betterSend(channel, `Submission sent! Your submission will be reviewed and edited before potentially being accepted. Thank you for contributing to The Beastiary!`);
     }
 }
