@@ -18,6 +18,9 @@ export class SubmitSpeciesCommand implements Command {
         // Cast the channel as a DMChannel or a TextChannel because that's what it is
         const channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
 
+        const user = parsedUserCommand.originalMessage.author;
+
+        /*
         // If the message was sent in a guild channel and they don't know how much spam it would create
         if (channel.type === "text") {
             // Kindly inform the user of their misjudgement and open a DM chat with them to talk it out
@@ -26,6 +29,7 @@ export class SubmitSpeciesCommand implements Command {
             // Don't continue with the command and force them to initiate it again but in DMs. Might change but whatever
             return;
         }
+        */
 
         // Send the big instructional message so the user knows what they're signing themselves up for
         const initialMessage = await betterSend(channel, stripIndents`
@@ -90,7 +94,7 @@ export class SubmitSpeciesCommand implements Command {
                 }
                 
                 // Get the next message the user sends within 60 seconds
-                const responseMessage = await awaitUserNextMessage(channel, channel.recipient, 60000);
+                const responseMessage = await awaitUserNextMessage(channel, user, 60000);
 
                 // If the user didn't provide a response
                 if (!responseMessage) {
