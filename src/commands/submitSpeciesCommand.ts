@@ -3,47 +3,8 @@ import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { capitalizeFirstLetter, pressAndGo, betterSend, awaitUserNextMessage } from '../utility/toolbox';
-
-// Species submission command information for each stage of the process
-const speciesSubmission = {
-    commonNames: {
-        required: true,
-        multiple: true,
-        prompt: `common name`,
-        info: `Enter the animal's common name (e.g. "dog")`
-    },
-    images: {
-        required: false,
-        multiple: true,
-        prompt: `image`,
-        info: `Enter a direct imgur link to a clear image of the animal`
-    },
-    scientificName: {
-        required: true,
-        multiple: false,
-        prompt: `scientific name`,
-        info: `Enter the animal's scientific (taxonomical) name`
-    },
-    description: {
-        required: false,
-        multiple: false,
-        prompt: `description`,
-        info: `Enter a short description of the animal`
-    },
-    naturalHabitat: {
-        required: false,
-        multiple: false,
-        prompt: `natural habitat`,
-        info: `Enter a brief overview of the animal's natural habitat (see other animals for examples)`
-    },
-    wikiPage: {
-        required: false,
-        multiple: false,
-        prompt: `Wikipedia page`,
-        info: `Enter the link for the animal's species' Wikipedia page`
-    }
-};
+import { capitalizeFirstLetter, reactionInput, betterSend, awaitUserNextMessage } from '../utility/toolbox';
+import { pendingSpeciesFields, PendingSpecies } from '../models/pendingSpecies';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -89,7 +50,7 @@ export class SubmitSpeciesCommand implements Command {
         // Make sure baby understands the game by making them press a cool confirmation button
         // There's also only a 60 second window to press the button so bonus burn if they have to send the command again
         // This is necessary for reasons other than making the user feel dumb I promise
-        if (!(await pressAndGo(initialMessage, 60000, '👍'))) {
+        if (!(await reactionInput(initialMessage, 60000, [`✅`]))) {
             // If we're in here, the button didn't get pressed
             await betterSend(channel, `Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.`);
             return;
@@ -97,40 +58,27 @@ export class SubmitSpeciesCommand implements Command {
         // If we're out here that means the button was pressed. They did good.
         
         // Tell the user that the big scary submission process has started
-        const submissionBeginMessage = await betterSend(channel, stripIndents`
+        await betterSend(channel, stripIndents`
             Submission process initiated. You will have 60 seconds to respond to each individual prompt.
             Pre-writing these answers in another document and copying them over is highly recommended.
         `);
 
-        if (!submissionBeginMessage) {
-            console.error(`Error trying to send the species submission initiation message in a DM channel.`);
-            return;
-        }
-
-        const responses: string[][] = [];
+        const responses = new Map<string, string | string[]>();
         let fieldCounter = 0;
-        // Iterate over every field in the submission template object
+        // Iterate over every field of the pending species schema
         // I'm not sure if for await is necessary or even appropriate here, but I typically just add async to anything and everything
         // If somebody reasonable is actually reading this and I'm making a big mistake, for the love of god please let me know
-        for await (const field of Object.values(speciesSubmission)) {
+        for await (const [key, field] of Object.entries(pendingSpeciesFields)) {
             fieldCounter++;
-
-            // Slap an empty array into the current position
-            responses.push([]);
 
             // The current list of entries given by the user for the current field. Single-response fields will just be an array with one element in them.
             const currentEntry: string[] = [];
 
             // Prompt the user for the current field
-            const promptMessage = await betterSend(channel, stripIndents`
-                Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}**:
+            await betterSend(channel, stripIndents`
+                Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}**:
                 ${field.info}:
             `);
-
-            // If for some cursed reason the prompt message couldn't send
-            if (!promptMessage) {
-                throw new Error(`Unable to send a prompt message during the species submission process.`);
-            }
 
             // Loop until forever comes
             // This is a wacky loop that ESLint insisted I use instead of while (true). Like it?
@@ -138,12 +86,7 @@ export class SubmitSpeciesCommand implements Command {
                 // If this isn't the loop's first rodeo and we're not on the first entry of a multiple-response field anymore
                 if (currentEntry.length > 0) {
                     // Let the user know that this is another entry for the same field
-                    const nextEntryMessage = await betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
-
-                    // You know the drill
-                    if (!nextEntryMessage) {
-                        throw new Error(`Unable to send a multi-response follow-up message to a user through DMs.`);
-                    }
+                    await betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
                 }
                 
                 // Get the next message the user sends within 60 seconds
@@ -152,12 +95,7 @@ export class SubmitSpeciesCommand implements Command {
                 // If the user didn't provide a response
                 if (!responseMessage) {
                     // Time's up bucko
-                    const timeLimitMessage = await betterSend(channel, `Time limit expired, submission aborted.`);
-
-                    // I don't know how or when I'd ever see these error messages but I feel like I'd get bullied on stackoverflow for not including them
-                    if (!timeLimitMessage) {
-                        throw new Error(`Unable to send the time limit expiration message to a user through DMs.`);
-                    }
+                    await betterSend(channel, `Time limit expired, submission aborted.`);
 
                     // Don't perform the rest of the operation
                     return;
@@ -171,11 +109,7 @@ export class SubmitSpeciesCommand implements Command {
                     // If this field is both required an unsatisfied
                     if (field.required && currentEntry.length < 1) {
                         // Tell the user they're being very naughty
-                        const rejectionMessage = await betterSend(channel, `This field is required. You must input something at least once, try again.`);
-
-                        if (!rejectionMessage) {
-                            throw new Error(`Unable to send the message telling the user to give required information through DMs.`);
-                        }
+                        await betterSend(channel, `This field is required. You must input something at least once, try again.`);
 
                         // Repeat the loop and wait for a better response
                         continue;
@@ -190,14 +124,62 @@ export class SubmitSpeciesCommand implements Command {
                 currentEntry.push(response);
 
                 // If this field only requires one response
-                if (!field.multiple) {
+                if (field.type === String) {
                     // Break and move on to the next field
                     break;
                 }
             }
 
+            // Interpret the user's response as either a single string, or a string array, depending on the desired input type
+            const finalEntry = field.type === String ? currentEntry[0] : currentEntry;
+
             // After input is all good and done, slot the (potentially empty) user response array into the composite array
-            responses[fieldCounter] = currentEntry;
+            responses.set(key, finalEntry);
         }
+
+        // Initialize the submission confirmation string
+        let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
+        // Loop over every field in the pending species template, again
+        for (const [key, field] of Object.entries(pendingSpeciesFields)) {
+            // Append submitted information for every field, replacing undefined with less scary human text
+            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses.get(key) || `None provided`}`
+        }
+
+        const confirmSubmissionMessage = await betterSend(channel, confirmString);
+
+        if (!confirmSubmissionMessage) {
+            throw new Error(`Couldn't send species submission message.`);
+        }
+
+        // Wait for the user to confirm or deny their submission
+        const buttonPress = await reactionInput(confirmSubmissionMessage, 60000, [`✅`, `❌`]);
+
+        // Time's up!
+        if (!buttonPress) {
+            betterSend(channel, `Your time to submit this species has expired. Use the command again and input the same information to try again.`);
+            return;
+        }
+
+        // If the user got cold feet and doesn't want to submit their work
+        if (buttonPress === `❌`) {
+            betterSend(channel, `Submission process aborted.`);
+            return;
+        }
+        // If we're down here, the only possibility is that the check button was pressed
+
+        // Construct the pending species document
+        const pending = new PendingSpecies({
+            commonNames: responses.get(`commonNames`),
+            images: responses.get(`images`),
+            scientificName: responses.get(`scientificName`),
+            description: responses.get(`description`),
+            naturalHabitat: responses.get(`naturalHabitat`),
+            wikiPage: responses.get(`wikiPage`)
+        });
+
+        // Slap that submission into the database
+        await pending.save();
+
+        await betterSend(channel, `Submission sent! Your submission will be reviewed and edited before potentially being accepted. Thank you for contributing to The Beastiary!`);
     }
 }

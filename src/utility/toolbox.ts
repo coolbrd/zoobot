@@ -22,29 +22,46 @@ export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildRe
     return guildMember.displayColor;
 }
 
-// Adds a reaction to a message and waits for a user to press the reaction.
-//Returns true if the button was pressed, and false if the timeout limit is reached.
-export async function pressAndGo(message: Message, timeOut: number, emojiString: string): Promise<boolean> {
-    await message.react(emojiString);
+// Adds reactions to a message and waits for a user to press one of them
+// Returns the string of the button that gets pressed, and undefined if none are pressed
+export async function reactionInput(message: Message, timeOut: number, emojis: string[]): Promise<string | undefined> {
+    // Add all reactions
+    for await (const emoji of emojis) {
+        await message.react(emoji);
+    }
 
     // The filter used to determine a valid button press
     const reactionCollectorFilter = (reaction: MessageReaction, user: User) => {
-        return !user.bot && reaction.emoji.name === emojiString;
+        // Make sure a user pressed one of the emojis from the list
+        return !user.bot && emojis.includes(reaction.emoji.name);
     };
     // Options that tell the collector to wait for only one reaction, and to expire after the time limit has been reached
     const reactionCollectorOptions = { max: 1, time: timeOut, errors: ['time'] };
 
+    let userReaction;
     // Wait for someone to react to the message
     try {
-        await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
+        userReaction = await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
     }
     // If the timer expires before anybody reacts
     catch {
-        return false;
+        return;
     }
     // If this point is reached, a reaction was added
 
-    return true;
+    if (!userReaction) {
+        console.error(`pressAndGo collected a reaction but returned an undefined collection.`);
+        return;
+    }
+
+    const emojiReaction = userReaction.first();
+
+    if (!emojiReaction) {
+        console.error(`pressAndGo returned an empty collection.`);
+        return;
+    }
+
+    return emojiReaction.emoji.name;
 }
 
 export async function awaitUserNextMessage(channel: TextChannel | DMChannel | NewsChannel, user: User, timeout: number): Promise<Message | undefined> {
