@@ -139,12 +139,22 @@ export class SubmitSpeciesCommand implements Command {
             responses.set(key, finalEntry);
         }
 
+        // Initialize an empty object for later manual property stuffing
+        const pendingFields = {};
+
         // Initialize the submission confirmation string
         let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
         // Loop over every field in the pending species template, again
         for (const [key, field] of Object.entries(pendingSpeciesFields)) {
             // Append submitted information for every field, replacing undefined with less scary human text
             confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses.get(key) || `None provided`}`
+
+            // Add a new property to the fields object that represents the current key and the user's response for that key
+            Object.defineProperty(pendingFields, key, {
+                value: responses.get(key),
+                writable: false,
+                enumerable: true
+            });
         }
 
         const confirmSubmissionMessage = await betterSend(channel, confirmString);
@@ -169,15 +179,8 @@ export class SubmitSpeciesCommand implements Command {
         }
         // If we're down here, the only possibility is that the check button was pressed
 
-        // Construct the pending species document
-        const pending = new PendingSpecies({
-            commonNames: responses.get(`commonNames`),
-            images: responses.get(`images`),
-            scientificName: responses.get(`scientificName`),
-            description: responses.get(`description`),
-            naturalHabitat: responses.get(`naturalHabitat`),
-            wikiPage: responses.get(`wikiPage`)
-        });
+        // Construct the pending species document with the previously arranged fields
+        const pending = new PendingSpecies(pendingFields);
 
         // Slap that submission into the database
         await pending.save();
