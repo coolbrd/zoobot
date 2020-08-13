@@ -22,7 +22,7 @@ export class InteractiveMessageHandler {
 
             try {
                 // Activate the message's button that corresponds to the emoji reacted with
-                interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
+                await interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
             }
             catch (error) {
                 console.error(`Error activating an interactive message's button.`, error);

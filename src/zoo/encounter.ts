@@ -14,7 +14,7 @@ export async function guildAnimalChance(guild: GuildResolvable): Promise<void> {
     if (chance <= 0.1) {
         try {
             // Spawn an animal encounter
-            spawnAnimal(guild);
+            await spawnAnimal(guild);
         }
         catch (error) {
             console.error("Error trying to spawn an animal in a guild.", error);
@@ -67,7 +67,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
 
     try {
         // Send an encounter message to the channel
-        EncounterMessage.init(channel, species);
+        await EncounterMessage.init(channel, species);
     }
     catch (error) {
         console.error(`Error initializing a new encounter message.`, error);
@@ -131,7 +131,7 @@ export class EncounterMessage extends InteractiveMessage {
 
         try {
             // Indicate that the encounter is over
-            this.getMessage().edit(`*(gone)*`);
+            await this.getMessage().edit(`*(gone)*`);
         }
         catch (error) {
             console.error(`Error trying to edit an interactive message.`, error);
