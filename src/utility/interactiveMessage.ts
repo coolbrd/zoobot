@@ -22,7 +22,7 @@ export class InteractiveMessageHandler {
 
             try {
                 // Activate the message's button that corresponds to the emoji reacted with
-                await interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
+                interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
             }
             catch (error) {
                 console.error(`Error activating an interactive message's button.`, error);
@@ -103,7 +103,7 @@ export class InteractiveMessage {
         }
 
         // Iterate over every button's emoji
-        for (const emoji of buttons) {
+        for await (const emoji of buttons) {
             try {
                 // Add a reaction for every button
                 await message.react(emoji);

@@ -50,7 +50,7 @@ export default class CommandHandler {
 
             try {
                 // Possibly spawn an animal in the guild
-                await guildAnimalChance(sourceGuild);
+                guildAnimalChance(sourceGuild);
             }
             catch (error) {
                 console.error(`Error while attempting to spawn an animal.`, error);
@@ -77,7 +77,7 @@ export default class CommandHandler {
             else {
                 // Run the command and check for errors
                 try {
-                    await matchedCommand.run(commandParser);
+                    matchedCommand.run(commandParser);
                 }
                 catch (error) {
                     console.error(`Command execution failed.`, error);
