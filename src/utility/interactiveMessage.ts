@@ -126,20 +126,5 @@ export class InteractiveMessage {
     async deactivate(): Promise<void> {
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
-
-        try {
-            // Remove all reactions on the message
-            await this.message.reactions.removeAll();
-        }
-        catch (error) {
-            const missingPermsMessage = await betterSend(this.message.channel, `Hmm, I can't seem to remove the buttons (reactions) from one of my messages. You may need to grant me permission to manage reactions if you want this to be possible.`);
-            
-            if (!missingPermsMessage) {
-                console.error(`Error trying to send missing permissions to react message.`);
-                return;
-            }
-
-            console.error(`Error trying to remove all reactions from an interactive message.`, error);
-        }
     }
 }
