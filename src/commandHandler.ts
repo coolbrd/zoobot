@@ -87,11 +87,6 @@ export default class CommandHandler {
         }
     }
 
-    // Sends back the message content after removing the prefix.
-    echoMessage(message: Message): string {
-        return message.content.replace(this.prefix, ``).trim();
-    }
-
     // Determines whether or not a message is a user command.
     private isCommand(message: Message): boolean {
         return message.content.startsWith(this.prefix);
