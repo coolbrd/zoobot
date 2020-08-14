@@ -77,7 +77,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
 
 // The interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
-export class EncounterMessage extends InteractiveMessage {
+class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     readonly species: Species;
 

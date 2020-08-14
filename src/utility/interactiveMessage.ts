@@ -42,6 +42,9 @@ export class InteractiveMessageHandler {
 }
 
 // A message with pressable reaction buttons
+// I wrote this before I knew about awaitReactions, so there's a static InteractiveMessageHandler class that sits in the main file and sends reactions to the right places.
+// I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
+// If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
     // The map of button emojis and their functions
     private readonly buttons: string[];
