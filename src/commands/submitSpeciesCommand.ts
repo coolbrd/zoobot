@@ -150,6 +150,7 @@ export class SubmitSpeciesCommand implements Command {
             confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses.get(key) || `None provided`}`
 
             // Add a new property to the fields object that represents the current key and the user's response for that key
+            // The enumerable option defaults to false for some reason. Enabling it allows the newly assigned properties to be seen and used, like properties ought to be.
             Object.defineProperty(pendingFields, key, {
                 value: responses.get(key),
                 writable: false,
