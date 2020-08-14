@@ -130,11 +130,13 @@ class EncounterMessage extends InteractiveMessage {
         super.deactivate();
 
         try {
-            // Indicate that the encounter is over
-            await this.getMessage().edit(`*(gone)*`);
+            // Get the current message's embed and edit its footer
+            const newEmbed = this.getMessage().embeds[0].setFooter(`Wild encounter (fled)`);
+            // Update the message
+            await this.getMessage().edit(newEmbed);
         }
         catch (error) {
-            console.error(`Error trying to edit an interactive message.`, error);
+            console.error(`Error trying to edit an embed on an interactive message.`, error);
         }
     }
 }
