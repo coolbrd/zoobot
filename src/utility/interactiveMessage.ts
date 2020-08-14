@@ -1,6 +1,10 @@
 import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage } from 'discord.js';
+
 import { betterSend } from './toolbox';
 
+// The static bot-wide handler for interactive messages
+// I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.
+// I don't want users to have to press every button twice to get anything to happen
 export class InteractiveMessageHandler {
     // The shared list of every active interactive message to handle
     private static readonly messages = new Map<string, InteractiveMessage>();
