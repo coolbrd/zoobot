@@ -44,9 +44,9 @@ export const pendingSpeciesFields: UserInputBundle = {
     }
 };
 
-// Turn the yser input bundle into a mongoose schema
+// Turn the user input bundle into a Mongoose schema
 // It needs to be converted to unknown first in order to cast it into a SchemaDefinition. Mongoose doesn't naturally trust my types but believe me it'll work.
-// I don't know if mongoose does anything with the superfluous prompt and info fields, but so far they seem to just be ignored, and that's a good thing
+// I don't know if Mongoose does anything with the superfluous prompt and info fields, but so far they seem to just be ignored, and that's a good thing
 const pendingSpeciesSchema = new Schema(pendingSpeciesFields);
 
 export const PendingSpecies = mongoose.model(`PendingSpecies`, pendingSpeciesSchema);

@@ -7,7 +7,7 @@ export interface UserInputField {
     info: string
 }
 
-// This input interface is built heavily with mongoose's SchemaDefinition in mind, as UserInputBundle can be safely converted to SchemaDefinition and turned into a model
+// This input interface is built heavily with Mongoose's SchemaDefinition in mind, as UserInputBundle can be safely converted to SchemaDefinition and turned into a model
 // This was done primarily to reduce repition in the definition of user input fields and their corresponding schema definitions
 export interface UserInputBundle {
     [path: string]: UserInputField
