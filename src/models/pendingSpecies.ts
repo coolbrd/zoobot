@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 
+import { UserInputBundle } from './userInput';
+
 const Schema = mongoose.Schema;
 
-export const pendingSpeciesFields = {
+// The actual required fields of a species in the submission process
+export const pendingSpeciesFields: UserInputBundle = {
     commonNames: {
         type: Array,
         required: true,
@@ -41,6 +44,9 @@ export const pendingSpeciesFields = {
     }
 };
 
+// Turn the yser input bundle into a mongoose schema
+// It needs to be converted to unknown first in order to cast it into a SchemaDefinition. Mongoose doesn't naturally trust my types but believe me it'll work.
+// I don't know if mongoose does anything with the superfluous prompt and info fields, but so far they seem to just be ignored, and that's a good thing
 const pendingSpeciesSchema = new Schema(pendingSpeciesFields);
 
 export const PendingSpecies = mongoose.model(`PendingSpecies`, pendingSpeciesSchema);

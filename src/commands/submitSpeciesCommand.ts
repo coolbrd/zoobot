@@ -3,7 +3,7 @@ import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { capitalizeFirstLetter, reactionInput, betterSend, awaitUserNextMessage } from '../utility/toolbox';
+import { capitalizeFirstLetter, reactionInput, betterSend, getUserFieldInput } from '../utility/toolbox';
 import { pendingSpeciesFields, PendingSpecies } from '../models/pendingSpecies';
 
 // Initiates the species submission process. Only to be used in DMs.
@@ -67,76 +67,21 @@ export class SubmitSpeciesCommand implements Command {
             Pre-writing these answers in another document and copying them over is highly recommended.
         `);
 
-        const responses = new Map<string, string | string[]>();
-        let fieldCounter = 0;
-        // Iterate over every field of the pending species schema
-        // I'm not sure if for await is necessary or even appropriate here, but I typically just add async to anything and everything
-        // If somebody reasonable is actually reading this and I'm making a big mistake, for the love of god please let me know
-        for await (const [key, field] of Object.entries(pendingSpeciesFields)) {
-            fieldCounter++;
+        // Initialize the variable that will hold the user's responses to the various questions about the species they are submitting
+        let responses: Map<string, string | string[]> | undefined;
+        try {
+            // Get the user's responses to the pending species fields
+            responses = await getUserFieldInput(channel, user, pendingSpeciesFields);
+        }
+        // If something goes wrong in the input gathering process
+        catch (error) {
+            console.error(`Failed to get user input for pending species fields during submit command.`, error);
+            return;
+        }
 
-            // The current list of entries given by the user for the current field. Single-response fields will just be an array with one element in them.
-            const currentEntry: string[] = [];
-
-            // Prompt the user for the current field
-            betterSend(channel, stripIndents`
-                Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}**:
-                ${field.info}:
-            `);
-
-            // Loop until forever comes
-            // This is a wacky loop that ESLint insisted I use instead of while (true). Like it?
-            for (;;) {
-                // If this isn't the loop's first rodeo and we're not on the first entry of a multiple-response field anymore
-                if (currentEntry.length > 0) {
-                    // Let the user know that this is another entry for the same field
-                    betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
-                }
-                
-                // Get the next message the user sends within 60 seconds
-                const responseMessage = await awaitUserNextMessage(channel, user, 60000);
-
-                // If the user didn't provide a response
-                if (!responseMessage) {
-                    // Time's up bucko
-                    betterSend(channel, `Time limit expired, submission aborted.`);
-                    // Don't perform the rest of the operation
-                    return;
-                }
-
-                // The actual string data of the user's response
-                const response = responseMessage.content;
-
-                // If the user in fact didn't want to respond, and would rather skip to the next field
-                if (response.trim().toLowerCase() === "next") {
-                    // If this field is both required an unsatisfied
-                    if (field.required && currentEntry.length < 1) {
-                        // Tell the user they're being very naughty
-                        await betterSend(channel, `This field is required. You must input something at least once, try again.`);
-                        // Repeat the loop and wait for a better response
-                        continue;
-                    }
-                    // If we're down here, next is an acceptable response
-
-                    // Break out of the forever loop and move on to the next field
-                    break;
-                }
-
-                // Add the user's most recently submitted content to this field
-                currentEntry.push(response);
-
-                // If this field only requires one response
-                if (field.type === String) {
-                    // Break and move on to the next field
-                    break;
-                }
-            }
-
-            // Interpret the user's response as either a single string, or a string array, depending on the desired input type
-            const finalEntry = field.type === String ? currentEntry[0] : currentEntry;
-
-            // After input is all good and done, slot the (potentially empty) user response array into the composite array
-            responses.set(key, finalEntry);
+        // If the responses object comes back empty for some reason
+        if (!responses) {
+            throw new Error(`Responses object from getUserFieldInput came back undefined.`);
         }
 
         // Initialize an empty object for later manual property stuffing
