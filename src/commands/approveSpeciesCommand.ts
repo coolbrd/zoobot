@@ -1,0 +1,65 @@
+import Command from './commandInterface';
+import CommandParser from '../utility/commandParser';
+import { betterSend, capitalizeFirstLetter } from '../utility/toolbox';
+import { PendingSpecies } from '../models/pendingSpecies';
+import { MessageEmbed, APIMessage, DMChannel, TextChannel } from 'discord.js';
+import { client } from '..';
+//import { ADMIN_SERVER_ID } from '../config/secrets';
+
+export class ApproveSpeciesCommand implements Command {
+    commandNames = [`approvespecies`, `approve`];
+
+    help(commandPrefix: string): string {
+        return `Use ${commandPrefix}submit to begin the species submission process. Only usable in DMs.`;
+    }
+
+    async run(parsedUserCommand: CommandParser): Promise<void> {
+        const channel = parsedUserCommand.originalMessage.channel as TextChannel | DMChannel;
+        const guild = parsedUserCommand.originalMessage.guild;
+
+        if (!guild /*|| guild.id !== ADMIN_SERVER_ID*/) {
+            betterSend(channel, `This command can only be used in the designated admin server. Try it there.`);
+            return;
+        }
+
+        // Get all pending species documents
+        const pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });
+
+        // The array of embeds that will represent a paged form of all pending species
+        const embedBook: MessageEmbed[] = [];
+        let currentEmbedPage: MessageEmbed;
+        // The currently iterated pending species (starting at 1 because the modulo operator doesn't use 0 the way I want it to)
+        let submissionIndex = 1;
+        // The page of the embed book that's currently being built
+        let page = 1;
+        // The content of the current page that's being built
+        let currentPageString = ``;
+        // The number of pending species that will appear on each page
+        const entriesPerPage = 3;
+        // Iterate over every pending species submission in the database
+        for (const submission of pendingSpecies) {
+            // Get the author's id
+            const authorID = submission.get(`author`);
+            // Try to resolve the author's id into their user instance
+            const author = client.users.resolve(authorID);
+            // Add basic info about this submission to the page
+            currentPageString += `${submissionIndex}: ${capitalizeFirstLetter(submission.get(`commonNames`)[0])}, by ${author ? author.tag : `Unknown user`}\n`
+
+            // If the limit of entried per page has been reached, or we're at the end of the set of documents
+            if (submissionIndex % entriesPerPage == 0 || submissionIndex == pendingSpecies.length) {
+                // Create a new embed and build it according to the present information
+                currentEmbedPage = new MessageEmbed();
+                currentEmbedPage.setTitle(`Species submissions pending approval`);
+                currentEmbedPage.setDescription(currentPageString);
+                currentEmbedPage.setFooter(`Page ${page}`)
+                // Add the page to the book
+                embedBook.push(currentEmbedPage);
+                page++;
+            }
+            
+            submissionIndex++;
+        }
+
+        betterSend(channel, new APIMessage(channel, { embed: embedBook[0] }))
+    }
+}

@@ -3,13 +3,11 @@ import dotenv from 'dotenv';
 // Instruct dotenv to load variables from the .env file into the environment
 dotenv.config({ path: `.env` });
 
-// Get the bot's client token from the environment and export it
+// The bot's client token
 export const DISCORD_TOKEN = process.env.token as string;
 
-// Get the bot's MongoDB login path and export it
+// The bot's MongoDB login path
 export const MONGODB_PATH = process.env.mongopath as string;
 
-// If no token was found
-if (!DISCORD_TOKEN) {
-    console.error(`No token provided in .env file.`);
-}
+// The admin server for configuring the bot
+export const ADMIN_SERVER_ID = process.env.adminserverid as string;
