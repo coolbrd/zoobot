@@ -2,7 +2,7 @@ import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction,
 import { stripIndents } from 'common-tags';
 
 import { client } from '..';
-import { UserInputBundle } from '../models/userInput';
+import { UserInputBundle } from './userInput';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {

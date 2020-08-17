@@ -52,6 +52,7 @@ export class InteractiveMessageHandler {
 export class InteractiveMessage {
     // The map of button emojis and their functions
     private readonly buttons: string[];
+    private readonly timer: NodeJS.Timeout;
 
     // This interactive message's underlying message
     private message: Message;
@@ -62,7 +63,7 @@ export class InteractiveMessage {
         this.message = message;
 
         // Set the message's deactivation timer
-        setTimeout(() => {
+        this.timer = setTimeout(() => {
             try {
                 this.deactivate();
             }
@@ -131,6 +132,10 @@ export class InteractiveMessage {
 
     // Deactivates the interactive message, freeing up space in the global list
     async deactivate(): Promise<void> {
+        // Cancel the deactivation timer (if deactivate was called manually)
+        // Thankfully, this does nothing if the timeout that we're trying to clear has already expired
+        clearTimeout(this.timer);
+
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
     }

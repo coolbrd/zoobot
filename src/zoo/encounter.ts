@@ -80,17 +80,19 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
 class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     readonly species: Species;
+    caught: boolean;
 
     protected constructor(message: Message, buttons: string[], lifetime: number, species: Species) {
         super(message, buttons, lifetime);
         this.species = species;
+        this.caught = false;
     }
 
     // Asynchronous initializer for this encounter message. To be called instead of the constructor.
     static async init(channel: TextChannel, species: Species): Promise<EncounterMessage | undefined> {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
-        const buttons = [`💥`];
+        const buttons = [`🔘`];
         const lifetime = 60000;
 
         const embed = new MessageEmbed();
@@ -122,6 +124,8 @@ class EncounterMessage extends InteractiveMessage {
     async buttonPress(button: string, user: User): Promise<void> {
         if (this.getButtons().includes(button)) {
             betterSend(this.getMessage().channel, `${user}, You caught ${this.species.commonNames[0]}!`);
+            this.caught = true;
+            this.deactivate();
         }
     }
 
@@ -130,8 +134,26 @@ class EncounterMessage extends InteractiveMessage {
         super.deactivate();
 
         try {
-            // Get the current message's embed and edit its footer
-            const newEmbed = this.getMessage().embeds[0].setFooter(`Wild encounter (fled)`);
+            // Get the embed of the encounter message
+            const embed = this.getMessage().embeds[0];
+
+            // Get the embed's footer
+            const footer = embed.footer;
+
+            // If for some reason there isn't a footer
+            if (!footer) {
+                console.error(`Empty footer returned from encounter message.`);
+                return;
+            }
+
+            let newEmbed: MessageEmbed;
+            // Edit the encounter's embed based on what happen to the animal
+            if (this.caught) {
+                newEmbed = embed.setFooter(`${footer.text} (caught)`);
+            }
+            else {
+                newEmbed = embed.setFooter(`${footer.text} (fled)`);
+            }
             // Update the message
             await this.getMessage().edit(newEmbed);
         }

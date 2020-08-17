@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { UserInputBundle } from './userInput';
+import { UserInputBundle } from '../utility/userInput';
 
 const Schema = mongoose.Schema;
 
