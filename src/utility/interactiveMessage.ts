@@ -50,7 +50,7 @@ export class InteractiveMessageHandler {
 // I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
-    // The map of button emojis and their functions
+    // The set of emojis that will serve as buttons on this message
     private readonly buttons: string[];
     private readonly timer: NodeJS.Timeout;
 
@@ -87,7 +87,7 @@ export class InteractiveMessage {
     static async init(channel: TextChannel, content: APIMEssage, buttons: string[], lifetime: number) {
         let message;
         try {
-            message = await this.build(content, channel, buttons) as Message;
+            message = await this.build(content, channel, buttons);
         }
         catch (error) {
             console.error(`Error trying to build the base message for an interactive message.`, error);
@@ -102,12 +102,11 @@ export class InteractiveMessage {
     // It should be noted that in subclass implementations of the init method, the constructor of the subclass should be called rather than that of InteractiveMessage.
 
     // Builder method for initializing an interactive message
-    protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]): Promise<Message | undefined> {
+    protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]): Promise<Message> {
         const message = await betterSend(channel, content);
 
         if (!message) {
-            console.error(`Error sending the base message for an interactive message.`);
-            return;
+            throw new Error(`Error sending the base message for an interactive message.`);
         }
 
         // Iterate over every button's emoji
@@ -117,7 +116,7 @@ export class InteractiveMessage {
                 await message.react(emoji);
             }
             catch (error) {
-                console.error(`Error trying to add reactions to an interactive message.`, error);
+                throw new Error(`Error trying to add reactions to an interactive message.`);
             }
         }
 
