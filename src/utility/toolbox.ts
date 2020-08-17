@@ -1,8 +1,9 @@
 import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, NewsChannel } from 'discord.js';
+import mongoose from 'mongoose';
 import { stripIndents } from 'common-tags';
 
 import { client } from '..';
-import { UserInputBundle, UserInputResponses } from './userInput';
+import { UserInputBundle, UserInputResponses, UserInputBundleTextInfo } from './userInput';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
@@ -107,6 +108,32 @@ export async function betterSend(channel: TextChannel | DMChannel | NewsChannel,
     }
 }
 
+// Takes a Mongoose schema and some user input prompt info and combines them into a UserInputBundle
+// The 'required' and 'type' fields of the schema are carried over to the UserInputBundle's 'required' and 'multiple' fields
+// The text information from the UserInputBundleTextInfo obviously gets directly carried over as is
+export function schemaToUserInputBundle(schema: mongoose.Schema, inputInfo: UserInputBundleTextInfo): UserInputBundle {
+    // Initialize the bundle of user input prompts
+    const userInputBundle: UserInputBundle = {};
+
+    // Iterate over every bit of textual info provided
+    // This may not cover every property of the schema, but that's ok since not every schema property is defined entirely by user input
+    for (const [key, value] of Object.entries(inputInfo)) {
+        // Add each property to the bundle
+        Object.defineProperty(userInputBundle, key, {
+            value: {
+                required: schema.obj[key].required,
+                multiple: schema.obj[key].type === Array,
+                prompt: value.prompt,
+                info: value.info
+            },
+            writable: false,
+            enumerable: true
+        });
+    }
+
+    return userInputBundle;
+}
+
 // Gets a set of inputs from the user according to a UserInputBundle
 export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsChannel, user: User, fields: UserInputBundle): Promise<UserInputResponses | undefined> {
     const responses: UserInputResponses = {};
@@ -122,7 +149,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
 
         // Prompt the user for the current field
         betterSend(channel, stripIndents`
-            Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}**:
+            Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}**:
             ${field.info}:
         `);
 
@@ -169,15 +196,16 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
             currentEntry.push(response);
 
             // If this field only requires one response
-            if (field.type === String) {
+            if (!field.multiple) {
                 // Break and move on to the next field
                 break;
             }
         }
 
         // Interpret the user's response as either a single string, or a string array, depending on the desired input type
-        const finalEntry = field.type === String ? currentEntry[0] : currentEntry;
+        const finalEntry = field.multiple ? currentEntry : currentEntry[0];
 
+        // Add the current input to the response object
         Object.defineProperty(responses, key, {
             value: finalEntry,
             writable: false,

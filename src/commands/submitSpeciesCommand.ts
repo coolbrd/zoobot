@@ -4,7 +4,7 @@ import { stripIndents } from 'common-tags';
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { capitalizeFirstLetter, reactionInput, betterSend, getUserFieldInput } from '../utility/toolbox';
-import { pendingSpeciesFields, PendingSpecies } from '../models/pendingSpecies';
+import { pendingSpeciesUserInputBundle, PendingSpecies } from '../models/pendingSpecies';
 import { UserInputResponses } from '../utility/userInput';
 
 // Initiates the species submission process. Only to be used in DMs.
@@ -72,7 +72,7 @@ export class SubmitSpeciesCommand implements Command {
         let responses: UserInputResponses | undefined;
         try {
             // Get the user's responses to the pending species fields
-            responses = await getUserFieldInput(channel, user, pendingSpeciesFields);
+            responses = await getUserFieldInput(channel, user, pendingSpeciesUserInputBundle);
         }
         // If something goes wrong in the input gathering process
         catch (error) {
@@ -88,9 +88,9 @@ export class SubmitSpeciesCommand implements Command {
         // Initialize the submission confirmation string
         let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
         // Loop over every field in the pending species template
-        for (const [key, field] of Object.entries(pendingSpeciesFields)) {
+        for (const [key, field] of Object.entries(pendingSpeciesUserInputBundle)) {
             // Append submitted information for every field, replacing undefined with less scary human text
-            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses[key] || `None provided`}`
+            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}: ${responses[key] || `None provided`}`
         }
 
         const confirmSubmissionMessage = await betterSend(channel, confirmString);
@@ -117,6 +117,9 @@ export class SubmitSpeciesCommand implements Command {
 
         // Construct the pending species document with the previously arranged fields
         const pending = new PendingSpecies(responses);
+
+        // Mark the document with their fingerprint so I know who the jokesters are
+        pending.set(`author`, user.id);
 
         // Slap that submission into the database
         await pending.save();

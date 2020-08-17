@@ -1,8 +1,19 @@
+// A single field of textual information pertaining a field within a UserInputBundle
+export interface UserInputFieldTextInfo {
+    prompt: string,
+    info: string
+}
+
+// A bundle of UserInputFieldTextInfo variables. Used to define just the text-based information of a UserInputBundle.
+export interface UserInputBundleTextInfo {
+    [path: string]: UserInputFieldTextInfo
+}
+
 // Used to gather input from the user easily with the awaitMessages method
 // Can take either a continuous array of string inputs or just one
-export interface UserInputField {
-    type: ArrayConstructor | StringConstructor,
+export interface UserInputField {    
     required: boolean,
+    multiple: boolean,
     prompt: string,
     info: string
 }
