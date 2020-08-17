@@ -99,7 +99,7 @@ class EncounterMessage extends InteractiveMessage {
         embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || `DEFAULT`);
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.setURL(species.wikiPage);
-        embed.setDescription(species.scientificName);
+        embed.setDescription(capitalizeFirstLetter(species.scientificName));
         embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
         embed.setFooter(`Wild encounter`);
 
