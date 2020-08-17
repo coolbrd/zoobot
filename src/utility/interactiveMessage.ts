@@ -137,5 +137,19 @@ export class InteractiveMessage {
 
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
+
+        // Attempt to remove all button reactions from the message
+        try {
+            this.getMessage().reactions.cache.forEach((reaction: MessageReaction) => {
+                if (reaction.me) {
+                    reaction.remove();
+                }
+            });
+        }
+        // If the reactions couldn't be removes (most likely a permissions issue)
+        catch (error) {
+            // Don't log any errors, continue as normal
+            return;
+        }
     }
 }
