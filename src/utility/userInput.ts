@@ -12,3 +12,8 @@ export interface UserInputField {
 export interface UserInputBundle {
     [path: string]: UserInputField
 }
+
+// A set of responses to be returned from user input gathering functions
+export interface UserInputResponses {
+    [path: string]: string | string[]
+}

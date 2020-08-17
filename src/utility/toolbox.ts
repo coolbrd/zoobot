@@ -2,7 +2,7 @@ import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction,
 import { stripIndents } from 'common-tags';
 
 import { client } from '..';
-import { UserInputBundle } from './userInput';
+import { UserInputBundle, UserInputResponses } from './userInput';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
@@ -108,8 +108,8 @@ export async function betterSend(channel: TextChannel | DMChannel | NewsChannel,
 }
 
 // Gets a set of inputs from the user according to a UserInputBundle
-export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsChannel, user: User, fields: UserInputBundle): Promise<Map<string, string | string[]> | undefined> {
-    const responses = new Map<string, string | string[]>();
+export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsChannel, user: User, fields: UserInputBundle): Promise<UserInputResponses | undefined> {
+    const responses: UserInputResponses = {};
     let fieldCounter = 0;
     // Iterate over every field of the input bundle
     // I'm not sure if for await is necessary or even appropriate here, but I typically just add async to anything and everything
@@ -178,8 +178,11 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
         // Interpret the user's response as either a single string, or a string array, depending on the desired input type
         const finalEntry = field.type === String ? currentEntry[0] : currentEntry;
 
-        // After input is all good and done, slot the (potentially empty) user response array into the composite array
-        responses.set(key, finalEntry);
+        Object.defineProperty(responses, key, {
+            value: finalEntry,
+            writable: false,
+            enumerable: true
+        });
     }
     // If we're out here, that means the user has completed the input process
 

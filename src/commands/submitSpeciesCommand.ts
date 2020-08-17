@@ -5,6 +5,7 @@ import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { capitalizeFirstLetter, reactionInput, betterSend, getUserFieldInput } from '../utility/toolbox';
 import { pendingSpeciesFields, PendingSpecies } from '../models/pendingSpecies';
+import { UserInputResponses } from '../utility/userInput';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -68,7 +69,7 @@ export class SubmitSpeciesCommand implements Command {
         `);
 
         // Initialize the variable that will hold the user's responses to the various questions about the species they are submitting
-        let responses: Map<string, string | string[]> | undefined;
+        let responses: UserInputResponses | undefined;
         try {
             // Get the user's responses to the pending species fields
             responses = await getUserFieldInput(channel, user, pendingSpeciesFields);
@@ -84,23 +85,12 @@ export class SubmitSpeciesCommand implements Command {
             throw new Error(`Responses object from getUserFieldInput came back undefined.`);
         }
 
-        // Initialize an empty object for later manual property stuffing
-        const pendingFields = {};
-
         // Initialize the submission confirmation string
         let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
-        // Loop over every field in the pending species template, again
+        // Loop over every field in the pending species template
         for (const [key, field] of Object.entries(pendingSpeciesFields)) {
             // Append submitted information for every field, replacing undefined with less scary human text
-            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses.get(key) || `None provided`}`
-
-            // Add a new property to the fields object that represents the current key and the user's response for that key
-            // The enumerable option defaults to false for some reason. Enabling it allows the newly assigned properties to be seen and used, like properties ought to be.
-            Object.defineProperty(pendingFields, key, {
-                value: responses.get(key),
-                writable: false,
-                enumerable: true
-            });
+            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.type === Array ? `(s)` : ``}: ${responses[key] || `None provided`}`
         }
 
         const confirmSubmissionMessage = await betterSend(channel, confirmString);
@@ -126,7 +116,7 @@ export class SubmitSpeciesCommand implements Command {
         // If we're down here, the only possibility is that the check button was pressed
 
         // Construct the pending species document with the previously arranged fields
-        const pending = new PendingSpecies(pendingFields);
+        const pending = new PendingSpecies(responses);
 
         // Slap that submission into the database
         await pending.save();
