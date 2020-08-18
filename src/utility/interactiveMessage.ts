@@ -1,4 +1,4 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage } from 'discord.js';
+import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel } from 'discord.js';
 
 import { betterSend } from './toolbox';
 
@@ -52,25 +52,24 @@ export class InteractiveMessageHandler {
 export class InteractiveMessage {
     // The set of emojis that will serve as buttons on this message
     private readonly buttons: string[];
-    private readonly timer: NodeJS.Timeout;
+    // The timer instance that will keep track of when this message should deactivate
+    private timer: NodeJS.Timeout;
+    // The number of milliseconds that this message will be active for
+    private readonly lifetime: number;
+    // Whether or not pressing a button will reset this message's deactivation timer
+    private readonly resetTimerOnButtonPress: boolean;
 
     // This interactive message's underlying message
-    private message: Message;
+    private readonly message: Message;
 
     // The protected constructor for internally creating an interactive message instance. Only to be called from within methods of the object.
-    protected constructor(message: Message, buttons: string[], lifetime: number) {
+    protected constructor(message: Message, buttons: string[], lifetime: number, resetTimerOnButtonPress = true) {
         this.buttons = buttons;
         this.message = message;
+        this.lifetime = lifetime;
+        this.resetTimerOnButtonPress = resetTimerOnButtonPress;
 
-        // Set the message's deactivation timer
-        this.timer = setTimeout(() => {
-            try {
-                this.deactivate();
-            }
-            catch (error) {
-                console.error(`Error trying to deactivate an interactive message.`, error);
-            }
-        }, lifetime);
+        this.timer = this.setTimer();
 
         // Add this message to the map of other interactive messages
         InteractiveMessageHandler.addMessage(this);
@@ -101,8 +100,26 @@ export class InteractiveMessage {
     */
     // It should be noted that in subclass implementations of the init method, the constructor of the subclass should be called rather than that of InteractiveMessage.
 
+    private setTimer(): NodeJS.Timer {
+        // Set the message's deactivation timer and return the resulting timer instance
+        return setTimeout(() => {
+            try {
+                this.deactivate();
+            }
+            catch (error) {
+                console.error(`Error trying to deactivate an interactive message.`, error);
+            }
+        }, this.lifetime);
+    }
+
+    // Resets this message's deactivation timer
+    private resetTimer(): void {
+        clearTimeout(this.timer);
+        this.timer = this.setTimer();
+    }
+
     // Builder method for initializing an interactive message
-    protected static async build(content: APIMessage, channel: TextChannel, buttons: string[]): Promise<Message> {
+    protected static async build(content: APIMessage, channel: TextChannel | DMChannel, buttons: string[]): Promise<Message> {
         const message = await betterSend(channel, content);
 
         if (!message) {
@@ -124,13 +141,16 @@ export class InteractiveMessage {
         return message;
     }
 
-    // Activates a button on this message. This does nothing because it's meant to be overridden.
-    async buttonPress(button: string, user: User | PartialUser): Promise<void> {
-        throw new Error(`A basic interactive button object received a button press. This was probably a mistake. ${button} was pressed by ${user.id}`);
+    // Activates a button on this message
+    async buttonPress(_button: string, _user: User | PartialUser): Promise<void> {
+        // Resets the message's timer if it's supposed to do that
+        if (this.resetTimerOnButtonPress) {
+            this.resetTimer();
+        }
     }
 
     // Deactivates the interactive message, freeing up space in the global list
-    async deactivate(): Promise<void> {
+    protected async deactivate(): Promise<void> {
         // Cancel the deactivation timer (if deactivate was called manually)
         // Thankfully, this does nothing if the timeout that we're trying to clear has already expired
         clearTimeout(this.timer);

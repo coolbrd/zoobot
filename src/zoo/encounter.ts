@@ -89,7 +89,7 @@ class EncounterMessage extends InteractiveMessage {
     }
 
     // Asynchronous initializer for this encounter message. To be called instead of the constructor.
-    static async init(channel: TextChannel, species: Species): Promise<EncounterMessage | undefined> {
+    static async init(channel: TextChannel, species: Species): Promise<EncounterMessage> {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
         const buttons = [`🔘`];
@@ -111,8 +111,7 @@ class EncounterMessage extends InteractiveMessage {
             message = await this.build(content, channel, buttons) as Message;
         }
         catch (error) {
-            console.error(`Error building the base message for an interactive message.`, error);
-            return;
+            throw new Error(`Error building the base message for an interactive message.`);
         }
 
         // Initialize the encounter message with the newly sent and built message
@@ -142,8 +141,7 @@ class EncounterMessage extends InteractiveMessage {
 
             // If for some reason there isn't a footer
             if (!footer) {
-                console.error(`Empty footer returned from encounter message.`);
-                return;
+                throw new Error(`Empty footer returned from encounter message.`);
             }
 
             let newEmbed: MessageEmbed;
