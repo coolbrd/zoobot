@@ -34,7 +34,7 @@ export class SendPendingSubmissionsCommand implements Command {
         // The content of the current page that's being built
         let currentPageString = ``;
         // The number of pending species that will appear on each page
-        const entriesPerPage = 1;
+        const entriesPerPage = 10;
         // Iterate over every pending species submission in the database
         for (const submission of pendingSpecies) {
             // Get the author's id
@@ -42,7 +42,7 @@ export class SendPendingSubmissionsCommand implements Command {
             // Try to resolve the author's id into their user instance
             const author = client.users.resolve(authorID);
             // Add basic info about this submission to the page
-            currentPageString += `${submissionIndex}: ${capitalizeFirstLetter(submission.get(`commonNames`)[0])}, by ${author ? author.tag : `Unknown user`}\n`
+            currentPageString += `• ${capitalizeFirstLetter(submission.get(`commonNames`)[0])}, by ${author ? author.tag : `Unknown user`}\n`
 
             // If the limit of entried per page has been reached, or we're at the end of the set of documents
             if (submissionIndex % entriesPerPage == 0 || submissionIndex == pendingSpecies.length) {
