@@ -89,8 +89,10 @@ export class SubmitSpeciesCommand implements Command {
         let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
         // Loop over every field in the pending species template
         for (const [key, field] of Object.entries(pendingSpeciesUserInputBundle)) {
+            // Convert the currently iterated response to a pretty array string if it's an array
+            const currentResponse = Array.isArray(responses[key]) ? (responses[key] as string[]).join(` `) : responses[key];
             // Append submitted information for every field, replacing undefined with less scary human text
-            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}: ${responses[key] || `None provided`}`
+            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}: ${currentResponse || `None provided`}`
         }
 
         const confirmSubmissionMessage = await betterSend(channel, confirmString);
