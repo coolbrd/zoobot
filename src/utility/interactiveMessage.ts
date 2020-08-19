@@ -24,9 +24,18 @@ export class InteractiveMessageHandler {
             // Cast the possible message as an interactive message
             const interactiveMessage = possibleMessage as InteractiveMessage;
 
+            const emojiString = messageReaction.emoji.toString();
+
+            // If the reaction added to the message isn't a button on that message
+            if (!interactiveMessage.getButtons().includes(emojiString)) {
+                // Don't do anything with the reaction
+                return;
+            }
+            // If we're down here it means the reaction added was a valid button
+
             try {
                 // Activate the message's button that corresponds to the emoji reacted with
-                await interactiveMessage.buttonPress(messageReaction.emoji.toString(), user);
+                await interactiveMessage.buttonPress(emojiString, user);
             }
             catch (error) {
                 console.error(`Error activating an interactive message's button.`, error);

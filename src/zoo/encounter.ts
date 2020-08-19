@@ -120,12 +120,14 @@ class EncounterMessage extends InteractiveMessage {
         return interactiveMessage;
     }
 
-    async buttonPress(button: string, user: User): Promise<void> {
-        if (this.getButtons().includes(button)) {
-            betterSend(this.getMessage().channel, `${user}, You caught ${this.species.commonNames[0]}!`);
-            this.caught = true;
-            this.deactivate();
-        }
+    // Whenever the encounter's button is pressed
+    async buttonPress(_button: string, user: User): Promise<void> {
+        // Indicate that the user has caught the animal
+        betterSend(this.getMessage().channel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        this.caught = true;
+        
+        // Stop this message from receiving any more input
+        this.deactivate();
     }
 
     async deactivate(): Promise<void> {
