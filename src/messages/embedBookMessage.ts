@@ -94,13 +94,8 @@ export default class EmbedBookMessage extends InteractiveMessage {
         // Get the embed's footer
         const footer = embed.footer;
 
-        // If for some reason there isn't a footer
-        if (!footer) {
-            console.error(`Empty footer returned from encounter message.`);
-            return;
-        }
-
-        const newEmbed = embed.setFooter(`${footer.text} (deactivated)`);
+        // Append the deactivated info to the end of the message's footer
+        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ``}(deactivated)`);
 
         try {
             // Update the message
