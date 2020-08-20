@@ -1,6 +1,6 @@
 import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel } from 'discord.js';
 
-import { betterSend } from './toolbox';
+import { betterSend } from '../utility/toolbox';
 
 // The static bot-wide handler for interactive messages
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.

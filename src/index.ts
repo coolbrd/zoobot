@@ -4,7 +4,7 @@ import Discord, { Message } from 'discord.js';
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import CommandHandler from './commandHandler';
 import config from './config/botConfig';
-import { InteractiveMessageHandler } from './utility/interactiveMessage';
+import { InteractiveMessageHandler } from './messages/interactiveMessage';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
