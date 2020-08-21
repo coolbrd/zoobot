@@ -1,25 +1,25 @@
 import { Message, MessageEmbed, TextChannel, User, APIMessage } from 'discord.js';
 
-import Species from '../zoo/species';
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
+import { SpeciesDocument } from '../models/species';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
-    readonly species: Species;
+    readonly species: SpeciesDocument;
     caught: boolean;
 
-    protected constructor(message: Message, buttons: string[], lifetime: number, species: Species) {
+    protected constructor(message: Message, buttons: string[], lifetime: number, species: SpeciesDocument) {
         super(message, buttons, lifetime);
         this.species = species;
         this.caught = false;
     }
 
     // Asynchronous initializer for this encounter message. To be called instead of the constructor.
-    static async init(channel: TextChannel, species: Species): Promise<EncounterMessage> {
+    static async init(channel: TextChannel, species: SpeciesDocument): Promise<EncounterMessage> {
         // Interactive message defaults for an encounter message
         // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
         const buttons = [`🔘`];

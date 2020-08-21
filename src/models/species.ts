@@ -35,6 +35,16 @@ const SpeciesSchema = new Schema({
     }
 });
 
+export interface SpeciesDocument {
+    commonNames: string[],
+    scientificName: string,
+    images: string[],
+    description: string,
+    naturalHabitat: string,
+    wikiPage: string,
+    family: string
+}
+
 // Information pertaining to the fields of a species document
 // Used to gather user input for these fields, and to properly display their information
 export const speciesFieldInfo: FieldInfoBundle = {

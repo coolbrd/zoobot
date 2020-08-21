@@ -1,7 +1,7 @@
 import { TextChannel, GuildResolvable } from 'discord.js';
+import { Document } from 'mongoose';
 
-import SpeciesModel from '../models/species';
-import Species from './species';
+import SpeciesModel, { SpeciesDocument } from '../models/species';
 import { client } from '..';
 import EncounterMessage from '../messages/encountermessage';
 
@@ -41,10 +41,10 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         return;
     }
     
-    let species: Species;
+    let species: SpeciesDocument;
     try {
         // Get a random species from all animals and convert it to a proper species instance
-        species = new Species((await SpeciesModel.aggregate().sample(1).exec())[0]);
+        species = (await SpeciesModel.aggregate().sample(1).exec())[0];
         if (!species) {
             throw new Error("No document was returned when trying to select a random animal.");
         }
@@ -53,16 +53,6 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         console.error(`Error trying to select a random species for a new encounter message.`, error);
         return;
     }
-
-    try {
-        // Make sure the species has all required fields
-        species.ensureFields();
-    }
-    catch (error) {
-        console.error(`Species of id ${species[`_id`]} missing one or more required properties.`, error);
-        return;
-    }
-    // If we're down here it means the species has everything it needs
 
     try {
         // Send an encounter message to the channel
