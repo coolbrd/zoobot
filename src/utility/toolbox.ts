@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { stripIndents } from 'common-tags';
 
 import { client } from '..';
-import { UserInputBundle, UserInputResponses, UserInputBundleTextInfo } from './userInput';
+import { UserInputBundle, UserInputResponses, FieldInfoBundle } from './userInput';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
@@ -108,23 +108,25 @@ export async function betterSend(channel: TextChannel | DMChannel | NewsChannel,
     }
 }
 
-// Takes a Mongoose schema and some user input prompt info and combines them into a UserInputBundle
-// The 'required' and 'type' fields of the schema are carried over to the UserInputBundle's 'required' and 'multiple' fields
-// The text information from the UserInputBundleTextInfo obviously gets directly carried over as is
-export function schemaToUserInputBundle(schema: mongoose.Schema, inputInfo: UserInputBundleTextInfo): UserInputBundle {
+// Takes a Mongoose schema and some user input field info and converts it into a UserInputBundle
+// Will override the FieldInfoBundle's 'multiple' values in favor of what's determined by the schema's type
+export function schemaToUserInputBundle(schema: mongoose.Schema, inputInfo: FieldInfoBundle): UserInputBundle {
     // Initialize the bundle of user input prompts
     const userInputBundle: UserInputBundle = {};
 
     // Iterate over every bit of textual info provided
     // This may not cover every property of the schema, but that's ok since not every schema property is defined entirely by user input
     for (const [key, value] of Object.entries(inputInfo)) {
-        // Add each property to the bundle
         Object.defineProperty(userInputBundle, key, {
             value: {
-                required: schema.obj[key].required,
-                multiple: schema.obj[key].type === Array,
-                prompt: value.prompt,
-                info: value.info
+                fieldInfo: {
+                    alias: value.alias,
+                    prompt: value.prompt,
+                    // Let the schema determine whether this field required multiple entires
+                    multiple: schema.obj[key].type === Array,
+                    delimiter: value.delimiter
+                },
+                required: schema.obj[key].required
             },
             writable: false,
             enumerable: true
@@ -135,22 +137,20 @@ export function schemaToUserInputBundle(schema: mongoose.Schema, inputInfo: User
 }
 
 // Gets a set of inputs from the user according to a UserInputBundle
-export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsChannel, user: User, fields: UserInputBundle): Promise<UserInputResponses | undefined> {
+export async function getUserFieldInput(channel: TextChannel | DMChannel, user: User, userInputBundle: UserInputBundle): Promise<UserInputResponses | undefined> {
     const responses: UserInputResponses = {};
-    let fieldCounter = 0;
+    let fieldCounter = 1;
     // Iterate over every field of the input bundle
     // I'm not sure if for await is necessary or even appropriate here, but I typically just add async to anything and everything
     // If somebody reasonable is actually reading this and I'm making a big mistake, for the love of god please let me know
-    for await (const [key, field] of Object.entries(fields)) {
-        fieldCounter++;
-
+    for await (const [key, field] of Object.entries(userInputBundle)) {
         // The current list of entries given by the user for the current field. Single-response fields will just be an array with one element in them.
         const currentEntry: string[] = [];
 
         // Prompt the user for the current field
         betterSend(channel, stripIndents`
-            Field ${fieldCounter}: **${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}**:
-            ${field.info}:
+            Field ${fieldCounter}: **${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.multiple ? `(s)` : ``}**:
+            Enter ${field.fieldInfo.prompt}:
         `);
 
         // Loop until forever comes
@@ -159,7 +159,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
             // If this isn't the loop's first rodeo and we're not on the first entry of a multiple-response field anymore
             if (currentEntry.length > 0) {
                 // Let the user know that this is another entry for the same field
-                betterSend(channel, `Enter another ${field.prompt}, or enter "next" to continue to the next field:`);
+                betterSend(channel, `Enter another ${field.fieldInfo.alias}, or enter "next" to continue to the next field:`);
             }
             
             // Get the next message the user sends within 60 seconds
@@ -174,12 +174,11 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
                 return;
             }
 
-            // The actual string data of the user's response
             const response = responseMessage.content;
 
             // If the user in fact didn't want to respond, and would rather skip to the next field
             if (response.trim().toLowerCase() === "next") {
-                // If this field is both required an unsatisfied
+                // If this field is both required and unsatisfied
                 if (field.required && currentEntry.length < 1) {
                     // Tell the user they're being very naughty
                     await betterSend(channel, `This field is required. You must input something at least once, try again.`);
@@ -188,7 +187,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
                 }
                 // If we're down here, next is an acceptable response
 
-                // Break out of the forever loop and move on to the next field
+                // Break out of the loop and move on to the next field
                 break;
             }
 
@@ -196,14 +195,14 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
             currentEntry.push(response);
 
             // If this field only requires one response
-            if (!field.multiple) {
+            if (!field.fieldInfo.multiple) {
                 // Break and move on to the next field
                 break;
             }
         }
 
         // Interpret the user's response as either a single string, or a string array, depending on the desired input type
-        const finalEntry = field.multiple ? currentEntry : currentEntry[0];
+        const finalEntry = field.fieldInfo.multiple ? currentEntry : currentEntry[0];
 
         // Add the current input to the response object
         Object.defineProperty(responses, key, {
@@ -211,6 +210,8 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel | NewsC
             writable: false,
             enumerable: true
         });
+
+        fieldCounter++;
     }
     // If we're out here, that means the user has completed the input process
 

@@ -1,27 +1,27 @@
-// A single field of textual information pertaining a field within a UserInputBundle
-export interface UserInputFieldTextInfo {
+// A set of informational fields pertaining to a field of a document
+export interface FieldInfo {
+    // The human-formatted name of the field
+    alias: string,
+    // The description of the field
     prompt: string,
-    info: string
+    // Whether or not the field can take multiple entries
+    multiple?: boolean,
+    // The string to separate multiple entries by, if the field has multiple of them
+    delimiter?: string
 }
 
-// A bundle of UserInputFieldTextInfo variables. Used to define just the text-based information of a UserInputBundle.
-export interface UserInputBundleTextInfo {
-    [path: string]: UserInputFieldTextInfo
+// A set of field information. Usually used to describe an entire document.
+export interface FieldInfoBundle {
+    [path: string]: FieldInfo
 }
 
-// Used to gather input from the user easily with the awaitMessages method
-// Can take either a continuous array of string inputs or just one
-export interface UserInputField {    
-    required: boolean,
-    multiple: boolean,
-    prompt: string,
-    info: string
-}
-
-// This input interface is built heavily with Mongoose's SchemaDefinition in mind, as UserInputBundle can be safely converted to SchemaDefinition and turned into a model
-// This was done primarily to reduce repition in the definition of user input fields and their corresponding schema definitions
+// A set of field information, along with whether or not each field is necessary to input
+// Used when gathering user input for something that will eventually become a document
 export interface UserInputBundle {
-    [path: string]: UserInputField
+    [path: string]: {
+        fieldInfo: FieldInfo,
+        required: boolean
+    }
 }
 
 // A set of responses to be returned from user input gathering functions

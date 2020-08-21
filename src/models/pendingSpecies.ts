@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+
 import { schemaToUserInputBundle } from '../utility/toolbox';
+import { speciesFieldInfo } from './species';
 
 // The schema for a pending species submission
 const pendingSpeciesSchema = new mongoose.Schema({
@@ -35,30 +37,12 @@ const pendingSpeciesSchema = new mongoose.Schema({
 
 export const PendingSpecies = mongoose.model(`PendingSpecies`, pendingSpeciesSchema);
 
-// Combine the Mongoose schema and some input prompts into a complete UserInputBundle for later input retrieval
+// Combine the Mongoose schema and the input info for the species model into a UserInputBundle
 export const pendingSpeciesUserInputBundle = schemaToUserInputBundle(pendingSpeciesSchema, {
-    commonNames: {
-        prompt: `common name`,
-        info: `Enter the animal's common name (e.g. "dog")`
-    },
-    images: {
-        prompt: `image`,
-        info: `Enter a direct imgur link to a clear image of the animal`
-    },
-    scientificName: {
-        prompt: `scientific name`,
-        info: `Enter the animal's scientific (taxonomical) name`
-    },
-    description: {
-        prompt: `description`,
-        info: `Enter a short description of the animal`
-    },
-    naturalHabitat: {
-        prompt: `natural habitat`,
-        info: `Enter a brief overview of the animal's natural habitat (see other animals for examples)`
-    },
-    wikiPage: {
-        prompt: `Wikipedia page`,
-        info: `Enter the link for the animal's species' Wikipedia page`
-    }
+    commonNames: speciesFieldInfo.commonNames,
+    scientificName: speciesFieldInfo.scientificName,
+    images: speciesFieldInfo.images,
+    description: speciesFieldInfo.description,
+    naturalHabitat: speciesFieldInfo.naturalHabitat,
+    wikiPage: speciesFieldInfo.wikiPage
 });

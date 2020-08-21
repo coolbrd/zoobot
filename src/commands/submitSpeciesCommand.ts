@@ -1,4 +1,4 @@
-import { DMChannel, TextChannel } from 'discord.js';
+import { DMChannel, TextChannel, MessageEmbed, APIMessage } from 'discord.js';
 import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
@@ -85,24 +85,23 @@ export class SubmitSpeciesCommand implements Command {
             throw new Error(`Responses object from getUserFieldInput came back undefined.`);
         }
 
-        // Initialize the submission confirmation string
-        let confirmString = `All fields satisfied. Please confirm or deny your inputs below.`;
+        const confirmationEmbed = new MessageEmbed();
+        confirmationEmbed.setDescription(`All fields satisfied. Please confirm or deny your inputs below.`);
         // Loop over every field in the pending species template
         for (const [key, field] of Object.entries(pendingSpeciesUserInputBundle)) {
             // Convert the currently iterated response to a pretty array string if it's an array
-            const currentResponse = Array.isArray(responses[key]) ? (responses[key] as string[]).join(` `) : responses[key];
-            // Append submitted information for every field, replacing undefined with less scary human text
-            confirmString += `\n${capitalizeFirstLetter(field.prompt)}${field.multiple ? `(s)` : ``}: ${currentResponse || `None provided`}`
+            const currentResponse = Array.isArray(responses[key]) ? (responses[key] as string[]).join(pendingSpeciesUserInputBundle[key].fieldInfo.delimiter || `, `) : responses[key];
+            // Add the information to the confirmation embed
+            confirmationEmbed.addField(`\n${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.multiple ? `(s)` : ``}`, `${currentResponse || `None provided`}`)
         }
+        const confirmationMessage = await betterSend(channel, new APIMessage(channel, { embed: confirmationEmbed }));
 
-        const confirmSubmissionMessage = await betterSend(channel, confirmString);
-
-        if (!confirmSubmissionMessage) {
+        if (!confirmationMessage) {
             throw new Error(`Couldn't send species submission message.`);
         }
 
         // Wait for the user to confirm or deny their submission
-        const buttonPress = await reactionInput(confirmSubmissionMessage, 60000, [`✅`, `❌`]);
+        const buttonPress = await reactionInput(confirmationMessage, 60000, [`✅`, `❌`]);
 
         // Time's up!
         if (!buttonPress) {
