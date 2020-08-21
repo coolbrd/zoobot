@@ -1,5 +1,4 @@
 import { TextChannel, GuildResolvable } from 'discord.js';
-import { Document } from 'mongoose';
 
 import SpeciesModel, { SpeciesDocument } from '../models/species';
 import { client } from '..';

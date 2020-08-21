@@ -1,5 +1,6 @@
-import { InteractiveMessage } from './interactiveMessage';
 import { DMChannel, MessageEmbed, Message, TextChannel, APIMessage, User } from 'discord.js';
+
+import { InteractiveMessage } from './interactiveMessage';
 
 // A message that allows an array of embeds to be linearly browsed
 export default class EmbedBookMessage extends InteractiveMessage {

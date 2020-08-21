@@ -1,6 +1,6 @@
+import { stripIndents } from 'common-tags';
 import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, NewsChannel } from 'discord.js';
 import mongoose from 'mongoose';
-import { stripIndents } from 'common-tags';
 
 import { client } from '..';
 import { UserInputBundle, UserInputResponses, FieldInfoBundle } from './userInput';

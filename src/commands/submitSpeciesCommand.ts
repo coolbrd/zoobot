@@ -1,5 +1,5 @@
-import { DMChannel, TextChannel, MessageEmbed, APIMessage } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { DMChannel, TextChannel, MessageEmbed, APIMessage } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
