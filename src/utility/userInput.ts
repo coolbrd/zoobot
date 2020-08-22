@@ -28,3 +28,12 @@ export interface UserInputBundle {
 export interface UserInputResponses {
     [path: string]: string | string[]
 }
+
+export interface EditableField {
+    fieldInfo: FieldInfo,
+    value: string | string[]
+}
+
+export interface EditableDocument {
+    [path: string]: EditableField
+}
