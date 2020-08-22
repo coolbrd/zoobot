@@ -2,7 +2,7 @@ import { MessageEmbed, TextChannel, User, Message } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { EditableDocument } from '../utility/userInput';
-import { capitalizeFirstLetter } from '../utility/toolbox';
+import { capitalizeFirstLetter, awaitUserNextMessage, betterSend } from '../utility/toolbox';
 
 // A message that contains a document of fields, which themselves contain either single values of arrays of values
 // Gives the user an interface for smoothly editing the contained document via reaction messages
@@ -25,7 +25,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         const buttons = {
             '⬆️': 'Move pointer up',
             '⬇️': 'Move pointer down',
-            '✏️': 'Edit selection'
+            '✏️': 'Edit selection',
+            '⬅️': 'Back to field selection',
+            '🗑️': 'Delete selected entry',
+            '🆕': 'New entry'
         };
 
         super(channel, { buttons: buttons });
@@ -45,42 +48,40 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     }
 
     buildEmbed(): MessageEmbed {
-        const docEmbed = new MessageEmbed();
+        const newEmbed = new MessageEmbed();
 
-        let fieldIndex = 0;
-        // Iterate over every field in the document
-        for (const editableField of Object.values(this.doc)) {
-            // Select the actual value of the field rather than its wrapper object
-            const fieldValue = editableField.value;
+        // If the message is in field selection mode
+        if (!this.editMode) {
+            let fieldIndex = 0;
+            // Iterate over every field in the document
+            for (const editableField of Object.values(this.doc)) {
+                // Select the actual value of the field rather than its wrapper object
+                const fieldValue = editableField.value;
 
-            // Format the field's value properly
-            let fieldString = Array.isArray(fieldValue) ? fieldValue.join(editableField.fieldInfo.delimiter ? editableField.fieldInfo.delimiter : ', ') : fieldValue;
+                // Format the field's value properly
+                let fieldString = Array.isArray(fieldValue) ? fieldValue.join(editableField.fieldInfo.delimiter ? editableField.fieldInfo.delimiter : ', ') : fieldValue;
 
-            // If the field's string is empty, use placeholder text so Discord doesn't get mad about any empty embed fields
-            fieldString = fieldString ? fieldString : '*Empty*';
+                // If the field's string is empty, use placeholder text so Discord doesn't get mad about any empty embed fields
+                fieldString = fieldString ? fieldString : '*Empty*';
 
-            // Deterimine if there should be an icon drawn on this field's row
-            const editIcon = fieldIndex === this.fieldPosition ? '✏️' : '';
+                // Deterimine if there should be an icon drawn on this field's row
+                const editIcon = fieldIndex === this.fieldPosition ? '✏️' : '';
 
-            // Capitalize and pluralize the title as needed and add the field
-            docEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
+                // Capitalize and pluralize the title as needed and add the field
+                newEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
 
-            fieldIndex++;
+                fieldIndex++;
+            }
+
+            // Update button list
+            this.enableButton('✏️');
+            this.disableButton('⬅️');
+            this.disableButton('🗑️');
+            this.disableButton('🆕');
         }
-
-        return docEmbed;
-    }
-
-    // Refreshes the message's embed based on changes made in the document or the editor
-    // Called pretty much every time after the user presses anything
-    async rebuildEmbed(): Promise<void> {
-        // If the editor is in edit mode (the user has selected a field to edit)
-        if (this.editMode) {
-            // Build the message's embed according to some behavior other than that of buildEmbed
-
-            const editEmbed = new MessageEmbed();
+        else {
             const selectedField = this.doc[this.fieldSelection];
-            editEmbed.setTitle(`Now editing: ${selectedField.fieldInfo.alias}${selectedField.fieldInfo.multiple ? '(s)' : ''}`);
+            newEmbed.setTitle(`Now editing: ${selectedField.fieldInfo.alias}${selectedField.fieldInfo.multiple ? '(s)' : ''}`);
 
             let contentString = '';
             // If the selected value is an array, display it properly
@@ -107,24 +108,18 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
 
             // Complete the embed and edit the message
-            editEmbed.setDescription(contentString);
-            editEmbed.setFooter(this.getButtonHelpString());
+            newEmbed.setDescription(contentString);
+            newEmbed.setFooter(this.getButtonHelpString());
 
-            this.setEmbed(editEmbed);
-
-            // Add buttons that pertain to editing field information
-            this.addButton('⬅️', 'Back to field selection');
-            this.addButton('🗑️', 'Delete selected entry');
-            this.addButton('🆕', 'New entry');
-        }
-        // If the document is not in edit mode (so the user is still selecting a field to edit)
-        else {
-            // Build and update the message's embed
-            this.setEmbed(this.buildEmbed());
+            // Update button list to be more contextually appropriate
+            this.enableButton('⬅️');
+            this.enableButton('🗑️');
+            this.enableButton('🆕');
+            this.disableButton('✏️');
         }
 
-        // Determine the message's new selected field of the document
-        this.fieldSelection = Object.keys(this.doc)[this.fieldPosition];
+        newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
+        return newEmbed;
     }
 
     async buttonPress(button: string, user: User): Promise<void> {
@@ -156,6 +151,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         break;
                     }
                 }
+
+                // Determine the message's new selected field of the document
+                this.fieldSelection = Object.keys(this.doc)[this.fieldPosition];
+
                 break;
             }
             // While the user is selecting an array element to edit
@@ -163,21 +162,25 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // Edit mode button behavior
                 switch(button) {
                     case '⬆️': {
+                        // Move up if the selection is an array
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition - 1 < 0 ? selection.length - 1 : this.arrayPosition - 1;
                         }
                         break;
                     }
+                    // Move down if the selection is an array
                     case '⬇️': {
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
                         }
                         break;
                     }
+                    // Leave the selection and return to field selection
                     case '⬅️': {
                         this.editMode = false;
                         break;
                     }
+                    // Delete the selected array element
                     case '🗑️': {
                         if (Array.isArray(selection)) {
                             selection.splice(this.arrayPosition, 1);
@@ -185,12 +188,27 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         }
                         break;
                     }
+                    // Add a new array element above the pointer
+                    case '🆕': {
+                        if (Array.isArray(selection)) {
+                            await betterSend(this.channel, 'Send your input to insert into the current field:');
+
+                            const newElement = await awaitUserNextMessage(this.channel, user, 60000);
+
+                            if (newElement) {
+                                selection.splice(this.arrayPosition, 0, newElement.content);
+                            }
+                            else {
+                                betterSend(this.channel, 'Time limit expired. No changes have been made.');
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // Rebuild the embed after every button press
-        this.rebuildEmbed();
+        // Update the message's embed
+        this.setEmbed(this.buildEmbed());
     }
 
     protected async deactivate(): Promise<void> {

@@ -26,8 +26,8 @@ export class InteractiveMessageHandler {
 
             const emojiString = messageReaction.emoji.toString();
 
-            // If the reaction added to the message isn't a button on that message
-            if (!interactiveMessage.getButtons().includes(emojiString)) {
+            // If the reaction added to the message isn't an active button on that message
+            if (!interactiveMessage.buttonIsActive(emojiString)) {
                 // Don't do anything with the reaction
                 return;
             }
@@ -66,12 +66,15 @@ export class InteractiveMessageHandler {
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
     // The text channel that the message will be sent in
-    private readonly channel: TextChannel | DMChannel;
+    protected readonly channel: TextChannel | DMChannel;
     // The content of the message to display on the message
     private content: APIMessage | undefined;
 
     // The set of emojis that will serve as buttons on this message
-    private readonly buttons: { [button: string]: string | undefined };
+    private readonly buttons: Map<string, {
+        enabled: boolean,
+        helpMessage?: string
+    }>;
 
     // This interactive message's underlying message
     private message: Message | undefined;
@@ -96,9 +99,9 @@ export class InteractiveMessage {
         this.channel = channel;
         
         // Default values for properties that can be overloaded with options
-        this.buttons = {};
+        this.buttons = new Map();
 
-        this.lifetime = 60000;
+        this.lifetime = 3000;
         this.resetTimerOnButtonPress = true;
 
         // If an options object was provided
@@ -110,23 +113,19 @@ export class InteractiveMessage {
             if (options.buttons) {
                 // If a string of anonymous buttons was provided instead of an object with help messages
                 if (Array.isArray(options.buttons)) {
-                    // Initialize an empty object that will contain each button provided
-                    const buttonsObject: { [button: string]: string | undefined } = {};
                     // Iterate over every button provided
                     options.buttons.forEach(button => {
-                        // Add a property with an empty help message for the current button
-                        Object.defineProperty(buttonsObject, button, {
-                            value: undefined,
-                            writable: false,
-                            enumerable: true
-                        });
+                        // Add a button with no help string to the map
+                        this.buttons.set(button, { enabled: true });
                     });
-                    this.buttons = buttonsObject;
                 }
-                // If the buttons parameter is already an object
+                // If the buttons parameter is an object
                 else {
-                    // Assign it as-is
-                    this.buttons = options.buttons;
+                    // Iterate over every button provided
+                    Object.entries(options.buttons).forEach(button => {
+                        // Add each button with their respective help string
+                        this.buttons.set(button[0], { enabled: true, helpMessage: button[1] });
+                    });
                 }
             }
 
@@ -152,24 +151,22 @@ export class InteractiveMessage {
     }
 
     // Get an array of every button currently on the message
-    getButtons(): string[] {
-        return Object.keys(this.buttons);
+    getButtons(): Map<string, {enabled: boolean, helpMessage?: string | undefined}> {
+        return this.buttons;
     }
 
     // Adds a new button to the message
     // Because of how Discord works, buttons cannot be visually removed after being added
     async addButton(button: string, helpMessage?: string): Promise<void> {
-        // Don't do anything if the button is already on the message
-        if (button in this.buttons) {
+        // If the button is already on the message
+        if (this.buttons.has(button)) {
+            // Just enable the button instead, this is probably the intended behavior
+            this.enableButton(button);
             return;
         }
 
-        // Add the button to the buttons object
-        Object.defineProperty(this.buttons, button, {
-            value: helpMessage,
-            writable: false,
-            enumerable: true
-        });
+        // Add the button to the map
+        this.buttons.set(button, { enabled: true, helpMessage: helpMessage });
 
         const message = this.getMessage();
         // Only react to the message if it exists (otherwise the new button will be added upon the message being sent)
@@ -178,14 +175,39 @@ export class InteractiveMessage {
 
     // Removes a button from this message's list of active buttons
     // Doesn't visually remove the button (sorry!)
-    async removeButton(button: string): Promise<void> {
-        // If the button doesn't exist in the list of active buttons
-        if (!(button in this.buttons)) {
+    removeButton(button: string): void {
+        // If the button doesn't exist in the map of active buttons
+        if (!this.buttons.has(button)) {
             // Don't try to remove it
             return;
         }
-        // Remove the given button from the object
-        delete this.buttons[button];
+        this.buttons.delete(button);
+    }
+
+    // Returns whether or not a given button is both on this message, and active
+    buttonIsActive(button: string): boolean {
+        const buttonInMap = this.buttons.get(button);
+        if (!buttonInMap) {
+            return false;
+        }
+
+        return buttonInMap.enabled;
+    }
+
+    // Enables a given button on the message (button must already exist on message, use addButton if it doesn't)
+    enableButton(button: string): void {
+        const buttonInMap = this.buttons.get(button);
+        if (buttonInMap) {
+            buttonInMap.enabled = true;
+        }
+    }
+
+    // Disables a given button on the message
+    disableButton(button: string): void {
+        const buttonInMap = this.buttons.get(button);
+        if (buttonInMap) {
+            buttonInMap.enabled = false;
+        }
     }
 
     getMessage(): Message | undefined { return this.message; }
@@ -193,9 +215,9 @@ export class InteractiveMessage {
     // Gets a formatted string of all available help information for every button currently active on the message
     getButtonHelpString(): string {
         let helpString = '';
-        for (const [button, buttonHelp] of Object.entries(this.buttons)) {
-            // Add the current button's help information, if there is any
-            helpString += buttonHelp ? `${button}: ${buttonHelp} ` : '';
+        for (const [button, buttonHelp] of this.buttons.entries()) {
+            // If the button is active, add the current button's help information if there is one
+            helpString += buttonHelp.enabled && buttonHelp.helpMessage ? `${button}: ${buttonHelp.helpMessage} ` : '';
         }
         return helpString;
     }
@@ -211,14 +233,6 @@ export class InteractiveMessage {
                 console.error('Error trying to deactivate an interactive message.', error);
             }
         }, this.lifetime);
-    }
-
-    // Resets this message's deactivation timer
-    private resetTimer(): void {
-        // If the timer is running, end it
-        this.timer && clearTimeout(this.timer);
-        // Set the timer
-        this.timer = this.setTimer();
     }
 
     // Send this interactive message, build it, and activate it
@@ -238,15 +252,12 @@ export class InteractiveMessage {
         if (!message) {
             throw new Error('Error sending the base message for an interactive message.');
         }
-
-        // Determine the linear array of buttons to loop over
-        const buttonArray = Array.isArray(this.buttons) ? this.buttons : Object.keys(this.buttons);
         
         // Add this message to the map of other interactive messages
         InteractiveMessageHandler.addMessage(this);
 
         // Iterate over every button's emoji
-        for await (const emoji of buttonArray) {
+        for await (const emoji of this.buttons.keys()) {
             try {
                 // Add a reaction for every button
                 await message.react(emoji);
@@ -262,8 +273,11 @@ export class InteractiveMessage {
 
     // Activates a button on this message
     async buttonPress(_button: string, _user: User | PartialUser): Promise<void> {
-        // Resets the message's timer if it's supposed to do that
-        this.resetTimerOnButtonPress && this.resetTimer();
+        // Resets the message's timer, if it's supposed to do that
+        if (this.resetTimerOnButtonPress && this.timer) {
+            clearTimeout(this.timer);
+            this.timer = this.setTimer();
+        }
     }
 
     // Deactivates the interactive message, freeing up space in the global list

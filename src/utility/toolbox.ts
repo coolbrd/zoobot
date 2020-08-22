@@ -90,8 +90,7 @@ export async function awaitUserNextMessage(channel: TextChannel | DMChannel | Ne
     // If we're out here that means the user responded to the prompt
 
     if (!userResponse) {
-        console.error('A user\'s message was collected with awaitUserNextMessage, but the collector came back undefined.');
-        return;
+        throw new Error('A user\'s message was collected with awaitUserNextMessage, but the collector came back undefined.');
     }
 
     return userResponse.first();
