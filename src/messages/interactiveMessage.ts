@@ -60,7 +60,7 @@ export class InteractiveMessageHandler {
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
     // The set of emojis that will serve as buttons on this message
-    private readonly buttons: string[];
+    private readonly buttons: { [button: string]: string | undefined };
     // The timer instance that will keep track of when this message should deactivate
     private timer: NodeJS.Timeout;
     // The number of milliseconds that this message will be active for
@@ -72,11 +72,38 @@ export class InteractiveMessage {
     private readonly message: Message;
 
     // The protected constructor for internally creating an interactive message instance. Only to be called from within methods of the object.
-    protected constructor(message: Message, buttons: string[], lifetime: number, resetTimerOnButtonPress = true) {
-        this.buttons = buttons;
+    protected constructor(message: Message, buttons: string[] | { [button: string]: string | undefined }, lifetime: number, resetTimerOnButtonPress?: boolean) {
+        // If a string of anonymous buttons was provided instead of an object with help messages
+        if (Array.isArray(buttons)) {
+            // Initialize an empty object that will contain each button provided
+            const buttonsObject: { [button: string]: string | undefined } = {};
+            // Iterate over every button provided
+            buttons.forEach(button => {
+                // Add a property with an empty help message for the current button
+                Object.defineProperty(buttonsObject, button, {
+                    value: undefined,
+                    writable: false,
+                    enumerable: true
+                });
+            });
+            this.buttons = buttonsObject;
+        }
+        // If the buttons parameter is already an object
+        else {
+            // Assign it as-is
+            this.buttons = buttons;
+        }
         this.message = message;
         this.lifetime = lifetime;
-        this.resetTimerOnButtonPress = resetTimerOnButtonPress;
+        // If the user specified whether the message should reset its timer after each press or not
+        if (resetTimerOnButtonPress) {
+            // Use that value
+            this.resetTimerOnButtonPress = resetTimerOnButtonPress;
+        }
+        // Otherwise, use true by default
+        else {
+            this.resetTimerOnButtonPress = true;
+        }
 
         this.timer = this.setTimer();
 
@@ -84,20 +111,51 @@ export class InteractiveMessage {
         InteractiveMessageHandler.addMessage(this);
     }
 
-    getButtons(): string[] { return this.buttons; }
+    // Get an array of every button currently on the message
+    getButtons(): string[] {
+        return Object.keys(this.buttons);
+    }
 
     // Adds a new button to the message
-    // Because of how Discord works, buttons cannot be individually removed after being added
-    async addButton(button: string): Promise<void> {
+    // Because of how Discord works, buttons cannot be visually removed after being added
+    async addButton(button: string, helpMessage?: string): Promise<void> {
         // Don't do anything if the button is already on the message
-        if (this.getButtons().includes(button)) {
+        if (button in this.buttons) {
             return;
         }
-        this.buttons.push(button);
+        
+        // Add the button to the buttons object
+        Object.defineProperty(this.buttons, button, {
+            value: helpMessage,
+            writable: false,
+            enumerable: true
+        });
+        // React to the message with the new button
         this.getMessage().react(button);
     }
 
+    // Removes a button from this message's list of active buttons
+    async removeButton(button: string): Promise<void> {
+        // If the button doesn't exist in the list of active buttons
+        if (!(button in this.buttons)) {
+            // Don't try to remove it
+            return;
+        }
+        // Remove the given button from the object
+        delete this.buttons[button];
+    }
+
     getMessage(): Message { return this.message; }
+
+    // Gets a formatted string of all available help information for every button currently active on the message
+    getButtonHelpString(): string {
+        let helpString = ``;
+        for (const [button, buttonHelp] of Object.entries(this.buttons)) {
+            // Add the current button's help information, if there is any
+            helpString += buttonHelp ? `${button}: ${buttonHelp} ` : ``;
+        }
+        return helpString;
+    }
 
     // This class is missing a static init method, which would normally initialize the asynchronous building process and return a completed interactive message.
     // The implementation of the init method is left up to child classes, which might have different parameters and default values for initialization.
@@ -139,15 +197,18 @@ export class InteractiveMessage {
     }
 
     // Builder method for initializing an interactive message
-    protected static async build(content: APIMessage, channel: TextChannel | DMChannel, buttons: string[]): Promise<Message> {
+    protected static async build(content: APIMessage, channel: TextChannel | DMChannel, buttons: string[] | { [path: string]: string }): Promise<Message> {
         const message = await betterSend(channel, content);
 
         if (!message) {
             throw new Error(`Error sending the base message for an interactive message.`);
         }
 
+        // Determine a linear array of buttons to loop over
+        const buttonArray = Array.isArray(buttons) ? buttons : Object.keys(buttons);
+        
         // Iterate over every button's emoji
-        for await (const emoji of buttons) {
+        for await (const emoji of buttonArray) {
             try {
                 // Add a reaction for every button
                 await message.react(emoji);

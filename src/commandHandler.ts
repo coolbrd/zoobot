@@ -6,6 +6,7 @@ import { guildAnimalChance } from './zoo/encounter';
 import { SubmitSpeciesCommand } from './commands/submitSpeciesCommand';
 import { betterSend } from './utility/toolbox';
 import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissionsCommand';
+import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
 
 // The class responsible for parsing and executing commands
 // Will be the default item imported from this module within other modules
@@ -23,6 +24,7 @@ export default class CommandHandler {
 
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
+            ApprovePendingSpeciesCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand
         ];
