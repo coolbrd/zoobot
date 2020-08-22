@@ -101,7 +101,7 @@ export class InteractiveMessage {
         // Default values for properties that can be overloaded with options
         this.buttons = new Map();
 
-        this.lifetime = 3000;
+        this.lifetime = 60000;
         this.resetTimerOnButtonPress = true;
 
         // If an options object was provided
