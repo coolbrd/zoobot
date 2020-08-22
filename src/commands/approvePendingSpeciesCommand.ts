@@ -1,13 +1,11 @@
-import { User, Message, TextChannel, MessageEmbed } from 'discord.js';
+import { TextChannel } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
-import { betterSend, capitalizeFirstLetter } from '../utility/toolbox';
-import { InteractiveMessage } from '../messages/interactiveMessage';
-import { speciesFieldInfo } from '../models/species';
-import { FieldInfo } from '../utility/userInput';
+import { betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
+import { speciesFieldInfo } from '../models/species';
 
 export class ApprovePendingSpeciesCommand implements Command {
     readonly commandNames = [`approve`, `approvespecies`];
