@@ -94,10 +94,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         arrayIndex++;
                     }
                 }
-                // If the array is empty, don't waste any time and just give it a nice placeholder message
-                else {
-                    contentString = '*Empty* 🔹';
-                }
             }
             // If the selected value is not an array, just a single value
             else {
@@ -105,6 +101,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // TypeScript's linter doesn't automatically detect that Array.isArray(value) returning false in a branch indicates that the value must be its OTHER possible type
                 // that's NOT the array one. Why? I thought you were better than this.
                 contentString = selectedField.value as string;
+            }
+            // If the content string ended up being empty
+            if (!contentString) {
+                // Write it instead of just being empty
+                contentString = '*Empty* 🔹';
             }
 
             // Complete the embed and edit the message
@@ -186,21 +187,27 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                             selection.splice(this.arrayPosition, 1);
                             this.arrayPosition - 1;
                         }
+                        else {
+                            this.doc[this.fieldSelection].value = undefined;
+                        }
                         break;
                     }
                     // Add a new array element above the pointer
                     case '🆕': {
-                        if (Array.isArray(selection)) {
-                            await betterSend(this.channel, 'Send your input to insert into the current field:');
+                        await betterSend(this.channel, 'Send your input to insert into the current field:');
 
-                            const newElement = await awaitUserNextMessage(this.channel, user, 60000);
+                        const newElement = await awaitUserNextMessage(this.channel, user, 60000);
 
-                            if (newElement) {
+                        if (newElement) {
+                            if (Array.isArray(selection)) {
                                 selection.splice(this.arrayPosition, 0, newElement.content);
                             }
                             else {
-                                betterSend(this.channel, 'Time limit expired. No changes have been made.');
+                                this.doc[this.fieldSelection].value = newElement.content;
                             }
+                        }
+                        else {
+                            betterSend(this.channel, 'Time limit expired. No changes have been made.');
                         }
                     }
                 }

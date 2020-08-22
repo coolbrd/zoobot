@@ -30,10 +30,6 @@ export class ApprovePendingSpeciesCommand implements Command {
 
         const editableDocument = {};
         for (const key of Object.keys(speciesFieldInfo)) {
-            if (!pendingSubmission[key]) {
-                continue;
-            }
-
             Object.defineProperty(editableDocument, key, {
                 value: {
                     fieldInfo: speciesFieldInfo[key],
