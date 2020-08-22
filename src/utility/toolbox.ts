@@ -14,12 +14,12 @@ export function capitalizeFirstLetter(string: string): string {
 export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildResolvable: GuildResolvable): number {
     const guild = client.guilds.resolve(guildResolvable);
     if (!guild) {
-        throw new Error(`Attempted to get the display color of a user from a guild that could not be resolved.`);
+        throw new Error('Attempted to get the display color of a user from a guild that could not be resolved.');
     }
 
     const guildMember = guild.member(userResolvable);
     if (!guildMember) {
-        throw new Error(`Attempted to get the display color of a user that could not be resolved.`);
+        throw new Error('Attempted to get the display color of a user that could not be resolved.');
     }
 
     return guildMember.displayColor;
@@ -53,14 +53,14 @@ export async function reactionInput(message: Message, timeOut: number, emojis: s
     // If this point is reached, a reaction was added
 
     if (!userReaction) {
-        console.error(`pressAndGo collected a reaction but returned an undefined collection.`);
+        console.error('pressAndGo collected a reaction but returned an undefined collection.');
         return;
     }
 
     const emojiReaction = userReaction.first();
 
     if (!emojiReaction) {
-        console.error(`pressAndGo returned an empty collection.`);
+        console.error('pressAndGo returned an empty collection.');
         return;
     }
 
@@ -74,7 +74,7 @@ export async function awaitUserNextMessage(channel: TextChannel | DMChannel | Ne
         return response.author === user;
     };
     // Options that force the collector to finish after one message, or after timeout
-    const messageCollectorOptions = { max: 1, time: timeout, errors: [`time`] };
+    const messageCollectorOptions = { max: 1, time: timeout, errors: ['time'] };
 
     // Initialize the user's response up here because I have to
     let userResponse;
@@ -90,7 +90,7 @@ export async function awaitUserNextMessage(channel: TextChannel | DMChannel | Ne
     // If we're out here that means the user responded to the prompt
 
     if (!userResponse) {
-        console.error(`A user's message was collected with awaitUserNextMessage, but the collector came back undefined.`);
+        console.error('A user\'s message was collected with awaitUserNextMessage, but the collector came back undefined.');
         return;
     }
 
@@ -103,7 +103,7 @@ export async function betterSend(channel: TextChannel | DMChannel | NewsChannel,
         return await channel.send(content);
     }
     catch (error) {
-        console.error(`Error trying to send message.`, error);
+        console.error('Error trying to send message.', error);
         return;
     }
 }
@@ -149,7 +149,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel, user: 
 
         // Prompt the user for the current field
         betterSend(channel, stripIndents`
-            Field ${fieldCounter}: **${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.multiple ? `(s)` : ``}**:
+            Field ${fieldCounter}: **${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.multiple ? '(s)' : ''}**:
             Enter ${field.fieldInfo.prompt}:
         `);
 
@@ -169,7 +169,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel, user: 
             if (!responseMessage) {
                 // Time's up bucko
                 // Maybe eventually replace this with a configurable message
-                betterSend(channel, `Time limit expired, input process aborted.`);
+                betterSend(channel, 'Time limit expired, input process aborted.');
                 // Don't perform the rest of the operation and return undefined
                 return;
             }
@@ -181,7 +181,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel, user: 
                 // If this field is both required and unsatisfied
                 if (field.required && currentEntry.length < 1) {
                     // Tell the user they're being very naughty
-                    await betterSend(channel, `This field is required. You must input something at least once, try again.`);
+                    await betterSend(channel, 'This field is required. You must input something at least once, try again.');
                     // Repeat the loop and wait for a better response
                     continue;
                 }

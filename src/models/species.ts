@@ -49,42 +49,42 @@ export interface SpeciesDocument {
 // Used to gather user input for these fields, and to properly display their information
 export const speciesFieldInfo: FieldInfoBundle = {
     commonNames: {
-        alias: `common name`,
-        prompt: `the animal's common name (e.g. "dog")`,
+        alias: 'common name',
+        prompt: 'the animal\'s common name (e.g. "dog")',
         multiple: true,
-        delimiter: `, `
+        delimiter: ', '
     },
     scientificName: {
-        alias: `scientific name`,
-        prompt: `the animal's scientific (taxonomical) name`,
+        alias: 'scientific name',
+        prompt: 'the animal\'s scientific (taxonomical) name',
         multiple: false
     },
     images: {
-        alias: `image`,
-        prompt: `a direct imgur link to a clear image of the animal`,
+        alias: 'image',
+        prompt: 'a direct imgur link to a clear image of the animal',
         multiple: true,
-        delimiter: `\n`
+        delimiter: '\n'
     },
     description: {
-        alias: `description`,
-        prompt: `a short description of the animal`,
+        alias: 'description',
+        prompt: 'a short description of the animal',
         multiple: false
     },
     naturalHabitat: {
-        alias: `natural habitat`,
-        prompt: `a brief overview of the animal's natural habitat`,
+        alias: 'natural habitat',
+        prompt: 'a brief overview of the animal\'s natural habitat',
         multiple: false
     },
     wikiPage: {
-        alias: `wikipedia page`,
-        prompt: `the link for the animal's species' Wikipedia page`,
+        alias: 'wikipedia page',
+        prompt: 'the link for the animal\'s species\' Wikipedia page',
         multiple: false
     },
     family: {
-        alias: `family`,
-        prompt: `the animal's family within The Beastiary`,
+        alias: 'family',
+        prompt: 'the animal\'s family within The Beastiary',
         multiple: false
     }
 }
 
-export default mongoose.model(`Species`, SpeciesSchema);
+export default mongoose.model('Species', SpeciesSchema);

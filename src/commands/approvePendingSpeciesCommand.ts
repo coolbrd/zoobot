@@ -8,7 +8,7 @@ import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import { speciesFieldInfo } from '../models/species';
 
 export class ApprovePendingSpeciesCommand implements Command {
-    readonly commandNames = [`approve`, `approvespecies`];
+    readonly commandNames = ['approve', 'approvespecies'];
 
     help(commandPrefix: string): string {
         return `Use ${commandPrefix}approve to begin the process of reviewing and approving a species submission.`;
@@ -17,7 +17,7 @@ export class ApprovePendingSpeciesCommand implements Command {
     async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.originalMessage.channel as TextChannel;
         
-        const fullSearchTerm = parsedUserCommand.args.join(` `);
+        const fullSearchTerm = parsedUserCommand.args.join(' ');
 
         const searchResult = await PendingSpecies.findOne({ 'commonNames.0': fullSearchTerm });
 

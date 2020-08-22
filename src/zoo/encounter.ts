@@ -30,13 +30,13 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
     let channel: TextChannel;
     try {
         // Get the first text channel in the server
-        channel = guild.channels.cache.find(channel => channel.type === `text`) as TextChannel;
+        channel = guild.channels.cache.find(channel => channel.type === 'text') as TextChannel;
         if (!channel) {
             throw new Error("No valid text channel was found when attempting to retrieve the first one.");
         }
     }
     catch (error) {
-        console.error(`Error trying to find the first text channel of a guild for encounter spawning.`, error);
+        console.error('Error trying to find the first text channel of a guild for encounter spawning.', error);
         return;
     }
     
@@ -49,7 +49,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         }
     }
     catch (error) {
-        console.error(`Error trying to select a random species for a new encounter message.`, error);
+        console.error('Error trying to select a random species for a new encounter message.', error);
         return;
     }
 
@@ -59,7 +59,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         await encounterMessage.send();
     }
     catch (error) {
-        console.error(`Error initializing a new encounter message.`, error);
+        console.error('Error initializing a new encounter message.', error);
         return;
     }
 }

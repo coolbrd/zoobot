@@ -15,12 +15,12 @@ export default class EncounterMessage extends InteractiveMessage {
 
     constructor(channel: TextChannel, species: SpeciesDocument) {
         const embed = new MessageEmbed();
-        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || `DEFAULT`);
+        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || 'DEFAULT');
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.setURL(species.wikiPage);
         embed.setDescription(capitalizeFirstLetter(species.scientificName));
         embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
-        embed.setFooter(`Wild encounter`);
+        embed.setFooter('Wild encounter');
 
         const content = new APIMessage(channel, { embed: embed });
 
@@ -61,7 +61,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
             // If for some reason there isn't a footer
             if (!footer) {
-                throw new Error(`Empty footer returned from encounter message.`);
+                throw new Error('Empty footer returned from encounter message.');
             }
 
             let newEmbed: MessageEmbed;
@@ -76,7 +76,7 @@ export default class EncounterMessage extends InteractiveMessage {
             await message.edit(newEmbed);
         }
         catch (error) {
-            console.error(`Error trying to edit the footer of an encounter message.`, error);
+            console.error('Error trying to edit the footer of an encounter message.', error);
         }
     }
 }

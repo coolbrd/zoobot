@@ -35,7 +35,7 @@ const pendingSpeciesSchema = new mongoose.Schema({
     }
 });
 
-export const PendingSpecies = mongoose.model(`PendingSpecies`, pendingSpeciesSchema);
+export const PendingSpecies = mongoose.model('PendingSpecies', pendingSpeciesSchema);
 
 // Combine the Mongoose schema and the input info for the species model into a UserInputBundle
 export const pendingSpeciesUserInputBundle = schemaToUserInputBundle(pendingSpeciesSchema, {

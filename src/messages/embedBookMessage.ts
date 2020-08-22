@@ -10,7 +10,7 @@ export default class EmbedBookMessage extends InteractiveMessage {
     private page: number;
 
     constructor(channel: TextChannel | DMChannel, book: MessageEmbed[]) {
-        const buttons = [`⬅️`, `➡️`];
+        const buttons = ['⬅️', '➡️'];
 
         super(channel, { buttons: buttons });
         this.book = book;
@@ -24,11 +24,11 @@ export default class EmbedBookMessage extends InteractiveMessage {
         super.buttonPress(button, user);
 
         switch(button) {
-            case `⬅️`: {
+            case '⬅️': {
                 this.goToPage(this.page - 1);
                 break;
             }
-            case `➡️`: {
+            case '➡️': {
                 this.goToPage(this.page + 1);
                 break;
             }
@@ -73,14 +73,14 @@ export default class EmbedBookMessage extends InteractiveMessage {
         const footer = embed.footer;
 
         // Append the deactivated info to the end of the message's footer
-        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ``}(deactivated)`);
+        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}(deactivated)`);
 
         try {
             // Update the message
             await message.edit(newEmbed);
         }
         catch (error) {
-            console.error(`Error trying to edit an embed on an interactive message.`, error);
+            console.error('Error trying to edit an embed on an interactive message.', error);
         }
     }
 }

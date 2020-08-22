@@ -54,16 +54,16 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             const fieldValue = editableField.value;
 
             // Format the field's value properly
-            let fieldString = Array.isArray(fieldValue) ? fieldValue.join(editableField.fieldInfo.delimiter ? editableField.fieldInfo.delimiter : `, `) : fieldValue;
+            let fieldString = Array.isArray(fieldValue) ? fieldValue.join(editableField.fieldInfo.delimiter ? editableField.fieldInfo.delimiter : ', ') : fieldValue;
 
             // If the field's string is empty, use placeholder text so Discord doesn't get mad about any empty embed fields
-            fieldString = fieldString ? fieldString : `*Empty*`;
+            fieldString = fieldString ? fieldString : '*Empty*';
 
             // Deterimine if there should be an icon drawn on this field's row
-            const editIcon = fieldIndex === this.fieldPosition ? `✏️` : ``;
+            const editIcon = fieldIndex === this.fieldPosition ? '✏️' : '';
 
             // Capitalize and pluralize the title as needed and add the field
-            docEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? `(s)` : ``} ${editIcon}`, fieldString);
+            docEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
 
             fieldIndex++;
         }
@@ -80,22 +80,22 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
             const editEmbed = new MessageEmbed();
             const selectedField = this.doc[this.fieldSelection];
-            editEmbed.setTitle(`Now editing: ${selectedField.fieldInfo.alias}${selectedField.fieldInfo.multiple ? `(s)` : ``}`);
+            editEmbed.setTitle(`Now editing: ${selectedField.fieldInfo.alias}${selectedField.fieldInfo.multiple ? '(s)' : ''}`);
 
-            let contentString = ``;
+            let contentString = '';
             // If the selected value is an array, display it properly
             if (Array.isArray(selectedField.value)) {
                 // If the array has any content within it, continue with pretty formatting
                 if (selectedField.value.length > 0) {
                     let arrayIndex = 0;
                     for (const value of selectedField.value) {
-                        contentString += `${value} ${arrayIndex === this.arrayPosition ? `🔹` : ``}\n`
+                        contentString += `${value} ${arrayIndex === this.arrayPosition ? '🔹' : ''}\n`
                         arrayIndex++;
                     }
                 }
                 // If the array is empty, don't waste any time and just give it a nice placeholder message
                 else {
-                    contentString = `*Empty* 🔹`;
+                    contentString = '*Empty* 🔹';
                 }
             }
             // If the selected value is not an array, just a single value
@@ -113,9 +113,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             this.setEmbed(editEmbed);
 
             // Add buttons that pertain to editing field information
-            this.addButton(`⬅️`, `Back to field selection`);
-            this.addButton(`🗑️`, `Delete selected entry`);
-            this.addButton(`🆕`, `New entry`);
+            this.addButton('⬅️', 'Back to field selection');
+            this.addButton('🗑️', 'Delete selected entry');
+            this.addButton('🆕', 'New entry');
         }
         // If the document is not in edit mode (so the user is still selecting a field to edit)
         else {
@@ -142,15 +142,15 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
                 // Field selection mode button behavior
                 switch(button) {
-                    case `⬆️`: {
+                    case '⬆️': {
                         this.fieldPosition = this.fieldPosition - 1 < 0 ? lastDocIndex : this.fieldPosition - 1;
                         break;
                     }
-                    case `⬇️`: {
+                    case '⬇️': {
                         this.fieldPosition = this.fieldPosition + 1 > lastDocIndex ? 0 : this.fieldPosition + 1;
                         break;
                     }
-                    case `✏️`: {
+                    case '✏️': {
                         this.editMode = true;
                         this.arrayPosition = 0;
                         break;
@@ -162,23 +162,23 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             case true: {
                 // Edit mode button behavior
                 switch(button) {
-                    case `⬆️`: {
+                    case '⬆️': {
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition - 1 < 0 ? selection.length - 1 : this.arrayPosition - 1;
                         }
                         break;
                     }
-                    case `⬇️`: {
+                    case '⬇️': {
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
                         }
                         break;
                     }
-                    case `⬅️`: {
+                    case '⬅️': {
                         this.editMode = false;
                         break;
                     }
-                    case `🗑️`: {
+                    case '🗑️': {
                         if (Array.isArray(selection)) {
                             selection.splice(this.arrayPosition, 1);
                             this.arrayPosition - 1;
@@ -204,14 +204,14 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         const footer = embed.footer;
 
         // Append the deactivated info to the end of the message's footer
-        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ``}(deactivated)`);
+        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}(deactivated)`);
 
         try {
             // Update the message
             await message.edit(newEmbed);
         }
         catch (error) {
-            console.error(`Error trying to edit an embed on an interactive message.`, error);
+            console.error('Error trying to edit an embed on an interactive message.', error);
         }
     }
 }

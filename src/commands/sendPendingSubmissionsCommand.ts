@@ -9,7 +9,7 @@ import EmbedBookMessage from '../messages/embedBookMessage';
 //import { ADMIN_SERVER_ID } from '../config/secrets';
 
 export class SendPendingSubmissionsCommand implements Command {
-    commandNames = [`pending`, `submissions`];
+    commandNames = ['pending', 'submissions'];
 
     help(commandPrefix: string): string {
         return `Use ${commandPrefix}pending to view a list of all pending species submissions.`;
@@ -20,7 +20,7 @@ export class SendPendingSubmissionsCommand implements Command {
         const guild = parsedUserCommand.originalMessage.guild;
 
         if (!guild /*|| guild.id !== ADMIN_SERVER_ID*/) {
-            betterSend(channel, `This command can only be used in the designated admin server. Try it there.`);
+            betterSend(channel, 'This command can only be used in the designated admin server. Try it there.');
             return;
         }
 
@@ -34,30 +34,30 @@ export class SendPendingSubmissionsCommand implements Command {
         // The currently iterated pending species (starting at 1 because the modulo operator doesn't use 0 the way I want it to)
         let submissionIndex = 1;
         // The content of the current page that's being built
-        let currentPageString = ``;
+        let currentPageString = '';
 
         // The number of pending species that will appear on each page
         const entriesPerPage = 10;
         // Iterate over every pending species submission in the database
         for (const submission of pendingSpecies) {
             // Get the author's id
-            const authorID = submission.get(`author`);
+            const authorID = submission.get('author');
             // Try to resolve the author's id into their user instance
             const author = client.users.resolve(authorID);
             
             // Add basic info about this submission to the page
-            currentPageString += `• ${capitalizeFirstLetter(submission.get(`commonNames`)[0])}, by ${author ? author.tag : `Unknown user`}\n`
+            currentPageString += `• ${capitalizeFirstLetter(submission.get('commonNames')[0])}, by ${author ? author.tag : 'Unknown user'}\n`
 
             // If the limit of entried per page has been reached, or we're at the end of the set of documents
             if (submissionIndex % entriesPerPage == 0 || submissionIndex == pendingSpecies.length) {
                 // Create a new embed and build it according to the present information
                 currentEmbedPage = new MessageEmbed();
-                currentEmbedPage.setTitle(`Species submissions pending approval`);
+                currentEmbedPage.setTitle('Species submissions pending approval');
                 currentEmbedPage.setDescription(currentPageString);
 
                 // Add the page to the book
                 embedBook.push(currentEmbedPage);
-                currentPageString = ``;
+                currentPageString = '';
             }
             
             submissionIndex++;

@@ -57,7 +57,7 @@ export default class CommandHandler {
                 await guildAnimalChance(sourceGuild);
             }
             catch (error) {
-                console.error(`Error while attempting to spawn an animal.`, error);
+                console.error('Error while attempting to spawn an animal.', error);
             }
         }
 
@@ -74,7 +74,7 @@ export default class CommandHandler {
                 const unknownCommandMessage = await betterSend(commandParser.originalMessage.channel, `I don't recognize that command. Try ${this.prefix}help.`);
 
                 if (!unknownCommandMessage) {
-                    console.error(`Error sending unknown command message.`);
+                    console.error('Error sending unknown command message.');
                 }
             }
             // If a matching command was found
@@ -84,7 +84,7 @@ export default class CommandHandler {
                     await matchedCommand.run(commandParser);
                 }
                 catch (error) {
-                    console.error(`Command execution failed.`, error);
+                    console.error('Command execution failed.', error);
                     return;
                 }
             }

@@ -23,13 +23,13 @@ function complete() {
     if (discordLoaded && databaseLoaded) {
         // Allow the bot to receive input
         readyForInput = true;
-        console.log(`Ready for input`);
+        console.log('Ready for input');
     }
 }
 
 // When the bot is ready to receive input
-client.on(`ready`, () => {
-    console.log(`Logged into Discord`);
+client.on('ready', () => {
+    console.log('Logged into Discord');
 
     // Indicate that the bot has logged into Discord
     discordLoaded = true;
@@ -37,7 +37,7 @@ client.on(`ready`, () => {
 });
 
 // When the bot receives a message
-client.on(`message`, (message: Message) => {
+client.on('message', (message: Message) => {
     // If the bot is not yet ready to receive input
     if (!readyForInput) {
         // Don't do anything with the message
@@ -49,32 +49,32 @@ client.on(`message`, (message: Message) => {
 });
 
 // When the bot observes a user adding a reaction to a message
-client.on(`messageReactionAdd`, (messageReaction, user) => {
+client.on('messageReactionAdd', (messageReaction, user) => {
     // Handle the user's reaction
     InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
 // When the bot observes a user removing a reaction from a message
-client.on(`messageReactionRemove`, (messageReaction, user) => {
+client.on('messageReactionRemove', (messageReaction, user) => {
     // Handle the user's reaction
     InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
 // When the bot encounters an error
-client.on(`error`, error => console.error(`Discord client error: `, error));
+client.on('error', error => console.error('Discord client error: ', error));
 
 // Log the bot into the discord client with the provided token
 client.login(DISCORD_TOKEN);
 
 // Connect to the MongoDB database
-mongoose.connect(MONGODB_PATH, { dbName: `zoobot`, useNewUrlParser: true, useUnifiedTopology: true }).then(
+mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(
     // When a connection is established
     () => {
-        console.log(`MongoDB connected`);
+        console.log('MongoDB connected');
         // Indicate that the bot has logged into the database
         databaseLoaded = true;
         complete();
     },
     // If there was an error connecting
-    error => console.error(`MongoDB connection error: `, error)
+    error => console.error('MongoDB connection error: ', error)
 );

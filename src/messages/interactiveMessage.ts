@@ -38,7 +38,7 @@ export class InteractiveMessageHandler {
                 await interactiveMessage.buttonPress(emojiString, user);
             }
             catch (error) {
-                console.error(`Error activating an interactive message's button.`, error);
+                console.error('Error activating an interactive message\'s button.', error);
             }
         }
     }
@@ -192,10 +192,10 @@ export class InteractiveMessage {
 
     // Gets a formatted string of all available help information for every button currently active on the message
     getButtonHelpString(): string {
-        let helpString = ``;
+        let helpString = '';
         for (const [button, buttonHelp] of Object.entries(this.buttons)) {
             // Add the current button's help information, if there is any
-            helpString += buttonHelp ? `${button}: ${buttonHelp} ` : ``;
+            helpString += buttonHelp ? `${button}: ${buttonHelp} ` : '';
         }
         return helpString;
     }
@@ -208,7 +208,7 @@ export class InteractiveMessage {
                 this.deactivate();
             }
             catch (error) {
-                console.error(`Error trying to deactivate an interactive message.`, error);
+                console.error('Error trying to deactivate an interactive message.', error);
             }
         }, this.lifetime);
     }
@@ -225,7 +225,7 @@ export class InteractiveMessage {
     async send(): Promise<void> {
         // If the message hasn't had its content initialized
         if (!this.content) {
-            throw new Error(`Tried to send an interactive message with no content`);
+            throw new Error('Tried to send an interactive message with no content');
         }
 
         // Send the interactive message's base message
@@ -236,7 +236,7 @@ export class InteractiveMessage {
 
         // If nothing came back
         if (!message) {
-            throw new Error(`Error sending the base message for an interactive message.`);
+            throw new Error('Error sending the base message for an interactive message.');
         }
 
         // Determine the linear array of buttons to loop over
@@ -252,7 +252,7 @@ export class InteractiveMessage {
                 await message.react(emoji);
             }
             catch (error) {
-                throw new Error(`Error trying to add reactions to an interactive message.`);
+                throw new Error('Error trying to add reactions to an interactive message.');
             }
         }
 
