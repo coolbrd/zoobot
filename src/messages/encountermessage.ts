@@ -3,7 +3,7 @@ import { Message, MessageEmbed, TextChannel, User, APIMessage } from 'discord.js
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
-import { SpeciesDocument, speciesFieldInfo } from '../models/species';
+import { SpeciesDocument } from '../models/species';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals

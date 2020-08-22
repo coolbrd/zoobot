@@ -1,4 +1,4 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel } from 'discord.js';
+import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
 
@@ -66,7 +66,7 @@ export class InteractiveMessageHandler {
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
     // The text channel that the message will be sent in
-    protected readonly channel: TextChannel | DMChannel;
+    private readonly channel: TextChannel | DMChannel;
     // The content of the message to display on the message
     private content: APIMessage | undefined;
 
@@ -142,13 +142,13 @@ export class InteractiveMessage {
     }
 
     // Sets the content of the message and edits it (if possible)
-    protected async setContent(newContent: APIMessage): Promise<void> {
+    protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
         // Assign the message's new content
-        this.content = newContent;
+        this.content = new APIMessage(this.channel, { embed: newEmbed });
 
         const message = this.message;
         // If the message has been sent, edit it to reflect the changes
-        message && message.edit(newContent);
+        message && message.edit(newEmbed);
     }
 
     // Get an array of every button currently on the message

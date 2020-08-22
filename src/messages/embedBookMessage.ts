@@ -1,4 +1,4 @@
-import { DMChannel, MessageEmbed, Message, TextChannel, APIMessage, User } from 'discord.js';
+import { DMChannel, MessageEmbed, Message, TextChannel, User } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 
@@ -16,7 +16,7 @@ export default class EmbedBookMessage extends InteractiveMessage {
         this.book = book;
         this.page = 0;
 
-        this.setContent(new APIMessage(channel, { embed: this.getPage(this.page) }));
+        this.setEmbed(this.getPage(this.page));
     }
 
     async buttonPress(button: string, user: User): Promise<void> {
@@ -46,12 +46,12 @@ export default class EmbedBookMessage extends InteractiveMessage {
         newPage = newPage >= this.book.length ? 0 : newPage;
         newPage = newPage < 0 ? this.book.length - 1 : newPage; 
 
-        try {
-            // Get the next page and add its info to the footer
-            const nextPage = this.getPage(newPage);
+        // Get the next page and add its info to the footer
+        const nextPage = this.getPage(newPage);
 
+        try {
             // Update the message
-            this.setContent(new APIMessage(this.channel, { embed: nextPage }));
+            this.setEmbed(nextPage);
         }
         catch (error) {
             console.error(`Unable to edit embed book message.`, error);

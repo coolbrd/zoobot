@@ -77,8 +77,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     private editMode: boolean;
 
     constructor(channel: TextChannel, doc: EditableDocument) {
-        // The set of buttons that this message will be initialized with
-        const buttons: { [path: string]: string } = {
+        const buttons = {
             '⬆️': 'Move pointer up',
             '⬇️': 'Move pointer down',
             '✏️': 'Edit selection'
@@ -87,14 +86,17 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         super(channel, { buttons: buttons });
         this.doc = doc;
 
+        // Start the editor at the first field
         this.fieldPosition = 0;
         this.fieldSelection = Object.keys(doc)[this.fieldPosition];
 
+        // Start the editor at the first array position
         this.arrayPosition = 0;
 
+        // Start the editor in field selection mode (not edit mode)
         this.editMode = false;
 
-        this.setContent(new APIMessage(channel, { embed: this.buildEmbed() }));
+        this.setEmbed(this.buildEmbed());
     }
 
     buildEmbed(): MessageEmbed {
@@ -162,7 +164,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             // Complete the embed and edit the message
             editEmbed.setDescription(contentString);
             editEmbed.setFooter(this.getButtonHelpString());
-            this.setContent(new APIMessage(this.channel, { embed: editEmbed }));
+
+            this.setEmbed(editEmbed);
 
             // Add buttons that pertain to editing field information
             this.addButton(`⬅️`, `Back to field selection`);
@@ -172,7 +175,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // If the document is not in edit mode (so the user is still selecting a field to edit)
         else {
             // Build and update the message's embed
-            this.setContent(new APIMessage(this.channel, { embed: this.buildEmbed() }));
+            this.setEmbed(this.buildEmbed());
         }
 
         // Determine the message's new selected field of the document
