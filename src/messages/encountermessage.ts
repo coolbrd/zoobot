@@ -3,28 +3,17 @@ import { Message, MessageEmbed, TextChannel, User, APIMessage } from 'discord.js
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
-import { SpeciesDocument } from '../models/species';
+import { SpeciesDocument, speciesFieldInfo } from '../models/species';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     readonly species: SpeciesDocument;
+    // Whether or not this animal has been caught
     caught: boolean;
 
-    protected constructor(message: Message, buttons: string[], lifetime: number, species: SpeciesDocument) {
-        super(message, buttons, lifetime);
-        this.species = species;
-        this.caught = false;
-    }
-
-    // Asynchronous initializer for this encounter message. To be called instead of the constructor.
-    static async init(channel: TextChannel, species: SpeciesDocument): Promise<EncounterMessage> {
-        // Interactive message defaults for an encounter message
-        // Left in the init method rather than the constructor as a reminder that this data can be fetched asynchronously
-        const buttons = [`🔘`];
-        const lifetime = 60000;
-
+    constructor(channel: TextChannel, species: SpeciesDocument) {
         const embed = new MessageEmbed();
         embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || `DEFAULT`);
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
@@ -35,25 +24,22 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const content = new APIMessage(channel, { embed: embed });
 
-        let message;
-        try {
-            // Attempt to send the base message for this encounter
-            message = await this.build(content, channel, buttons) as Message;
-        }
-        catch (error) {
-            throw new Error(`Error building the base message for an interactive message.`);
-        }
+        const buttons = {
+            '🔘': 'Capture'
+        };
 
-        // Initialize the encounter message with the newly sent and built message
-        const interactiveMessage = new EncounterMessage(message, buttons, lifetime, species);
-
-        return interactiveMessage;
+        super(channel, { content: content, buttons: buttons });
+        this.species = species;
+        this.caught = false;
     }
 
     // Whenever the encounter's button is pressed
     async buttonPress(_button: string, user: User): Promise<void> {
+        // Get this encounter's message, and assume it's not going to be undefined (because it really won't be)
+        const message = this.getMessage() as Message;
+
         // Indicate that the user has caught the animal
-        betterSend(this.getMessage().channel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(message.channel, `${user}, You caught ${this.species.commonNames[0]}!`);
         this.caught = true;
         
         // Stop this message from receiving any more input
@@ -65,8 +51,10 @@ export default class EncounterMessage extends InteractiveMessage {
         super.deactivate();
 
         try {
+            const message = this.getMessage() as Message;
+
             // Get the embed of the encounter message
-            const embed = this.getMessage().embeds[0];
+            const embed = message.embeds[0];
 
             // Get the embed's footer
             const footer = embed.footer;
@@ -85,10 +73,10 @@ export default class EncounterMessage extends InteractiveMessage {
                 newEmbed = embed.setFooter(`${footer.text} (fled)`);
             }
             // Update the message
-            await this.getMessage().edit(newEmbed);
+            await message.edit(newEmbed);
         }
         catch (error) {
-            console.error(`Error trying to edit an embed on an interactive message.`, error);
+            console.error(`Error trying to edit the footer of an encounter message.`, error);
         }
     }
 }

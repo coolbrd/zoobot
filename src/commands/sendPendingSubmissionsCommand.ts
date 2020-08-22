@@ -30,10 +30,12 @@ export class SendPendingSubmissionsCommand implements Command {
         // The array of embeds that will represent a paged form of all pending species
         const embedBook: MessageEmbed[] = [];
         let currentEmbedPage: MessageEmbed;
+
         // The currently iterated pending species (starting at 1 because the modulo operator doesn't use 0 the way I want it to)
         let submissionIndex = 1;
         // The content of the current page that's being built
         let currentPageString = ``;
+
         // The number of pending species that will appear on each page
         const entriesPerPage = 10;
         // Iterate over every pending species submission in the database
@@ -42,6 +44,7 @@ export class SendPendingSubmissionsCommand implements Command {
             const authorID = submission.get(`author`);
             // Try to resolve the author's id into their user instance
             const author = client.users.resolve(authorID);
+            
             // Add basic info about this submission to the page
             currentPageString += `• ${capitalizeFirstLetter(submission.get(`commonNames`)[0])}, by ${author ? author.tag : `Unknown user`}\n`
 
@@ -60,6 +63,8 @@ export class SendPendingSubmissionsCommand implements Command {
             submissionIndex++;
         }
 
-        EmbedBookMessage.init(channel, embedBook);
+        // Send the embed book
+        const embedBookMessage = new EmbedBookMessage(channel, embedBook);
+        embedBookMessage.send();
     }
 }

@@ -44,13 +44,19 @@ export class InteractiveMessageHandler {
     }
 
     // Adds an existing interactive message to the global collection of them
-    static addMessage(message: InteractiveMessage): void {
-        this.messages.set(message.getMessage().id, message);
+    static addMessage(interactiveMessage: InteractiveMessage): void {
+        // Get the interactive message's underlying message
+        const discordMessage = interactiveMessage.getMessage();
+        // Only add the message to the map of active messages if its message has been sent
+        discordMessage && this.messages.set(discordMessage.id, interactiveMessage);
     }
 
     // Removes an interactive message from the global collection
-    static removeMessage(message: InteractiveMessage): void {
-        this.messages.delete(message.getMessage().id);
+    static removeMessage(interactiveMessage: InteractiveMessage): void {
+        // Get the interactive message's underlying message
+        const discordMessage = interactiveMessage.getMessage();
+        // Only attempt to delete the message from the map of active messages if its message has been send
+        discordMessage && this.messages.delete(discordMessage.id);
     }
 }
 
@@ -59,56 +65,90 @@ export class InteractiveMessageHandler {
 // I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage {
+    // The text channel that the message will be sent in
+    protected readonly channel: TextChannel | DMChannel;
+    // The content of the message to display on the message
+    private content: APIMessage | undefined;
+
     // The set of emojis that will serve as buttons on this message
     private readonly buttons: { [button: string]: string | undefined };
-    // The timer instance that will keep track of when this message should deactivate
-    private timer: NodeJS.Timeout;
+
+    // This interactive message's underlying message
+    private message: Message | undefined;
+    
     // The number of milliseconds that this message will be active for
     private readonly lifetime: number;
     // Whether or not pressing a button will reset this message's deactivation timer
     private readonly resetTimerOnButtonPress: boolean;
+    // The timer instance that will keep track of when this message should deactivate
+    private timer: NodeJS.Timeout | undefined;
 
-    // This interactive message's underlying message
-    private readonly message: Message;
+    constructor(
+        channel: TextChannel | DMChannel,
+        options?: {
+            content?: APIMessage,
+            buttons?: string[] | { [button: string]: string | undefined },
+            lifetime?: number,
+            resetTimerOnButtonPress?: boolean
+        }
+    ){
+        // Assign channel
+        this.channel = channel;
+        
+        // Default values for properties that can be overloaded with options
+        this.buttons = {};
 
-    // The protected constructor for internally creating an interactive message instance. Only to be called from within methods of the object.
-    protected constructor(message: Message, buttons: string[] | { [button: string]: string | undefined }, lifetime: number, resetTimerOnButtonPress?: boolean) {
-        // If a string of anonymous buttons was provided instead of an object with help messages
-        if (Array.isArray(buttons)) {
-            // Initialize an empty object that will contain each button provided
-            const buttonsObject: { [button: string]: string | undefined } = {};
-            // Iterate over every button provided
-            buttons.forEach(button => {
-                // Add a property with an empty help message for the current button
-                Object.defineProperty(buttonsObject, button, {
-                    value: undefined,
-                    writable: false,
-                    enumerable: true
-                });
-            });
-            this.buttons = buttonsObject;
-        }
-        // If the buttons parameter is already an object
-        else {
-            // Assign it as-is
-            this.buttons = buttons;
-        }
-        this.message = message;
-        this.lifetime = lifetime;
-        // If the user specified whether the message should reset its timer after each press or not
-        if (resetTimerOnButtonPress) {
-            // Use that value
-            this.resetTimerOnButtonPress = resetTimerOnButtonPress;
-        }
-        // Otherwise, use true by default
-        else {
-            this.resetTimerOnButtonPress = true;
-        }
+        this.lifetime = 60000;
+        this.resetTimerOnButtonPress = true;
 
-        this.timer = this.setTimer();
+        // If an options object was provided
+        if (options) {
+            // Assign content
+            this.content = options.content;
 
-        // Add this message to the map of other interactive messages
-        InteractiveMessageHandler.addMessage(this);
+            // If buttons were provided
+            if (options.buttons) {
+                // If a string of anonymous buttons was provided instead of an object with help messages
+                if (Array.isArray(options.buttons)) {
+                    // Initialize an empty object that will contain each button provided
+                    const buttonsObject: { [button: string]: string | undefined } = {};
+                    // Iterate over every button provided
+                    options.buttons.forEach(button => {
+                        // Add a property with an empty help message for the current button
+                        Object.defineProperty(buttonsObject, button, {
+                            value: undefined,
+                            writable: false,
+                            enumerable: true
+                        });
+                    });
+                    this.buttons = buttonsObject;
+                }
+                // If the buttons parameter is already an object
+                else {
+                    // Assign it as-is
+                    this.buttons = options.buttons;
+                }
+            }
+
+            // Assign options fields if present
+            if (options.lifetime) {
+                this.lifetime = options.lifetime;
+            }
+
+            if (options.resetTimerOnButtonPress) {
+                this.resetTimerOnButtonPress = options.resetTimerOnButtonPress;
+            }
+        }
+    }
+
+    // Sets the content of the message and edits it (if possible)
+    protected async setContent(newContent: APIMessage): Promise<void> {
+        // Assign the message's new content
+        this.content = newContent;
+
+        const message = this.message;
+        // If the message has been sent, edit it to reflect the changes
+        message && message.edit(newContent);
     }
 
     // Get an array of every button currently on the message
@@ -123,18 +163,21 @@ export class InteractiveMessage {
         if (button in this.buttons) {
             return;
         }
-        
+
         // Add the button to the buttons object
         Object.defineProperty(this.buttons, button, {
             value: helpMessage,
             writable: false,
             enumerable: true
         });
-        // React to the message with the new button
-        this.getMessage().react(button);
+
+        const message = this.getMessage();
+        // Only react to the message if it exists (otherwise the new button will be added upon the message being sent)
+        message && message.react(button);
     }
 
     // Removes a button from this message's list of active buttons
+    // Doesn't visually remove the button (sorry!)
     async removeButton(button: string): Promise<void> {
         // If the button doesn't exist in the list of active buttons
         if (!(button in this.buttons)) {
@@ -145,7 +188,7 @@ export class InteractiveMessage {
         delete this.buttons[button];
     }
 
-    getMessage(): Message { return this.message; }
+    getMessage(): Message | undefined { return this.message; }
 
     // Gets a formatted string of all available help information for every button currently active on the message
     getButtonHelpString(): string {
@@ -157,27 +200,7 @@ export class InteractiveMessage {
         return helpString;
     }
 
-    // This class is missing a static init method, which would normally initialize the asynchronous building process and return a completed interactive message.
-    // The implementation of the init method is left up to child classes, which might have different parameters and default values for initialization.
-    // A simple init method would most likely look something like this, but again, I'm not adding one to this class because it's never meant to be initialized.
-    /*
-    static async init(channel: TextChannel, content: APIMEssage, buttons: string[], lifetime: number) {
-        let message;
-        try {
-            message = await this.build(content, channel, buttons);
-        }
-        catch (error) {
-            console.error(`Error trying to build the base message for an interactive message.`, error);
-            return;
-        }
-
-        const interactiveMessage = new InteractiveMessage(buttons, message, lifetime);
-
-        return interactiveMessage;
-    }
-    */
-    // It should be noted that in subclass implementations of the init method, the constructor of the subclass should be called rather than that of InteractiveMessage.
-
+    // Initially sets this message's timer for automatic deactivation
     private setTimer(): NodeJS.Timer {
         // Set the message's deactivation timer and return the resulting timer instance
         return setTimeout(() => {
@@ -192,21 +215,36 @@ export class InteractiveMessage {
 
     // Resets this message's deactivation timer
     private resetTimer(): void {
-        clearTimeout(this.timer);
+        // If the timer is running, end it
+        this.timer && clearTimeout(this.timer);
+        // Set the timer
         this.timer = this.setTimer();
     }
 
-    // Builder method for initializing an interactive message
-    protected static async build(content: APIMessage, channel: TextChannel | DMChannel, buttons: string[] | { [path: string]: string }): Promise<Message> {
-        const message = await betterSend(channel, content);
+    // Send this interactive message, build it, and activate it
+    async send(): Promise<void> {
+        // If the message hasn't had its content initialized
+        if (!this.content) {
+            throw new Error(`Tried to send an interactive message with no content`);
+        }
 
+        // Send the interactive message's base message
+        this.message = await betterSend(this.channel, this.content);
+
+        // Get the message that was just sent
+        const message = this.getMessage();
+
+        // If nothing came back
         if (!message) {
             throw new Error(`Error sending the base message for an interactive message.`);
         }
 
-        // Determine a linear array of buttons to loop over
-        const buttonArray = Array.isArray(buttons) ? buttons : Object.keys(buttons);
+        // Determine the linear array of buttons to loop over
+        const buttonArray = Array.isArray(this.buttons) ? this.buttons : Object.keys(this.buttons);
         
+        // Add this message to the map of other interactive messages
+        InteractiveMessageHandler.addMessage(this);
+
         // Iterate over every button's emoji
         for await (const emoji of buttonArray) {
             try {
@@ -218,35 +256,22 @@ export class InteractiveMessage {
             }
         }
 
-        // Return the resulting message once its reactions have been added
-        return message;
+        // After buttons have been added, start the message's timer
+        this.timer = this.setTimer();
     }
 
     // Activates a button on this message
     async buttonPress(_button: string, _user: User | PartialUser): Promise<void> {
         // Resets the message's timer if it's supposed to do that
-        if (this.resetTimerOnButtonPress) {
-            this.resetTimer();
-        }
+        this.resetTimerOnButtonPress && this.resetTimer();
     }
 
     // Deactivates the interactive message, freeing up space in the global list
     protected async deactivate(): Promise<void> {
-        // Cancel the deactivation timer (if deactivate was called manually)
-        // Thankfully, this does nothing if the timeout that we're trying to clear has already expired
-        clearTimeout(this.timer);
+        // If the timer was running, cancel it for good (preventing this method from being called again accidentally)
+        this.timer && clearTimeout(this.timer);
 
         // Remove the message from the handler's list
         InteractiveMessageHandler.removeMessage(this);
-
-        // Attempt to remove all reactions from the message
-        try {
-            await this.getMessage().reactions.removeAll();
-        }
-        // If the reactions couldn't be removed (most likely a permissions issue)
-        catch (error) {
-            // Don't log any errors, continue as normal
-            return;
-        }
     }
 }

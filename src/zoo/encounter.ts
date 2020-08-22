@@ -55,7 +55,8 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
 
     try {
         // Send an encounter message to the channel
-        await EncounterMessage.init(channel, species);
+        const encounterMessage = new EncounterMessage(channel, species);
+        await encounterMessage.send();
     }
     catch (error) {
         console.error(`Error initializing a new encounter message.`, error);

@@ -45,7 +45,8 @@ export class ApprovePendingSpeciesCommand implements Command {
             });
         }
 
-        EditableDocumentMessage.init(channel, editableDocument);
+        const editableDocumentMessage = new EditableDocumentMessage(channel, editableDocument);
+        editableDocumentMessage.send();
     }
 }
 
@@ -64,59 +65,44 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     // The document to provide for editing
     private readonly doc: EditableDocument;
     // The document's top level field that is currently selected
-    private fieldPosition = 0;
+
+    private fieldPosition: number;
     // The name of the selected field
     private fieldSelection: string;
-    // Whether or not the editor is currently within a field
-    private editMode = false;
+
     // The position of the editor within a field's array of values
-    private arrayPosition = 0;
+    private arrayPosition: number;
 
-    protected constructor(message: Message, initialButtons: string[] | { [path: string]: string }, lifetime: number, doc: EditableDocument) {
-        super(message, initialButtons, lifetime);
-        this.doc = doc;
-        this.fieldSelection = Object.keys(this.doc)[0];
-    }
+    // Whether or not the editor is currently within a field
+    private editMode: boolean;
 
-    // Initializes an editable message in a given channel
-    static async init(channel: TextChannel, doc: EditableDocument): Promise<EditableDocumentMessage> {
+    constructor(channel: TextChannel, doc: EditableDocument) {
         // The set of buttons that this message will be initialized with
-        const initialButtons: { [path: string]: string } = {
+        const buttons: { [path: string]: string } = {
             '⬆️': 'Move pointer up',
             '⬇️': 'Move pointer down',
             '✏️': 'Edit selection'
         };
-        // The timeout period that will trigger deactivation after inactivity
-        const lifetime = 60000;
 
-        // Build the initial embed
-        const docEmbed = EditableDocumentMessage.buildEmbed(doc, 0);
+        super(channel, { buttons: buttons });
+        this.doc = doc;
 
-        // Wrap the embed in a message for eventual sending
-        const content = new APIMessage(channel, { embed: docEmbed });
+        this.fieldPosition = 0;
+        this.fieldSelection = Object.keys(doc)[this.fieldPosition];
 
-        let message;
-        try {
-            // Attempt to send and build the message
-            message = await this.build(content, channel, initialButtons) as Message;
-        }
-        catch (error) {
-            throw new Error(`Error building the base message for an editable document message.`);
-        }
+        this.arrayPosition = 0;
 
-        // Once the message is sent, initialize this instance as a proper editable document
-        return new EditableDocumentMessage(message, initialButtons, lifetime, doc);
+        this.editMode = false;
+
+        this.setContent(new APIMessage(channel, { embed: this.buildEmbed() }));
     }
 
-    // Builds the embed that displays the submission's current information with the edit icon
-    // This is static because it needs to be called once in this class' init function
-    // If there's a way to get around that and make this a proper method please tell me. I don't like it being this way.
-    static buildEmbed(doc: EditableDocument, position: number): MessageEmbed {
+    buildEmbed(): MessageEmbed {
         const docEmbed = new MessageEmbed();
 
         let fieldIndex = 0;
         // Iterate over every field in the document
-        for (const editableField of Object.values(doc)) {
+        for (const editableField of Object.values(this.doc)) {
             // Select the actual value of the field rather than its wrapper object
             const fieldValue = editableField.value;
 
@@ -127,7 +113,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             fieldString = fieldString ? fieldString : `*Empty*`;
 
             // Deterimine if there should be an icon drawn on this field's row
-            const editIcon = fieldIndex === position ? `✏️` : ``;
+            const editIcon = fieldIndex === this.fieldPosition ? `✏️` : ``;
 
             // Capitalize and pluralize the title as needed and add the field
             docEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? `(s)` : ``} ${editIcon}`, fieldString);
@@ -176,7 +162,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             // Complete the embed and edit the message
             editEmbed.setDescription(contentString);
             editEmbed.setFooter(this.getButtonHelpString());
-            this.getMessage().edit(editEmbed);
+            this.setContent(new APIMessage(this.channel, { embed: editEmbed }));
 
             // Add buttons that pertain to editing field information
             this.addButton(`⬅️`, `Back to field selection`);
@@ -186,7 +172,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // If the document is not in edit mode (so the user is still selecting a field to edit)
         else {
             // Build and update the message's embed
-            this.getMessage().edit(EditableDocumentMessage.buildEmbed(this.doc, this.fieldPosition));
+            this.setContent(new APIMessage(this.channel, { embed: this.buildEmbed() }));
         }
 
         // Determine the message's new selected field of the document
@@ -263,7 +249,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Inherit parent deactivation behavior
         super.deactivate();
 
-        const embed = this.getMessage().embeds[0];
+        const message = this.getMessage() as Message;
+        const embed = message.embeds[0];
 
         // Get the embed's footer
         const footer = embed.footer;
@@ -273,7 +260,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
         try {
             // Update the message
-            await this.getMessage().edit(newEmbed);
+            await message.edit(newEmbed);
         }
         catch (error) {
             console.error(`Error trying to edit an embed on an interactive message.`, error);
