@@ -1,6 +1,7 @@
 import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
+import { PendingSpecies } from '../models/pendingSpecies';
 
 // The static bot-wide handler for interactive messages
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.
@@ -85,6 +86,17 @@ export class InteractiveMessage {
     }
 
     getButtons(): string[] { return this.buttons; }
+
+    // Adds a new button to the message
+    // Because of how Discord works, buttons cannot be individually removed after being added
+    async addButton(button: string): Promise<void> {
+        // Don't do anything if the button is already on the message
+        if (this.getButtons().includes(button)) {
+            return;
+        }
+        this.buttons.push(button);
+        this.getMessage().react(button);
+    }
 
     getMessage(): Message { return this.message; }
 
