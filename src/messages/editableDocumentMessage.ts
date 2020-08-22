@@ -31,7 +31,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             '🆕': 'New entry'
         };
 
-        super(channel, { buttons: buttons });
+        super(channel, { buttons: buttons, lifetime: 300000 });
         this.doc = doc;
 
         // Start the editor at the first field
@@ -196,7 +196,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     case '🆕': {
                         await betterSend(this.channel, 'Send your input to insert into the current field:');
 
-                        const newElement = await awaitUserNextMessage(this.channel, user, 60000);
+                        const newElement = await awaitUserNextMessage(this.channel, user, 300000);
 
                         if (newElement) {
                             if (Array.isArray(selection)) {
@@ -221,6 +221,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     protected async deactivate(): Promise<void> {
         // Inherit parent deactivation behavior
         super.deactivate();
+
+        betterSend(this.channel, 'Time limit expired, approval process aborted.');
 
         const message = this.getMessage() as Message;
         const embed = message.embeds[0];
