@@ -66,7 +66,7 @@ export const speciesFieldInfo: FieldInfoBundle = {
         delimiter: `\n`
     },
     description: {
-        alias: `desctiption`,
+        alias: `description`,
         prompt: `a short description of the animal`,
         multiple: false
     },
