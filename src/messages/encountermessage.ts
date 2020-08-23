@@ -24,11 +24,13 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const content = new APIMessage(channel, { embed: embed });
 
-        const buttons = {
-            '🔘': 'Capture'
+        const button = {
+            name: 'captureButton',
+            emoji: '🔘',
+            helpMessage: 'Capture'
         };
 
-        super(channel, { content: content, buttons: buttons });
+        super(channel, { content: content, buttons: button });
         this.species = species;
         this.caught = false;
     }
