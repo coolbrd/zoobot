@@ -63,7 +63,7 @@ export class InteractiveMessageHandler {
 interface EmojiButton {
     name: string
     emoji: string,
-    enabled?: boolean,
+    disabled?: boolean,
     helpMessage?: string
 }
 
@@ -156,7 +156,7 @@ export class InteractiveMessage {
     getActiveButtonEmojis(): string[] {
         const activeButtons = [];
         for (const button of this.buttons.values()) {
-            if (button.enabled) {
+            if (!button.disabled) {
                 activeButtons.push(button.emoji);
             }
         }
@@ -164,10 +164,10 @@ export class InteractiveMessage {
     }
 
     // Checks if the message already has a button with a given name or emoji (making the given info ineligable for addition)
-    hasSimilarButton(buttonName: string, buttonEmoji: string): boolean {
+    hasSimilarButton(button: EmojiButton): boolean {
         let contained = false;
         this.buttons.forEach((info, name) => {
-            if (name === buttonName || info.emoji === buttonEmoji) {
+            if (name === button.name || info.emoji === button.emoji) {
                 contained = true;
                 return;
             }
@@ -177,27 +177,25 @@ export class InteractiveMessage {
 
     // Adds a new button to the message
     // Because of how Discord works, buttons cannot be visually removed after being added
-    async addButton(button: { buttonName: EmojiButton }): Promise<void> {
+    async addButton(button: EmojiButton): Promise<void> {
         // If the button is already on the message
-        if (this.hasSimilarButton(button.buttonName)) {
-            // Just enable the button instead, this is probably the intended behavior
-            this.enableButton(button);
-            return;
+        if (this.hasSimilarButton(button)) {
+            throw new Error('Attempted to add a button to an interactive message that already existed.');
         }
 
         // Add the button to the map
-        this.buttons.set(button, { enabled: true, helpMessage: helpMessage });
+        this.buttons.set(button.name, button);
 
         const message = this.getMessage();
         // Only react to the message if it exists (otherwise the new button will be added upon the message being sent)
-        message && message.react(button);
+        message && message.react(button.emoji);
     }
 
     // Removes a button from this message's list of active buttons
-    // Doesn't visually remove the button (sorry!)
-    removeButton(button: string): void {
+    // Doesn't visually remove the button (sorry, I really can't do anything about this)
+    removeButton(buttonName: string): void {
         // If the button doesn't exist in the map of active buttons
-        if (!this.buttons.has(button)) {
+        if (!this.buttons.has(buttonName)) {
             // Don't try to remove it
             return;
         }
