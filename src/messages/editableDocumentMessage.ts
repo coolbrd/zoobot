@@ -2,15 +2,15 @@ import { MessageEmbed, TextChannel, User, Message } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { EditableDocument } from '../utility/userInput';
-import { capitalizeFirstLetter, awaitUserNextMessage, betterSend } from '../utility/toolbox';
+import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, safeArrayJoin, joinIfArray } from '../utility/toolbox';
 
 // A message that contains a document of fields, which themselves contain either single values of arrays of values
 // Gives the user an interface for smoothly editing the contained document via reaction messages
 export default class EditableDocumentMessage extends InteractiveMessage {
     // The document to provide for editing
     private readonly doc: EditableDocument;
+    
     // The document's top level field that is currently selected
-
     private fieldPosition: number;
     // The name of the selected field
     private fieldSelection: string;
@@ -21,17 +21,29 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     // Whether or not the editor is currently within a field
     private editMode: boolean;
 
+    private readonly editButton: string;
+
     constructor(channel: TextChannel, doc: EditableDocument) {
+        const pointerUpButton = '⬆️';
+        const pointerDownButton = 
+        const editButton = '✏️';
+
         const buttons = {
             '⬆️': 'Move pointer up',
             '⬇️': 'Move pointer down',
-            '✏️': 'Edit selection',
+            [editButton]: 'Edit selection',
             '⬅️': 'Back to field selection',
             '🗑️': 'Delete selected entry',
             '🆕': 'New entry'
         };
 
         super(channel, { buttons: buttons, lifetime: 300000 });
+
+        // Make sure the document isn't empty
+        if (doc === {}) {
+            throw new Error('An EditableDocumentMessage cannot be made with an empty document.');
+        }
+
         this.doc = doc;
 
         // Start the editor at the first field
@@ -44,28 +56,31 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Start the editor in field selection mode (not edit mode)
         this.editMode = false;
 
+        this.editButton = editButton;
+
+        // Initialize the message's embed
         this.setEmbed(this.buildEmbed());
     }
 
+    // Builds and returns a MessageEmbed that represents the current state of the editor
+    // Called pretty much after every change to the document, almost like a screen refresh
     buildEmbed(): MessageEmbed {
         const newEmbed = new MessageEmbed();
 
         // If the message is in field selection mode
         if (!this.editMode) {
-            let fieldIndex = 0;
             // Iterate over every field in the document
+            // Track the current number of each field to loosely index them
+            let fieldIndex = 0;
             for (const editableField of Object.values(this.doc)) {
-                // Select the actual value of the field rather than its wrapper object
-                const fieldValue = editableField.value;
-
                 // Format the field's value properly
-                let fieldString = Array.isArray(fieldValue) ? fieldValue.join(editableField.fieldInfo.delimiter ? editableField.fieldInfo.delimiter : ', ') : fieldValue;
+                let fieldString = joinIfArray(editableField.value, editableField.fieldInfo.delimiter);
 
                 // If the field's string is empty, use placeholder text so Discord doesn't get mad about any empty embed fields
                 fieldString = fieldString ? fieldString : '*Empty*';
 
                 // Deterimine if there should be an icon drawn on this field's row
-                const editIcon = fieldIndex === this.fieldPosition ? '✏️' : '';
+                const editIcon = fieldIndex === this.fieldPosition ? this.editButton : '';
 
                 // Capitalize and pluralize the title as needed and add the field
                 newEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
@@ -74,7 +89,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
 
             // Update button list
-            this.enableButton('✏️');
+            this.enableButton(this.editButton);
             this.disableButton('⬅️');
             this.disableButton('🗑️');
             this.disableButton('🆕');
@@ -116,7 +131,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             this.enableButton('⬅️');
             this.enableButton('🗑️');
             this.enableButton('🆕');
-            this.disableButton('✏️');
+            this.disableButton(this.editButton);
         }
 
         newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
@@ -146,7 +161,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         this.fieldPosition = this.fieldPosition + 1 > lastDocIndex ? 0 : this.fieldPosition + 1;
                         break;
                     }
-                    case '✏️': {
+                    case this.editButton: {
                         this.editMode = true;
                         this.arrayPosition = 0;
                         break;

@@ -217,3 +217,13 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel, user: 
     // Return the completed set of responses
     return responses;
 }
+
+// Joins an array by a given string, and uses comma separation by default if no delimiter is provided
+export function safeArrayJoin(array: unknown[], delimiter?: string): string {
+    return array.join(delimiter ? delimiter : ', ');
+}
+
+// Takes either a string value or an array of strings and converts it to a single string
+export function joinIfArray(value: string | string[] | undefined, delimiter?: string): string | undefined {
+    return Array.isArray(value) ? safeArrayJoin(value, delimiter) : value;
+}

@@ -60,6 +60,13 @@ export class InteractiveMessageHandler {
     }
 }
 
+interface EmojiButton {
+    name: string
+    emoji: string,
+    enabled?: boolean,
+    helpMessage?: string
+}
+
 // A message with pressable reaction buttons
 // I wrote this before I knew about awaitReactions, so there's a static InteractiveMessageHandler class that sits in the main file and sends reactions to the right places.
 // I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
@@ -71,10 +78,8 @@ export class InteractiveMessage {
     private content: APIMessage | undefined;
 
     // The set of emojis that will serve as buttons on this message
-    private readonly buttons: Map<string, {
-        enabled: boolean,
-        helpMessage?: string
-    }>;
+    // The name property of each button ends up getting repeated in the string field and I'm not sorry about it
+    private readonly buttons: Map<string, EmojiButton>;
 
     // This interactive message's underlying message
     private message: Message | undefined;
@@ -90,7 +95,7 @@ export class InteractiveMessage {
         channel: TextChannel | DMChannel,
         options?: {
             content?: APIMessage,
-            buttons?: string[] | { [button: string]: string | undefined },
+            buttons?: EmojiButton | EmojiButton[],
             lifetime?: number,
             resetTimerOnButtonPress?: boolean
         }
@@ -111,20 +116,17 @@ export class InteractiveMessage {
 
             // If buttons were provided
             if (options.buttons) {
-                // If a string of anonymous buttons was provided instead of an object with help messages
-                if (Array.isArray(options.buttons)) {
-                    // Iterate over every button provided
-                    options.buttons.forEach(button => {
-                        // Add a button with no help string to the map
-                        this.buttons.set(button, { enabled: true });
-                    });
+                // If it's just one button
+                if (!Array.isArray(options.buttons)) {
+                    // Add the button by its given information
+                    this.buttons.set(options.buttons.name, options.buttons);
                 }
-                // If the buttons parameter is an object
+                // If it's an array of buttons
                 else {
                     // Iterate over every button provided
-                    Object.entries(options.buttons).forEach(button => {
-                        // Add each button with their respective help string
-                        this.buttons.set(button[0], { enabled: true, helpMessage: button[1] });
+                    options.buttons.forEach(button => {
+                        // Add each button with its respective information
+                        this.buttons.set(button.name, button);
                     });
                 }
             }
@@ -150,16 +152,34 @@ export class InteractiveMessage {
         message && message.edit(newEmbed);
     }
 
-    // Get an array of every button currently on the message
-    getButtons(): Map<string, {enabled: boolean, helpMessage?: string | undefined}> {
-        return this.buttons;
+    // Get the array of button emojis that are currently active (valid) on this message
+    getActiveButtonEmojis(): string[] {
+        const activeButtons = [];
+        for (const button of this.buttons.values()) {
+            if (button.enabled) {
+                activeButtons.push(button.emoji);
+            }
+        }
+        return activeButtons;
+    }
+
+    // Checks if the message already has a button with a given name or emoji (making the given info ineligable for addition)
+    hasSimilarButton(buttonName: string, buttonEmoji: string): boolean {
+        let contained = false;
+        this.buttons.forEach((info, name) => {
+            if (name === buttonName || info.emoji === buttonEmoji) {
+                contained = true;
+                return;
+            }
+        });
+        return contained;
     }
 
     // Adds a new button to the message
     // Because of how Discord works, buttons cannot be visually removed after being added
-    async addButton(button: string, helpMessage?: string): Promise<void> {
+    async addButton(button: { buttonName: EmojiButton }): Promise<void> {
         // If the button is already on the message
-        if (this.buttons.has(button)) {
+        if (this.hasSimilarButton(button.buttonName)) {
             // Just enable the button instead, this is probably the intended behavior
             this.enableButton(button);
             return;
