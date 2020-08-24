@@ -57,6 +57,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 name: 'new',
                 emoji: '🆕',
                 helpMessage: 'New entry'
+            },
+            {
+                name: 'submit',
+                emoji: '✅',
+                helpMessage: 'Approve entry'
             }
         ], lifetime: 300000 });
 
@@ -111,6 +116,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
             // Update button list
             this.enableButton('edit');
+            this.enableButton('submit');
             this.disableButton('back');
             this.disableButton('delete');
             this.disableButton('new');
@@ -140,6 +146,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
             // Disable the edit button, as it's not used here
             this.disableButton('edit');
+            this.disableButton('submit');
 
             // Enable array manipulation buttons
             this.enableButton('back');
@@ -253,6 +260,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     }
                 }
             }
+        }
+
+        if (buttonName === 'submit') {
+            //
         }
 
         // Update the message's embed
