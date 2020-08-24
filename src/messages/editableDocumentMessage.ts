@@ -2,7 +2,7 @@ import { MessageEmbed, TextChannel, User, Message } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { EditableDocument } from '../utility/userInput';
-import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, safeArrayJoin, joinIfArray } from '../utility/toolbox';
+import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, joinIfArray } from '../utility/toolbox';
 
 // A message that contains a document of fields, which themselves contain either single values of arrays of values
 // Gives the user an interface for smoothly editing the contained document via reaction messages
@@ -21,23 +21,44 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     // Whether or not the editor is currently within a field
     private editMode: boolean;
 
-    private readonly editButton: string;
+    // The emoji that serves as the edit icon and button
+    private readonly editEmoji: string;
 
     constructor(channel: TextChannel, doc: EditableDocument) {
-        const pointerUpButton = '⬆️';
-        const pointerDownButton = 
-        const editButton = '✏️';
+        const editEmoji = '✏️';
 
-        const buttons = {
-            '⬆️': 'Move pointer up',
-            '⬇️': 'Move pointer down',
-            [editButton]: 'Edit selection',
-            '⬅️': 'Back to field selection',
-            '🗑️': 'Delete selected entry',
-            '🆕': 'New entry'
-        };
-
-        super(channel, { buttons: buttons, lifetime: 300000 });
+        super(channel, { buttons: [
+            {
+                name: 'pointerUp',
+                emoji: '⬆️',
+                helpMessage: 'Move pointer up'
+            },
+            {
+                name: 'pointerDown',
+                emoji: '⬇️',
+                helpMessage: 'Move pointer down'
+            },
+            {
+                name: 'edit',
+                emoji: editEmoji,
+                helpMessage: 'Edit selection'
+            },
+            {
+                name: 'back',
+                emoji: '⬅️',
+                helpMessage: 'Back to field selection'
+            },
+            {
+                name: 'delete',
+                emoji: '🗑️',
+                helpMessage: 'Delete selected entry'
+            },
+            {
+                name: 'new',
+                emoji: '🆕',
+                helpMessage: 'New entry'
+            }
+        ], lifetime: 300000 });
 
         // Make sure the document isn't empty
         if (doc === {}) {
@@ -56,7 +77,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Start the editor in field selection mode (not edit mode)
         this.editMode = false;
 
-        this.editButton = editButton;
+        this.editEmoji = editEmoji;
 
         // Initialize the message's embed
         this.setEmbed(this.buildEmbed());
@@ -80,7 +101,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 fieldString = fieldString ? fieldString : '*Empty*';
 
                 // Deterimine if there should be an icon drawn on this field's row
-                const editIcon = fieldIndex === this.fieldPosition ? this.editButton : '';
+                const editIcon = fieldIndex === this.fieldPosition ? this.editEmoji : '';
 
                 // Capitalize and pluralize the title as needed and add the field
                 newEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
@@ -89,10 +110,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
 
             // Update button list
-            this.enableButton(this.editButton);
-            this.disableButton('⬅️');
-            this.disableButton('🗑️');
-            this.disableButton('🆕');
+            this.enableButton('edit');
+            this.disableButton('back');
+            this.disableButton('delete');
+            this.disableButton('new');
         }
         else {
             const selectedField = this.doc[this.fieldSelection];
@@ -128,19 +149,19 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             newEmbed.setFooter(this.getButtonHelpString());
 
             // Update button list to be more contextually appropriate
-            this.enableButton('⬅️');
-            this.enableButton('🗑️');
-            this.enableButton('🆕');
-            this.disableButton(this.editButton);
+            this.enableButton('back');
+            this.enableButton('delete');
+            this.enableButton('new');
+            this.disableButton('edit');
         }
 
         newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
         return newEmbed;
     }
 
-    async buttonPress(button: string, user: User): Promise<void> {
+    async buttonPress(buttonName: string, user: User): Promise<void> {
         // Make sure the timer is reset whenever a button is pressed
-        super.buttonPress(button, user);
+        super.buttonPress(buttonName, user);
 
         const selection = this.doc[this.fieldSelection].value;
 
@@ -152,16 +173,16 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 const lastDocIndex = Object.values(this.doc).length - 1;
 
                 // Field selection mode button behavior
-                switch(button) {
-                    case '⬆️': {
+                switch(buttonName) {
+                    case 'pointerUp': {
                         this.fieldPosition = this.fieldPosition - 1 < 0 ? lastDocIndex : this.fieldPosition - 1;
                         break;
                     }
-                    case '⬇️': {
+                    case 'pointerDown': {
                         this.fieldPosition = this.fieldPosition + 1 > lastDocIndex ? 0 : this.fieldPosition + 1;
                         break;
                     }
-                    case this.editButton: {
+                    case 'edit': {
                         this.editMode = true;
                         this.arrayPosition = 0;
                         break;
@@ -176,8 +197,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             // While the user is selecting an array element to edit
             case true: {
                 // Edit mode button behavior
-                switch(button) {
-                    case '⬆️': {
+                switch(buttonName) {
+                    case 'pointerUp': {
                         // Move up if the selection is an array
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition - 1 < 0 ? selection.length - 1 : this.arrayPosition - 1;
@@ -185,19 +206,19 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         break;
                     }
                     // Move down if the selection is an array
-                    case '⬇️': {
+                    case 'pointerDown': {
                         if (Array.isArray(selection)) {
                             this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
                         }
                         break;
                     }
                     // Leave the selection and return to field selection
-                    case '⬅️': {
+                    case 'back': {
                         this.editMode = false;
                         break;
                     }
                     // Delete the selected array element
-                    case '🗑️': {
+                    case 'delete': {
                         if (Array.isArray(selection)) {
                             selection.splice(this.arrayPosition, 1);
                             this.arrayPosition - 1;
@@ -208,7 +229,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         break;
                     }
                     // Add a new array element above the pointer
-                    case '🆕': {
+                    case 'new': {
                         await betterSend(this.channel, 'Send your input to insert into the current field:');
 
                         const newElement = await awaitUserNextMessage(this.channel, user, 300000);

@@ -24,19 +24,17 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const content = new APIMessage(channel, { embed: embed });
 
-        const button = {
-            name: 'captureButton',
+        super(channel, { content: content, buttons: {
+            name: 'capture',
             emoji: '🔘',
             helpMessage: 'Capture'
-        };
-
-        super(channel, { content: content, buttons: button });
+        }});
         this.species = species;
         this.caught = false;
     }
 
     // Whenever the encounter's button is pressed
-    async buttonPress(_button: string, user: User): Promise<void> {
+    async buttonPress(_buttonName: string, user: User): Promise<void> {
         // Get this encounter's message, and assume it's not going to be undefined (because it really won't be)
         const message = this.getMessage() as Message;
 

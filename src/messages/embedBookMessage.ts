@@ -10,25 +10,34 @@ export default class EmbedBookMessage extends InteractiveMessage {
     private page: number;
 
     constructor(channel: TextChannel | DMChannel, book: MessageEmbed[]) {
-        const buttons = ['⬅️', '➡️'];
-
-        super(channel, { buttons: buttons });
+        super(channel, { buttons: [
+            {
+                name: 'pageLeft',
+                emoji: '⬅️',
+                helpMessage: 'Go back one page'
+            },
+            {
+                name: 'pageRight',
+                emoji: '➡️',
+                helpMessage: 'Go forward one page'
+            }
+        ]});
         this.book = book;
         this.page = 0;
 
         this.setEmbed(this.getPage(this.page));
     }
 
-    async buttonPress(button: string, user: User): Promise<void> {
+    async buttonPress(buttonName: string, user: User): Promise<void> {
         // Make sure the timer is reset whenever a button is pressed
-        super.buttonPress(button, user);
+        super.buttonPress(buttonName, user);
 
-        switch(button) {
-            case '⬅️': {
+        switch(buttonName) {
+            case 'pageLeft': {
                 this.goToPage(this.page - 1);
                 break;
             }
-            case '➡️': {
+            case 'pageRight': {
                 this.goToPage(this.page + 1);
                 break;
             }

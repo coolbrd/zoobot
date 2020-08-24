@@ -14,32 +14,34 @@ export class InteractiveMessageHandler {
         // If the user who reacted to something is a bot, or not a complete user
         if (user.bot || user.partial) {
             // Ignore the reaction entirely
+            // No bots allowed because buttons could be abused, and no partial users because they don't contain all necessary user info
             return;
         }
 
         // Check the map of interactive messages for a message with the id of the one reacted to
-        const possibleMessage = this.messages.get(messageReaction.message.id);
-        // If a message was found
-        if (possibleMessage) {
-            // Cast the possible message as an interactive message
-            const interactiveMessage = possibleMessage as InteractiveMessage;
+        const interactiveMessage = this.messages.get(messageReaction.message.id);
 
-            const emojiString = messageReaction.emoji.toString();
+        // If no message was found, don't try to do anything else
+        if (!interactiveMessage) {
+            return;
+        }
 
-            // If the reaction added to the message isn't an active button on that message
-            if (!interactiveMessage.getActiveButtonEmojis().includes(emojiString)) {
-                // Don't do anything with the reaction
-                return;
-            }
-            // If we're down here it means the reaction added was a valid button
+        // Get the emoji that was used to react
+        const emojiString = messageReaction.emoji.toString();
 
-            try {
-                // Activate the message's button that corresponds to the emoji reacted with
-                await interactiveMessage.buttonPress(emojiString, user);
-            }
-            catch (error) {
-                console.error('Error activating an interactive message\'s button.', error);
-            }
+        // If the reaction added to the message isn't an active button on that message
+        if (!interactiveMessage.getActiveButtonEmojis().includes(emojiString)) {
+            // Don't do anything with the reaction
+            return;
+        }
+        // If we're down here it means the reaction added was a valid button
+
+        try {
+            // Activate the message's button that corresponds to the emoji reacted with
+            interactiveMessage.emojiPress(emojiString, user);
+        }
+        catch (error) {
+            console.error('Error activating an interactive message\'s button.', error);
         }
     }
 
@@ -60,6 +62,7 @@ export class InteractiveMessageHandler {
     }
 }
 
+// The structure of an emoji reaction button that will be added to InteracticeMessage instanced
 interface EmojiButton {
     emoji: string,
     name: string,
@@ -78,14 +81,17 @@ export class InteractiveMessage {
     private content: APIMessage | undefined;
 
     // The set of emojis that will serve as buttons on this message
-    // The name property of each button ends up getting repeated in the string field and I'm not sorry about it
+    // The emoji property of each button ends up getting repeated in the key and I'm not sorry about it
     private readonly buttons: Map<string, EmojiButton>;
+    // More repetition here so I can easily get buttons by their name OR emoji
     private readonly buttonNames: Map<string, string>;
 
     // This interactive message's underlying message
+    // Will only be undefined before this message is sent
     private message: Message | undefined;
     
     // The number of milliseconds that this message will be active for
+    // This number is used as an inactivity cooldown that gets reset on each button press by default
     private readonly lifetime: number;
     // Whether or not pressing a button will reset this message's deactivation timer
     private readonly resetTimerOnButtonPress: boolean;
@@ -146,16 +152,16 @@ export class InteractiveMessage {
         }
     }
 
-    // Sets the content of the message and edits it (if possible)
+    // Sets the embed of the message and edits it (if possible)
     protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
-        // Assign the message's new content
+        // Assign the message's new embed
         this.content = new APIMessage(this.channel, { embed: newEmbed });
 
-        const message = this.message;
-        // If the message has been sent, edit it to reflect the changes
-        message && message.edit(newEmbed);
+        // If this instance's message has been sent, edit it to reflect the changes
+        this.message && this.message.edit(newEmbed);
     }
 
+    // Gets a button's emoji by its name
     getEmojiByName(buttonName: string): string {
         const targetEmoji = this.buttonNames.get(buttonName);
 
@@ -166,6 +172,7 @@ export class InteractiveMessage {
         return targetEmoji;
     }
 
+    // Gets a button by its emoji
     getButtonByEmoji(emoji: string): EmojiButton {
         const targetButton = this.buttons.get(emoji);
 
@@ -176,6 +183,7 @@ export class InteractiveMessage {
         return targetButton;
     }
 
+    // Gets a button by its name
     getButtonByName(buttonName: string): EmojiButton {
         const targetEmoji = this.getEmojiByName(buttonName);
 
@@ -183,6 +191,7 @@ export class InteractiveMessage {
     }
 
     // Get the array of button emojis that are currently active (valid) on this message
+    // Used when a user reacts and the handler needs to see if their reaction was a button that should do something
     getActiveButtonEmojis(): string[] {
         const activeButtons = [];
         for (const button of this.buttons.values()) {
@@ -217,14 +226,14 @@ export class InteractiveMessage {
         this.buttons.set(button.emoji, button);
         this.buttonNames.set(button.name, button.emoji);
 
-        const message = this.getMessage();
         // Only react to the message if it exists (otherwise the new button will be added upon the message being sent)
-        message && message.react(button.emoji);
+        this.message && this.message.react(button.emoji);
     }
 
     // Removes a button from this message's list of active buttons
     // Doesn't visually remove the button (sorry, I really can't do anything about this)
     removeButton(buttonName: string): void {
+        // Remove both the button and its name association
         this.buttons.delete(this.getEmojiByName(buttonName));
         this.buttonNames.delete(buttonName);
     }
@@ -233,6 +242,7 @@ export class InteractiveMessage {
     buttonIsEnabled(buttonName: string): boolean {
         const targetButton = this.getButtonByName(buttonName);
 
+        // Only return true if the found button isn't disabled
         return targetButton.disabled ? false : true;
     }
 
@@ -243,7 +253,7 @@ export class InteractiveMessage {
         targetButton.disabled = false;
     }
 
-    // Disables a given button on the message
+    // Disables a given button on the message, keeping it on the message but temporarily removing its functionality
     disableButton(buttonName: string): void {
         const targetButton = this.getButtonByName(buttonName);
 
@@ -311,8 +321,12 @@ export class InteractiveMessage {
         this.timer = this.setTimer();
     }
 
+    emojiPress(emoji: string, user: User): void {
+        this.buttonPress(this.getButtonByEmoji(emoji).name, user);
+    }
+
     // Activates a button on this message
-    async buttonPress(_button: string, _user: User): Promise<void> {
+    protected buttonPress(_button: string, _user: User): void {
         // Resets the message's timer, if it's supposed to do that
         if (this.resetTimerOnButtonPress && this.timer) {
             clearTimeout(this.timer);
