@@ -130,6 +130,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         arrayIndex++;
                     }
                 }
+
+                // Disable the edit button, as it's not used here
+                this.disableButton('edit');
+
+                // Enable array manipulation buttons
+                this.enableButton('delete');
+                this.enableButton('new');
             }
             // If the selected value is not an array, just a single value
             else {
@@ -144,15 +151,12 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 contentString = '*Empty* 🔹';
             }
 
+            // Enable the back button no matter if an array or single value is selected
+            this.enableButton('back');
+
             // Complete the embed and edit the message
             newEmbed.setDescription(contentString);
             newEmbed.setFooter(this.getButtonHelpString());
-
-            // Update button list to be more contextually appropriate
-            this.enableButton('back');
-            this.enableButton('delete');
-            this.enableButton('new');
-            this.disableButton('edit');
         }
 
         newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
@@ -196,54 +200,70 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
             // While the user is selecting an array element to edit
             case true: {
-                // Edit mode button behavior
-                switch(buttonName) {
-                    case 'pointerUp': {
-                        // Move up if the selection is an array
-                        if (Array.isArray(selection)) {
+                // If the selected field is an array
+                if (Array.isArray(selection)) {
+                    // Array edit mode button behavior
+                    switch(buttonName) {
+                        case 'pointerUp': {
                             this.arrayPosition = this.arrayPosition - 1 < 0 ? selection.length - 1 : this.arrayPosition - 1;
+                            break;
                         }
-                        break;
-                    }
-                    // Move down if the selection is an array
-                    case 'pointerDown': {
-                        if (Array.isArray(selection)) {
+                        // Move down if the selection is an array
+                        case 'pointerDown': {
                             this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
+                            break;
                         }
-                        break;
-                    }
-                    // Leave the selection and return to field selection
-                    case 'back': {
-                        this.editMode = false;
-                        break;
-                    }
-                    // Delete the selected array element
-                    case 'delete': {
-                        if (Array.isArray(selection)) {
+                        // Leave the selection and return to field selection
+                        case 'back': {
+                            this.editMode = false;
+                            break;
+                        }
+                        // Delete the selected array element
+                        case 'delete': {
                             selection.splice(this.arrayPosition, 1);
                             this.arrayPosition - 1;
+                            break;
                         }
-                        else {
-                            this.doc[this.fieldSelection].value = undefined;
-                        }
-                        break;
-                    }
-                    // Add a new array element above the pointer
-                    case 'new': {
-                        await betterSend(this.channel, 'Send your input to insert into the current field:');
+                        // Add a new array element above the pointer
+                        case 'new': {
+                            const promptMessage = await betterSend(this.channel, 'Send your input to insert above the current position:');
 
-                        const newElement = await awaitUserNextMessage(this.channel, user, 300000);
+                            const newElementMessage = await awaitUserNextMessage(this.channel, user, 300000);
 
-                        if (newElement) {
-                            if (Array.isArray(selection)) {
-                                selection.splice(this.arrayPosition, 0, newElement.content);
+                            if (promptMessage && newElementMessage) {
+                                selection.splice(this.arrayPosition, 0, newElementMessage.content);
+
+                                promptMessage.delete();
+                                newElementMessage.delete();
                             }
                             else {
-                                this.doc[this.fieldSelection].value = newElement.content;
+                                betterSend(this.channel, 'Time limit expired. No changes have been made.');
                             }
                         }
-                        else {
-                            betterSend(this.channel, 'Time limit expired. No changes have been made.');
+                    }
+                }
+                // Single value edit mode behavior
+                else {
+                    switch(buttonName) {
+                        case 'edit': {
+                            const promptMessage = await betterSend(this.channel, 'Enter the content you with to insert into this field:');
+
+                            const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
+
+                            if (promptMessage && responseMessage) {
+                                this.doc[this.fieldSelection].value = responseMessage.content;
+
+                                promptMessage.delete();
+                                responseMessage.delete();
+                            }
+                            else {
+                                betterSend(this.channel, 'Time limit expired. No changes have been made.');
+                            }
+                            break;
+                        }
+                        case 'back': {
+                            this.editMode = false;
+                            break;
                         }
                     }
                 }
