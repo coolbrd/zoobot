@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, User, APIMessage } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, User, APIMessage, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
@@ -39,7 +39,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const message = this.getMessage() as Message;
 
         // Indicate that the user has caught the animal
-        betterSend(message.channel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(message.channel as TextChannel | DMChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
         this.caught = true;
         
         // Stop this message from receiving any more input
