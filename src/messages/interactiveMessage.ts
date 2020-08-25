@@ -1,6 +1,7 @@
 import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
+import { EventEmitter } from 'events';
 
 // The static bot-wide handler for interactive messages
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.
@@ -97,6 +98,9 @@ export class InteractiveMessage {
     private readonly resetTimerOnButtonPress: boolean;
     // The timer instance that will keep track of when this message should deactivate
     private timer: NodeJS.Timeout | undefined;
+
+    // An emitter that will fire when a select few asynchronous things happen to the message
+    protected emitter = new EventEmitter();
 
     constructor(
         channel: TextChannel | DMChannel,
@@ -276,12 +280,7 @@ export class InteractiveMessage {
     private setTimer(): NodeJS.Timer {
         // Set the message's deactivation timer and return the resulting timer instance
         return setTimeout(() => {
-            try {
-                this.deactivate();
-            }
-            catch (error) {
-                console.error('Error trying to deactivate an interactive message.', error);
-            }
+            this.deactivate();
         }, this.lifetime);
     }
 
@@ -334,8 +333,11 @@ export class InteractiveMessage {
         }
     }
 
-    // Deactivates the interactive message, freeing up space in the global list
-    protected async deactivate(): Promise<void> {
+    // Deactivates the interactive message, freeing up space in the global list of messages to handle
+    protected deactivate(): void {
+        // Tell whoever's listening that this message has been deactivated
+        this.emitter.emit('deactivated');
+
         // If the timer was running, cancel it for good (preventing this method from being called again accidentally)
         this.timer && clearTimeout(this.timer);
 

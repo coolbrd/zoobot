@@ -6,6 +6,7 @@ import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import { speciesFieldInfo } from '../models/species';
+import { EditableDocument } from '../utility/userInput';
 
 export class ApprovePendingSpeciesCommand implements Command {
     readonly commandNames = ['approve', 'approvespecies'];
@@ -26,10 +27,14 @@ export class ApprovePendingSpeciesCommand implements Command {
             return;
         }
 
+        // Get the pending submission as a plain object
         const pendingSubmission = searchResult.toObject();
 
-        const editableDocument = {};
+        // The document that will be used to edit and finalize the pending submission
+        const editableDocument: EditableDocument = {};
+        // Iterate over every field name that a species needs
         for (const key of Object.keys(speciesFieldInfo)) {
+            // Add a field to the document that contains the required field names mapped to the given information
             Object.defineProperty(editableDocument, key, {
                 value: {
                     fieldInfo: speciesFieldInfo[key],
@@ -42,5 +47,8 @@ export class ApprovePendingSpeciesCommand implements Command {
 
         const editableDocumentMessage = new EditableDocumentMessage(channel, editableDocument);
         editableDocumentMessage.send();
+
+        const finalDocument = await editableDocumentMessage.getFinalDocument();
+        console.log(finalDocument);
     }
 }

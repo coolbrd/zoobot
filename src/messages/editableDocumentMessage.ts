@@ -165,6 +165,14 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Make sure the timer is reset whenever a button is pressed
         super.buttonPress(buttonName, user);
 
+        // If the user presses the submit button
+        if (buttonName === 'submit') {
+            // Indicate that the user has submitted the document
+            this.emitter.emit('submit', this.doc);
+            // Don't do any unnecessary checks
+            return;
+        }
+
         let selection = this.doc[this.fieldSelection].value;
 
         // Edit mode state behavior
@@ -262,12 +270,27 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
         }
 
-        if (buttonName === 'submit') {
-            //
-        }
-
         // Update the message's embed
         this.setEmbed(this.buildEmbed());
+    }
+
+    // Gets the document immediately after the user submits it
+    getFinalDocument(): Promise<EditableDocument | undefined> {
+        // Construct a promise that will resolve when the final document is provided
+        const documentPromise: Promise<EditableDocument | undefined> = new Promise(resolve => {
+            // When the message is been deactivated
+            this.emitter.once('deactivated', () => {
+                resolve(undefined);
+            });
+
+            // When the user submits the document
+            this.emitter.once('submit', (document: EditableDocument) => {
+                // Return the final document
+                resolve(document);
+            });
+        });
+        
+        return documentPromise;
     }
 
     protected async deactivate(): Promise<void> {
