@@ -70,6 +70,27 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             throw new Error('An EditableDocumentMessage cannot be made with an empty document.');
         }
 
+        // Validate document validity
+        for (const docKey of Object.keys(doc)) {
+            // If the current field has been supplied a default value
+            if (doc[docKey].value) {
+                // Check if the value is an array
+                const fieldIsArray = Array.isArray(doc[docKey].value);
+                // If the pre-supplied value does not match the field's indicated 'multiple' value
+                if (doc[docKey].fieldInfo.multiple !== fieldIsArray) {
+                    throw new Error('Malformed document given to an EditableDocumentMessage. Initialized field value type does not match \'multiple\' field.');
+                }
+                // If we're down here, it means that the supplied value is valid
+
+                // Continue to the next field
+                continue;
+            }
+            // If we're down here, it means that the field hasn't been supplied any default value
+
+            // Give the field an empty array if it's marked as multiple, otherwise give it undefined
+            doc[docKey].value = doc[docKey].fieldInfo.multiple ? [] : undefined;
+        }
+
         this.doc = doc;
 
         // Start the editor at the first field
@@ -246,8 +267,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     }
                     // Delete the selected array element
                     case 'delete': {
+                        // Remove the element
                         selection.splice(this.arrayPosition, 1);
-                        this.arrayPosition - 1;
+                        // If the element was the last in the array
+                        if (this.arrayPosition >= selection.length) {
+                            // Shift the pointer back so it doesn't go out of bounds
+                            this.arrayPosition -= 1;
+                        }
                         break;
                     }
                     // Add a new array element above the pointer
@@ -274,7 +300,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         this.setEmbed(this.buildEmbed());
     }
 
-    // Gets the document immediately after the user submits it
+    // Gets the document immediately after the user submits it, or undefined if the user ran out of time
     getFinalDocument(): Promise<EditableDocument | undefined> {
         // Construct a promise that will resolve when the final document is provided
         const documentPromise: Promise<EditableDocument | undefined> = new Promise(resolve => {

@@ -31,7 +31,7 @@ export interface UserInputResponses {
 
 export interface EditableField {
     fieldInfo: FieldInfo,
-    value: string | string[] | undefined
+    value?: string | string[]
 }
 
 export interface EditableDocument {
