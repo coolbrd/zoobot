@@ -15,7 +15,7 @@ export async function guildAnimalChance(guild: GuildResolvable): Promise<void> {
             await spawnAnimal(guild);
         }
         catch (error) {
-            console.error("Error trying to spawn an animal in a guild.", error);
+            console.error('Error trying to spawn an animal in a guild.', error);
         }
     }
 }
@@ -24,7 +24,7 @@ export async function guildAnimalChance(guild: GuildResolvable): Promise<void> {
 async function spawnAnimal(guildResolvable: GuildResolvable) {
     const guild = client.guilds.resolve(guildResolvable);
     if (!guild) {
-        throw new Error("Attempted to spawn an animal in a guild that could not be resolved.");
+        throw new Error('Attempted to spawn an animal in a guild that could not be resolved.');
     }
 
     let channel: TextChannel;
@@ -32,7 +32,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         // Get the first text channel in the server
         channel = guild.channels.cache.find(channel => channel.type === 'text') as TextChannel;
         if (!channel) {
-            throw new Error("No valid text channel was found when attempting to retrieve the first one.");
+            throw new Error('No valid text channel was found when attempting to retrieve the first one.');
         }
     }
     catch (error) {
@@ -45,7 +45,7 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         // Get a random species from all animals and convert it to a proper species instance
         species = (await SpeciesModel.aggregate().sample(1).exec())[0];
         if (!species) {
-            throw new Error("No document was returned when trying to select a random animal.");
+            throw new Error('No document was returned when trying to select a random animal.');
         }
     }
     catch (error) {

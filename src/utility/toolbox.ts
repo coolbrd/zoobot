@@ -176,7 +176,7 @@ export async function getUserFieldInput(channel: TextChannel | DMChannel, user: 
             const response = responseMessage.content;
 
             // If the user in fact didn't want to respond, and would rather skip to the next field
-            if (response.trim().toLowerCase() === "next") {
+            if (response.trim().toLowerCase() === 'next') {
                 // If this field is both required and unsatisfied
                 if (field.required && currentEntry.length < 1) {
                     // Tell the user they're being very naughty

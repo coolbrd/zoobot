@@ -23,7 +23,7 @@ export class SubmitSpeciesCommand implements Command {
 
         /*
         // If the message was sent in a guild channel and they don't know how much spam it would create
-        if (channel.type === "text") {
+        if (channel.type === 'text') {
             // Kindly inform the user of their misjudgement and open a DM chat with them to talk it out
             betterSend(parsedUserCommand.originalMessage.author, 'The submit command can get big. Use it in here and we can get started without annoying anybody.');
             betterSend(channel, 'For cleanliness, the animal submission process is only done via direct messages. I've opened a chat with you so we can do this privately. ;)');
