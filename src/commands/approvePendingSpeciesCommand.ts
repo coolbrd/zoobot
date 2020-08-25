@@ -5,7 +5,7 @@ import CommandParser from '../utility/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import { speciesFieldInfo } from '../models/species';
+import Species, { speciesFieldInfo } from '../models/species';
 import { EditableDocument } from '../utility/userInput';
 
 export class ApprovePendingSpeciesCommand implements Command {
@@ -47,8 +47,34 @@ export class ApprovePendingSpeciesCommand implements Command {
 
         const editableDocumentMessage = new EditableDocumentMessage(channel, editableDocument);
         editableDocumentMessage.send();
+        
+        for (;;) {
+            const submission = await editableDocumentMessage.getNextSubmission();
 
-        const finalDocument = await editableDocumentMessage.getFinalDocument();
-        console.log(finalDocument);
+            if (!submission) {
+                betterSend(channel, 'Time limit expired, approval process aborted.');
+                return;
+            }
+
+            const speciesDocument = new Species();
+            let requirementsMet = true;
+            for (const [key, field] of Object.entries(submission)) {
+                if (!field.value || (field.fieldInfo.multiple && field.value.length < 1)) {
+                    betterSend(channel, `Field '${field.fieldInfo.alias}' is missing. Add it and try again.`);
+                    requirementsMet = false;
+                    break;
+                }
+
+                speciesDocument.set(key, field.value);
+            }
+            if (!requirementsMet) {
+                continue;
+            }
+
+            speciesDocument.save();
+            break;
+        }
+
+        betterSend(channel, 'Submission approved!');
     }
 }

@@ -311,11 +311,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         this.setEmbed(this.buildEmbed());
     }
 
-    // Gets the document immediately after the user submits it, or undefined if the user ran out of time
-    public getFinalDocument(): Promise<EditableDocument | undefined> {
-        // Construct a promise that will resolve when the final document is provided
+    // Gets the document immediately after the user submits it
+    public getNextSubmission(): Promise<EditableDocument | undefined> {
+        // Construct a promise that will resolve when the document is provided
         const documentPromise: Promise<EditableDocument | undefined> = new Promise(resolve => {
-            // When the message is been deactivated
+            // If the message deactivates before the document is submitted
             this.emitter.once('deactivated', () => {
                 resolve(undefined);
             });
@@ -333,8 +333,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     protected async deactivate(): Promise<void> {
         // Inherit parent deactivation behavior
         super.deactivate();
-
-        betterSend(this.channel, 'Time limit expired, approval process aborted.');
 
         const message = this.getMessage() as Message;
         const embed = message.embeds[0];
