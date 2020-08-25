@@ -111,7 +111,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
     // Builds and returns a MessageEmbed that represents the current state of the editor
     // Called pretty much after every change to the document, almost like a screen refresh
-    buildEmbed(): MessageEmbed {
+    private buildEmbed(): MessageEmbed {
         const newEmbed = new MessageEmbed();
 
         // If the message is in field selection mode
@@ -182,7 +182,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         return newEmbed;
     }
 
-    async buttonPress(buttonName: string, user: User): Promise<void> {
+    public async buttonPress(buttonName: string, user: User): Promise<void> {
         // Make sure the timer is reset whenever a button is pressed
         super.buttonPress(buttonName, user);
 
@@ -301,7 +301,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     }
 
     // Gets the document immediately after the user submits it, or undefined if the user ran out of time
-    getFinalDocument(): Promise<EditableDocument | undefined> {
+    public getFinalDocument(): Promise<EditableDocument | undefined> {
         // Construct a promise that will resolve when the final document is provided
         const documentPromise: Promise<EditableDocument | undefined> = new Promise(resolve => {
             // When the message is been deactivated

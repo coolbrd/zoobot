@@ -11,7 +11,7 @@ export class InteractiveMessageHandler {
     private static readonly messages = new Map<string, InteractiveMessage>();
 
     // Takes a user's message reaction and potentially activates an interactive message
-    static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<undefined> {
+    public static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<undefined> {
         // If the user who reacted to something is a bot, or not a complete user
         if (user.bot || user.partial) {
             // Ignore the reaction entirely
@@ -47,7 +47,7 @@ export class InteractiveMessageHandler {
     }
 
     // Adds an existing interactive message to the global collection of them
-    static addMessage(interactiveMessage: InteractiveMessage): void {
+    public static addMessage(interactiveMessage: InteractiveMessage): void {
         // Get the interactive message's underlying message
         const discordMessage = interactiveMessage.getMessage();
         // Only add the message to the map of active messages if its message has been sent
@@ -55,7 +55,7 @@ export class InteractiveMessageHandler {
     }
 
     // Removes an interactive message from the global collection
-    static removeMessage(interactiveMessage: InteractiveMessage): void {
+    public static removeMessage(interactiveMessage: InteractiveMessage): void {
         // Get the interactive message's underlying message
         const discordMessage = interactiveMessage.getMessage();
         // Only attempt to delete the message from the map of active messages if its message has been send
@@ -166,7 +166,7 @@ export class InteractiveMessage {
     }
 
     // Gets a button's emoji by its name
-    getEmojiByName(buttonName: string): string {
+    protected getEmojiByName(buttonName: string): string {
         const targetEmoji = this.buttonNames.get(buttonName);
 
         if (!targetEmoji) {
@@ -177,7 +177,7 @@ export class InteractiveMessage {
     }
 
     // Gets a button by its emoji
-    getButtonByEmoji(emoji: string): EmojiButton {
+    protected getButtonByEmoji(emoji: string): EmojiButton {
         const targetButton = this.buttons.get(emoji);
 
         if (!targetButton) {
@@ -188,7 +188,7 @@ export class InteractiveMessage {
     }
 
     // Gets a button by its name
-    getButtonByName(buttonName: string): EmojiButton {
+    protected getButtonByName(buttonName: string): EmojiButton {
         const targetEmoji = this.getEmojiByName(buttonName);
 
         return this.getButtonByEmoji(targetEmoji);
@@ -196,7 +196,7 @@ export class InteractiveMessage {
 
     // Get the array of button emojis that are currently active (valid) on this message
     // Used when a user reacts and the handler needs to see if their reaction was a button that should do something
-    getActiveButtonEmojis(): string[] {
+    public getActiveButtonEmojis(): string[] {
         const activeButtons = [];
         for (const button of this.buttons.values()) {
             if (!button.disabled) {
@@ -220,7 +220,7 @@ export class InteractiveMessage {
 
     // Adds a new button to the message
     // Because of how Discord works, buttons cannot be visually removed after being added
-    addButton(button: EmojiButton): void {
+    protected addButton(button: EmojiButton): void {
         // If the button is already on the message
         if (this.hasSimilarButton(button)) {
             throw new Error('Attempted to add a button to an interactive message that already existed.');
@@ -236,38 +236,32 @@ export class InteractiveMessage {
 
     // Removes a button from this message's list of active buttons
     // Doesn't visually remove the button (sorry, I really can't do anything about this)
-    removeButton(buttonName: string): void {
+    protected removeButton(buttonName: string): void {
         // Remove both the button and its name association
         this.buttons.delete(this.getEmojiByName(buttonName));
         this.buttonNames.delete(buttonName);
     }
 
-    // Returns whether or not a given button is both on this message, and active
-    buttonIsEnabled(buttonName: string): boolean {
-        const targetButton = this.getButtonByName(buttonName);
-
-        // Only return true if the found button isn't disabled
-        return targetButton.disabled ? false : true;
-    }
-
     // Enables a given button on the message (button must already exist on message, use addButton if it doesn't)
-    enableButton(buttonName: string): void {
+    protected enableButton(buttonName: string): void {
         const targetButton = this.getButtonByName(buttonName);
 
         targetButton.disabled = false;
     }
 
     // Disables a given button on the message, keeping it on the message but temporarily removing its functionality
-    disableButton(buttonName: string): void {
+    protected disableButton(buttonName: string): void {
         const targetButton = this.getButtonByName(buttonName);
 
         targetButton.disabled = true;
     }
 
-    getMessage(): Message | undefined { return this.message; }
+    public getMessage(): Message | undefined {
+        return this.message;
+    }
 
     // Gets a formatted string of all available help information for every button currently active on the message
-    getButtonHelpString(): string {
+    protected getButtonHelpString(): string {
         let helpString = '';
         for (const button of this.buttons.values()) {
             // If the button is active, add the current button's help information if there is one

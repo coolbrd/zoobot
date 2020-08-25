@@ -9,13 +9,13 @@ import { speciesFieldInfo } from '../models/species';
 import { EditableDocument } from '../utility/userInput';
 
 export class ApprovePendingSpeciesCommand implements Command {
-    readonly commandNames = ['approve', 'approvespecies'];
+    public readonly commandNames = ['approve', 'approvespecies'];
 
-    help(commandPrefix: string): string {
+    public help(commandPrefix: string): string {
         return `Use ${commandPrefix}approve to begin the process of reviewing and approving a species submission.`;
     }
 
-    async run(parsedUserCommand: CommandParser): Promise<void> {
+    public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.originalMessage.channel as TextChannel;
         
         const fullSearchTerm = parsedUserCommand.args.join(' ');

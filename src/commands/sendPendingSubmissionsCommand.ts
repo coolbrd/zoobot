@@ -9,13 +9,13 @@ import EmbedBookMessage from '../messages/embedBookMessage';
 //import { ADMIN_SERVER_ID } from '../config/secrets';
 
 export class SendPendingSubmissionsCommand implements Command {
-    commandNames = ['pending', 'submissions'];
+    public commandNames = ['pending', 'submissions'];
 
-    help(commandPrefix: string): string {
+    public help(commandPrefix: string): string {
         return `Use ${commandPrefix}pending to view a list of all pending species submissions.`;
     }
 
-    async run(parsedUserCommand: CommandParser): Promise<void> {
+    public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.originalMessage.channel as TextChannel | DMChannel;
         const guild = parsedUserCommand.originalMessage.guild;
 

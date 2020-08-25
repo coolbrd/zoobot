@@ -34,7 +34,7 @@ export default class CommandHandler {
     }
 
     // Executes user commands contained in a message if appropriate
-    async handleMessage(message: Message): Promise<void> {
+    public async handleMessage(message: Message): Promise<void> {
         // If the message was sent by a bot, or was sent in a news channel
         if (message.author.bot || message.channel.type === "news") {
             // Ignore the message

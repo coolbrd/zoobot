@@ -9,9 +9,9 @@ import { SpeciesDocument } from '../models/species';
 // The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
-    readonly species: SpeciesDocument;
+    private readonly species: SpeciesDocument;
     // Whether or not this animal has been caught
-    caught: boolean;
+    private caught: boolean;
 
     constructor(channel: TextChannel, species: SpeciesDocument) {
         const embed = new MessageEmbed();
@@ -34,7 +34,7 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     // Whenever the encounter's button is pressed
-    async buttonPress(_buttonName: string, user: User): Promise<void> {
+    public async buttonPress(_buttonName: string, user: User): Promise<void> {
         // Get this encounter's message, and assume it's not going to be undefined (because it really won't be)
         const message = this.getMessage() as Message;
 
@@ -46,7 +46,7 @@ export default class EncounterMessage extends InteractiveMessage {
         this.deactivate();
     }
 
-    async deactivate(): Promise<void> {
+    protected async deactivate(): Promise<void> {
         // Inherit parent deactivation behavior
         super.deactivate();
 

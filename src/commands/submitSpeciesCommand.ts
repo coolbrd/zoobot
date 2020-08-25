@@ -9,13 +9,13 @@ import { UserInputResponses } from '../utility/userInput';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
-    commandNames = ['submitspecies', 'submit'];
+    public commandNames = ['submitspecies', 'submit'];
 
-    help(commandPrefix: string): string {
+    public help(commandPrefix: string): string {
         return `Use ${commandPrefix}submit to begin the species submission process. Only usable in DMs.`;
     }
 
-    async run(parsedUserCommand: CommandParser): Promise<void> {
+    public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Cast the channel as a DMChannel or a TextChannel because that's what it is
         const channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
 

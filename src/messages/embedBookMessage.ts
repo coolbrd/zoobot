@@ -5,7 +5,7 @@ import { InteractiveMessage } from './interactiveMessage';
 // A message that allows an array of embeds to be linearly browsed
 export default class EmbedBookMessage extends InteractiveMessage {
     // The book of embeds
-    readonly book: MessageEmbed[];
+    private readonly book: MessageEmbed[];
     // The current index of the book to display
     private page: number;
 
@@ -28,7 +28,7 @@ export default class EmbedBookMessage extends InteractiveMessage {
         this.setEmbed(this.getPage(this.page));
     }
 
-    async buttonPress(buttonName: string, user: User): Promise<void> {
+    public async buttonPress(buttonName: string, user: User): Promise<void> {
         // Make sure the timer is reset whenever a button is pressed
         super.buttonPress(buttonName, user);
 
