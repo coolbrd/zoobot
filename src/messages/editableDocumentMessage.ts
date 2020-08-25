@@ -2,7 +2,7 @@ import { MessageEmbed, TextChannel, User, Message } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { EditableDocument } from '../utility/userInput';
-import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, joinIfArray } from '../utility/toolbox';
+import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, joinIfArray, safeDeleteMessage } from '../utility/toolbox';
 
 // A message that contains a document of fields, which themselves contain either single values of arrays of values
 // Gives the user an interface for smoothly editing the contained document via reaction messages
@@ -228,8 +228,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                             if (promptMessage && responseMessage) {
                                 this.doc[this.fieldSelection].value = responseMessage.content;
 
-                                promptMessage.delete();
-                                responseMessage.delete();
+                                safeDeleteMessage(promptMessage);
+                                safeDeleteMessage(responseMessage);
                             }
                             else {
                                 betterSend(this.channel, 'Time limit expired. No changes have been made.');
@@ -280,13 +280,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     case 'new': {
                         const promptMessage = await betterSend(this.channel, 'Send your input to insert above the current position:');
 
-                        const newElementMessage = await awaitUserNextMessage(this.channel, user, 300000);
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
 
-                        if (promptMessage && newElementMessage) {
-                            selection.splice(this.arrayPosition, 0, newElementMessage.content);
+                        if (responseMessage) {
+                            selection.splice(this.arrayPosition, 0, responseMessage.content);
 
-                            promptMessage.delete();
-                            newElementMessage.delete();
+                            safeDeleteMessage(promptMessage);
+                            safeDeleteMessage(responseMessage);
                         }
                         else {
                             betterSend(this.channel, 'Time limit expired. No changes have been made.');

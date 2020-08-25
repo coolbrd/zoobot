@@ -227,3 +227,16 @@ export function safeArrayJoin(array: unknown[], delimiter?: string): string {
 export function joinIfArray(value: string | string[] | undefined, delimiter?: string): string | undefined {
     return Array.isArray(value) ? safeArrayJoin(value, delimiter) : value;
 }
+
+// Deletes a message if the bot is able to do that
+export function safeDeleteMessage(message: Message | undefined): boolean {
+    if (!message) {
+        return false;
+    }
+    
+    if (!message.deletable) {
+        return false;
+    }
+    message.delete();
+    return true;
+}
