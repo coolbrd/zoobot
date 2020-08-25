@@ -21,37 +21,45 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     // Whether or not the editor is currently within a field
     private editMode: boolean;
 
-    // The emoji that serves as the edit icon and button
-    private readonly editEmoji: string;
+    // Information pertaining to the edit button, which changes state depending on the context of the editor
+    private readonly editButtonInfo: {
+        emoji: string,
+        selectModeHelpMessage: string,
+        editModeHelpMessage: string
+    };
 
     constructor(channel: TextChannel, doc: EditableDocument) {
-        const editEmoji = '✏️';
+        const editButtonInfo = {
+            emoji: '✏️',
+            selectModeHelpMessage: 'Edit selection',
+            editModeHelpMessage: 'New entry'
+        }
 
         super(channel, { buttons: [
             {
                 name: 'pointerUp',
                 emoji: '⬆️',
-                helpMessage: 'Move pointer up'
+                helpMessage: 'Pointer up'
             },
             {
                 name: 'pointerDown',
                 emoji: '⬇️',
-                helpMessage: 'Move pointer down'
+                helpMessage: 'Pointer down'
             },
             {
                 name: 'edit',
-                emoji: editEmoji,
-                helpMessage: 'Edit selection'
+                emoji: editButtonInfo.emoji,
+                helpMessage: editButtonInfo.selectModeHelpMessage
             },
             {
                 name: 'back',
                 emoji: '⬅️',
-                helpMessage: 'Back to field selection'
+                helpMessage: 'Back'
             },
             {
                 name: 'delete',
                 emoji: '🗑️',
-                helpMessage: 'Delete selected entry'
+                helpMessage: 'Delete entry'
             },
             {
                 name: 'new',
@@ -61,7 +69,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             {
                 name: 'submit',
                 emoji: '✅',
-                helpMessage: 'Approve entry'
+                helpMessage: 'Approve'
             }
         ], lifetime: 300000 });
 
@@ -103,7 +111,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Start the editor in field selection mode (not edit mode)
         this.editMode = false;
 
-        this.editEmoji = editEmoji;
+        this.editButtonInfo = editButtonInfo;
 
         // Initialize the message's embed
         this.setEmbed(this.buildEmbed());
@@ -127,7 +135,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 fieldString = fieldString ? fieldString : '*Empty*';
 
                 // Deterimine if there should be an icon drawn on this field's row
-                const editIcon = fieldIndex === this.fieldPosition ? this.editEmoji : '';
+                const editIcon = fieldIndex === this.fieldPosition ? this.editButtonInfo.emoji : '';
 
                 // Capitalize and pluralize the title as needed and add the field
                 newEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
@@ -136,11 +144,12 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
 
             // Update button list
-            this.enableButton('edit');
             this.enableButton('submit');
             this.disableButton('back');
             this.disableButton('delete');
             this.disableButton('new');
+
+            this.setButtonHelpMessage('edit', this.editButtonInfo.selectModeHelpMessage);
         }
         else {
             const selectedField = this.doc[this.fieldSelection];
@@ -165,8 +174,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 contentString = '*Empty* 🔹';
             }
 
-            // Disable the edit button, as it's not used here
-            this.disableButton('edit');
+            // Complete the embed and edit the message
+            newEmbed.setDescription(contentString);
+
+            // Disable the submit button, so it's only showed during field selection
             this.disableButton('submit');
 
             // Enable array manipulation buttons
@@ -174,8 +185,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             this.enableButton('delete');
             this.enableButton('new');
 
-            // Complete the embed and edit the message
-            newEmbed.setDescription(contentString);
+            this.setButtonHelpMessage('edit', this.editButtonInfo.editModeHelpMessage);
         }
 
         newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
@@ -260,6 +270,23 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
                         break;
                     }
+                    // Add a new array element above the pointer
+                    case 'edit': {
+                        const promptMessage = await betterSend(this.channel, 'Send your input to insert above the current position:');
+
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
+
+                        if (responseMessage) {
+                            selection.splice(this.arrayPosition, 0, responseMessage.content);
+
+                            safeDeleteMessage(promptMessage);
+                            safeDeleteMessage(responseMessage);
+                        }
+                        else {
+                            betterSend(this.channel, 'Time limit expired. No changes have been made.');
+                        }
+                        break;
+                    }
                     // Leave the selection and return to field selection
                     case 'back': {
                         this.editMode = false;
@@ -275,22 +302,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                             this.arrayPosition -= 1;
                         }
                         break;
-                    }
-                    // Add a new array element above the pointer
-                    case 'new': {
-                        const promptMessage = await betterSend(this.channel, 'Send your input to insert above the current position:');
-
-                        const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
-
-                        if (responseMessage) {
-                            selection.splice(this.arrayPosition, 0, responseMessage.content);
-
-                            safeDeleteMessage(promptMessage);
-                            safeDeleteMessage(responseMessage);
-                        }
-                        else {
-                            betterSend(this.channel, 'Time limit expired. No changes have been made.');
-                        }
                     }
                 }
             }

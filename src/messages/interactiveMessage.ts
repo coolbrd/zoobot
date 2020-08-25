@@ -256,6 +256,11 @@ export class InteractiveMessage {
         targetButton.disabled = true;
     }
 
+    // Updates a button's help message to a given string
+    protected setButtonHelpMessage(buttonName: string, newMessage: string): void {
+        this.getButtonByName(buttonName).helpMessage = newMessage;
+    }
+
     public getMessage(): Message | undefined {
         return this.message;
     }
