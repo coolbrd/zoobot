@@ -8,8 +8,7 @@ import { betterSend } from './utility/toolbox';
 import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissionsCommand';
 import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
 
-// The class responsible for parsing and executing commands
-// Will be the default item imported from this module within other modules
+// The class responsible for executing commands
 export default class CommandHandler {
     // The bot's prefix that it will respond to
     private readonly prefix: string;
@@ -17,7 +16,6 @@ export default class CommandHandler {
     // The array of valid, executable commands
     private readonly commands: Command[];
 
-    // Upon initialization
     constructor(prefix: string) {
         // The prefix that the bot will respond to
         this.prefix = prefix;
@@ -71,11 +69,7 @@ export default class CommandHandler {
 
             // If no matching command was found
             if (!matchedCommand) {
-                const unknownCommandMessage = await betterSend(commandParser.originalMessage.channel, `I don't recognize that command. Try ${this.prefix}help.`);
-
-                if (!unknownCommandMessage) {
-                    console.error('Error sending unknown command message.');
-                }
+                betterSend(commandParser.channel, `I don't recognize that command. Try ${this.prefix}help.`);
             }
             // If a matching command was found
             else {

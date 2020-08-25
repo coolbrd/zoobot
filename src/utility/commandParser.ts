@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, TextChannel, DMChannel } from 'discord.js';
 
 // The parsed version of a command given by a user's message
 export default class CommandParser {
@@ -8,6 +8,8 @@ export default class CommandParser {
     readonly args: string[];
     // The message as originally sent by the user
     readonly originalMessage: Message;
+    // The channel that the message was sent in
+    readonly channel: TextChannel | DMChannel;
     // The prefix used by the command handler
     readonly commandPrefix: string;
 
@@ -28,5 +30,7 @@ export default class CommandParser {
         this.args = splitMessage;
         // Assign the original message to this instance
         this.originalMessage = message;
+        // Assign the channel
+        this.channel = message.channel as TextChannel | DMChannel;
     }
 }

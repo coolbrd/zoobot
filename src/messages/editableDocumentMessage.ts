@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, User, Message } from 'discord.js';
+import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { EditableDocument } from '../utility/userInput';
@@ -28,7 +28,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         editModeHelpMessage: string
     };
 
-    constructor(channel: TextChannel, doc: EditableDocument) {
+    constructor(channel: TextChannel | DMChannel, doc: EditableDocument) {
         const editButtonInfo = {
             emoji: '✏️',
             selectModeHelpMessage: 'Edit selection',

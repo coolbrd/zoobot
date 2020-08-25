@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { DMChannel, TextChannel, MessageEmbed, APIMessage } from 'discord.js';
+import { MessageEmbed, APIMessage } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
@@ -17,7 +17,7 @@ export class SubmitSpeciesCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Cast the channel as a DMChannel or a TextChannel because that's what it is
-        const channel = parsedUserCommand.originalMessage.channel as DMChannel | TextChannel;
+        const channel = parsedUserCommand.channel;
 
         const user = parsedUserCommand.originalMessage.author;
 

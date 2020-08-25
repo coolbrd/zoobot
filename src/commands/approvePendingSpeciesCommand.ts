@@ -1,5 +1,3 @@
-import { TextChannel } from 'discord.js';
-
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
@@ -16,7 +14,7 @@ export class ApprovePendingSpeciesCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const channel = parsedUserCommand.originalMessage.channel as TextChannel;
+        const channel = parsedUserCommand.channel;
         
         const fullSearchTerm = parsedUserCommand.args.join(' ');
 

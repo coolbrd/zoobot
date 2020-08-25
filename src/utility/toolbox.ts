@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, NewsChannel } from 'discord.js';
+import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage } from 'discord.js';
 import mongoose from 'mongoose';
 
 import { client } from '..';
@@ -67,7 +67,7 @@ export async function reactionInput(message: Message, timeOut: number, emojis: s
     return emojiReaction.emoji.name;
 }
 
-export async function awaitUserNextMessage(channel: TextChannel | DMChannel | NewsChannel, user: User, timeout: number): Promise<Message | undefined> {
+export async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {
     // The filter that'll be used to select response messages
     const messageCollectorFilter = (response: Message) => {
         // Only accept a message from the given user
@@ -97,7 +97,7 @@ export async function awaitUserNextMessage(channel: TextChannel | DMChannel | Ne
 }
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
-export async function betterSend(channel: TextChannel | DMChannel | NewsChannel, content: string | APIMessage): Promise<Message | undefined> {
+export async function betterSend(channel: TextChannel | DMChannel, content: string | APIMessage): Promise<Message | undefined> {
     try {
         return await channel.send(content);
     }

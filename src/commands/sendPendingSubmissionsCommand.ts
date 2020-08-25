@@ -1,4 +1,4 @@
-import { MessageEmbed, DMChannel, TextChannel } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
@@ -16,7 +16,7 @@ export class SendPendingSubmissionsCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const channel = parsedUserCommand.originalMessage.channel as TextChannel | DMChannel;
+        const channel = parsedUserCommand.channel;
         const guild = parsedUserCommand.originalMessage.guild;
 
         if (!guild /*|| guild.id !== ADMIN_SERVER_ID*/) {
