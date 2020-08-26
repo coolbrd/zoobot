@@ -4,7 +4,7 @@ import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import Species, { speciesFieldInfo } from '../models/species';
-import { EditableDocument } from '../utility/userInput';
+import EditableDocument, { EditableDocumentSkeleton } from '../utility/EditableDocument';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {
@@ -32,25 +32,41 @@ export class ApprovePendingSpeciesCommand implements Command {
         // Get the pending submission as a plain object
         const pendingSubmission = pendingSpecies.toObject();
 
-        // The document that will be used to edit and finalize the pending submission
-        const editableDocument: EditableDocument = {};
-        // Iterate over every field name that a species needs
-        for (const key of Object.keys(speciesFieldInfo)) {
-            // Add a field to the document that contains the required field names mapped to the given information
-            Object.defineProperty(editableDocument, key, {
-                value: {
-                    fieldInfo: speciesFieldInfo[key],
-                    value: pendingSubmission[key]
-                },
-                enumerable: true,
-                writable: false
-            });
+        const document: EditableDocumentSkeleton = {
+            commonNames: {
+                alias: 'common names',
+                type: 'array',
+                arrayType: 'string'
+            },
+            scientificName: {
+                alias: 'scientific name',
+                type: 'string'
+            },
+            images: {
+                alias: 'images',
+                type: 'array',
+                arrayType: {
+                    image: {
+                        alias: 'url',
+                        type: 'string'
+                    },
+                    breed: {
+                        alias: 'breed',
+                        type: 'string'
+                    }
+                }
+            },
+            cryptid: {
+                alias: 'cryptid',
+                type: 'boolean'
+            }
         }
 
         // Create and send a message containing the editable document of information compiled
-        const editableDocumentMessage = new EditableDocumentMessage(channel, editableDocument);
+        const editableDocumentMessage = new EditableDocumentMessage(channel, new EditableDocument(document));
         editableDocumentMessage.send();
         
+        /*
         // Loop until escaped
         for (;;) {
             // Wait until the user submits the species
@@ -94,5 +110,6 @@ export class ApprovePendingSpeciesCommand implements Command {
         betterSend(channel, 'Submission approved!');
         // Remove the pending species from the database
         pendingSpecies.remove();
+        */
     }
 }

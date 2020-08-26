@@ -1,40 +1,15 @@
 import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
-import { EditableDocument } from '../utility/userInput';
-import { capitalizeFirstLetter, awaitUserNextMessage, betterSend, joinIfArray, safeDeleteMessage } from '../utility/toolbox';
+import EditableDocument, { PointedArray, EditableDocumentField } from '../utility/EditableDocument';
+import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 
-// A message that contains a document of fields, which themselves contain either single values of arrays of values
-// Gives the user an interface for smoothly editing the contained document via reaction messages
 export default class EditableDocumentMessage extends InteractiveMessage {
-    // The document to provide for editing
-    private readonly doc: EditableDocument;
-    
-    // The document's top level field that is currently selected
-    private fieldPosition: number;
-    // The name of the selected field
-    private fieldSelection: string;
+    private readonly document: EditableDocument;
 
-    // The position of the editor within a field's array of values
-    private arrayPosition: number;
+    private selection: EditableDocumentField[] = [];
 
-    // Whether or not the editor is currently within a field
-    private editMode: boolean;
-
-    // Information pertaining to the edit button, which changes state depending on the context of the editor
-    private readonly editButtonInfo: {
-        emoji: string,
-        selectModeHelpMessage: string,
-        editModeHelpMessage: string
-    };
-
-    constructor(channel: TextChannel | DMChannel, doc: EditableDocument) {
-        const editButtonInfo = {
-            emoji: '✏️',
-            selectModeHelpMessage: 'Edit selection',
-            editModeHelpMessage: 'New entry'
-        }
-
+    constructor(channel: TextChannel | DMChannel, document: EditableDocument) {
         super(channel, { buttons: [
             {
                 name: 'pointerUp',
@@ -48,8 +23,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             },
             {
                 name: 'edit',
-                emoji: editButtonInfo.emoji,
-                helpMessage: editButtonInfo.selectModeHelpMessage
+                emoji: '✏️',
+                helpMessage: 'Edit selection'
             },
             {
                 name: 'back',
@@ -73,122 +48,64 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
         ], lifetime: 300000 });
 
-        // Make sure the document isn't empty
-        if (doc === {}) {
-            throw new Error('An EditableDocumentMessage cannot be made with an empty document.');
-        }
-
-        // Validate document validity
-        for (const docKey of Object.keys(doc)) {
-            // If the current field has been supplied a default value
-            if (doc[docKey].value) {
-                // Check if the value is an array
-                const fieldIsArray = Array.isArray(doc[docKey].value);
-                // If the pre-supplied value does not match the field's indicated 'multiple' value
-                if (doc[docKey].fieldInfo.multiple !== fieldIsArray) {
-                    throw new Error('Malformed document given to an EditableDocumentMessage. Initialized field value type does not match \'multiple\' field.');
-                }
-                // If we're down here, it means that the supplied value is valid
-
-                // Continue to the next field
-                continue;
-            }
-            // If we're down here, it means that the field hasn't been supplied any default value
-
-            // Give the field an empty array if it's marked as multiple, otherwise give it undefined
-            doc[docKey].value = doc[docKey].fieldInfo.multiple ? [] : undefined;
-        }
-
-        this.doc = doc;
-
-        // Start the editor at the first field
-        this.fieldPosition = 0;
-        this.fieldSelection = Object.keys(doc)[this.fieldPosition];
-
-        // Start the editor at the first array position
-        this.arrayPosition = 0;
-
-        // Start the editor in field selection mode (not edit mode)
-        this.editMode = false;
-
-        this.editButtonInfo = editButtonInfo;
+        this.document = document;
+        this.selection.push({
+            fieldInfo: {
+                alias: 'Submission',
+                type: 'document'
+            },
+            value: this.document
+        });
 
         // Initialize the message's embed
         this.setEmbed(this.buildEmbed());
     }
 
-    // Builds and returns a MessageEmbed that represents the current state of the editor
-    // Called pretty much after every change to the document, almost like a screen refresh
+    private getSelection(): EditableDocumentField {
+        return this.selection[this.selection.length - 1];
+    }
+
+    private setSelection(selection: EditableDocumentField): void {
+        this.selection.push(selection);
+    }
+
+    private backOneLevel(): void {
+        if (this.selection.length > 1) {
+            this.selection.pop();
+        }
+    }
+
     private buildEmbed(): MessageEmbed {
         const newEmbed = new MessageEmbed();
 
-        // If the message is in field selection mode
-        if (!this.editMode) {
-            // Iterate over every field in the document
-            // Track the current number of each field to loosely index them
-            let fieldIndex = 0;
-            for (const editableField of Object.values(this.doc)) {
-                // Format the field's value properly
-                let fieldString = joinIfArray(editableField.value, editableField.fieldInfo.delimiter);
+        const selection = this.getSelection();
+        newEmbed.setTitle(`Now editing: ${selection.fieldInfo.alias}`);
 
-                // If the field's string is empty, use placeholder text so Discord doesn't get mad about any empty embed fields
-                fieldString = fieldString ? fieldString : '*Empty*';
+        if (selection.value instanceof EditableDocument) {
+            const document = selection.value;
 
-                // Deterimine if there should be an icon drawn on this field's row
-                const editIcon = fieldIndex === this.fieldPosition ? this.editButtonInfo.emoji : '';
-
-                // Capitalize and pluralize the title as needed and add the field
-                newEmbed.addField(`${capitalizeFirstLetter(editableField.fieldInfo.alias)}${editableField.fieldInfo.multiple ? '(s)' : ''} ${editIcon}`, fieldString);
-
-                fieldIndex++;
+            for (const [key, field] of document.fields.entries()) {
+                let selected = false;
+                if (key === document.fieldNames.selection()) {
+                    selected = true;
+                }
+                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${selected ? ' * ' : ''}`, field.value.toString() || '*Empty*');
             }
-
-            // Update button list
-            this.enableButton('submit');
-            this.disableButton('back');
-            this.disableButton('delete');
-            this.disableButton('new');
-
-            this.setButtonHelpMessage('edit', this.editButtonInfo.selectModeHelpMessage);
+        }
+        else if (selection.value instanceof PointedArray) {
+            let content = '';
+            let arrayIndex = 0;
+            for (const value of selection.value.getArray()) {
+                const selected = selection.value.getPointerPosition() === arrayIndex;
+                content += `${value.toString()} ${selected ? ' * ' : ''}\n`;
+                arrayIndex++;
+            }
+            newEmbed.setDescription(content);
         }
         else {
-            const selectedField = this.doc[this.fieldSelection];
-            newEmbed.setTitle(`Now editing: ${selectedField.fieldInfo.alias}${selectedField.fieldInfo.multiple ? '(s)' : ''}`);
-
-            // The array that's currently selected in edit mode
-            const selection = selectedField.value as string[];
-
-            let contentString = '';
-            // If the array has any content within it, continue with pretty formatting
-            if (selection.length > 0) {
-                let arrayIndex = 0;
-                for (const value of selection) {
-                    contentString += `${value} ${arrayIndex === this.arrayPosition ? '🔹' : ''}\n`
-                    arrayIndex++;
-                }
-            }
-
-            // If the content string ended up being empty
-            if (!contentString) {
-                // Write it instead of just being empty
-                contentString = '*Empty* 🔹';
-            }
-
-            // Complete the embed and edit the message
-            newEmbed.setDescription(contentString);
-
-            // Disable the submit button, so it's only showed during field selection
-            this.disableButton('submit');
-
-            // Enable array manipulation buttons
-            this.enableButton('back');
-            this.enableButton('delete');
-            this.enableButton('new');
-
-            this.setButtonHelpMessage('edit', this.editButtonInfo.editModeHelpMessage);
+            throw new Error('Unexpected type of data selected by an EditableDocumentMessage');
         }
 
-        newEmbed.setFooter(`Valid buttons:\n${this.getButtonHelpString()}`);
         return newEmbed;
     }
 
@@ -196,112 +113,92 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Make sure the timer is reset whenever a button is pressed
         super.buttonPress(buttonName, user);
 
-        // If the user presses the submit button
-        if (buttonName === 'submit') {
-            // Indicate that the user has submitted the document
-            this.emitter.emit('submit', this.doc);
-            // Don't do any unnecessary checks
-            return;
-        }
+        const selection = this.getSelection();
 
-        let selection = this.doc[this.fieldSelection].value;
-
-        // Edit mode state behavior
-        switch(this.editMode) {
-            // While the user is selecting a field to edit
-            case false: {
-                // The last index of a field within the editable document that can be used. Used for looping from one end to the other.
-                const lastDocIndex = Object.values(this.doc).length - 1;
-
-                // Field selection mode button behavior
-                switch(buttonName) {
-                    case 'pointerUp': {
-                        this.fieldPosition = this.fieldPosition - 1 < 0 ? lastDocIndex : this.fieldPosition - 1;
-                        break;
-                    }
-                    case 'pointerDown': {
-                        this.fieldPosition = this.fieldPosition + 1 > lastDocIndex ? 0 : this.fieldPosition + 1;
-                        break;
-                    }
-                    case 'edit': {
-                        // If the selection is an array, enter edit mode
-                        if (Array.isArray(selection)) {
-                            this.editMode = true;
-                            this.arrayPosition = 0;
-                        }
-                        // If the selection is just a single value, get the user's input for that value
-                        else {
-                            const promptMessage = await betterSend(this.channel, 'Enter the content you with to insert into this field:');
-
-                            const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
-
-                            if (promptMessage && responseMessage) {
-                                this.doc[this.fieldSelection].value = responseMessage.content;
-
-                                safeDeleteMessage(promptMessage);
-                                safeDeleteMessage(responseMessage);
-                            }
-                            else {
-                                betterSend(this.channel, 'Time limit expired. No changes have been made.');
-                            }
-                        }
-                        break;
-                    }
+        switch (buttonName) {
+            case 'pointerUp': {
+                if (selection.value instanceof EditableDocument) {
+                    selection.value.fieldNames.decrementPointer();
                 }
-
-                // Determine the message's new selected field of the document
-                this.fieldSelection = Object.keys(this.doc)[this.fieldPosition];
-
+                else if (selection.value instanceof PointedArray) {
+                    selection.value.decrementPointer();
+                }
                 break;
             }
-            // While the user is selecting an array element to edit
-            case true: {
-                // Indicate that the currently selected value is an array (it is, because we're in edit mode)
-                selection = selection as string[];
-
-                // Array edit mode button behavior
-                switch(buttonName) {
-                    case 'pointerUp': {
-                        this.arrayPosition = this.arrayPosition - 1 < 0 ? selection.length - 1 : this.arrayPosition - 1;
-                        break;
+            case 'pointerDown': {
+                if (selection.value instanceof EditableDocument) {
+                    selection.value.fieldNames.incrementPointer();
+                }
+                else if (selection.value instanceof PointedArray) {
+                    selection.value.incrementPointer();
+                }
+                break;
+            }
+            case 'edit': {
+                if (selection.value instanceof EditableDocument) {
+                    const selectedField = selection.value.getSelection();
+                    if (selectedField.value instanceof EditableDocument || selectedField.value instanceof PointedArray) {
+                        this.setSelection(selectedField);
                     }
-                    // Move down if the selection is an array
-                    case 'pointerDown': {
-                        this.arrayPosition = this.arrayPosition + 1 > selection.length - 1 ? 0 : this.arrayPosition + 1;
-                        break;
-                    }
-                    // Add a new array element above the pointer
-                    case 'edit': {
-                        const promptMessage = await betterSend(this.channel, 'Send your input to insert above the current position:');
+                    else if (typeof selectedField.value === 'string') {
+                        const promptMessage = await betterSend(this.channel, 'Enter the information that you would like to insert into this field:');
 
-                        const responseMessage = await awaitUserNextMessage(this.channel, user, 300000);
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                         if (responseMessage) {
-                            selection.splice(this.arrayPosition, 0, responseMessage.content);
+                            selectedField.value = responseMessage.content;
 
-                            safeDeleteMessage(promptMessage);
                             safeDeleteMessage(responseMessage);
                         }
-                        else {
-                            betterSend(this.channel, 'Time limit expired. No changes have been made.');
-                        }
-                        break;
+
+                        safeDeleteMessage(promptMessage);
                     }
-                    // Leave the selection and return to field selection
-                    case 'back': {
-                        this.editMode = false;
-                        break;
+                    else if (typeof selectedField.value === 'boolean') {
+                        selectedField.value = !selectedField.value;
                     }
-                    // Delete the selected array element
-                    case 'delete': {
-                        // Remove the element
-                        selection.splice(this.arrayPosition, 1);
-                        // If the element was the last in the array
-                        if (this.arrayPosition >= selection.length) {
-                            // Shift the pointer back so it doesn't go out of bounds
-                            this.arrayPosition -= 1;
+                    else {
+                        throw new Error('Unexpected type in EditableDocument');
+                    }
+                }
+                else if (selection.value instanceof PointedArray) {
+                    const selectedElement = selection.value.selection();
+                    if (selectedElement instanceof EditableDocument) {
+                        this.setSelection({
+                            fieldInfo: {
+                                alias: 'Document',
+                                type: 'document'
+                            },
+                            value: selectedElement
+                        });
+                    }
+                }
+                break;
+            }
+            case 'back': {
+                this.backOneLevel();
+                break;
+            }
+            case 'new': {
+                if (selection.value instanceof PointedArray) {
+                    if (!selection.fieldInfo.arrayType) {
+                        throw new Error('Found no type for a PointedArray when one was expected');
+                    }
+
+                    if (selection.fieldInfo.arrayType === 'string') {
+                        const promptMessage = await betterSend(this.channel, 'Your input for this field:');
+
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+
+                        if (responseMessage) {
+                            selection.value.addAtPointer(responseMessage.content);
+
+                            safeDeleteMessage(responseMessage);
                         }
-                        break;
+
+                        safeDeleteMessage(promptMessage);
+                    }
+                    else {
+                        selection.value.addAtPointer(new EditableDocument(selection.fieldInfo.arrayType));
                     }
                 }
             }
