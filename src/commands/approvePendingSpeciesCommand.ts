@@ -4,7 +4,7 @@ import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import Species, { speciesFieldInfo } from '../models/species';
-import EditableDocument, { EditableDocumentSkeleton } from '../utility/EditableDocument';
+import EditableDocument, { EditableDocumentSkeleton } from '../utility/editableDocument';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {

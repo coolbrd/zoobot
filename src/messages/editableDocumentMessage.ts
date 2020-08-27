@@ -1,7 +1,7 @@
 import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
-import EditableDocument, { PointedArray, EditableDocumentField } from '../utility/EditableDocument';
+import EditableDocument, { PointedArray, EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 
 export default class EditableDocumentMessage extends InteractiveMessage {
