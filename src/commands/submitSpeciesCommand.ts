@@ -6,6 +6,8 @@ import CommandParser from '../utility/commandParser';
 import { capitalizeFirstLetter, reactionInput, betterSend, getUserFieldInput } from '../utility/toolbox';
 import { pendingSpeciesUserInputBundle, PendingSpecies } from '../models/pendingSpecies';
 import { UserInputResponses } from '../utility/userInput';
+import EditableDocumentMessage from '../messages/editableDocumentMessage';
+import EditableDocument from '../utility/editableDocument';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -20,17 +22,6 @@ export class SubmitSpeciesCommand implements Command {
         const channel = parsedUserCommand.channel;
 
         const user = parsedUserCommand.originalMessage.author;
-
-        /*
-        // If the message was sent in a guild channel and they don't know how much spam it would create
-        if (channel.type === 'text') {
-            // Kindly inform the user of their misjudgement and open a DM chat with them to talk it out
-            betterSend(parsedUserCommand.originalMessage.author, 'The submit command can get big. Use it in here and we can get started without annoying anybody.');
-            betterSend(channel, 'For cleanliness, the animal submission process is only done via direct messages. I've opened a chat with you so we can do this privately. ;)');
-            // Don't continue with the command and force them to initiate it again but in DMs. Might change but whatever
-            return;
-        }
-        */
 
         // Send the big instructional message so the user knows what they're signing themselves up for
         const initialMessage = await betterSend(channel, stripIndents`
@@ -61,70 +52,43 @@ export class SubmitSpeciesCommand implements Command {
             return;
         }
         // If we're out here that means the button was pressed. They did good.
-        
-        // Tell the user that the big scary submission process has started
-        betterSend(channel, stripIndents`
-            Submission process initiated. You will have 60 seconds to respond to each individual prompt.
-            Pre-writing these answers in another document and copying them over is highly recommended.
-        `);
 
-        // Initialize the variable that will hold the user's responses to the various questions about the species they are submitting
-        let responses: UserInputResponses | undefined;
-        try {
-            // Get the user's responses to the pending species fields
-            responses = await getUserFieldInput(channel, user, pendingSpeciesUserInputBundle);
-        }
-        // If something goes wrong in the input gathering process
-        catch (error) {
-            console.error('Failed to get user input for pending species fields during submit command.', error);
-            return;
-        }
+        const document = new EditableDocument({
+            commonNames: {
+                alias: 'common names',
+                prompt: 'Enter a name that is used to refer to this animal conversationally, e.g. "dog", "cat", "bottlenose dolphin".',
+                type: 'array',
+                arrayType: 'string'
+            },
+            scientificName: {
+                alias: 'scientific name',
+                prompt: 'Enter this animal\'s scientific (taxonomical) name.',
+                type: 'string'
+            },
+            images: {
+                alias: 'images',
+                prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image, e.g. "i.imgur.com/fake-image"',
+                type: 'array',
+                arrayType: 'string'
+            },
+            description: {
+                alias: 'description',
+                prompt: 'Enter a concise description of the animal. See other animals for examples.',
+                type: 'string'
+            },
+            naturalHabitat: {
+                alias: 'natural habitat',
+                prompt: 'Enter a concise summary of where the animal is naturally found. See other animals for examples.',
+                type: 'string'
+            },
+            wikiPage: {
+                alias: 'wikipedia page',
+                prompt: 'Enter the link leading to the Wikipedia page of the animal\'s species.',
+                type: 'string'
+            }
+        });
 
-        // If the responses object comes back empty for some reason
-        if (!responses) {
-            throw new Error('Responses object from getUserFieldInput came back undefined.');
-        }
-
-        const confirmationEmbed = new MessageEmbed();
-        confirmationEmbed.setDescription('All fields satisfied. Please confirm or deny your inputs below.');
-        // Loop over every field in the pending species template
-        for (const [key, field] of Object.entries(pendingSpeciesUserInputBundle)) {
-            // Convert the currently iterated response to a pretty array string if it's an array
-            const currentResponse = Array.isArray(responses[key]) ? (responses[key] as string[]).join(pendingSpeciesUserInputBundle[key].fieldInfo.delimiter || ', ') : responses[key];
-            // Add the information to the confirmation embed
-            confirmationEmbed.addField(`\n${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.multiple ? '(s)' : ''}`, `${currentResponse || 'None provided'}`)
-        }
-        const confirmationMessage = await betterSend(channel, new APIMessage(channel, { embed: confirmationEmbed }));
-
-        if (!confirmationMessage) {
-            throw new Error('Couldn\'t send species submission message.');
-        }
-
-        // Wait for the user to confirm or deny their submission
-        const buttonPress = await reactionInput(confirmationMessage, 60000, ['✅', '❌']);
-
-        // Time's up!
-        if (!buttonPress) {
-            betterSend(channel, 'Your time to submit this species has expired. Use the command again and input the same information to try again.');
-            return;
-        }
-
-        // If the user got cold feet and doesn't want to submit their work
-        if (buttonPress === '❌') {
-            betterSend(channel, 'Submission process aborted.');
-            return;
-        }
-        // If we're down here, the only possibility is that the check button was pressed
-
-        // Construct the pending species document with the previously arranged fields
-        const pending = new PendingSpecies(responses);
-
-        // Mark the document with their fingerprint so I know who the jokesters are
-        pending.set('author', user.id);
-
-        // Slap that submission into the database
-        await pending.save();
-
-        betterSend(channel, 'Submission sent! Your submission will be reviewed and edited before potentially being accepted. Thank you for contributing to The Beastiary!');
+        const submissionDocument = new EditableDocumentMessage(channel, document);
+        submissionDocument.send();
     }
 }

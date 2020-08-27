@@ -1,8 +1,9 @@
 import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
-import EditableDocument, { PointedArray, EditableDocumentField } from '../utility/editableDocument';
+import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
+import { PointedArray } from '../utility/pointedArray';
 
 export default class EditableDocumentMessage extends InteractiveMessage {
     private readonly document: EditableDocument;
@@ -93,6 +94,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
         }
         else if (selection.value instanceof PointedArray) {
+            selection.fieldInfo.prompt && newEmbed.setFooter(selection.fieldInfo.prompt);
             let content = '';
             let arrayIndex = 0;
             for (const value of selection.value.getArray()) {
@@ -100,6 +102,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 content += `${value.toString()} ${selected ? ' * ' : ''}\n`;
                 arrayIndex++;
             }
+
+            if (!content) {
+                content = '*Empty*';
+            }
+
             newEmbed.setDescription(content);
         }
         else {
@@ -141,7 +148,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         this.setSelection(selectedField);
                     }
                     else if (typeof selectedField.value === 'string') {
-                        const promptMessage = await betterSend(this.channel, 'Enter the information that you would like to insert into this field:');
+                        const promptString = selectedField.fieldInfo.prompt || 'Enter the information that you would like to insert into this field.'
+                        const promptMessage = await betterSend(this.channel, promptString);
 
                         const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
@@ -185,7 +193,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     }
 
                     if (selection.fieldInfo.arrayType === 'string') {
-                        const promptMessage = await betterSend(this.channel, 'Your input for this field:');
+                        const promptString = selection.fieldInfo.prompt || 'Enter your input for this new entry.';
+                        const promptMessage = await betterSend(this.channel, promptString);
 
                         const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
