@@ -1,8 +1,5 @@
 import mongoose from 'mongoose';
 
-import { schemaToUserInputBundle } from '../utility/toolbox';
-import { speciesFieldInfo } from './species';
-
 // The schema for a pending species submission
 const pendingSpeciesSchema = new mongoose.Schema({
     commonNames: {
@@ -36,13 +33,3 @@ const pendingSpeciesSchema = new mongoose.Schema({
 });
 
 export const PendingSpecies = mongoose.model('PendingSpecies', pendingSpeciesSchema);
-
-// Combine the Mongoose schema and the input info for the species model into a UserInputBundle
-export const pendingSpeciesUserInputBundle = schemaToUserInputBundle(pendingSpeciesSchema, {
-    commonNames: speciesFieldInfo.commonNames,
-    scientificName: speciesFieldInfo.scientificName,
-    images: speciesFieldInfo.images,
-    description: speciesFieldInfo.description,
-    naturalHabitat: speciesFieldInfo.naturalHabitat,
-    wikiPage: speciesFieldInfo.wikiPage
-});

@@ -1,9 +1,6 @@
-import { stripIndents } from 'common-tags';
 import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage } from 'discord.js';
-import mongoose from 'mongoose';
 
 import { client } from '..';
-import { UserInputBundle, UserInputResponses, FieldInfoBundle } from './userInput';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
