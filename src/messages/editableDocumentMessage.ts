@@ -272,34 +272,47 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             // Adds a new array element to the selected array
             case 'new': {
                 // Make sure the selection is an array and not a document
-                if (selection.value instanceof PointedArray) {
-                    // If the array field is missing its type
-                    if (!selection.fieldInfo.arrayType) {
-                        throw new Error('Found no type for a PointedArray when one was expected');
-                    }
-
-                    // If the array contains strings
-                    if (selection.fieldInfo.arrayType === 'string') {
-                        // Get user input for a new string to insert and add it
-                        const promptString = selection.fieldInfo.prompt || 'Enter your input for this new entry.';
-                        const promptMessage = await betterSend(this.channel, promptString);
-
-                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
-
-                        if (responseMessage) {
-                            selection.value.addAtPointer(responseMessage.content);
-
-                            safeDeleteMessage(responseMessage);
-                        }
-
-                        safeDeleteMessage(promptMessage);
-                    }
-                    // If the array contains documents
-                    else {
-                        // Create an empty document of the array's document type and insert it
-                        selection.value.addAtPointer(new EditableDocument(selection.fieldInfo.arrayType));
-                    }
+                if (!(selection.value instanceof PointedArray)) {
+                    break;
                 }
+
+                // If the array field is missing its type
+                if (!selection.fieldInfo.arrayType) {
+                    throw new Error('Found no type for a PointedArray when one was expected');
+                }
+
+                // If the array contains strings
+                if (selection.fieldInfo.arrayType === 'string') {
+                    // Get user input for a new string to insert and add it
+                    const promptString = selection.fieldInfo.prompt || 'Enter your input for this new entry.';
+                    const promptMessage = await betterSend(this.channel, promptString);
+
+                    const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+
+                    if (responseMessage) {
+                        selection.value.addAtPointer(responseMessage.content);
+
+                        safeDeleteMessage(responseMessage);
+                    }
+
+                    safeDeleteMessage(promptMessage);
+                }
+                // If the array contains documents
+                else {
+                    // Create an empty document of the array's document type and insert it
+                    selection.value.addAtPointer(new EditableDocument(selection.fieldInfo.arrayType));
+                }
+                break;
+            }
+            // Deletes the currently selected array element if there is one
+            case 'delete': {
+                if (!(selection.value instanceof PointedArray)) {
+                    break;
+                }
+
+                // Delete the current element
+                selection.value.deleteAtPointer();
+                break;
             }
         }
 

@@ -1,11 +1,8 @@
 import { stripIndents } from 'common-tags';
-import { MessageEmbed, APIMessage } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { capitalizeFirstLetter, reactionInput, betterSend, getUserFieldInput } from '../utility/toolbox';
-import { pendingSpeciesUserInputBundle, PendingSpecies } from '../models/pendingSpecies';
-import { UserInputResponses } from '../utility/userInput';
+import { reactionInput, betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument from '../utility/editableDocument';
 
