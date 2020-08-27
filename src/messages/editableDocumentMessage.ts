@@ -119,7 +119,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             this.enableButton('pointerUp');
             this.enableButton('pointerDown');
             this.enableButton('edit');
-            this.disableButton('back');
             this.disableButton('delete');
             this.disableButton('new');
 
@@ -127,9 +126,14 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             if (this.selection.length === 1) {
                 // Enable the submit button
                 this.enableButton('submit');
+
+                // Disable the back button
+                this.disableButton('back');
             }
             // Disable the submit button's information and functionality otherwise
             else {
+                this.enableButton('back');
+
                 this.disableButton('submit');
             }
         }
@@ -255,7 +259,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         // Select the document for further editing
                         this.setSelection({
                             fieldInfo: {
-                                alias: `Field within: ${selection.fieldInfo.alias}`,
+                                alias: `Field within ${selection.fieldInfo.alias}`,
                                 type: 'document'
                             },
                             value: selectedElement
