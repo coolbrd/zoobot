@@ -1,4 +1,5 @@
 import { PointedArray } from "./pointedArray";
+import { capitalizeFirstLetter } from "./toolbox";
 
 // A set of informational fields pertaining to a field of a document
 interface EditableDocumentFieldInfo {
@@ -100,10 +101,13 @@ export default class EditableDocument {
     }
 
     // Concisely display the fields of the document
-    public toString(): string {
+    public toString(delimiter?: string): string {
         let content = '';
+        let fieldIndex = 0;
         for (const field of this.fields.values()) {
-            content += `${field.fieldInfo.alias}: ${field.value || '*None*'}\n`;
+            const currentDelimiter = fieldIndex < this.fields.size - 1 ? (delimiter ? delimiter : '\n') : '';
+            content += `${capitalizeFirstLetter(field.fieldInfo.alias)}: ${field.value || '*None*'}${currentDelimiter}`;
+            fieldIndex++;
         }
         return content;
     }

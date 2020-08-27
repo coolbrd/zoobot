@@ -146,7 +146,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // If the current element is at the selected index
                 const selected = selection.value.getPointerPosition() === arrayIndex;
                 // Write the value of the element and draw the edit icon if it's selected
-                content += `${value.toString()} ${selected ? ' * ' : ''}\n`;
+                content += `• ${value.toString('\n| ')} ${selected ? ' * ' : ''}\n`;
                 arrayIndex++;
             }
 
