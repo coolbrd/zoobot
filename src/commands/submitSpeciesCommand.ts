@@ -88,7 +88,7 @@ export class SubmitSpeciesCommand implements Command {
             }
         });
 
-        const submissionDocument = new EditableDocumentMessage(channel, document);
+        const submissionDocument = new EditableDocumentMessage(channel, document, 'new submission');
         submissionDocument.send();
     }
 }
