@@ -27,9 +27,9 @@ export interface EditableDocumentField {
 // A document containing a set of fields that can be edited through some given user interface
 export default class EditableDocument {
     // The document's fields
-    public readonly fields = new Map<string, EditableDocumentField>();
+    private readonly fields = new Map<string, EditableDocumentField>();
     // The names of the document's fields, in a pointed array so the fields can be loosely indexed for user pointer selection
-    public readonly fieldNames = new PointedArray<string>();
+    private readonly fieldNames = new PointedArray<string>();
 
     // Create a new document from a given skeleton
     constructor(skeleton: EditableDocumentSkeleton) {
@@ -116,5 +116,25 @@ export default class EditableDocument {
         }
 
         return selected;
+    }
+
+    // Gets the name of the currently selected field
+    public getSelectedFieldName(): string {
+        return this.fieldNames.selection();
+    }
+
+    // Gets an iterator of every field in this document
+    public getFieldEntries(): IterableIterator<[string, EditableDocumentField]> {
+        return this.fields.entries();
+    }
+
+    // Moves the pointer up one
+    public incrementPointer(): void {
+        this.fieldNames.incrementPointer();
+    }
+
+    // Moves the pointer down one
+    public decrementPointer(): void {
+        this.fieldNames.decrementPointer();
     }
 }

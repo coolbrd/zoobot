@@ -104,11 +104,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             const document = selection.value;
 
             // Iterate over every field in the document
-            for (const [key, field] of document.fields.entries()) {
+            for (const [key, field] of document.getFieldEntries()) {
                 // Whether or not the current field is the one that's selected by the editor
                 let selected = false;
                 // If the name of the current field is marked as the document's currently selected field
-                if (key === document.fieldNames.selection()) {
+                if (key === document.getSelectedFieldName()) {
                     selected = true;
                 }
                 // Add a field representing the current field of the document, drawing an edit icon if it's the selected field
@@ -193,24 +193,16 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         switch (buttonName) {
             // Moves the pointer up
             case 'pointerUp': {
-                // Decrement the document's pointer if that's what's selected
-                if (selection.value instanceof EditableDocument) {
-                    selection.value.fieldNames.decrementPointer();
-                }
-                // Decrement the array's pointer if that's what's selected
-                else if (selection.value instanceof PointedArray) {
+                // Decrement the pointer of the current selection if that's a valid thing to do
+                if (selection.value instanceof EditableDocument || selection.value instanceof PointedArray) {
                     selection.value.decrementPointer();
                 }
                 break;
             }
             // Moves the pointer down
             case 'pointerDown': {
-                // Increment the document's pointer if that's what's selected
-                if (selection.value instanceof EditableDocument) {
-                    selection.value.fieldNames.incrementPointer();
-                }
-                // Increment the array's pointer if that's what's selected
-                else if (selection.value instanceof PointedArray) {
+                // Increment the pointer of the current selection if that's a valid thing to do
+                if (selection.value instanceof EditableDocument || selection.value instanceof PointedArray) {
                     selection.value.incrementPointer();
                 }
                 break;
