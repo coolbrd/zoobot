@@ -2,10 +2,11 @@ import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { reactionInput, betterSend } from '../utility/toolbox';
+import { reactionInput, betterSend, safeDeleteMessage } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument, { schemaToSkeleton } from '../utility/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
+import { MessageEmbed, APIMessage } from 'discord.js';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -21,35 +22,40 @@ export class SubmitSpeciesCommand implements Command {
 
         const user = parsedUserCommand.originalMessage.author;
 
-        // Send the big instructional message so the user knows what they're signing themselves up for
-        const initialMessage = await betterSend(channel, stripIndents`
+        // Make a big instructional message so the user knows what they're signing themself up for
+        const infoEmbed = new MessageEmbed();
+        infoEmbed.setTitle('New species submission');
+        infoEmbed.setDescription(stripIndents`
             You're about to begin the process of submitting a new animal species to The Beastiary.
             Please read over the following fields and prepare your submissions for them in advance.
-            
-            1) Common name(s): The names used to refer to the animal in everyday speech. E.g. "raven", "bottlenose dolphin". **At least one is required.**
-            2) Image(s): Pictures used to clearly depict the animal's appearance. Imgur links only. **At least one is required.**
-            3) Scientific name: The taxonomical name of the animal. If the animal's common name refers to multiple species, pick the most relevant one. **Required.**
-            4) Description: A brief description of the animal's appearance, attributes, and behaviors. **Not required.**
-            5) Natural habitat: A brief description of the animal's natural environment, both in ecological traits and geographic location. **Not required.**
-            6) Wikipedia page: The link to the animal's species' wikipedia page. **Not required.**
-
-            Press the reaction button to initiate the submission process when you're ready.
         `);
+        infoEmbed.addField('Common name(s)', 'The names used to refer to the animal in everyday speech. E.g. "raven", "bottlenose dolphin".\n**One required**');
+        infoEmbed.addField('Scientific name', 'The taxonomical name of the animal. If the animal\'s common name refers to multiple species, pick the most relevant one.\n**Required**');
+        infoEmbed.addField('Image(s)', 'Pictures used to clearly depict the animal\'s appearance. Direct Imgur links only, e.g. "i.imgur.com/fake-image".');
+        infoEmbed.addField('Description', 'A brief description of the animal\'s appearance, attributes, and behaviors.');
+        infoEmbed.addField('Natural habitat', 'A brief description of the animal\'s natural environment, both in ecological traits and geographic location.');
+        infoEmbed.addField('Wikipedia page', 'The link to the animal\'s species\' wikipedia page.');
+        infoEmbed.setFooter('Press the reaction button to initiate the submission process when you\'re ready.');
+
+        const infoMessage = await betterSend(channel, new APIMessage(channel, { embed: infoEmbed }));
 
         // If the message didn't send for whatever reason just stop everything. Not sure why this would happen so throw an error I guess.
-        if (!initialMessage) {
+        if (!infoMessage) {
             throw new Error('Unable to send the initial species submission message to a user through DMs.');
         }
 
         // Make sure baby understands the game by making them press a cool confirmation button
         // There's also only a 60 second window to press the button so bonus burn if they have to send the command again
         // This is necessary for reasons other than making the user feel dumb I promise
-        if (!(await reactionInput(initialMessage, 60000, ['✅']))) {
+        if (!(await reactionInput(infoMessage, 60000, ['✅']))) {
             // If we're in here, the button didn't get pressed
             betterSend(channel, 'Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.');
             return;
         }
-        // If we're out here that means the button was pressed. They did good.
+        // If we're out here that means the button was pressed
+
+        // Attempt to delete the info message
+        safeDeleteMessage(infoMessage);
 
         // The document used to construct a pending species
         const skeleton = schemaToSkeleton(pendingSpeciesSchema, {
