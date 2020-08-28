@@ -5,6 +5,8 @@ import CommandParser from '../utility/commandParser';
 import { reactionInput, betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument from '../utility/editableDocument';
+import { ApprovePendingSpeciesCommand } from './approvePendingSpeciesCommand';
+import { PendingSpecies } from '../models/pendingSpecies';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -92,7 +94,24 @@ export class SubmitSpeciesCommand implements Command {
         const submissionMessage = new EditableDocumentMessage(channel, document, 'new submission');
         submissionMessage.send();
 
+        // Get user's submission
         const finalDocument = await submissionMessage.getNextSubmission();
+
+        // If the user ran out of time
+        if (!finalDocument) {
+            betterSend(channel, 'Time limit expired, nothing submitted.');
+            return;
+        }
+
+        // Create a new pending species based on the SimpleDocument that was returned
+        // This works because SimpleDocument is just a plain object with the same field names as the Skeleton that was passed in
+        const pendingSpecies = new PendingSpecies(finalDocument);
+
+        // Set the author
+        pendingSpecies.set('author', user.id);
+
+        // Save the document
+        pendingSpecies.save();
 
         betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
     }
