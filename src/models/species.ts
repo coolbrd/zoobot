@@ -2,7 +2,18 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const SpeciesSchema = new Schema({
+const imageSubSchema = new Schema({
+    url: {
+        type: String,
+        required: true
+    },
+    breed: {
+        type: String,
+        required: false
+    }
+});
+
+const speciesSchema = new Schema({
     commonNames: {
         type: Array,
         required: true
@@ -12,7 +23,7 @@ const SpeciesSchema = new Schema({
         required: true
     },
     images: {
-        type: Array,
+        type: [imageSubSchema],
         required: true
     },
     description: {
@@ -43,4 +54,4 @@ export interface SpeciesDocument {
     family: string
 }
 
-export default mongoose.model('Species', SpeciesSchema);
+export default mongoose.model('Species', speciesSchema);
