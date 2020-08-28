@@ -6,13 +6,13 @@ const pendingSpeciesSchema = new mongoose.Schema({
         type: Array,
         required: true,
     },
-    images: {
-        type: Array,
-        required: true,
-    },
     scientificName: {
         type: String,
         required: true,
+    },
+    images: {
+        type: Array,
+        required: false,
     },
     description: {
         type: String,
