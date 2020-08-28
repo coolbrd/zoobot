@@ -1,7 +1,7 @@
 import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
-import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
+import EditableDocument, { EditableDocumentField, SimpleDocument } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 import { PointedArray } from '../utility/pointedArray';
 
@@ -11,9 +11,12 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     private readonly document: EditableDocument;
 
     // The stack trace of where within the document we are
-    private selection: EditableDocumentField[] = [];
+    private selection: EditableDocumentField[];
+
+    private editEmoji: string;
 
     constructor(channel: TextChannel | DMChannel, document: EditableDocument, alias?: string) {
+        const editEmoji = '✏️';
         super(channel, { buttons: [
             {
                 name: 'pointerUp',
@@ -27,7 +30,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             },
             {
                 name: 'edit',
-                emoji: '✏️',
+                emoji: editEmoji,
                 helpMessage: 'Edit selection'
             },
             {
@@ -48,11 +51,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             {
                 name: 'submit',
                 emoji: '✅',
-                helpMessage: 'Approve'
+                helpMessage: 'Done'
             }
         ], lifetime: 300000 });
 
         this.document = document;
+
+        this.selection = [];
         // Start navigation at the top level document
         // This needs to be in an EditableDocumentFieldInfo wrapper so it looks like a regular field and can be operated on like one
         // However, this field is essentially anonymous. This makes it unlike the richer, predefined fields within the document.
@@ -64,6 +69,8 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             },
             value: this.document
         });
+
+        this.editEmoji = editEmoji;
 
         // Build the embed according to the top-level document
         this.setEmbed(this.buildEmbed());
@@ -112,7 +119,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     selected = true;
                 }
                 // Add a field representing the current field of the document, drawing an edit icon if it's the selected field
-                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${selected ? ' * ' : ''}`, field.value.toString() || '*Empty*');
+                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${selected ? ` ${this.editEmoji} ` : ''}`, field.value.toString('\n') || '*Empty*');
             }
 
             // Appropriately manage buttons for the current context (disabled buttons have no use here so don't show their help messages)
@@ -121,20 +128,22 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             this.enableButton('edit');
             this.disableButton('delete');
             this.disableButton('new');
+            this.disableButton('submit');
 
             // If we're on the top level document
             if (this.selection.length === 1) {
-                // Enable the submit button
-                this.enableButton('submit');
+                // If all requirements are met
+                if (this.document.requirementsMet()) {
+                    // Enable the submit button
+                    this.enableButton('submit');
+                }
 
                 // Disable the back button
                 this.disableButton('back');
             }
-            // Disable the submit button's information and functionality otherwise
+            // If we're at the top level, disable the back button
             else {
                 this.enableButton('back');
-
-                this.disableButton('submit');
             }
         }
         // If the selected value is an array of elements
@@ -142,11 +151,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             let content = '';
             let arrayIndex = 0;
             // Iterate over every item in the array
-            for (const value of selection.value.getArray()) {
+            for (const value of selection.value) {
                 // If the current element is at the selected index
                 const selected = selection.value.getPointerPosition() === arrayIndex;
                 // Write the value of the element and draw the edit icon if it's selected
-                content += `• ${value.toString('\n| ')} ${selected ? ' * ' : ''}\n`;
+                content += `• ${value.toString('\n| ')} ${selected ? ` ${this.editEmoji} ` : ''}\n`;
                 arrayIndex++;
             }
 
@@ -318,6 +327,16 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 selection.value.deleteAtPointer();
                 break;
             }
+            // Emits the "submit" event
+            case 'submit': {
+                // If the document's requirements weren't met
+                if (!this.document.requirementsMet()) {
+                    console.error('The submit button was pressed before a document\'s requirements were met somehow');
+                    break;
+                }
+                this.emitter.emit('submit', this.document.getData());
+                break;
+            }
         }
 
         // Update the message's embed
@@ -325,18 +344,18 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     }
 
     // Gets the document immediately after the user submits it
-    public getNextSubmission(): Promise<EditableDocument | undefined> {
+    public getNextSubmission(): Promise<SimpleDocument | undefined> {
         // Construct a promise that will resolve when the document is provided
-        const documentPromise: Promise<EditableDocument | undefined> = new Promise(resolve => {
+        const documentPromise: Promise<SimpleDocument | undefined> = new Promise(resolve => {
             // If the message deactivates before the document is submitted
             this.emitter.once('deactivated', () => {
                 resolve(undefined);
             });
 
             // When the user submits the document
-            this.emitter.once('submit', (document: EditableDocument) => {
+            this.emitter.once('submit', (simpleDocument: SimpleDocument) => {
                 // Return the final document
-                resolve(document);
+                resolve(simpleDocument);
             });
         });
         

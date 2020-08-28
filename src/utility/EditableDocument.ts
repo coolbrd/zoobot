@@ -8,6 +8,8 @@ interface EditableDocumentFieldInfo {
     // The optional prompt for informing the user about input guidelines
     prompt?: string,
     type: 'document' | 'array' | 'string' | 'boolean',
+    // Whether or not the document will submit without this field
+    required?: boolean,
     // The type of document, used if the type is 'document'
     documentType?: EditableDocumentSkeleton,
     // The type stored within the array, used if the type is 'array'
@@ -23,6 +25,12 @@ export interface EditableDocumentSkeleton {
 export interface EditableDocumentField {
     fieldInfo: EditableDocumentFieldInfo,
     value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean;
+}
+
+// The simple, non-pointed form of an EditableDocument
+// Used as a return type when getting an EditableDocument that has been submitted
+export interface SimpleDocument {
+    [path: string]: SimpleDocument | string[] | string | boolean | undefined
 }
 
 // A document containing a set of fields that can be edited through some given user interface
@@ -140,5 +148,87 @@ export default class EditableDocument {
     // Moves the pointer down one
     public decrementPointer(): void {
         this.fieldNames.decrementPointer();
+    }
+
+    // Makes sure that all requirements are met, as indicated by each field's optional "required" property
+    public requirementsMet(): boolean {
+        // Check every field for validity
+        for (const field of this.fields.values()) {
+            // If the field is not required, don't bother checking it because it doesn't matter
+            if (!field.fieldInfo.required) {
+                continue;
+            }
+
+            // If the field is an array
+            if (field.value instanceof PointedArray) {
+                // If the array is empty
+                if (field.value.length < 1) {
+                    return false;
+                }
+            }
+            // If the field is a document
+            else if (field.value instanceof EditableDocument) {
+                // Return whether or not the document's requirements are met
+                return field.value.requirementsMet();
+            }
+            // If the field is a string, make sure it's not empty or undefined
+            else if (typeof field.value === 'string' && !field.value) {
+                return false;
+            }
+            // If the field is a boolean value, make sure it's not undefined (I'm not even sure if it can be)
+            else if (typeof field.value === 'boolean' && field.value === undefined) {
+                return false;
+            }
+        }
+        // If all above tests were passed, indicate that requirements have been met
+        return true;
+    }
+
+    // Gets the EditableDocument's data as a simple object of the raw submitted data
+    public getData(): SimpleDocument {
+        // The final object to stuff and submit
+        const finalObject: SimpleDocument = {};
+
+        // Iterate over every field in this document
+        for (const [key, field] of this.fields.entries()) {
+            // The value that will be stored in this current field's simple analogue
+            let storedValue: SimpleDocument | SimpleDocument[] | string[] | string | boolean | undefined;
+
+            // If the current field's value is an array
+            if (field.value instanceof PointedArray) {
+                // Store the basic string array if it stores strings
+                if (field.fieldInfo.arrayType === 'string') {
+                    storedValue = field.value as string[];
+                }
+                // If the array contains other EditableDocuments
+                else {
+                    // Indicate that the value will be an array of simple documents
+                    storedValue = [] as SimpleDocument[];
+                    // Convert every editable document into its simple counterpart and add them to the array
+                    for (const element of field.value as EditableDocument[]) {
+                        storedValue.push(element.getData());
+                    }
+                }
+            }
+            // If the field's value is just another document
+            else if (field.value instanceof EditableDocument) {
+                // Store the simple version of the document
+                storedValue = field.value.getData();
+            }
+            // If the field's value is a basic type
+            else {
+                // Just store the value itself
+                storedValue = field.value;
+            }
+
+            // Add the current property to the simple document
+            Object.defineProperty(finalObject, key, {
+                value: storedValue,
+                writable: false,
+                enumerable: true
+            });
+        }
+
+        return finalObject;
     }
 }

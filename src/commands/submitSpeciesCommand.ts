@@ -50,17 +50,20 @@ export class SubmitSpeciesCommand implements Command {
         }
         // If we're out here that means the button was pressed. They did good.
 
+        // The document used to construct a pending species
         const document = new EditableDocument({
             commonNames: {
                 alias: 'common names',
                 prompt: 'Enter a name that is used to refer to this animal conversationally, e.g. "dog", "cat", "bottlenose dolphin".',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                required: true
             },
             scientificName: {
                 alias: 'scientific name',
                 prompt: 'Enter this animal\'s scientific (taxonomical) name.',
-                type: 'string'
+                type: 'string',
+                required: true
             },
             images: {
                 alias: 'images',
@@ -85,7 +88,12 @@ export class SubmitSpeciesCommand implements Command {
             }
         });
 
-        const submissionDocument = new EditableDocumentMessage(channel, document, 'new submission');
-        submissionDocument.send();
+        // Create and send an editable document for the user's new species submission
+        const submissionMessage = new EditableDocumentMessage(channel, document, 'new submission');
+        submissionMessage.send();
+
+        const finalDocument = await submissionMessage.getNextSubmission();
+
+        betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
     }
 }

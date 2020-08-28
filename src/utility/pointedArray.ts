@@ -1,58 +1,49 @@
-export class PointedArray<T> {
-    private readonly array: T[];
-    private position = 0;
+// An array that has a movable pointer
+export class PointedArray<T> extends Array {
+    // The position of the underlying pointer
+    private pointerPosition = 0;
 
-    constructor(array?: T[]) {
-        if (array) {
-            this.array = array;
-        }
-        else {
-            this.array = [];
-        }
-    }
-
-    public toString(): string {
-        return this.array.join('\n');
-    }
-
-    public getArray(): T[] {
-        return this.array;
-    }
-
-    public push(element: T): void {
-        this.array.push(element);
+    public toString(delimiter?: string): string {
+        return this.join(delimiter);
     }
 
     public getPointerPosition(): number {
-        return this.position;
+        return this.pointerPosition;
     }
 
+    // Gets the element that the pointer is currently selecting
     public selection(): T {
-        return this.array[this.position];
+        return this[this.pointerPosition];
     }
 
+    // Sets the pointers position within the bounds of the array
     public setPointerPosition(newPosition: number): number {
         return this.clampPointer(newPosition);
     }
 
+    // Returns the pointer to within the bounds of the array
     private clampPointer(newPosition?: number) {
-        return this.position = Math.max(0, Math.min(this.array.length - 1, newPosition || this.position));
+        return this.pointerPosition = Math.max(0, Math.min(this.length - 1, newPosition || this.pointerPosition));
     }
 
+    // Moves the pointer up one position, loops
     public incrementPointer(): number {
-        return this.position = this.position + 1 > this.array.length - 1 ? 0 : this.position + 1;
+        return this.pointerPosition = this.pointerPosition + 1 > this.length - 1 ? 0 : this.pointerPosition + 1;
     }
 
+    // Moves the pointer down one position, loops
     public decrementPointer(): number {
-        return this.position = this.position - 1 < 0 ? this.array.length - 1 : this.position - 1;
+        return this.pointerPosition = this.pointerPosition - 1 < 0 ? this.length - 1 : this.pointerPosition - 1;
     }
 
+    // Deletes the element currently under the pointer
     public deleteAtPointer(): void {
-        this.array.splice(this.position, 1);
+        this.splice(this.pointerPosition, 1);
         this.clampPointer();
     }
 
+    // Adds an element to the position under the pointer
     public addAtPointer(element: T): void {
-        this.array.splice(this.position, 0, element);
+        this.splice(this.pointerPosition, 0, element);
     }
 }
