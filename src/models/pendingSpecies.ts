@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 // The schema for a pending species submission
-const pendingSpeciesSchema = new mongoose.Schema({
+export const pendingSpeciesSchema = new Schema({
     commonNames: {
         type: Array,
         required: true,

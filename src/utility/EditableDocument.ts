@@ -1,5 +1,6 @@
 import { PointedArray } from "./pointedArray";
 import { capitalizeFirstLetter } from "./toolbox";
+import { Schema } from "mongoose";
 
 // A set of informational fields pertaining to a field of a document
 interface EditableDocumentFieldInfo {
@@ -231,4 +232,62 @@ export default class EditableDocument {
 
         return finalObject;
     }
+}
+
+interface EditableDocumentSkeletonInfo {
+    [path: string]: {
+        alias: string,
+        prompt?: string
+    }
+}
+
+// Takes a Mongoose schema and some information about each field to include, and combines them into an EditableDocumentSkeleton
+export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonInfo): EditableDocumentSkeleton {
+    const skeleton: EditableDocumentSkeleton = {};
+
+    // Iterate over every field in the info objext
+    for (const [key, value] of Object.entries(info)) {
+        // If the current info field's key isn't also in the schema
+        if (!(key in schema.obj)) {
+            throw new Error('Field name found in info skeleton not found in Mongoose schema.');
+        }
+
+        // The type to assign for the current field in the skeleton
+        let fieldType: 'string' | 'array';
+        // The optional type of the array to assign to the current field in the skeleton (only if it's an array)
+        let fieldArrayType: 'string' | undefined;
+
+        // Determine type based on the type of the current field in the schema
+        switch (schema.obj[key].type) {
+            case String: {
+                fieldType = 'string';
+                break;
+            }
+            // Cover both ways of denoting an array of strings
+            case Array:
+            case [String]: {
+                fieldType = 'array';
+                fieldArrayType = 'string';
+                break;
+            }
+            default: {
+                throw new Error('Unsupported type encountered in schema upon trying to convert to an EditableDocumentSkeleton');
+            }
+        }
+
+        // Add the field to the skeleton
+        Object.defineProperty(skeleton, key, {
+            value: {
+                alias: value.alias,
+                prompt: value.prompt,
+                type: fieldType,
+                required: schema.obj[key].required,
+                arrayType: fieldArrayType
+            },
+            writable: false,
+            enumerable: true
+        });
+    }
+
+    return skeleton;
 }

@@ -4,9 +4,8 @@ import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { reactionInput, betterSend } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import EditableDocument from '../utility/editableDocument';
-import { ApprovePendingSpeciesCommand } from './approvePendingSpeciesCommand';
-import { PendingSpecies } from '../models/pendingSpecies';
+import EditableDocument, { schemaToSkeleton } from '../utility/editableDocument';
+import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -53,42 +52,34 @@ export class SubmitSpeciesCommand implements Command {
         // If we're out here that means the button was pressed. They did good.
 
         // The document used to construct a pending species
-        const document = new EditableDocument({
+        const skeleton = schemaToSkeleton(pendingSpeciesSchema, {
             commonNames: {
                 alias: 'common names',
                 prompt: 'Enter a name that is used to refer to this animal conversationally, e.g. "dog", "cat", "bottlenose dolphin".',
-                type: 'array',
-                arrayType: 'string',
-                required: true
             },
             scientificName: {
                 alias: 'scientific name',
                 prompt: 'Enter this animal\'s scientific (taxonomical) name.',
-                type: 'string',
-                required: true
             },
             images: {
                 alias: 'images',
                 prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image, e.g. "i.imgur.com/fake-image"',
-                type: 'array',
-                arrayType: 'string'
             },
             description: {
                 alias: 'description',
                 prompt: 'Enter a concise description of the animal. See other animals for examples.',
-                type: 'string'
             },
             naturalHabitat: {
                 alias: 'natural habitat',
                 prompt: 'Enter a concise summary of where the animal is naturally found. See other animals for examples.',
-                type: 'string'
             },
             wikiPage: {
                 alias: 'wikipedia page',
                 prompt: 'Enter the link leading to the Wikipedia page of the animal\'s species.',
-                type: 'string'
             }
         });
+
+        const document = new EditableDocument(skeleton);
 
         // Create and send an editable document for the user's new species submission
         const submissionMessage = new EditableDocumentMessage(channel, document, 'new submission');
@@ -96,6 +87,9 @@ export class SubmitSpeciesCommand implements Command {
 
         // Get user's submission
         const finalDocument = await submissionMessage.getNextSubmission();
+
+        // After the user has submitted the document, deactivate it
+        submissionMessage.deactivate();
 
         // If the user ran out of time
         if (!finalDocument) {

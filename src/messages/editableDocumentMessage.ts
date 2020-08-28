@@ -362,7 +362,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         return documentPromise;
     }
 
-    protected async deactivate(): Promise<void> {
+    public async deactivate(): Promise<void> {
         // Inherit parent deactivation behavior
         super.deactivate();
 
@@ -373,7 +373,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         const footer = embed.footer;
 
         // Append the deactivated info to the end of the message's footer
-        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}(deactivated)`);
+        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}\n(deactivated)`);
 
         try {
             // Update the message
