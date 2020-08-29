@@ -21,10 +21,12 @@
     "ts-node": "^8.10.2"
   },
   "dependencies": {
+    "@types/clone": "^2.1.0",
     "@types/common-tags": "^1.8.0",
     "@types/express": "^4.17.7",
     "@types/mongoose": "^5.7.36",
     "@types/node": "^14.0.27",
+    "clone": "^2.1.2",
     "common-tags": "^1.8.0",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",

@@ -1,3 +1,5 @@
+import clone from "clone";
+
 import { PointedArray } from "./pointedArray";
 import { capitalizeFirstLetter } from "./toolbox";
 import { Schema } from "mongoose";
@@ -17,9 +19,17 @@ interface EditableDocumentFieldInfo {
     arrayType?: EditableDocumentSkeleton | 'string'
 }
 
+// A default value that may go inside of an EditableDocumentSkeleton
+export interface EditableDocumentSkeletonValue {
+    [path: string]: EditableDocumentSkeleton | string[] | string | boolean | undefined
+}
+
 // A blueprint used to construct a new empty editable document
 export interface EditableDocumentSkeleton {
-    [path: string]: EditableDocumentFieldInfo
+    [path: string]: {
+        fieldInfo: EditableDocumentFieldInfo,
+        value?: EditableDocumentSkeletonValue | EditableDocumentSkeletonValue[] | EditableDocumentSkeleton | string[] | string | boolean | undefined
+    }
 }
 
 // A single field within a document. Contains both the given field info and the value to eventually be set.
@@ -49,59 +59,118 @@ export default class EditableDocument {
         }
 
         // Iterate over every field in the skeleton
-        for (const [key, fieldInfo] of Object.entries(skeleton)) {
+        for (const [key, field] of Object.entries(skeleton)) {
             // The default value that will be assigned to this field
             let value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean;
 
             // Field type behavior
-            switch (fieldInfo.type) {
+            switch (field.fieldInfo.type) {
                 // If the field is a document
                 case 'document': {
                     // Make sure the document's type (skeleton) is provided
-                    if (!fieldInfo.documentType) {
+                    if (!field.fieldInfo.documentType || typeof field.fieldInfo.documentType !== 'object') {
                         throw new Error('Must supply an EditableDocumentSkeleton in the documentType field if using Document type.');
                     }
 
-                    // Initialize an empty document of the given type as the default value
-                    value = new EditableDocument(fieldInfo.documentType);
+                    // The document's type, which may or may not need some values inserted into it
+                    const completeSkeleton = field.fieldInfo.documentType;
+
+                    // If a default value was provided
+                    if (field.value) {
+                        // Make sure the value is an object
+                        if (typeof field.value !== 'object') {
+                            throw new Error('Non-object value given to an EditableDocumentSkeleton object field.')
+                        }
+
+                        // Iterate over every field in the default value object
+                        for (const [key, value] of Object.entries(field.value)) {
+                            // Update the skeleton to reflect the desired default values
+                            completeSkeleton[key].value = value;
+                        }
+                    }
+
+                    // Initialize the document using default values if necessary
+                    value = new EditableDocument(completeSkeleton);
                     break;
                 }
                 // If the field is an array
                 case 'array': {
-                    // Make sure the array's type (skeleton) is provided
-                    if (!fieldInfo.arrayType) {
+                    // Make sure the array's type is provided
+                    if (!field.fieldInfo.arrayType) {
                         throw new Error('Must supply a type in the arrayType field if using Array type.');
                     }
 
+                    if (field.value !== undefined && !Array.isArray(field.value)) {
+                        throw new Error('Non-array value given to an EditableDocumentSkeleton array field.')
+                    }
+
                     // If the array is to hold strings
-                    if (fieldInfo.arrayType === 'string') {
+                    if (field.fieldInfo.arrayType === 'string') {
+                        // If a value was supplied (an array), and any of those values aren't strings
+                        if (field.value && field.value.some((element: unknown) => { return typeof element !== 'string' })) {
+                            throw new Error('Array of type other than string given to an EditableDocumentSkeleton string array field.');
+                        }
+
                         // Make a new pointed string array
-                        value = new PointedArray<string>();
+                        value = new PointedArray<string>(field.value as string[]);
                     }
                     // If the array is to hold documents
                     else {
-                        // Make a new pointed document array
-                        value = new PointedArray<EditableDocument>();
+                        // Initialize an array that will get filled if default values were supplied
+                        const documentArray: EditableDocument[] = [];
+
+                        // If a default value was supplied
+                        if (field.value) {
+                            // If one of its elements isn't a document
+                            if (field.value.some((element: unknown) => { return typeof element !== 'object' })) {
+                                throw new Error('Array of type other than object given to an EditableDocumentSkeleton object array field.');
+                            }
+
+                            // Iterate over every value in the array of documents
+                            for (const documentValue of field.value) {
+                                // Create a new skeleton to put values in (based on the document type of the array)
+                                // This needs to be cloned so that the original values of the array's type aren't altered
+                                const currentDocumentSkeleton = clone(field.fieldInfo.arrayType);
+                                
+                                // Iterate over every field in the current document value
+                                for (const [key, value] of Object.entries(documentValue)) {
+                                    // Assign the current skeleton the same default values
+                                    currentDocumentSkeleton[key].value = value;
+                                }
+
+                                // Add a new editable document that's based on the array's type and the default information to the array
+                                documentArray.push(new EditableDocument(currentDocumentSkeleton));
+                            }
+                        }
+
+                        // Make a new pointed document array based on the default values (if any)
+                        value = new PointedArray<EditableDocument>(documentArray);
                     }
                     break;
                 }
                 // If the field is a string
                 case 'string': {
-                    // Just give it an empty string (which will be treated as undefined)
-                    value = '';
+                    if (field.value && typeof field.value !== 'string') {
+                        throw new Error('Non-string value given to an EditableDocumentSkeleton string field.');
+                    }
+
+                    value = field.value || '';
                     break;
                 }
                 // If the field is a boolean value
                 case 'boolean': {
-                    // Initialize to false
-                    value = false;
+                    if (field.value && typeof field.value !== 'boolean') {
+                        throw new Error('Non-boolean value given to an EditableDocumentSkeleton boolean field.');
+                    }
+
+                    value = field.value === undefined ? false : field.value;
                     break;
                 }
             }
 
             // Add the current field to the document's fields
             this.fields.set(key, {
-                fieldInfo: fieldInfo,
+                fieldInfo: field.fieldInfo,
                 value: value
             });
             // Add the name to the pointed array
@@ -278,11 +347,13 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
         // Add the field to the skeleton
         Object.defineProperty(skeleton, key, {
             value: {
-                alias: value.alias,
-                prompt: value.prompt,
-                type: fieldType,
-                required: schema.obj[key].required,
-                arrayType: fieldArrayType
+                fieldInfo: {
+                    alias: value.alias,
+                    prompt: value.prompt,
+                    type: fieldType,
+                    required: schema.obj[key].required,
+                    arrayType: fieldArrayType
+                }
             },
             writable: false,
             enumerable: true
