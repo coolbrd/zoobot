@@ -3,6 +3,15 @@ export class PointedArray<T> extends Array {
     // The position of the underlying pointer
     private pointerPosition = 0;
 
+    constructor(array?: T[]) {
+        super();
+        if (Array.isArray(array)) {
+            for (const element of array) {
+                this.push(element);
+            }
+        }
+    }
+
     public toString(delimiter?: string): string {
         return this.join(delimiter);
     }
