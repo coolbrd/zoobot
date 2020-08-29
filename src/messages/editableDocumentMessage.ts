@@ -15,7 +15,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
     private editEmoji: string;
 
-    constructor(channel: TextChannel | DMChannel, document: EditableDocument, alias?: string) {
+    constructor(channel: TextChannel | DMChannel, document: EditableDocument, alias?: string, lifetime?: number) {
         const editEmoji = '✏️';
         super(channel, { buttons: [
             {
@@ -53,7 +53,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 emoji: '✅',
                 helpMessage: 'Done'
             }
-        ], lifetime: 300000 });
+        ], lifetime: lifetime || 60000 });
 
         this.document = document;
 
@@ -119,7 +119,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     selected = true;
                 }
                 // Add a field representing the current field of the document, drawing an edit icon if it's the selected field
-                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${selected ? ` ${this.editEmoji} ` : ''}`, field.value.toString('\n') || '*Empty*');
+                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.required ? '*' : ''} ${selected ? ` ${this.editEmoji} ` : ''}`, field.value.toString('\n') || '*Empty*');
             }
 
             // Appropriately manage buttons for the current context (disabled buttons have no use here so don't show their help messages)

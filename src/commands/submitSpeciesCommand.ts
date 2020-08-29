@@ -46,7 +46,6 @@ export class SubmitSpeciesCommand implements Command {
 
         // Make sure baby understands the game by making them press a cool confirmation button
         // There's also only a 60 second window to press the button so bonus burn if they have to send the command again
-        // This is necessary for reasons other than making the user feel dumb I promise
         if (!(await reactionInput(infoMessage, 60000, ['✅']))) {
             // If we're in here, the button didn't get pressed
             betterSend(channel, 'Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.');
@@ -57,7 +56,8 @@ export class SubmitSpeciesCommand implements Command {
         // Attempt to delete the info message
         safeDeleteMessage(infoMessage);
 
-        // The document used to construct a pending species
+        // Combine the pending species schema and some info about it
+        // This returns a skeleton, which is an awesome object that tells an EditableDocument how to act
         const skeleton = schemaToSkeleton(pendingSpeciesSchema, {
             commonNames: {
                 alias: 'common names',
