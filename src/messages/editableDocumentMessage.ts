@@ -52,6 +52,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 name: 'submit',
                 emoji: '✅',
                 helpMessage: 'Done'
+            },
+            {
+                name: 'cancel',
+                emoji: '❌',
+                helpMessage: 'Cancel'
             }
         ], lifetime: lifetime || 60000 });
 
@@ -123,8 +128,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             }
 
             // Appropriately manage buttons for the current context (disabled buttons have no use here so don't show their help messages)
-            this.enableButton('pointerUp');
-            this.enableButton('pointerDown');
             this.enableButton('edit');
             this.disableButton('delete');
             this.disableButton('new');
@@ -167,8 +170,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
             newEmbed.setDescription(content);
 
             // Update button context
-            this.enableButton('pointerUp');
-            this.enableButton('pointerDown');
             this.enableButton('back');
             this.enableButton('delete');
             this.enableButton('new');
@@ -337,6 +338,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 this.emitter.emit('submit', this.document.getData());
                 break;
             }
+            case 'cancel': {
+                this.emitter.emit('cancel');
+                break;
+            }
         }
 
         // Update the message's embed
@@ -344,13 +349,17 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     }
 
     // Gets the document immediately after the user submits it
-    public getNextSubmission(): Promise<SimpleDocument | undefined> {
+    public getNextSubmission(): Promise<SimpleDocument | 'deactivated' | 'cancelled'> {
         // Construct a promise that will resolve when the document is provided
-        const documentPromise: Promise<SimpleDocument | undefined> = new Promise(resolve => {
+        const documentPromise: Promise<SimpleDocument | 'deactivated' | 'cancelled'> = new Promise(resolve => {
             // If the message deactivates before the document is submitted
             this.emitter.once('deactivated', () => {
-                resolve(undefined);
+                resolve('deactivated');
             });
+
+            this.emitter.once('cancel', () => {
+                resolve('cancelled');
+            })
 
             // When the user submits the document
             this.emitter.once('submit', (simpleDocument: SimpleDocument) => {

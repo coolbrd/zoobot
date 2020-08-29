@@ -98,8 +98,12 @@ export class SubmitSpeciesCommand implements Command {
         submissionMessage.deactivate();
 
         // If the user ran out of time
-        if (!finalDocument) {
+        if (finalDocument === 'deactivated') {
             betterSend(channel, 'Time limit expired, nothing submitted.');
+            return;
+        }
+        else if (finalDocument === 'cancelled') {
+            betterSend(channel, 'Submission cancelled.');
             return;
         }
 

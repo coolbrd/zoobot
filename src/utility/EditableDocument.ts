@@ -306,7 +306,8 @@ export default class EditableDocument {
 interface EditableDocumentSkeletonInfo {
     [path: string]: {
         alias: string,
-        prompt?: string
+        prompt?: string,
+        nestedInfo?: EditableDocumentSkeletonInfo
     }
 }
 
@@ -322,26 +323,40 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
         }
 
         // The type to assign for the current field in the skeleton
-        let fieldType: 'string' | 'array';
+        let fieldType: 'string' | 'array' | 'document';
         // The optional type of the array to assign to the current field in the skeleton (only if it's an array)
-        let fieldArrayType: 'string' | undefined;
+        let fieldArrayType: EditableDocumentSkeleton | 'string' | undefined;
+        // The optional document type of this field
+        let fieldDocumentType: EditableDocumentSkeleton | undefined;
 
-        // Determine type based on the type of the current field in the schema
-        switch (schema.obj[key].type) {
-            case String: {
-                fieldType = 'string';
-                break;
+        const schemaFieldType = schema.obj[key].type;
+        if (schemaFieldType === String) {
+            fieldType = 'string';
+        }
+        else if (schemaFieldType === Array || schemaFieldType === [String]) {
+            fieldType = 'array';
+            fieldArrayType = 'string';
+        }
+        // If the field is a nested document
+        else if (schemaFieldType instanceof Schema) {
+            if (!value.nestedInfo) {
+                throw new Error('Field info must be provided in the nestedInfo field for fields containing documents.');
             }
-            // Cover both ways of denoting an array of strings
-            case Array:
-            case [String]: {
-                fieldType = 'array';
-                fieldArrayType = 'string';
-                break;
+
+            fieldType = 'document';
+            // Set its type to a skeleton created from the subschema
+            fieldDocumentType = schemaToSkeleton(schemaFieldType, value.nestedInfo)
+        }
+        else if (Array.isArray(schemaFieldType) && schemaFieldType.length > 0 && schemaFieldType[0] instanceof Schema) {
+            if (!value.nestedInfo) {
+                throw new Error('Field info must be provided in the nestedInfo field for fields containing arrays of documents.');
             }
-            default: {
-                throw new Error('Unsupported type encountered in schema upon trying to convert to an EditableDocumentSkeleton');
-            }
+
+            fieldType = 'array';
+            fieldArrayType = schemaToSkeleton(schemaFieldType[0], value.nestedInfo);
+        }
+        else {
+            throw new Error('Unsupported type encountered in schema upon trying to convert to an EditableDocumentSkeleton');
         }
 
         // Add the field to the skeleton
@@ -352,7 +367,8 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
                     prompt: value.prompt,
                     type: fieldType,
                     required: schema.obj[key].required,
-                    arrayType: fieldArrayType
+                    arrayType: fieldArrayType,
+                    documentType: fieldDocumentType
                 }
             },
             writable: false,

@@ -1,8 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-const Schema = mongoose.Schema;
-
-const imageSubSchema = new Schema({
+export const imageSubSchema = new Schema({
     url: {
         type: String,
         required: true
@@ -13,7 +11,7 @@ const imageSubSchema = new Schema({
     }
 });
 
-const speciesSchema = new Schema({
+export const speciesSchema = new Schema({
     commonNames: {
         type: Array,
         required: true
