@@ -54,9 +54,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 helpMessage: 'Done'
             },
             {
-                name: 'cancel',
+                name: 'exit',
                 emoji: '❌',
-                helpMessage: 'Cancel'
+                helpMessage: 'Exit'
             }
         ], lifetime: lifetime || 60000 });
 
@@ -335,11 +335,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     console.error('The submit button was pressed before a document\'s requirements were met somehow');
                     break;
                 }
-                this.emitter.emit('submit', this.document.getData());
+                this.emit('submit', this.document.getData());
+                this.deactivate();
                 break;
             }
-            case 'cancel': {
-                this.emitter.emit('cancel');
+            case 'exit': {
+                this.emit('exit');
+                this.deactivate();
                 break;
             }
         }
@@ -348,33 +350,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         this.setEmbed(this.buildEmbed());
     }
 
-    // Gets the document immediately after the user submits it
-    public getNextSubmission(): Promise<SimpleDocument | 'deactivated' | 'cancelled'> {
-        // Construct a promise that will resolve when the document is provided
-        const documentPromise: Promise<SimpleDocument | 'deactivated' | 'cancelled'> = new Promise(resolve => {
-            // If the message deactivates before the document is submitted
-            this.emitter.once('deactivated', () => {
-                resolve('deactivated');
-            });
-
-            this.emitter.once('cancel', () => {
-                resolve('cancelled');
-            })
-
-            // When the user submits the document
-            this.emitter.once('submit', (simpleDocument: SimpleDocument) => {
-                // Return the final document
-                resolve(simpleDocument);
-            });
-        });
-        
-        return documentPromise;
-    }
-
     public async deactivate(): Promise<void> {
-        // Inherit parent deactivation behavior
-        super.deactivate();
-
         const message = this.getMessage() as Message;
         const embed = message.embeds[0];
 
@@ -384,12 +360,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         // Append the deactivated info to the end of the message's footer
         const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}\n(deactivated)`);
 
-        try {
-            // Update the message
-            await message.edit(newEmbed);
-        }
-        catch (error) {
-            console.error('Error trying to edit an embed on an interactive message.', error);
-        }
+        this.setEmbed(newEmbed);
+
+        // Inherit parent deactivation behavior
+        super.deactivate();
     }
 }

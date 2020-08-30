@@ -75,7 +75,7 @@ interface EmojiButton {
 // I wrote this before I knew about awaitReactions, so there's a static InteractiveMessageHandler class that sits in the main file and sends reactions to the right places.
 // I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
-export class InteractiveMessage {
+export class InteractiveMessage extends EventEmitter {
     // The text channel that the message will be sent in
     protected readonly channel: TextChannel | DMChannel;
     // The content of the message to display on the message
@@ -99,8 +99,8 @@ export class InteractiveMessage {
     // The timer instance that will keep track of when this message should deactivate
     private timer: NodeJS.Timeout | undefined;
 
-    // An emitter that will fire when a select few asynchronous things happen to the message
-    protected emitter = new EventEmitter();
+    // Whether or not this message is deactivated
+    protected deactivated = false;
 
     constructor(
         channel: TextChannel | DMChannel,
@@ -111,6 +111,8 @@ export class InteractiveMessage {
             resetTimerOnButtonPress?: boolean
         }
     ){
+        super();
+
         // Assign channel
         this.channel = channel;
         
@@ -158,6 +160,11 @@ export class InteractiveMessage {
 
     // Sets the embed of the message and edits it (if possible)
     protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
+        // Don't allow changes to the message if it's deactivated
+        if (this.deactivated) {
+            return;
+        }
+
         // Assign the message's new embed
         this.content = new APIMessage(this.channel, { embed: newEmbed });
 
@@ -279,7 +286,7 @@ export class InteractiveMessage {
     private setTimer(): NodeJS.Timer {
         // Set the message's deactivation timer and return the resulting timer instance
         return setTimeout(() => {
-            this.deactivate();
+            this.timeExpired();
         }, this.lifetime);
     }
 
@@ -319,6 +326,7 @@ export class InteractiveMessage {
         this.timer = this.setTimer();
     }
 
+    // Presses a button based on its emoji
     emojiPress(emoji: string, user: User): void {
         this.buttonPress(this.getButtonByEmoji(emoji).name, user);
     }
@@ -332,10 +340,20 @@ export class InteractiveMessage {
         }
     }
 
+    // When the message's timer expires
+    private timeExpired(): void {
+        this.emit('timeExpired');
+
+        this.deactivate();
+    }
+
     // Deactivates the interactive message, freeing up space in the global list of messages to handle
     protected deactivate(): void {
+        // Indicate that this message is deactivated
+        this.deactivated = true;
+
         // Tell whoever's listening that this message has been deactivated
-        this.emitter.emit('deactivated');
+        this.emit('deactivate');
 
         // If the timer was running, cancel it for good (preventing this method from being called again accidentally)
         this.timer && clearTimeout(this.timer);

@@ -15,7 +15,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
     constructor(channel: TextChannel, species: SpeciesDocument) {
         const embed = new MessageEmbed();
-        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild) || 'DEFAULT');
+        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild));
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.setURL(species.wikiPage);
         embed.setDescription(capitalizeFirstLetter(species.scientificName));
@@ -47,36 +47,33 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     protected async deactivate(): Promise<void> {
+        const message = this.getMessage() as Message;
+
+        // Get the embed of the encounter message
+        const embed = message.embeds[0];
+
+        // Get the embed's footer
+        const footer = embed.footer;
+
+        // If for some reason there isn't a footer
+        if (!footer) {
+            throw new Error('Empty footer returned from encounter message.');
+        }
+
+        let newEmbed: MessageEmbed;
+    
+        // Edit the encounter's embed based on what happened to the animal
+        if (this.caught) {
+            newEmbed = embed.setFooter(`${footer.text} (caught)`);
+        }
+        else {
+            newEmbed = embed.setFooter(`${footer.text} (fled)`);
+        }
+
+        // Update the message
+        this.setEmbed(newEmbed);
+
         // Inherit parent deactivation behavior
         super.deactivate();
-
-        try {
-            const message = this.getMessage() as Message;
-
-            // Get the embed of the encounter message
-            const embed = message.embeds[0];
-
-            // Get the embed's footer
-            const footer = embed.footer;
-
-            // If for some reason there isn't a footer
-            if (!footer) {
-                throw new Error('Empty footer returned from encounter message.');
-            }
-
-            let newEmbed: MessageEmbed;
-            // Edit the encounter's embed based on what happen to the animal
-            if (this.caught) {
-                newEmbed = embed.setFooter(`${footer.text} (caught)`);
-            }
-            else {
-                newEmbed = embed.setFooter(`${footer.text} (fled)`);
-            }
-            // Update the message
-            await message.edit(newEmbed);
-        }
-        catch (error) {
-            console.error('Error trying to edit the footer of an encounter message.', error);
-        }
     }
 }

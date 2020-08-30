@@ -4,7 +4,7 @@ import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { reactionInput, betterSend, safeDeleteMessage } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import EditableDocument, { schemaToSkeleton } from '../utility/editableDocument';
+import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../utility/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
 import { MessageEmbed, APIMessage } from 'discord.js';
 
@@ -91,32 +91,29 @@ export class SubmitSpeciesCommand implements Command {
         const submissionMessage = new EditableDocumentMessage(channel, document, 'new submission');
         submissionMessage.send();
 
-        // Get user's submission
-        const finalDocument = await submissionMessage.getNextSubmission();
-
-        // After the user has submitted the document, deactivate it
-        submissionMessage.deactivate();
-
-        // If the user ran out of time
-        if (finalDocument === 'deactivated') {
+        // When the message reaches its time limit
+        submissionMessage.once('timeExpired', () => {
             betterSend(channel, 'Time limit expired, nothing submitted.');
-            return;
-        }
-        else if (finalDocument === 'cancelled') {
+        });
+        
+        // When the user presses the exit button
+        submissionMessage.once('exit', () => {
             betterSend(channel, 'Submission cancelled.');
-            return;
-        }
+        });
 
-        // Create a new pending species based on the SimpleDocument that was returned
-        // This works because SimpleDocument is just a plain object with the same field names as the Skeleton that was passed in
-        const pendingSpecies = new PendingSpecies(finalDocument);
+        // When the user presses the submit button
+        submissionMessage.once('submit', (finalDocument: SimpleDocument) => {
+            // Create a new pending species based on the SimpleDocument that was returned
+            // This works because SimpleDocument is just a plain object with the same field names as the Skeleton that was passed in
+            const pendingSpecies = new PendingSpecies(finalDocument);
 
-        // Set the author
-        pendingSpecies.set('author', user.id);
+            // Set the author
+            pendingSpecies.set('author', user.id);
 
-        // Save the document
-        pendingSpecies.save();
+            // Save the document
+            pendingSpecies.save();
 
-        betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
+            betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
+        });
     }
 }

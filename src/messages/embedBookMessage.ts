@@ -72,9 +72,6 @@ export default class EmbedBookMessage extends InteractiveMessage {
     }
 
     protected async deactivate(): Promise<void> {
-        // Inherit parent deactivation behavior
-        super.deactivate();
-
         const message = this.getMessage() as Message;
         const embed = message.embeds[0];
 
@@ -84,12 +81,9 @@ export default class EmbedBookMessage extends InteractiveMessage {
         // Append the deactivated info to the end of the message's footer
         const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}(deactivated)`);
 
-        try {
-            // Update the message
-            await message.edit(newEmbed);
-        }
-        catch (error) {
-            console.error('Error trying to edit an embed on an interactive message.', error);
-        }
+        this.setEmbed(newEmbed);
+
+        // Inherit parent deactivation behavior
+        super.deactivate();
     }
 }
