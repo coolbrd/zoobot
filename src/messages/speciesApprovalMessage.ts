@@ -70,6 +70,8 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             emoji: '⛔',
             helpMessage: 'Deny'
         });
+
+        this.setEmbed(this.buildEmbed());
     }
 
     public async buttonPress(buttonName: string, user: User): Promise<void> {

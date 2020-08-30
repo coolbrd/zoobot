@@ -102,7 +102,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
     }
 
     // Build the message embed that represents the currently selected field
-    private buildEmbed(): MessageEmbed {
+    protected buildEmbed(): MessageEmbed {
         const newEmbed = new MessageEmbed();
 
         // The currently selected EditableDocumentFieldInfo object
