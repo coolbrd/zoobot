@@ -40,8 +40,8 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             wikiPage: {
                 alias: 'wikipedia page'
             },
-            family: {
-                alias: 'family'
+            rarity: {
+                alias: 'rarity'
             }
         });
 

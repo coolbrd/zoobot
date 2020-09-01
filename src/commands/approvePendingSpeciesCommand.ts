@@ -1,10 +1,9 @@
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { PendingSpecies, PendingSpeciesDocument } from '../models/pendingSpecies';
+import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
-import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import EditableDocument, { schemaToSkeleton, EditableDocumentSkeletonValue, SimpleDocument } from '../utility/editableDocument';
-import Species, { speciesSchema } from '../models/species';
+import { SimpleDocument } from '../utility/editableDocument';
+import Species from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
 
 // The command used to review, edit, and approve a pending species into a real species

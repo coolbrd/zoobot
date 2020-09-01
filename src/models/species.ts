@@ -36,8 +36,8 @@ export const speciesSchema = new Schema({
         type: String,
         required: true
     },
-    family: {
-        type: String,
+    rarity: {
+        type: Number,
         required: true
     }
 });
@@ -49,7 +49,7 @@ export interface SpeciesDocument {
     description: string,
     naturalHabitat: string,
     wikiPage: string,
-    family: string
+    rarity: number
 }
 
 export default mongoose.model('Species', speciesSchema);

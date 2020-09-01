@@ -1,7 +1,7 @@
 import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
-import EditableDocument, { EditableDocumentField, SimpleDocument } from '../utility/editableDocument';
+import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 import { PointedArray } from '../utility/pointedArray';
 
@@ -123,8 +123,17 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 if (key === document.getSelectedFieldName()) {
                     selected = true;
                 }
+
+                const fieldNameString = `${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.required ? '*' : ''} ${selected ? ` ${this.editEmoji} ` : ''}`;
+                let fieldInfoString: string;
+                if (field.value instanceof PointedArray) {
+                    fieldInfoString = field.value.toString('\n\n');
+                }
+                else {
+                    fieldInfoString = field.value.toString();
+                }
                 // Add a field representing the current field of the document, drawing an edit icon if it's the selected field
-                newEmbed.addField(`${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.required ? '*' : ''} ${selected ? ` ${this.editEmoji} ` : ''}`, field.value.toString('\n') || '*Empty*');
+                newEmbed.addField(fieldNameString, fieldInfoString  || '*Empty*');
             }
 
             // Appropriately manage buttons for the current context (disabled buttons have no use here so don't show their help messages)
@@ -158,7 +167,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // If the current element is at the selected index
                 const selected = selection.value.getPointerPosition() === arrayIndex;
                 // Write the value of the element and draw the edit icon if it's selected
-                content += `• ${value.toString('\n| ')} ${selected ? ` ${this.editEmoji} ` : ''}\n`;
+                content += `${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}\n\n`;
                 arrayIndex++;
             }
 
@@ -254,6 +263,32 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     else if (typeof selectedField.value === 'boolean') {
                         // Just toggle it
                         selectedField.value = !selectedField.value;
+                    }
+                    else if (typeof selectedField.value === 'number') {
+                        // Get the user's input for the field
+                        const promptString = selectedField.fieldInfo.prompt || 'Enter the number that you would like to insert into this field.'
+                        const promptMessage = await betterSend(this.channel, promptString);
+
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+
+                        // If the user responded
+                        if (responseMessage) {
+                            const responseNumber = Number(responseMessage.content);
+
+                            // If a number was returned
+                            if (!isNaN(responseNumber)) {
+                                // Set the given input as the field's new value
+                                selectedField.value = responseNumber;
+                            }
+                            // If the input could not be converted to a number
+                            else {
+                                betterSend(this.channel, 'Invalid input. This field requires a number.', 15000);
+                            }
+
+                            safeDeleteMessage(responseMessage);
+                        }
+
+                        safeDeleteMessage(promptMessage);
                     }
                     // If the selected field is something that it shouldn't be
                     else {

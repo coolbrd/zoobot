@@ -10,7 +10,7 @@ interface EditableDocumentFieldInfo {
     alias: string,
     // The optional prompt for informing the user about input guidelines
     prompt?: string,
-    type: 'document' | 'array' | 'string' | 'boolean',
+    type: 'document' | 'array' | 'string' | 'boolean' | 'number',
     // Whether or not the document will submit without this field
     required?: boolean,
     // The type of document, used if the type is 'document'
@@ -21,27 +21,27 @@ interface EditableDocumentFieldInfo {
 
 // A default value that may go inside of an EditableDocumentSkeleton
 export interface EditableDocumentSkeletonValue {
-    [path: string]: EditableDocumentSkeleton | string[] | string | boolean | undefined
+    [path: string]: EditableDocumentSkeleton | string[] | string | boolean | number | undefined
 }
 
 // A blueprint used to construct a new empty editable document
 export interface EditableDocumentSkeleton {
     [path: string]: {
         fieldInfo: EditableDocumentFieldInfo,
-        value?: EditableDocumentSkeletonValue | EditableDocumentSkeletonValue[] | EditableDocumentSkeleton | string[] | string | boolean | undefined
+        value?: EditableDocumentSkeletonValue | EditableDocumentSkeletonValue[] | EditableDocumentSkeleton | string[] | string | boolean | number | undefined
     }
 }
 
 // A single field within a document. Contains both the given field info and the value to eventually be set.
 export interface EditableDocumentField {
     fieldInfo: EditableDocumentFieldInfo,
-    value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean;
+    value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean | number;
 }
 
 // The simple, non-pointed form of an EditableDocument
 // Used as a return type when getting an EditableDocument that has been submitted
 export interface SimpleDocument {
-    [path: string]: SimpleDocument | string[] | string | boolean | undefined
+    [path: string]: SimpleDocument | string[] | string | boolean | number | undefined
 }
 
 // A document containing a set of fields that can be edited through some given user interface
@@ -61,7 +61,7 @@ export default class EditableDocument {
         // Iterate over every field in the skeleton
         for (const [key, field] of Object.entries(skeleton)) {
             // The default value that will be assigned to this field
-            let value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean;
+            let value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean | number;
 
             // Field type behavior
             switch (field.fieldInfo.type) {
@@ -166,6 +166,17 @@ export default class EditableDocument {
                     value = field.value === undefined ? false : field.value;
                     break;
                 }
+                case 'number': {
+                    if (field.value && typeof field.value !== 'number') {
+                        throw new Error('Non-boolean value given to an EditableDocumentSkeleton boolean field.');
+                    }
+
+                    value = field.value === undefined ? 0 : field.value;
+                    break;
+                }
+                default: {
+                    throw new Error('Invalid type supplied to an EditableDocumentSkeleton.');
+                }
             }
 
             // Add the current field to the document's fields
@@ -235,6 +246,12 @@ export default class EditableDocument {
                 if (field.value.length < 1) {
                     return false;
                 }
+
+                if (typeof field.fieldInfo.arrayType === 'object') {
+                    return !field.value.some((element: EditableDocument) => {
+                        return !element.requirementsMet();
+                    });
+                }
             }
             // If the field is a document
             else if (field.value instanceof EditableDocument) {
@@ -262,7 +279,7 @@ export default class EditableDocument {
         // Iterate over every field in this document
         for (const [key, field] of this.fields.entries()) {
             // The value that will be stored in this current field's simple analogue
-            let storedValue: SimpleDocument | SimpleDocument[] | string[] | string | boolean | undefined;
+            let storedValue: SimpleDocument | SimpleDocument[] | string[] | string | boolean | number | undefined;
 
             // If the current field's value is an array
             if (field.value instanceof PointedArray) {
@@ -323,7 +340,7 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
         }
 
         // The type to assign for the current field in the skeleton
-        let fieldType: 'string' | 'array' | 'document';
+        let fieldType: 'string' | 'number' | 'array' | 'document';
         // The optional type of the array to assign to the current field in the skeleton (only if it's an array)
         let fieldArrayType: EditableDocumentSkeleton | 'string' | undefined;
         // The optional document type of this field
@@ -332,6 +349,9 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
         const schemaFieldType = schema.obj[key].type;
         if (schemaFieldType === String) {
             fieldType = 'string';
+        }
+        else if (schemaFieldType === Number) {
+            fieldType = 'number';
         }
         else if (schemaFieldType === Array || schemaFieldType === [String]) {
             fieldType = 'array';

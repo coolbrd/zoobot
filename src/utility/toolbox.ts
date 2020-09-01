@@ -94,14 +94,24 @@ export async function awaitUserNextMessage(channel: TextChannel | DMChannel, use
 }
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
-export async function betterSend(channel: TextChannel | DMChannel, content: string | APIMessage): Promise<Message | undefined> {
+export async function betterSend(channel: TextChannel | DMChannel, content: string | APIMessage, lifetime?: number): Promise<Message | undefined> {
+    let message: Message;
     try {
-        return await channel.send(content);
+        message = await channel.send(content);
     }
     catch (error) {
         console.error('Error trying to send message.', error);
         return;
     }
+
+    // If a lifetime amount was given, try to delete the message eventually
+    if (lifetime) {
+        setTimeout(() => {
+            safeDeleteMessage(message);
+        }, lifetime);
+    }
+
+    return message;
 }
 
 // Joins an array by a given string, and uses comma separation by default if no delimiter is provided
@@ -125,4 +135,45 @@ export function safeDeleteMessage(message: Message | undefined): boolean {
     }
     message.delete();
     return true;
+}
+
+// Selects a random item from a map of items and their respective weights
+// Two items with the same weigh will have the same chance to be selected as one another
+// An item with 10% the weight of another will, surprisingly, be selected 10% as often as the other item
+export function getWeightedRandom<T>(items: Map<T, number>): T {
+    // Calculate the cumulative weight of the item pool
+    let totalWeight = 0;
+    for (const weight of items.values()) {
+        totalWeight += weight;
+    }
+
+    // Generate a random number that represents one of the items in the list
+    const random = Math.random() * totalWeight;
+
+    // The current sum of all weights
+    let currentSum = 0;
+    // Iterate over every item in the map
+    for (const [item, weight] of items.entries()) {
+        // If the random number falls within the range of the current item's weight
+        if (random < currentSum + weight) {
+            // Return the item, it's been chosen
+            return item;
+        }
+        // If the current item wasn't selected, add its weight and move onto the next item
+        currentSum += weight;
+    }
+
+    // This should never happen
+    throw new Error('No item selected from weighted random function. This shouldn\'t happen');
+}
+
+// Get the number of occurrences of a given element in a given array
+export function arrayElementCount<T>(array: T[], element: T): number {
+    let count = 0;
+    for (const current of array) {
+        if (current === element) {
+            count++;
+        }
+    }
+    return count;
 }
