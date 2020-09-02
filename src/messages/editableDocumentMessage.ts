@@ -124,19 +124,29 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     selected = true;
                 }
 
+                // Generate the name of the field
                 const fieldNameString = `${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.required ? '*' : ''} ${selected ? ` ${this.editEmoji} ` : ''}`;
+                
+                // Initialize a string for generating this field's info
                 let fieldInfoString: string;
+                // If the field's value is an array
                 if (field.value instanceof PointedArray) {
+                    // Use a newline as the default delimiter
                     let delimiter = '\n';
+                    // Put a space between entries if the array contains documents
                     if (typeof field.fieldInfo.arrayType === 'object') {
                         delimiter += '\n';
                     }
+
+                    // Add the array's info to the string
                     fieldInfoString = field.value.toString(delimiter);
                 }
+                // If the field contains anything else
                 else {
+                    // Just use the normal string version of the data
                     fieldInfoString = field.value.toString();
                 }
-                // Add a field representing the current field of the document, drawing an edit icon if it's the selected field
+                // Add a field representing the current field of the document
                 newEmbed.addField(fieldNameString, fieldInfoString  || '*Empty*');
             }
 
@@ -177,7 +187,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     delimiter += '\n';
                 }
 
-                content += `${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}${delimiter}`;
+                content += `${arrayIndex + 1}) ${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}${delimiter}`;
                 arrayIndex++;
             }
 
