@@ -127,7 +127,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 const fieldNameString = `${capitalizeFirstLetter(field.fieldInfo.alias)}${field.fieldInfo.required ? '*' : ''} ${selected ? ` ${this.editEmoji} ` : ''}`;
                 let fieldInfoString: string;
                 if (field.value instanceof PointedArray) {
-                    fieldInfoString = field.value.toString('\n\n');
+                    let delimiter = '\n';
+                    if (typeof field.fieldInfo.arrayType === 'object') {
+                        delimiter += '\n';
+                    }
+                    fieldInfoString = field.value.toString(delimiter);
                 }
                 else {
                     fieldInfoString = field.value.toString();
@@ -167,7 +171,13 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // If the current element is at the selected index
                 const selected = selection.value.getPointerPosition() === arrayIndex;
                 // Write the value of the element and draw the edit icon if it's selected
-                content += `${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}\n\n`;
+
+                let delimiter = '\n';
+                if (value instanceof EditableDocument) {
+                    delimiter += '\n';
+                }
+
+                content += `${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}${delimiter}`;
                 arrayIndex++;
             }
 
