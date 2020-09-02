@@ -13,10 +13,14 @@ interface EditableDocumentFieldInfo {
     type: 'document' | 'array' | 'string' | 'boolean' | 'number',
     // Whether or not the document will submit without this field
     required?: boolean,
+    // The max length, in characters, that the field is allowed to be (only applies to strings and string arrays)
+    maxLength?: number,
     // The type of document, used if the type is 'document'
     documentType?: EditableDocumentSkeleton,
     // The type stored within the array, used if the type is 'array'
-    arrayType?: EditableDocumentSkeleton | 'string'
+    arrayType?: EditableDocumentSkeleton | 'string',
+    // The size of the array's viewport
+    arrayViewPortSize?: number
 }
 
 // A default value that may go inside of an EditableDocumentSkeleton
@@ -112,7 +116,7 @@ export default class EditableDocument {
                         }
 
                         // Make a new pointed string array
-                        value = new PointedArray<string>(field.value as string[]);
+                        value = new PointedArray<string>(field.value as string[], { viewSize: field.fieldInfo.arrayViewPortSize });
                     }
                     // If the array is to hold documents
                     else {
@@ -144,7 +148,7 @@ export default class EditableDocument {
                         }
 
                         // Make a new pointed document array based on the default values (if any)
-                        value = new PointedArray<EditableDocument>(documentArray);
+                        value = new PointedArray<EditableDocument>(documentArray, { viewSize: field.fieldInfo.arrayViewPortSize });
                     }
                     break;
                 }
@@ -324,6 +328,8 @@ interface EditableDocumentSkeletonInfo {
     [path: string]: {
         alias: string,
         prompt?: string,
+        maxLength?: number,
+        arrayViewPortSize?: number,
         nestedInfo?: EditableDocumentSkeletonInfo
     }
 }
@@ -387,6 +393,8 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
                     prompt: value.prompt,
                     type: fieldType,
                     required: schema.obj[key].required,
+                    maxLength: value.maxLength,
+                    arrayViewPortSize: value.arrayViewPortSize,
                     arrayType: fieldArrayType,
                     documentType: fieldDocumentType
                 }

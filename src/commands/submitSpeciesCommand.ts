@@ -62,26 +62,34 @@ export class SubmitSpeciesCommand implements Command {
             commonNames: {
                 alias: 'common names',
                 prompt: 'Enter a name that is used to refer to this animal conversationally, e.g. "dog", "cat", "bottlenose dolphin".',
+                maxLength: 96,
+                arrayViewPortSize: 10
             },
             scientificName: {
                 alias: 'scientific name',
                 prompt: 'Enter this animal\'s scientific (taxonomical) name.',
+                maxLength: 256
             },
             images: {
                 alias: 'images',
                 prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image, e.g. "i.imgur.com/fake-image"',
+                maxLength: 128,
+                arrayViewPortSize: 10
             },
             description: {
                 alias: 'description',
                 prompt: 'Enter a concise description of the animal. See other animals for examples.',
+                maxLength: 1024
             },
             naturalHabitat: {
                 alias: 'natural habitat',
                 prompt: 'Enter a concise summary of where the animal is naturally found. See other animals for examples.',
+                maxLength: 1024
             },
             wikiPage: {
                 alias: 'wikipedia page',
                 prompt: 'Enter the link leading to the Wikipedia page of the animal\'s species.',
+                maxLength: 256
             }
         });
 

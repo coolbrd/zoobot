@@ -22,6 +22,7 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             },
             images: {
                 alias: 'images',
+                arrayViewPortSize: 5,
                 nestedInfo: {
                     url: {
                         alias: 'url'

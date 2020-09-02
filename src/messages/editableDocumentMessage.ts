@@ -4,6 +4,7 @@ import { InteractiveMessage } from './interactiveMessage';
 import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 import { PointedArray } from '../utility/pointedArray';
+import { SmartEmbed } from '../utility/smartEmbed';
 
 // An interactive message that allows the user to edit and submit a configurable document
 export default class EditableDocumentMessage extends InteractiveMessage {
@@ -63,6 +64,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         this.document = document;
 
         this.selection = [];
+
         // Start navigation at the top level document
         // This needs to be in an EditableDocumentFieldInfo wrapper so it looks like a regular field and can be operated on like one
         // However, this field is essentially anonymous. This makes it unlike the richer, predefined fields within the document.
@@ -103,7 +105,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
     // Build the message embed that represents the currently selected field
     protected buildEmbed(): MessageEmbed {
-        const newEmbed = new MessageEmbed();
+        // Create the new embed
+        // Using a SmartEmbed so the embed is still likely sendable even if its fields are too large
+        const newEmbed = new SmartEmbed();
 
         // The currently selected EditableDocumentFieldInfo object
         const selection = this.getSelection();
@@ -129,20 +133,10 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 
                 // Initialize a string for generating this field's info
                 let fieldInfoString: string;
-                let arrayIndex = 0;
                 // If the field's value is an array
                 if (field.value instanceof PointedArray) {
-                    // Use a newline as the default delimiter
-                    let delimiter = '\n';
-                    // Put a space between entries if the array contains documents
-                    if (typeof field.fieldInfo.arrayType === 'object') {
-                        delimiter += '\n';
-                    }
-
                     // Add the array's info to the string
-                    fieldInfoString = `${arrayIndex}) ${field.value.toString(delimiter)}`;
-                    
-                    arrayIndex++;
+                    fieldInfoString = field.value.toString({ delimiter: '\n', numbered: true });
                 }
                 // If the field contains anything else
                 else {
@@ -155,7 +149,6 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
             // Appropriately manage buttons for the current context (disabled buttons have no use here so don't show their help messages)
             this.enableButton('edit');
-            this.disableButton('delete');
             this.disableButton('new');
             this.disableButton('submit');
 
@@ -177,22 +170,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
         }
         // If the selected value is an array of elements
         else if (selection.value instanceof PointedArray) {
-            let content = '';
-            let arrayIndex = 0;
-            // Iterate over every item in the array
-            for (const value of selection.value) {
-                // If the current element is at the selected index
-                const selected = selection.value.getPointerPosition() === arrayIndex;
-                // Write the value of the element and draw the edit icon if it's selected
-
-                let delimiter = '\n';
-                if (value instanceof EditableDocument) {
-                    delimiter += '\n';
-                }
-
-                content += `${arrayIndex + 1}) ${value.toString()} ${selected ? ` ${this.editEmoji} ` : ''}${delimiter}`;
-                arrayIndex++;
-            }
+            let content = selection.value.toString({
+                delimiter: '\n',
+                numbered: true,
+                pointer: this.editEmoji
+            });
 
             // If no information was added, don't just display nothing
             if (!content) {
@@ -274,8 +256,16 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
                         // If the user responded
                         if (responseMessage) {
-                            // Set the given input information as the field's new value
-                            selectedField.value = responseMessage.content;
+                            const maxLength = selectedField.fieldInfo.maxLength;
+                            // If the user's response is too long
+                            if (maxLength && (responseMessage.content.length > maxLength)) {
+                                betterSend(this.channel, `Response too long. Keep it under ${maxLength} characters.`, 10000);
+                            }
+                            // If the user's response is acceptable
+                            else {
+                                // Set the given input information as the field's new value
+                                selectedField.value = responseMessage.content;
+                            }
 
                             safeDeleteMessage(responseMessage);
                         }
@@ -305,7 +295,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                             }
                             // If the input could not be converted to a number
                             else {
-                                betterSend(this.channel, 'Invalid input. This field requires a number.', 15000);
+                                betterSend(this.channel, 'Invalid input. This field requires a number.', 10000);
                             }
 
                             safeDeleteMessage(responseMessage);
@@ -362,7 +352,14 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                     if (responseMessage) {
-                        selection.value.addAtPointer(responseMessage.content);
+                        const maxLength = selection.fieldInfo.maxLength;
+                        // Only add the response's content if it doesn't exceed length constraints
+                        if (maxLength && responseMessage.content.length > maxLength) {
+                            betterSend(this.channel, `Response too long. Keep it under ${maxLength} characters.`, 10000);
+                        }
+                        else {
+                            selection.value.push(responseMessage.content);
+                        }
 
                         safeDeleteMessage(responseMessage);
                     }
@@ -372,25 +369,30 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 // If the array contains documents
                 else {
                     // Create an empty document of the array's document type and insert it
-                    selection.value.addAtPointer(new EditableDocument(selection.fieldInfo.arrayType));
+                    selection.value.push(new EditableDocument(selection.fieldInfo.arrayType));
                 }
                 break;
             }
             // Deletes the currently selected array element if there is one
             case 'delete': {
-                if (!(selection.value instanceof PointedArray)) {
-                    break;
+                if (selection.value instanceof PointedArray) {
+                    // Delete the current element
+                    selection.value.deleteAtPointer();
                 }
-
-                // Delete the current element
-                selection.value.deleteAtPointer();
+                // Reset the current field if it's a string
+                else if (selection.value instanceof EditableDocument) {
+                    const selectedField = selection.value.getSelection();
+                    if (selectedField.fieldInfo.type === 'string') {
+                        selectedField.value = '';
+                    }
+                }
                 break;
             }
             // Emits the "submit" event
             case 'submit': {
                 // If the document's requirements weren't met
                 if (!this.document.requirementsMet()) {
-                    console.error('The submit button was pressed before a document\'s requirements were met somehow');
+                    console.error('The submit button was pressed before a document\'s requirements were met');
                     break;
                 }
                 this.emit('submit', this.document.getData());
