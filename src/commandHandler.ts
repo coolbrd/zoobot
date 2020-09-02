@@ -39,26 +39,6 @@ export default class CommandHandler {
             return;
         }
 
-        // Get the guild that the message was sent in, if any
-        const sourceGuild = message.guild;
-        // If the message was sent in a guild
-        if (sourceGuild) {
-            // If the guild is unavailable for operation, usually due to a server outage
-            if (!sourceGuild.available) {
-                // Don't attempt to perform any command logic
-                return;
-            }
-            // At this point it's known that the guild is available for operation
-
-            try {
-                // Possibly spawn an animal in the guild
-                await guildAnimalChance(sourceGuild);
-            }
-            catch (error) {
-                console.error('Error while attempting to spawn an animal.', error);
-            }
-        }
-
         // If the message is a command
         if (this.isCommand(message)) {
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
