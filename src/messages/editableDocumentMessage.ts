@@ -129,6 +129,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 
                 // Initialize a string for generating this field's info
                 let fieldInfoString: string;
+                let arrayIndex = 0;
                 // If the field's value is an array
                 if (field.value instanceof PointedArray) {
                     // Use a newline as the default delimiter
@@ -139,7 +140,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                     }
 
                     // Add the array's info to the string
-                    fieldInfoString = field.value.toString(delimiter);
+                    fieldInfoString = `${arrayIndex}) ${field.value.toString(delimiter)}`;
+                    
+                    arrayIndex++;
                 }
                 // If the field contains anything else
                 else {
