@@ -27,6 +27,12 @@ export class SendPendingSubmissionsCommand implements Command {
         // Get all pending species documents
         const pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });
 
+        // Don't send an empty embed if there are no pending species
+        if (pendingSpecies.length < 1) {
+            betterSend(channel, 'There are currently no species pending approval.');
+            return;
+        }
+
         // The array of embeds that will represent a paged form of all pending species
         const embedBook: MessageEmbed[] = [];
         let currentEmbedPage: MessageEmbed;
