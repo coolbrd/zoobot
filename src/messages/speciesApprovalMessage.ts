@@ -2,7 +2,7 @@ import EditableDocumentMessage from './editableDocumentMessage';
 import { DMChannel, TextChannel, User } from 'discord.js';
 import EditableDocument, { EditableDocumentSkeletonValue, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
-import { PendingSpeciesDocument } from '../models/pendingSpecies';
+import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { speciesSchema } from '../models/species';
 
 export class SpeciesApprovalMessage extends EditableDocumentMessage {
@@ -10,7 +10,7 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
 
     constructor(channel: TextChannel | DMChannel, pendingSpecies: Document) {
         // Convert the species document to a plain object
-        const pendingSpeciesDocument = pendingSpecies.toObject() as PendingSpeciesDocument;
+        const pendingSpeciesDocument = pendingSpecies.toObject() as PendingSpeciesObject;
 
         // Create the document skeleton for the approval document
         const approvalSkeleton = schemaToSkeleton(speciesSchema, {

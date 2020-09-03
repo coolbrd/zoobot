@@ -3,23 +3,23 @@ import { Message, MessageEmbed, TextChannel, User, APIMessage, DMChannel } from 
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
-import { SpeciesDocument } from '../models/species';
+import { SpeciesObject } from '../models/species';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
-    private readonly species: SpeciesDocument;
+    private readonly species: SpeciesObject;
     // Whether or not this animal has been caught
     private caught: boolean;
 
-    constructor(channel: TextChannel, species: SpeciesDocument) {
+    constructor(channel: TextChannel, species: SpeciesObject) {
         const embed = new MessageEmbed();
         embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild));
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.setURL(species.wikiPage);
         embed.setDescription(capitalizeFirstLetter(species.scientificName));
-        embed.setImage(species.images[Math.floor(Math.random() * species.images.length)]);
+        embed.setImage(species.images[Math.floor(Math.random() * species.images.length)].url);
         embed.setFooter('Wild encounter');
 
         const content = new APIMessage(channel, { embed: embed });

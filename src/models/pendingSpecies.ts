@@ -32,7 +32,7 @@ export const pendingSpeciesSchema = new Schema({
     }
 });
 
-export interface PendingSpeciesDocument {
+export interface PendingSpeciesObject {
     commonNames: string[],
     scientificName: string,
     images: string[],

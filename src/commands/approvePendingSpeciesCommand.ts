@@ -3,7 +3,7 @@ import CommandParser from '../utility/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
 import { betterSend } from '../utility/toolbox';
 import { SimpleDocument } from '../utility/editableDocument';
-import Species from '../models/species';
+import { Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
 
 // The command used to review, edit, and approve a pending species into a real species
@@ -18,7 +18,7 @@ export class ApprovePendingSpeciesCommand implements Command {
         const channel = parsedUserCommand.channel;
         
         // Interpret everything after the command as the name of the species for approval
-        const fullSearchTerm = parsedUserCommand.args.join(' ');
+        const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
 
         // Get a pending species whose first common name is the search term
         const pendingSpecies = await PendingSpecies.findOne({ 'commonNames.0': fullSearchTerm });

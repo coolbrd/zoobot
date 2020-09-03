@@ -1,6 +1,6 @@
 import { TextChannel, GuildResolvable } from 'discord.js';
 
-import SpeciesModel, { SpeciesDocument } from '../models/species';
+import { Species, SpeciesObject } from '../models/species';
 import { client } from '..';
 import EncounterMessage from '../messages/encountermessage';
 
@@ -40,10 +40,10 @@ async function spawnAnimal(guildResolvable: GuildResolvable) {
         return;
     }
     
-    let species: SpeciesDocument;
+    let species: SpeciesObject;
     try {
         // Get a random species from all animals and convert it to a proper species instance
-        species = (await SpeciesModel.aggregate().sample(1).exec())[0];
+        species = (await Species.aggregate().sample(1).exec())[0];
         if (!species) {
             throw new Error('No document was returned when trying to select a random animal.');
         }

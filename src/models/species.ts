@@ -42,14 +42,19 @@ export const speciesSchema = new Schema({
     }
 });
 
-export interface SpeciesDocument {
+interface ImageSubObject {
+    url: string,
+    breed: string
+}
+
+export interface SpeciesObject {
     commonNames: string[],
     scientificName: string,
-    images: string[],
+    images: ImageSubObject[],
     description: string,
     naturalHabitat: string,
     wikiPage: string,
     rarity: number
 }
 
-export default mongoose.model('Species', speciesSchema);
+export const Species = mongoose.model('Species', speciesSchema);

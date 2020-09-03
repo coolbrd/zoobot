@@ -2,11 +2,11 @@ import { Message } from 'discord.js';
 
 import Command from './commands/commandInterface';
 import CommandParser from './utility/commandParser';
-import { guildAnimalChance } from './zoo/encounter';
 import { SubmitSpeciesCommand } from './commands/submitSpeciesCommand';
 import { betterSend } from './utility/toolbox';
 import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissionsCommand';
 import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
+import { SpeciesInfoCommand } from './commands/speciesInfoCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -24,7 +24,8 @@ export default class CommandHandler {
         const commandClasses = [
             ApprovePendingSpeciesCommand,
             SubmitSpeciesCommand,
-            SendPendingSubmissionsCommand
+            SendPendingSubmissionsCommand,
+            SpeciesInfoCommand
         ];
 
         // Assign the array of commands to a new instance of each command class
