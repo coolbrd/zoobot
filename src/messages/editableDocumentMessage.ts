@@ -59,7 +59,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 emoji: '❌',
                 helpMessage: 'Exit'
             }
-        ], lifetime: lifetime || 120000 });
+        ], lifetime: lifetime || 180000 });
 
         this.document = document;
 
@@ -252,7 +252,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         const promptString = selectedField.fieldInfo.prompt || 'Enter the information that you would like to insert into this field.'
                         const promptMessage = await betterSend(this.channel, promptString);
 
-                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 120000);
 
                         // If the user responded
                         if (responseMessage) {
@@ -282,7 +282,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                         const promptString = selectedField.fieldInfo.prompt || 'Enter the number that you would like to insert into this field.'
                         const promptMessage = await betterSend(this.channel, promptString);
 
-                        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+                        const responseMessage = await awaitUserNextMessage(this.channel, user, 120000);
 
                         // If the user responded
                         if (responseMessage) {

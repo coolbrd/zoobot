@@ -34,8 +34,6 @@ export class SpeciesInfoMessage extends InteractiveMessage {
     }
 
     private buildEmbed(): MessageEmbed {
-
-
         const newEmbed = new SmartEmbed();
 
         const image = this.species.images[this.currentImage];
@@ -71,7 +69,9 @@ export class SpeciesInfoMessage extends InteractiveMessage {
         return newEmbed;
     }
 
-    public buttonPress(buttonName: string, _user: User): void {
+    public buttonPress(buttonName: string, user: User): void {
+        super.buttonPress(buttonName, user);
+
         switch (buttonName) {
             case 'rightArrow': {
                 this.currentImage = this.currentImage + 1 >= this.species.images.length ? 0 : this.currentImage + 1;
