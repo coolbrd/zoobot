@@ -36,8 +36,8 @@ export default class EncounterMessage extends InteractiveMessage {
 
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
-        // Get this encounter's message, and assume it's not going to be undefined (because it really won't be)
-        const message = this.getMessage() as Message;
+        // Get this encounter's message
+        const message = this.getMessage();
 
         // Indicate that the user has caught the animal
         betterSend(message.channel as TextChannel | DMChannel, `${user}, You caught ${this.species.commonNames[0]}!`);

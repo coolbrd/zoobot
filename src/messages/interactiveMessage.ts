@@ -48,18 +48,14 @@ export class InteractiveMessageHandler {
 
     // Adds an existing interactive message to the global collection of them
     public static addMessage(interactiveMessage: InteractiveMessage): void {
-        // Get the interactive message's underlying message
-        const discordMessage = interactiveMessage.getMessage();
         // Only add the message to the map of active messages if its message has been sent
-        discordMessage && this.messages.set(discordMessage.id, interactiveMessage);
+        interactiveMessage.isSent() && this.messages.set(interactiveMessage.getMessage().id, interactiveMessage);
     }
 
     // Removes an interactive message from the global collection
     public static removeMessage(interactiveMessage: InteractiveMessage): void {
-        // Get the interactive message's underlying message
-        const discordMessage = interactiveMessage.getMessage();
         // Only attempt to delete the message from the map of active messages if its message has been send
-        discordMessage && this.messages.delete(discordMessage.id);
+        interactiveMessage.isSent() && this.messages.delete(interactiveMessage.getMessage().id);
     }
 }
 
@@ -90,6 +86,8 @@ export class InteractiveMessage extends EventEmitter {
     // This interactive message's underlying message
     // Will only be undefined before this message is sent
     private message: Message | undefined;
+    // Whether or not the message has been sent
+    private sent = false;
     
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
@@ -281,7 +279,15 @@ export class InteractiveMessage extends EventEmitter {
         this.getButtonByName(buttonName).helpMessage = newMessage;
     }
 
-    public getMessage(): Message | undefined {
+    public isSent(): boolean {
+        return this.sent;
+    }
+
+    public getMessage(): Message {
+        if (!this.message) {
+            throw new Error('Attempted to get the message of an interactive message that hasn\'t been sent yet');
+        }
+
         return this.message;
     }
 
@@ -313,14 +319,14 @@ export class InteractiveMessage extends EventEmitter {
         // Send the interactive message's base message
         this.message = await betterSend(this.channel, this.content);
 
-        // Get the message that was just sent
-        const message = this.getMessage();
-
         // If nothing came back
-        if (!message) {
+        if (!this.message) {
             throw new Error('Error sending the base message for an interactive message.');
         }
-        
+
+        // If we're here it means that the message was successfully sent
+        this.sent = true;
+
         // Add this message to the map of other interactive messages
         InteractiveMessageHandler.addMessage(this);
 
@@ -328,7 +334,7 @@ export class InteractiveMessage extends EventEmitter {
         for await (const button of this.buttons.values()) {
             try {
                 // Add a reaction for every button
-                await message.react(button.emoji);
+                await this.message.react(button.emoji);
             }
             catch (error) {
                 throw new Error('Error trying to add reactions to an interactive message.');

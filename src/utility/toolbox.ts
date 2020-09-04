@@ -1,4 +1,4 @@
-import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage } from 'discord.js';
+import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, Channel, Guild } from 'discord.js';
 
 import { client } from '..';
 
@@ -8,17 +8,45 @@ export function capitalizeFirstLetter(string: string): string {
 }
 
 // Gets a user's display color in a given guild
-export function getGuildUserDisplayColor(userResolvable: UserResolvable, guildResolvable: GuildResolvable): number {
-    const guild = client.guilds.resolve(guildResolvable);
-    if (!guild) {
-        throw new Error('Attempted to get the display color of a user from a guild that could not be resolved.');
+export function getGuildUserDisplayColor(userResolvable: UserResolvable | null, guildResolvable: GuildResolvable | Channel | null): number {
+    // The default color that will be given back if a guild member color can't be found
+    // It's a single shade of gray below pure white because Discord interprets 0xFFFFFF as black for some reason
+    const defaultColor = 0xFEFEFE;
+
+    // If either resolvable is missing
+    // These are allowed to be null so things like client.user don't have to make sure that the value isn't null (it's annoying)
+    if (!userResolvable || !guildResolvable) {
+        return defaultColor;
+    }
+    
+    let guild: Guild;
+    // If the thing to resolve into a guild is a channel
+    if (guildResolvable instanceof Channel) {
+        // Get the channel's guild property if it has one
+        // The only case in which it wouldn't is with DM channels
+        if (!('guild' in guildResolvable)) {
+            return defaultColor;
+        }
+        guild = guildResolvable.guild;
+    }
+    // If the thing to resolve into a guild is anything else (handled by a build-in method)
+    else {
+        const resolvedGuild = client.guilds.resolve(guildResolvable);
+        // If no guild could be found based on the given info
+        if (!resolvedGuild) {
+            return defaultColor;
+        }
+
+        guild = resolvedGuild;
     }
 
+    // Get the given user's member instance in the found guild
     const guildMember = guild.member(userResolvable);
     if (!guildMember) {
-        throw new Error('Attempted to get the display color of a user that could not be resolved.');
+        return defaultColor;
     }
 
+    // Return the member's color
     return guildMember.displayColor;
 }
 

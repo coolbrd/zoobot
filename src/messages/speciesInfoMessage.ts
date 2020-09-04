@@ -1,8 +1,9 @@
 import { InteractiveMessage } from "./interactiveMessage";
-import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
+import { DMChannel, TextChannel, MessageEmbed, User, Message } from "discord.js";
 import { SpeciesObject } from "../models/species";
 import { SmartEmbed } from "../utility/smartEmbed";
-import { capitalizeFirstLetter } from "../utility/toolbox";
+import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
+import { client } from "..";
 
 export class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
@@ -33,9 +34,13 @@ export class SpeciesInfoMessage extends InteractiveMessage {
     }
 
     private buildEmbed(): MessageEmbed {
+
+
         const newEmbed = new SmartEmbed();
 
         const image = this.species.images[this.currentImage];
+
+        newEmbed.setColor(getGuildUserDisplayColor(client.user, this.channel));
 
         if (this.pictureMode) {
             newEmbed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
