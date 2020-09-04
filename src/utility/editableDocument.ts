@@ -6,6 +6,10 @@ import { Schema } from "mongoose";
 
 type EditableDocumentPrimitive = string | number | boolean;
 
+type EditableDocumentFieldValue = EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
+
+type EditableDocumentSkeletonValue = EditableDocumentPrimitive | EditableDocumentSkeleton | string[] | undefined;
+
 // A set of informational fields pertaining to a field of a document
 interface EditableDocumentFieldInfo {
     // The human-formatted name of the field
@@ -27,21 +31,21 @@ interface EditableDocumentFieldInfo {
 
 // The skeleton of an object that may go inside of an EditableDocumentSkeleton
 export interface EditableDocumentObjectSkeleton {
-    [path: string]: EditableDocumentPrimitive | EditableDocumentSkeleton | string[] | undefined
+    [path: string]: EditableDocumentSkeletonValue
 }
 
 // A blueprint used to construct a new empty editable document
 export interface EditableDocumentSkeleton {
     [path: string]: {
         fieldInfo: EditableDocumentFieldInfo,
-        value?: EditableDocumentPrimitive | EditableDocumentObjectSkeleton | EditableDocumentObjectSkeleton[] | EditableDocumentSkeleton | string[] | undefined
+        value?: EditableDocumentSkeletonValue | EditableDocumentObjectSkeleton | EditableDocumentObjectSkeleton[]
     }
 }
 
 // A single field within a document. Contains both the given field info and the value to eventually be set.
 export interface EditableDocumentField {
     fieldInfo: EditableDocumentFieldInfo,
-    value: EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
+    value: EditableDocumentFieldValue
 }
 
 // The simple, non-pointed form of an EditableDocument
@@ -67,7 +71,7 @@ export default class EditableDocument {
         // Iterate over every field in the skeleton
         for (const [key, field] of Object.entries(skeleton)) {
             // The default value that will be assigned to this field
-            let value: EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
+            let value: EditableDocumentFieldValue;
 
             // Field type behavior
             switch (field.fieldInfo.type) {
@@ -285,7 +289,7 @@ export default class EditableDocument {
         // Iterate over every field in this document
         for (const [key, field] of this.fields.entries()) {
             // The value that will be stored in this current field's simple analogue
-            let storedValue: SimpleDocument | SimpleDocument[] | string[] | string | boolean | number | undefined;
+            let storedValue: EditableDocumentPrimitive | SimpleDocument | SimpleDocument[] | string[] | undefined;
 
             // If the current field's value is an array
             if (field.value instanceof PointedArray) {
