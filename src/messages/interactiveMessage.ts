@@ -126,7 +126,7 @@ export class InteractiveMessage extends EventEmitter {
         this.lifetime = 60000;
         this.resetTimerOnButtonPress = true;
 
-        this.deactivationText = '(deactivated)';
+        this.deactivationText = '(message deactivated)';
 
         // If an options object was provided
         if (options) {
