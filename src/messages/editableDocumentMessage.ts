@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, User, Message, DMChannel } from 'discord.js';
+import { MessageEmbed, TextChannel, User, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
@@ -59,7 +59,7 @@ export default class EditableDocumentMessage extends InteractiveMessage {
                 emoji: '❌',
                 helpMessage: 'Exit'
             }
-        ], lifetime: lifetime || 60000 });
+        ], lifetime: lifetime || 120000 });
 
         this.document = document;
 
@@ -408,21 +408,5 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
         // Update the message's embed
         this.setEmbed(this.buildEmbed());
-    }
-
-    public async deactivate(): Promise<void> {
-        const message = this.getMessage() as Message;
-        const embed = message.embeds[0];
-
-        // Get the embed's footer
-        const footer = embed.footer;
-
-        // Append the deactivated info to the end of the message's footer
-        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}\n(deactivated)`);
-
-        this.setEmbed(newEmbed);
-
-        // Inherit parent deactivation behavior
-        super.deactivate();
     }
 }

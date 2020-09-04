@@ -1,4 +1,4 @@
-import { DMChannel, MessageEmbed, Message, TextChannel, User } from 'discord.js';
+import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 
@@ -69,21 +69,5 @@ export default class EmbedBookMessage extends InteractiveMessage {
 
         // The page turn was successful, so assign the new page
         this.page = newPage;
-    }
-
-    protected async deactivate(): Promise<void> {
-        const message = this.getMessage() as Message;
-        const embed = message.embeds[0];
-
-        // Get the embed's footer
-        const footer = embed.footer;
-
-        // Append the deactivated info to the end of the message's footer
-        const newEmbed = embed.setFooter(`${footer ? `${footer.text} ` : ''}(deactivated)`);
-
-        this.setEmbed(newEmbed);
-
-        // Inherit parent deactivation behavior
-        super.deactivate();
     }
 }

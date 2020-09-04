@@ -101,6 +101,8 @@ export class InteractiveMessage extends EventEmitter {
 
     // Whether or not this message is deactivated
     protected deactivated = false;
+    // The text to append, to the footer of the message once it has been deactivated
+    protected deactivationText: string;
 
     constructor(
         channel: TextChannel | DMChannel,
@@ -108,7 +110,8 @@ export class InteractiveMessage extends EventEmitter {
             content?: APIMessage,
             buttons?: EmojiButton | EmojiButton[],
             lifetime?: number,
-            resetTimerOnButtonPress?: boolean
+            resetTimerOnButtonPress?: boolean,
+            deactivationText?: string
         }
     ){
         super();
@@ -122,6 +125,8 @@ export class InteractiveMessage extends EventEmitter {
 
         this.lifetime = 60000;
         this.resetTimerOnButtonPress = true;
+
+        this.deactivationText = '(deactivated)';
 
         // If an options object was provided
         if (options) {
@@ -155,6 +160,10 @@ export class InteractiveMessage extends EventEmitter {
             if (options.resetTimerOnButtonPress) {
                 this.resetTimerOnButtonPress = options.resetTimerOnButtonPress;
             }
+
+            if (options.deactivationText) {
+                this.deactivationText = options.deactivationText;
+            }
         }
     }
 
@@ -170,6 +179,10 @@ export class InteractiveMessage extends EventEmitter {
 
         // If this instance's message has been sent, edit it to reflect the changes
         this.message && this.message.edit(newEmbed);
+    }
+
+    protected setDeactivationText(newText: string): void {
+        this.deactivationText = newText;
     }
 
     // Gets a button's emoji by its name
@@ -349,6 +362,24 @@ export class InteractiveMessage extends EventEmitter {
 
     // Deactivates the interactive message, freeing up space in the global list of messages to handle
     protected deactivate(): void {
+        if (this.deactivationText && this.message && this.message.embeds) {
+            const embed = this.message.embeds[0];
+
+            const currentFooter = embed.footer;
+
+            let newFooter: string;
+            if (currentFooter) {
+                newFooter = currentFooter.text + `\n${this.deactivationText}`
+            }
+            else {
+                newFooter = this.deactivationText;
+            }
+
+            embed.setFooter(newFooter);
+
+            this.setEmbed(embed);
+        }
+
         // Indicate that this message is deactivated
         this.deactivated = true;
 

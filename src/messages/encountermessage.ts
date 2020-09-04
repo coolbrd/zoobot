@@ -10,8 +10,6 @@ import { SpeciesObject } from '../models/species';
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     private readonly species: SpeciesObject;
-    // Whether or not this animal has been caught
-    private caught: boolean;
 
     constructor(channel: TextChannel, species: SpeciesObject) {
         const embed = new MessageEmbed();
@@ -24,13 +22,16 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const content = new APIMessage(channel, { embed: embed });
 
-        super(channel, { content: content, buttons: {
-            name: 'capture',
-            emoji: '🔘',
-            helpMessage: 'Capture'
-        }});
+        super(channel, {
+            content: content,
+            buttons: {
+                name: 'capture',
+                emoji: '🔘',
+                helpMessage: 'Capture'
+            },
+            deactivationText: '(fled)'
+        });
         this.species = species;
-        this.caught = false;
     }
 
     // Whenever the encounter's button is pressed
@@ -40,40 +41,9 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Indicate that the user has caught the animal
         betterSend(message.channel as TextChannel | DMChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
-        this.caught = true;
+        this.setDeactivationText('caught');
         
         // Stop this message from receiving any more input
         this.deactivate();
-    }
-
-    protected async deactivate(): Promise<void> {
-        const message = this.getMessage() as Message;
-
-        // Get the embed of the encounter message
-        const embed = message.embeds[0];
-
-        // Get the embed's footer
-        const footer = embed.footer;
-
-        // If for some reason there isn't a footer
-        if (!footer) {
-            throw new Error('Empty footer returned from encounter message.');
-        }
-
-        let newEmbed: MessageEmbed;
-    
-        // Edit the encounter's embed based on what happened to the animal
-        if (this.caught) {
-            newEmbed = embed.setFooter(`${footer.text} (caught)`);
-        }
-        else {
-            newEmbed = embed.setFooter(`${footer.text} (fled)`);
-        }
-
-        // Update the message
-        this.setEmbed(newEmbed);
-
-        // Inherit parent deactivation behavior
-        super.deactivate();
     }
 }
