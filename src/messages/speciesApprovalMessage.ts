@@ -1,6 +1,6 @@
 import EditableDocumentMessage from './editableDocumentMessage';
 import { DMChannel, TextChannel, User } from 'discord.js';
-import EditableDocument, { EditableDocumentSkeletonValue, schemaToSkeleton } from '../utility/editableDocument';
+import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
 import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { speciesSchema } from '../models/species';
@@ -55,7 +55,7 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
 
         // Turn the images array into an array of objects that contain optional breed info
         const imageLinks: string[] = pendingSpeciesDocument.images;
-        approvalSkeleton['images'].value = [] as EditableDocumentSkeletonValue[];
+        approvalSkeleton['images'].value = [] as EditableDocumentObjectSkeleton[];
         for (const link of imageLinks) {
             approvalSkeleton['images'].value.push({
                 url: link

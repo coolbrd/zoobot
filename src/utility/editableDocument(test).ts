@@ -4,6 +4,8 @@ import { PointedArray } from "./pointedArray";
 import { capitalizeFirstLetter } from "./toolbox";
 import { Schema } from "mongoose";
 
+type EditableDocumentPrimitive = string | number | boolean;
+
 // A set of informational fields pertaining to a field of a document
 interface EditableDocumentFieldInfo {
     // The human-formatted name of the field
@@ -23,29 +25,29 @@ interface EditableDocumentFieldInfo {
     arrayViewPortSize?: number
 }
 
-// A default value that may go inside of an EditableDocumentSkeleton
-export interface EditableDocumentSkeletonValue {
-    [path: string]: EditableDocumentSkeleton | string[] | string | boolean | number | undefined
+// The skeleton of an object that may go inside of an EditableDocumentSkeleton
+export interface EditableDocumentObjectSkeleton {
+    [path: string]: EditableDocumentPrimitive | EditableDocumentSkeleton | string[] | undefined
 }
 
 // A blueprint used to construct a new empty editable document
 export interface EditableDocumentSkeleton {
     [path: string]: {
         fieldInfo: EditableDocumentFieldInfo,
-        value?: EditableDocumentSkeletonValue | EditableDocumentSkeletonValue[] | EditableDocumentSkeleton | string[] | string | boolean | number | undefined
+        value?: EditableDocumentPrimitive | EditableDocumentObjectSkeleton | EditableDocumentObjectSkeleton[] | EditableDocumentSkeleton | string[] | undefined
     }
 }
 
 // A single field within a document. Contains both the given field info and the value to eventually be set.
 export interface EditableDocumentField {
     fieldInfo: EditableDocumentFieldInfo,
-    value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean | number;
+    value: EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
 }
 
 // The simple, non-pointed form of an EditableDocument
 // Used as a return type when getting an EditableDocument that has been submitted
 export interface SimpleDocument {
-    [path: string]: SimpleDocument | string[] | string | boolean | number | undefined
+    [path: string]: EditableDocumentPrimitive | SimpleDocument | string[] | undefined
 }
 
 // A document containing a set of fields that can be edited through some given user interface
@@ -65,7 +67,7 @@ export default class EditableDocument {
         // Iterate over every field in the skeleton
         for (const [key, field] of Object.entries(skeleton)) {
             // The default value that will be assigned to this field
-            let value: EditableDocument | PointedArray<EditableDocument | string> | string | boolean | number;
+            let value: EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
 
             // Field type behavior
             switch (field.fieldInfo.type) {
