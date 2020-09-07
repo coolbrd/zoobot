@@ -52,6 +52,7 @@ interface ImageSubObject {
 }
 
 export interface SpeciesObject {
+    _id: string,
     commonNames: string[],
     commonNamesLower: string[],
     scientificName: string,

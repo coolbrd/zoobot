@@ -16,9 +16,8 @@ export class SpeciesInfoCommand implements Command {
 
         const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
 
-        const exclusions = { _id: 0 };
         // Find a species by either its common name, or its scientific name if no common name matches were made
-        const speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }, exclusions) || await Species.findOne({ scientificName: fullSearchTerm }, exclusions);
+        const speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }) || await Species.findOne({ scientificName: fullSearchTerm });
 
         // If no species with the given name was found
         if (!speciesDocument) {

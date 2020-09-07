@@ -5,6 +5,7 @@ import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../
 import { client } from '..';
 import { SpeciesObject } from '../models/species';
 import { SmartEmbed } from '../utility/smartEmbed';
+import { Animal } from '../models/animal';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
@@ -47,8 +48,15 @@ export default class EncounterMessage extends InteractiveMessage {
         const message = this.getMessage();
 
         // Indicate that the user has caught the animal
-        betterSend(message.channel as TextChannel | DMChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
         this.setDeactivationText('caught');
+
+        const animal = new Animal({
+            species: this.species._id,
+            owner: user.id
+        });
+
+        animal.save();
         
         // Stop this message from receiving any more input
         this.deactivate();
