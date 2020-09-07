@@ -205,3 +205,12 @@ export function arrayElementCount<T>(array: T[], element: T): number {
     }
     return count;
 }
+
+// Takes an array of strings and returns its fully lowercase equivalent
+export function arrayToLowerCase(array: string[]): string[] {
+    const newArray: string[] = [];
+    array.forEach(element => {
+        newArray.push(element.toLowerCase());
+    });
+    return newArray;
+}

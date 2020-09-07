@@ -2,7 +2,7 @@ import { stripIndents } from 'common-tags';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
-import { reactionInput, betterSend, safeDeleteMessage } from '../utility/toolbox';
+import { reactionInput, betterSend, safeDeleteMessage, arrayToLowerCase } from '../utility/toolbox';
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../utility/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
@@ -114,6 +114,9 @@ export class SubmitSpeciesCommand implements Command {
             // Create a new pending species based on the SimpleDocument that was returned
             // This works because SimpleDocument is just a plain object with the same field names as the Skeleton that was passed in
             const pendingSpecies = new PendingSpecies(finalDocument);
+
+            // Assign case-normalized names
+            pendingSpecies.set('commonNamesLower', arrayToLowerCase(pendingSpecies.get('commonNames')));
 
             // Set the author
             pendingSpecies.set('author', user.id);

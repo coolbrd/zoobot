@@ -1,7 +1,7 @@
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
-import { betterSend } from '../utility/toolbox';
+import { betterSend, arrayToLowerCase } from '../utility/toolbox';
 import { SimpleDocument } from '../utility/editableDocument';
 import { Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
@@ -21,7 +21,7 @@ export class ApprovePendingSpeciesCommand implements Command {
         const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
 
         // Get a pending species whose first common name is the search term
-        const pendingSpecies = await PendingSpecies.findOne({ 'commonNames.0': fullSearchTerm });
+        const pendingSpecies = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
 
         // If nothing was found by that name
         if (!pendingSpecies) {
@@ -52,6 +52,10 @@ export class ApprovePendingSpeciesCommand implements Command {
         approvalMessage.once('submit', (finalDocument: SimpleDocument) => {
             // Create a species document from the output document
             const speciesDocument = new Species(finalDocument);
+
+            // Assign case-normalized names
+            speciesDocument.set('commonNamesLower', arrayToLowerCase(speciesDocument.get('commonNames')));
+
             // Save the new species
             speciesDocument.save();
             // Remove the pending species from the database

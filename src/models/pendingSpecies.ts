@@ -6,6 +6,10 @@ export const pendingSpeciesSchema = new Schema({
         type: Array,
         required: true,
     },
+    commonNamesLower: {
+        type: Array,
+        required: true
+    },
     scientificName: {
         type: String,
         required: true,
@@ -34,6 +38,7 @@ export const pendingSpeciesSchema = new Schema({
 
 export interface PendingSpeciesObject {
     commonNames: string[],
+    commonNamesLower: string[],
     scientificName: string,
     images: string[],
     description: string,

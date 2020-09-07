@@ -16,6 +16,10 @@ export const speciesSchema = new Schema({
         type: Array,
         required: true
     },
+    commonNamesLower: {
+        type: Array,
+        required: true
+    },
     scientificName: {
         type: String,
         required: true
@@ -49,6 +53,7 @@ interface ImageSubObject {
 
 export interface SpeciesObject {
     commonNames: string[],
+    commonNamesLower: string[],
     scientificName: string,
     images: ImageSubObject[],
     description: string,

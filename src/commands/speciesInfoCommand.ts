@@ -17,7 +17,7 @@ export class SpeciesInfoCommand implements Command {
         const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
 
         const exclusions = { _id: 0 };
-        const speciesDocument = await Species.findOne({ commonNames: fullSearchTerm }, exclusions) || await Species.findOne({ scientificName: fullSearchTerm }, exclusions);
+        const speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }, exclusions) || await Species.findOne({ scientificName: fullSearchTerm }, exclusions);
 
         if (!speciesDocument) {
             betterSend(channel, `No animal by the name "${fullSearchTerm}" could be found.`);
