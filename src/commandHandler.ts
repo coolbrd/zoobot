@@ -7,6 +7,7 @@ import { betterSend } from './utility/toolbox';
 import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissionsCommand';
 import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
 import { SpeciesInfoCommand } from './commands/speciesInfoCommand';
+import { EncounterCommand } from './commands/encounterCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -23,6 +24,7 @@ export default class CommandHandler {
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
             ApprovePendingSpeciesCommand,
+            EncounterCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
             SpeciesInfoCommand

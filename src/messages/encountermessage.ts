@@ -1,9 +1,10 @@
-import { MessageEmbed, TextChannel, User, APIMessage, DMChannel } from 'discord.js';
+import { TextChannel, User, APIMessage, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
 import { SpeciesObject } from '../models/species';
+import { SmartEmbed } from '../utility/smartEmbed';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
@@ -12,12 +13,18 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
 
     constructor(channel: TextChannel, species: SpeciesObject) {
-        const embed = new MessageEmbed();
-        embed.setColor(getGuildUserDisplayColor(client.user as User, channel.guild));
+        const embed = new SmartEmbed();
+        embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
-        embed.setURL(species.wikiPage);
-        embed.setDescription(capitalizeFirstLetter(species.scientificName));
-        embed.setImage(species.images[Math.floor(Math.random() * species.images.length)].url);
+        embed.addField('――――――――', capitalizeFirstLetter(species.scientificName), true);
+
+        const image = species.images[Math.floor(Math.random() * species.images.length)];
+        embed.setImage(image.url);
+
+        if (image.breed) {
+            embed.addField('Breed', capitalizeFirstLetter(image.breed), true);
+        }
+
         embed.setFooter('Wild encounter');
 
         const content = new APIMessage(channel, { embed: embed });
