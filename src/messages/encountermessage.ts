@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, User, APIMessage, DMChannel } from 'discord.js';
+import { MessageEmbed, TextChannel, User, APIMessage, DMChannel } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';

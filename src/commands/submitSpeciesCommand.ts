@@ -1,4 +1,5 @@
 import { stripIndents } from 'common-tags';
+import { MessageEmbed, APIMessage } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
@@ -6,7 +7,6 @@ import { reactionInput, betterSend, safeDeleteMessage, arrayToLowerCase } from '
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../utility/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
-import { MessageEmbed, APIMessage } from 'discord.js';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {

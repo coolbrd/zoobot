@@ -1,5 +1,5 @@
 import { InteractiveMessage } from "./interactiveMessage";
-import { DMChannel, TextChannel, MessageEmbed, User, Message } from "discord.js";
+import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import { SpeciesObject } from "../models/species";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
