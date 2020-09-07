@@ -47,7 +47,10 @@ export function getGuildUserDisplayColor(userResolvable: UserResolvable | null, 
     }
 
     // Return the member's color
-    return guildMember.displayColor;
+    // This returns the default color if black is found to be the user's display color
+    // For some reason, having the default display color (white) comes back as 0 (black)
+    // This will cause users displayed as actual black to return white, but I think that's more appropriate
+    return guildMember.displayColor || defaultColor;
 }
 
 // Adds reactions to a message and waits for a user to press one of them
