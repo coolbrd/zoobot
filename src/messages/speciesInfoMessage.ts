@@ -46,7 +46,7 @@ export class SpeciesInfoMessage extends InteractiveMessage {
         if (this.pictureMode) {
             newEmbed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
 
-            newEmbed.addField('―――――――――――――――――――', capitalizeFirstLetter(this.species.scientificName), true);
+            newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.scientificName), true);
 
             newEmbed.setImage(image.url);
             // Display a breed field if the current image is associated with one
