@@ -1,12 +1,13 @@
 import { InteractiveMessage } from "./interactiveMessage";
 import { TextChannel, DMChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
-import { Animal, AnimalObject } from "../models/animal";
+import { Animal } from "../models/animal";
+import { Document } from "mongoose";
 
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
 
-    private readonly inventory: AnimalObject[] = [];
+    private readonly inventory: Document[] = [];
 
     private page = 0;
 
@@ -37,7 +38,7 @@ export class InventoryMessage extends InteractiveMessage {
 
             // Add each animal to the message's inventory as simple animal objects
             result.forEach(animal => {
-                this.inventory.push(animal.toObject() as AnimalObject);
+                this.inventory.push(animal);
             });
 
             // Only build the embed after the inventory has been formed

@@ -2,15 +2,13 @@ import EditableDocumentMessage from './editableDocumentMessage';
 import { DMChannel, TextChannel, User } from 'discord.js';
 import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
-import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { speciesSchema } from '../models/species';
 
 export class SpeciesApprovalMessage extends EditableDocumentMessage {
     private pendingSpecies: Document;
 
     constructor(channel: TextChannel | DMChannel, pendingSpecies: Document) {
-        // Convert the species document to a plain object
-        const pendingSpeciesDocument = pendingSpecies.toObject() as PendingSpeciesObject;
+        const pendingSpeciesDocument = pendingSpecies;
 
         // Create the document skeleton for the approval document
         const approvalSkeleton = schemaToSkeleton(speciesSchema, {
@@ -47,14 +45,14 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
         });
 
         // Set known values that simply map to their pending species forms
-        approvalSkeleton['commonNames'].value = pendingSpeciesDocument.commonNames;
-        approvalSkeleton['scientificName'].value = pendingSpeciesDocument.scientificName;
-        approvalSkeleton['description'].value = pendingSpeciesDocument.description;
-        approvalSkeleton['naturalHabitat'].value = pendingSpeciesDocument.naturalHabitat;
-        approvalSkeleton['wikiPage'].value = pendingSpeciesDocument.wikiPage;
+        approvalSkeleton['commonNames'].value = pendingSpeciesDocument.get('commonNames');
+        approvalSkeleton['scientificName'].value = pendingSpeciesDocument.get('scientificName');
+        approvalSkeleton['description'].value = pendingSpeciesDocument.get('description');
+        approvalSkeleton['naturalHabitat'].value = pendingSpeciesDocument.get('naturalHabitat');
+        approvalSkeleton['wikiPage'].value = pendingSpeciesDocument.get('wikiPage');
 
         // Turn the images array into an array of objects that contain optional breed info
-        const imageLinks: string[] = pendingSpeciesDocument.images;
+        const imageLinks: string[] = pendingSpeciesDocument.get('images');
         approvalSkeleton['images'].value = [] as EditableDocumentObjectSkeleton[];
         for (const link of imageLinks) {
             approvalSkeleton['images'].value.push({

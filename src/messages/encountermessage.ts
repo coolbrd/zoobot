@@ -3,25 +3,25 @@ import { TextChannel, User, APIMessage } from 'discord.js';
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
-import { SpeciesObject } from '../models/species';
 import { SmartEmbed } from '../utility/smartEmbed';
 import { Animal } from '../models/animal';
+import { Document } from 'mongoose';
 
 // An interactive message that will represent an animal encounter
 // The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
-    private readonly species: SpeciesObject;
+    private readonly species: Document;
     private readonly imageIndex: number;
 
-    constructor(channel: TextChannel, species: SpeciesObject) {
+    constructor(channel: TextChannel, species: Document) {
         const embed = new SmartEmbed();
         embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
-        embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
-        embed.addField('――――――――', capitalizeFirstLetter(species.scientificName), true);
+        embed.setTitle(capitalizeFirstLetter(species.get('commonNames')[0]));
+        embed.addField('――――――――', capitalizeFirstLetter(species.get('scientificName')), true);
 
-        const imageIndex = Math.floor(Math.random() * species.images.length);
-        const image = species.images[imageIndex];
+        const imageIndex = Math.floor(Math.random() * species.get('images').length);
+        const image = species.get('images')[imageIndex];
         embed.setImage(image.url);
 
         if (image.breed) {
@@ -51,7 +51,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const message = this.getMessage();
 
         // Indicate that the user has caught the animal
-        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.get('commonNames')[0]}!`);
         this.setDeactivationText('(caught)');
 
         const animal = new Animal({
