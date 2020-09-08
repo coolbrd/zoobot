@@ -36,4 +36,15 @@ export const pendingSpeciesSchema = new Schema({
     }
 });
 
+export interface PendingSpeciesObject {
+    commonNames: string[],
+    commonNamesLower: string[],
+    scientificName: string,
+    images: string[],
+    description: string,
+    naturalHabitat: string,
+    wikiPage: string,
+    author: string
+}
+
 export const PendingSpecies = mongoose.model('PendingSpecies', pendingSpeciesSchema);
