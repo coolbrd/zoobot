@@ -24,12 +24,4 @@ export const animalSchema = new Schema({
     }
 });
 
-export interface AnimalObject {
-    species: Schema.Types.ObjectId,
-    owner: string,
-    image: number,
-    nickname?: string,
-    experience: number
-}
-
 export const Animal = mongoose.model('Animal', animalSchema);

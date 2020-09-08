@@ -1,6 +1,6 @@
 import Command from "./commandInterface";
 import CommandParser from "../utility/commandParser";
-import { Species, SpeciesObject } from "../models/species";
+import { Species } from "../models/species";
 import { betterSend } from "../utility/toolbox";
 import { SpeciesInfoMessage } from "../messages/speciesInfoMessage";
 
@@ -25,10 +25,8 @@ export class SpeciesInfoCommand implements Command {
             return;
         }
 
-        // Convert the document to a simple object
-        const species = speciesDocument.toObject() as SpeciesObject;
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(channel, species);
+        const infoMessage = new SpeciesInfoMessage(channel, speciesDocument);
         infoMessage.send();
     }
 }
