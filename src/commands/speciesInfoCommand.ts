@@ -5,7 +5,7 @@ import { betterSend } from "../utility/toolbox";
 import { SpeciesInfoMessage } from "../messages/speciesInfoMessage";
 
 export class SpeciesInfoCommand implements Command {
-    public readonly commandNames = ['info', 'search'];
+    public readonly commandNames = ['info', 'i', 'search'];
 
     public help(commandPrefix: string): string {
         return `Use ${commandPrefix}info <species> to view a species' traits and images.`;
