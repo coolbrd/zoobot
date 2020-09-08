@@ -8,6 +8,7 @@ import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissions
 import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
 import { SpeciesInfoCommand } from './commands/speciesInfoCommand';
 import { EncounterCommand } from './commands/encounterCommand';
+import { ViewInventoryCommand } from './commands/viewInventoryCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -27,7 +28,8 @@ export default class CommandHandler {
             EncounterCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
-            SpeciesInfoCommand
+            SpeciesInfoCommand,
+            ViewInventoryCommand
         ];
 
         // Assign the array of commands to a new instance of each command class
