@@ -52,7 +52,7 @@ interface ImageSubObject {
 }
 
 export interface SpeciesObject {
-    _id: string,
+    _id: Schema.Types.ObjectId,
     commonNames: string[],
     commonNamesLower: string[],
     scientificName: string,

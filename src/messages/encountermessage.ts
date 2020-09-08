@@ -1,4 +1,4 @@
-import { TextChannel, User, APIMessage, DMChannel } from 'discord.js';
+import { TextChannel, User, APIMessage } from 'discord.js';
 
 import { InteractiveMessage } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
@@ -12,6 +12,7 @@ import { Animal } from '../models/animal';
 export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     private readonly species: SpeciesObject;
+    private readonly imageIndex: number;
 
     constructor(channel: TextChannel, species: SpeciesObject) {
         const embed = new SmartEmbed();
@@ -19,7 +20,8 @@ export default class EncounterMessage extends InteractiveMessage {
         embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
         embed.addField('――――――――', capitalizeFirstLetter(species.scientificName), true);
 
-        const image = species.images[Math.floor(Math.random() * species.images.length)];
+        const imageIndex = Math.floor(Math.random() * species.images.length);
+        const image = species.images[imageIndex];
         embed.setImage(image.url);
 
         if (image.breed) {
@@ -40,6 +42,7 @@ export default class EncounterMessage extends InteractiveMessage {
             deactivationText: '(fled)'
         });
         this.species = species;
+        this.imageIndex = imageIndex;
     }
 
     // Whenever the encounter's button is pressed
@@ -49,11 +52,13 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Indicate that the user has caught the animal
         betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
-        this.setDeactivationText('caught');
+        this.setDeactivationText('(caught)');
 
         const animal = new Animal({
             species: this.species._id,
-            owner: user.id
+            owner: user.id,
+            image: this.imageIndex,
+            experience: 0
         });
 
         animal.save();
