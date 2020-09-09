@@ -9,6 +9,8 @@ import { InteractiveMessageHandler } from './messages/interactiveMessage';
 // Create a new client for the bot to use
 export const client = new Discord.Client();
 
+export const interactiveMessageHandler = new InteractiveMessageHandler(client);
+
 // Create a new commandhandler instance to parse incoming commands
 const commandHandler = new CommandHandler(config.prefix);
 
@@ -47,22 +49,6 @@ client.on('message', (message: Message) => {
     // Handle the incoming message
     commandHandler.handleMessage(message);
 });
-
-// When the bot observes a user adding a reaction to a message
-client.on('messageReactionAdd', (messageReaction, user) => {
-    // Handle the user's reaction
-    InteractiveMessageHandler.handleReaction(messageReaction, user);
-});
-
-// When the bot observes a user removing a reaction from a message
-client.on('messageReactionRemove', (messageReaction, user) => {
-    // Handle the user's reaction
-    InteractiveMessageHandler.handleReaction(messageReaction, user);
-});
-
-client.on('rateLimit', info => {
-    InteractiveMessageHandler.handleRateLimit(info);
-})
 
 // When the bot encounters an error
 client.on('error', error => console.error('Discord client error: ', error));

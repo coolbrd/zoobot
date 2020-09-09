@@ -1,6 +1,6 @@
 import { TextChannel, User, APIMessage } from 'discord.js';
 
-import { InteractiveMessage } from './interactiveMessage';
+import { InteractiveMessage, InteractiveMessageHandler } from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
 import { SmartEmbed } from '../utility/smartEmbed';
@@ -14,7 +14,7 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly species: Document;
     private readonly imageIndex: number;
 
-    constructor(channel: TextChannel, species: Document) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: Document) {
         const embed = new SmartEmbed();
         embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
         embed.setTitle(capitalizeFirstLetter(species.get('commonNames')[0]));
@@ -32,7 +32,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const content = new APIMessage(channel, { embed: embed });
 
-        super(channel, {
+        super(handler, channel, {
             content: content,
             buttons: {
                 name: 'capture',

@@ -3,11 +3,12 @@ import { DMChannel, TextChannel, User } from 'discord.js';
 import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
 import { speciesSchema } from '../models/species';
+import { InteractiveMessageHandler } from './interactiveMessage';
 
 export class SpeciesApprovalMessage extends EditableDocumentMessage {
     private pendingSpecies: Document;
 
-    constructor(channel: TextChannel | DMChannel, pendingSpecies: Document) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpecies: Document) {
         const pendingSpeciesDocument = pendingSpecies;
 
         // Create the document skeleton for the approval document
@@ -60,7 +61,7 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             });
         }
         
-        super(channel, new EditableDocument(approvalSkeleton), 'new submission');
+        super(handler, channel, new EditableDocument(approvalSkeleton), 'new submission');
 
         this.pendingSpecies = pendingSpecies;
 

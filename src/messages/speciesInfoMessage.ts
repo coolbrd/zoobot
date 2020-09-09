@@ -1,4 +1,4 @@
-import { InteractiveMessage } from "./interactiveMessage";
+import { InteractiveMessage, InteractiveMessageHandler } from "./interactiveMessage";
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
@@ -12,8 +12,8 @@ export class SpeciesInfoMessage extends InteractiveMessage {
     // Whether the info message is displaying a large image, or the species' details
     private pictureMode = true;
 
-    public constructor(channel: TextChannel | DMChannel, species: Document) {
-        super(channel, { buttons: [
+    public constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, species: Document) {
+        super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
                 emoji: '⬅️'

@@ -7,6 +7,7 @@ import { reactionInput, betterSend, safeDeleteMessage, arrayToLowerCase } from '
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
 import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../utility/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
+import { interactiveMessageHandler } from '..';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -96,7 +97,7 @@ export class SubmitSpeciesCommand implements Command {
         const document = new EditableDocument(skeleton);
 
         // Create and send an editable document for the user's new species submission
-        const submissionMessage = new EditableDocumentMessage(channel, document, 'new submission');
+        const submissionMessage = new EditableDocumentMessage(interactiveMessageHandler, channel, document, 'new submission');
         submissionMessage.send();
 
         // When the message reaches its time limit

@@ -1,6 +1,6 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
 
-import { InteractiveMessage } from './interactiveMessage';
+import { InteractiveMessage, InteractiveMessageHandler } from './interactiveMessage';
 
 // A message that allows an array of embeds to be linearly browsed
 export default class EmbedBookMessage extends InteractiveMessage {
@@ -9,8 +9,8 @@ export default class EmbedBookMessage extends InteractiveMessage {
     // The current index of the book to display
     private page: number;
 
-    constructor(channel: TextChannel | DMChannel, book: MessageEmbed[]) {
-        super(channel, { buttons: [
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, book: MessageEmbed[]) {
+        super(handler, channel, { buttons: [
             {
                 name: 'pageLeft',
                 emoji: '⬅️',

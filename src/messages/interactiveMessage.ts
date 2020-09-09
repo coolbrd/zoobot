@@ -1,17 +1,36 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed, RateLimitData } from 'discord.js';
+import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed, RateLimitData, Client } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
 import { EventEmitter } from 'events';
+import { interactiveMessageHandler } from '..';
 
 // The static bot-wide handler for interactive messages
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.
 // I don't want users to have to press every button twice to get anything to happen
 export class InteractiveMessageHandler {
     // The shared list of every active interactive message to handle
-    private static readonly messages = new Map<string, InteractiveMessage>();
+    private readonly messages = new Map<string, InteractiveMessage>();
+
+    public constructor(client: Client) {
+        // When the bot observes a user adding a reaction to a message
+        client.on('messageReactionAdd', (messageReaction, user) => {
+            // Handle the user's reaction
+            this.handleReaction(messageReaction, user);
+        });
+
+        // When the bot observes a user removing a reaction from a message
+        client.on('messageReactionRemove', (messageReaction, user) => {
+            // Handle the user's reaction
+            this.handleReaction(messageReaction, user);
+        });
+
+        client.on('rateLimit', info => {
+            this.handleRateLimit(info);
+        });
+    }
 
     // Takes a user's message reaction and potentially activates an interactive message
-    public static async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<undefined> {
+    public async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<undefined> {
         // If the user who reacted to something is a bot, or not a complete user
         if (user.bot || user.partial) {
             // Ignore the reaction entirely
@@ -47,7 +66,7 @@ export class InteractiveMessageHandler {
     }
 
     // Takes rate limit info, and applies a rate limit to an interactive message if necessary
-    public static handleRateLimit(info: RateLimitData): void {
+    public handleRateLimit(info: RateLimitData): void {
         // If the rate limit is not for an edit operatoin on a message
         if (info.method !== 'patch' || !info.path.includes('messages')) {
             return;
@@ -57,7 +76,7 @@ export class InteractiveMessageHandler {
         const id = info.path.slice(info.path.length - 18, info.path.length);
 
         // Check if that message is an interactive message
-        const interactiveMessage = InteractiveMessageHandler.messages.get(id);
+        const interactiveMessage = this.messages.get(id);
         // Apply a rate limit to any message that was found with that id
         if (interactiveMessage) {
             interactiveMessage.applyRateLimit(info.timeout);
@@ -65,13 +84,13 @@ export class InteractiveMessageHandler {
     }
 
     // Adds an existing interactive message to the global collection of them
-    public static addMessage(interactiveMessage: InteractiveMessage): void {
+    public addMessage(interactiveMessage: InteractiveMessage): void {
         // Only add the message to the map of active messages if its message has been sent
         interactiveMessage.isSent() && this.messages.set(interactiveMessage.getMessage().id, interactiveMessage);
     }
 
     // Removes an interactive message from the global collection
-    public static removeMessage(interactiveMessage: InteractiveMessage): void {
+    public removeMessage(interactiveMessage: InteractiveMessage): void {
         // Only attempt to delete the message from the map of active messages if its message has been send
         interactiveMessage.isSent() && this.messages.delete(interactiveMessage.getMessage().id);
     }
@@ -90,6 +109,8 @@ interface EmojiButton {
 // I considered re-writing this without that class, but awaitReaction doesn't (to my knowledge) provide me with the same level of control that this method does.
 // If there are any serious concerns about this way of handling message reactions, I'd love to hear about it.
 export class InteractiveMessage extends EventEmitter {
+    private readonly handler: InteractiveMessageHandler;
+
     // The text channel that the message will be sent in
     protected readonly channel: TextChannel | DMChannel;
     // The content of the message to display on the message
@@ -124,6 +145,7 @@ export class InteractiveMessage extends EventEmitter {
     protected deactivationText: string;
 
     constructor(
+        handler: InteractiveMessageHandler,
         channel: TextChannel | DMChannel,
         options?: {
             content?: APIMessage,
@@ -134,6 +156,9 @@ export class InteractiveMessage extends EventEmitter {
         }
     ){
         super();
+
+        // Assign this message's handler
+        this.handler = handler;
 
         // Assign channel
         this.channel = channel;
@@ -364,7 +389,7 @@ export class InteractiveMessage extends EventEmitter {
         this.sent = true;
 
         // Add this message to the map of other interactive messages
-        InteractiveMessageHandler.addMessage(this);
+        this.handler.addMessage(this);
 
         // Iterate over every button's emoji
         for await (const button of this.buttons.values()) {
@@ -432,6 +457,6 @@ export class InteractiveMessage extends EventEmitter {
         this.timer && clearTimeout(this.timer);
 
         // Remove the message from the handler's list
-        InteractiveMessageHandler.removeMessage(this);
+        this.handler.removeMessage(this);
     }
 }

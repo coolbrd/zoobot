@@ -3,6 +3,7 @@ import CommandParser from "../utility/commandParser";
 import { Species } from "../models/species";
 import { betterSend } from "../utility/toolbox";
 import { SpeciesInfoMessage } from "../messages/speciesInfoMessage";
+import { interactiveMessageHandler } from "..";
 
 export class SpeciesInfoCommand implements Command {
     public readonly commandNames = ['info', 'i', 'search'];
@@ -26,7 +27,7 @@ export class SpeciesInfoCommand implements Command {
         }
 
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(channel, speciesDocument);
+        const infoMessage = new SpeciesInfoMessage(interactiveMessageHandler, channel, speciesDocument);
         infoMessage.send();
     }
 }

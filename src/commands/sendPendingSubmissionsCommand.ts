@@ -4,7 +4,7 @@ import Command from './commandInterface';
 import CommandParser from '../utility/commandParser';
 import { betterSend, capitalizeFirstLetter } from '../utility/toolbox';
 import { PendingSpecies } from '../models/pendingSpecies';
-import { client } from '..';
+import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
 //import { ADMIN_SERVER_ID } from '../config/secrets';
 
@@ -70,7 +70,7 @@ export class SendPendingSubmissionsCommand implements Command {
         }
 
         // Send the embed book
-        const embedBookMessage = new EmbedBookMessage(channel, embedBook);
+        const embedBookMessage = new EmbedBookMessage(interactiveMessageHandler, channel, embedBook);
         embedBookMessage.send();
     }
 }

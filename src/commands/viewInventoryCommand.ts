@@ -1,6 +1,7 @@
 import Command from "./commandInterface";
 import CommandParser from "../utility/commandParser";
 import { InventoryMessage } from "../messages/inventoryMessage";
+import { interactiveMessageHandler } from "..";
 
 export class ViewInventoryCommand implements Command {
     commandNames = ['inventory', 'inv', 'vi'];
@@ -10,7 +11,7 @@ export class ViewInventoryCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const inventoryMessage = new InventoryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
+        const inventoryMessage = new InventoryMessage(interactiveMessageHandler, parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
         inventoryMessage.send();
     }
 }

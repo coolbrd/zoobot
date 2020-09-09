@@ -1,6 +1,6 @@
 import { MessageEmbed, TextChannel, User, DMChannel } from 'discord.js';
 
-import { InteractiveMessage } from './interactiveMessage';
+import { InteractiveMessage, InteractiveMessageHandler } from './interactiveMessage';
 import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 import { PointedArray } from '../utility/pointedArray';
@@ -16,9 +16,9 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
     private editEmoji: string;
 
-    constructor(channel: TextChannel | DMChannel, document: EditableDocument, alias?: string, lifetime?: number) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, document: EditableDocument, alias?: string, lifetime?: number) {
         const editEmoji = '✏️';
-        super(channel, { buttons: [
+        super(handler, channel, { buttons: [
             {
                 name: 'pointerUp',
                 emoji: '⬆️',

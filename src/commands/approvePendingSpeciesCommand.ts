@@ -5,6 +5,7 @@ import { betterSend, arrayToLowerCase } from '../utility/toolbox';
 import { SimpleDocument } from '../utility/editableDocument';
 import { Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
+import { interactiveMessageHandler } from '..';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {
@@ -30,7 +31,7 @@ export class ApprovePendingSpeciesCommand implements Command {
         }
 
         // Create a new approval message from the found document and send it
-        const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpecies);
+        const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpecies);
         approvalMessage.send();
 
         // When the message's time limit is reached

@@ -3,6 +3,7 @@ import { TextChannel } from 'discord.js';
 import { Species } from '../models/species';
 import EncounterMessage from '../messages/encountermessage';
 import { Document } from 'mongoose';
+import { interactiveMessageHandler } from '..';
 
 // Spawn an animal encounter in a given server
 export async function spawnAnimal(channel: TextChannel): Promise<void> {
@@ -24,7 +25,7 @@ export async function spawnAnimal(channel: TextChannel): Promise<void> {
 
     try {
         // Send an encounter message to the channel
-        const encounterMessage = new EncounterMessage(channel, species);
+        const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, species);
         await encounterMessage.send();
     }
     catch (error) {

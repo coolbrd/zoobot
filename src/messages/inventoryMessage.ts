@@ -1,4 +1,4 @@
-import { InteractiveMessage } from "./interactiveMessage";
+import { InteractiveMessage, InteractiveMessageHandler } from "./interactiveMessage";
 import { TextChannel, DMChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { Animal } from "../models/animal";
@@ -11,8 +11,8 @@ export class InventoryMessage extends InteractiveMessage {
 
     private page = 0;
 
-    public constructor(channel: TextChannel | DMChannel, user: User) {
-        super(channel, { buttons: [
+    public constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, user: User) {
+        super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
                 emoji: '⬅️'
