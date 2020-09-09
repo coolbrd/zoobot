@@ -60,6 +60,10 @@ client.on('messageReactionRemove', (messageReaction, user) => {
     InteractiveMessageHandler.handleReaction(messageReaction, user);
 });
 
+client.on('rateLimit', info => {
+    InteractiveMessageHandler.handleRateLimit(info);
+})
+
 // When the bot encounters an error
 client.on('error', error => console.error('Discord client error: ', error));
 

@@ -1,4 +1,4 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
+import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed, RateLimitData } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
 import { EventEmitter } from 'events';
@@ -46,6 +46,24 @@ export class InteractiveMessageHandler {
         }
     }
 
+    // Takes rate limit info, and applies a rate limit to an interactive message if necessary
+    public static handleRateLimit(info: RateLimitData): void {
+        // If the rate limit is not for an edit operatoin on a message
+        if (info.method !== 'patch' || !info.path.includes('messages')) {
+            return;
+        }
+    
+        // Get the message's id from the rate limit info
+        const id = info.path.slice(info.path.length - 18, info.path.length);
+
+        // Check if that message is an interactive message
+        const interactiveMessage = InteractiveMessageHandler.messages.get(id);
+        // Apply a rate limit to any message that was found with that id
+        if (interactiveMessage) {
+            interactiveMessage.applyRateLimit(info.timeout);
+        }
+    }
+
     // Adds an existing interactive message to the global collection of them
     public static addMessage(interactiveMessage: InteractiveMessage): void {
         // Only add the message to the map of active messages if its message has been sent
@@ -88,6 +106,9 @@ export class InteractiveMessage extends EventEmitter {
     private message: Message | undefined;
     // Whether or not the message has been sent
     private sent = false;
+
+    // Whether or not the message can be edited (due to Discord rate limits)
+    private rateLimited = false;
     
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
@@ -165,6 +186,15 @@ export class InteractiveMessage extends EventEmitter {
         }
     }
 
+    // Applies a rate limit to the message, preventing it from being edited until the limit expires
+    public applyRateLimit(timeout: number): void {
+        this.rateLimited = true;
+
+        setTimeout(() => {
+           this.rateLimited = false; 
+        }, timeout);
+    }
+
     // Sets the embed of the message and edits it (if possible)
     protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
         // Don't allow changes to the message if it's deactivated
@@ -173,10 +203,16 @@ export class InteractiveMessage extends EventEmitter {
         }
 
         // Assign the message's new embed
-        this.content = new APIMessage(this.channel, { embed: newEmbed });
+        const newContent = new APIMessage(this.channel, { embed: newEmbed });
 
+        // Don't edit the message if the rate limit has been hit
+        if (this.rateLimited) {
+            return;
+        }
+
+        this.content = newContent
         // If this instance's message has been sent, edit it to reflect the changes
-        this.message && this.message.edit(newEmbed);
+        this.message && this.message.edit(this.content);
     }
 
     protected setDeactivationText(newText: string): void {
