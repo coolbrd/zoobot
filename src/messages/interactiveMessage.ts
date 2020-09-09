@@ -2,7 +2,6 @@ import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, D
 
 import { betterSend } from '../utility/toolbox';
 import { EventEmitter } from 'events';
-import { interactiveMessageHandler } from '..';
 
 // The static bot-wide handler for interactive messages
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react.
@@ -55,6 +54,11 @@ export class InteractiveMessageHandler {
             return;
         }
         // If we're down here it means the reaction added was a valid button
+
+        // Don't apply a button press if the message is rate limited
+        if (interactiveMessage.rateLimited) {
+            return;
+        }
 
         try {
             // Activate the message's button that corresponds to the emoji reacted with
@@ -129,7 +133,7 @@ export class InteractiveMessage extends EventEmitter {
     private sent = false;
 
     // Whether or not the message can be edited (due to Discord rate limits)
-    private rateLimited = false;
+    public rateLimited = false;
     
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
