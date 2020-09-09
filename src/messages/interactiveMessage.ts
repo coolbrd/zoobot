@@ -56,7 +56,7 @@ export class InteractiveMessageHandler {
         // If we're down here it means the reaction added was a valid button
 
         // Don't apply a button press if the message is rate limited
-        if (interactiveMessage.rateLimited) {
+        if (interactiveMessage.isRateLimited()) {
             return;
         }
 
@@ -133,7 +133,7 @@ export class InteractiveMessage extends EventEmitter {
     private sent = false;
 
     // Whether or not the message can be edited (due to Discord rate limits)
-    public rateLimited = false;
+    private rateLimited = false;
     
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
@@ -346,6 +346,10 @@ export class InteractiveMessage extends EventEmitter {
 
     public isSent(): boolean {
         return this.sent;
+    }
+
+    public isRateLimited(): boolean {
+        return this.rateLimited;
     }
 
     public getMessage(): Message {
