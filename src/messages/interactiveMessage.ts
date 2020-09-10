@@ -339,6 +339,9 @@ export class InteractiveMessage extends EventEmitter {
 
     // Sets the embed of the message and edits it (if possible)
     protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
+        // Whether or not (before this message is edited) the message is already ready to send (or already sent)
+        const readyToSend = this.isSent() || this.readyToSend();
+
         // Don't allow changes to the message if it's deactivated
         if (this.deactivated) {
             return;
@@ -355,6 +358,12 @@ export class InteractiveMessage extends EventEmitter {
         this.content = newContent
         // If this instance's message has been sent, edit it to reflect the changes
         this.isSent() && this.getMessage().edit(this.content);
+
+        // If the message was previously unsent and not ready to send, but is ready now
+        if (!readyToSend && this.readyToSend) {
+            // Emit the ready event, so messages initialized with async build actions in their constructors get sent now
+            this.emit('readyToSend');
+        }
     }
 
     // Checks if the message already has a button with a given name or emoji (making the given info ineligable for addition)
