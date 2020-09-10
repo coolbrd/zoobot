@@ -479,7 +479,7 @@ export class InteractiveMessage extends EventEmitter {
         const message = this.getMessage();
 
         // If the message is sent, it has an embed, and it has deactivation text to add
-        if (this.isSent() && message.embeds && this.deactivationText) {
+        if (this.isSent() && message.embeds.length > 0 && this.deactivationText) {
             // Get the displayed embed of the message
             const embed = message.embeds[0];
             // Get the embed's footer as it currently is
@@ -511,6 +511,9 @@ export class InteractiveMessage extends EventEmitter {
 
         // Remove the message from the handler's list
         this.handler.removeMessage(this);
+
+        // Remove all listeners from this message
+        this.removeAllListeners();
     }
 
     // Applies a rate limit to the message, preventing it from being edited until the limit expires
