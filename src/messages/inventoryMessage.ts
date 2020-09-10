@@ -54,6 +54,10 @@ export class InventoryMessage extends InteractiveMessage {
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
 
+        if (this.inventory.length < 1) {
+            return embed;
+        }
+
         embed.setThumbnail(this.inventory[0].get('species').get('images')[this.inventory[0].get('image')].get('url'));
 
         let inventoryString = '';
