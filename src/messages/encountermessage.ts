@@ -8,22 +8,31 @@ import { Animal } from '../models/animal';
 import { Document } from 'mongoose';
 
 // An interactive message that will represent an animal encounter
-// The primary way for users to collect new animals
 export default class EncounterMessage extends InteractiveMessage {
+    // Override base channel field, because EncounterMessage can only be sent in TextChannels
+    protected readonly channel: TextChannel;
+
     // The species of the animal contained within this encounter
     private readonly species: Document;
+    // The image chosen to be displayed for this animal encounter
     private readonly imageIndex: number;
 
     constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: Document) {
         const embed = new SmartEmbed();
+        // Color the encounter's embed properly
         embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
+
         embed.setTitle(capitalizeFirstLetter(species.get('commonNames')[0]));
+
         embed.addField('――――――――', capitalizeFirstLetter(species.get('scientificName')), true);
 
+        // Pick a random image from the animal's set of images
         const imageIndex = Math.floor(Math.random() * species.get('images').length);
+        // Get the image of the determined index
         const image = species.get('images')[imageIndex];
         embed.setImage(image.url);
 
+        // Add the breed field if it's there
         if (image.breed) {
             embed.addField('Breed', capitalizeFirstLetter(image.breed), true);
         }
@@ -41,6 +50,7 @@ export default class EncounterMessage extends InteractiveMessage {
             },
             deactivationText: '(fled)'
         });
+        this.channel = channel;
         this.species = species;
         this.imageIndex = imageIndex;
     }
@@ -57,6 +67,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const animal = new Animal({
             species: this.species._id,
             owner: user.id,
+            server: this.channel.guild.id,
             image: this.imageIndex,
             experience: 0
         });

@@ -10,6 +10,10 @@ export const animalSchema = new Schema({
         type: String,
         required: true
     },
+    server: {
+        type: String,
+        required: true
+    },
     image: {
         type: Number,
         required: true
