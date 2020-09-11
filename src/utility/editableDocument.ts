@@ -1,8 +1,8 @@
 import clone from "clone";
+import { Schema } from "mongoose";
 
 import { PointedArray } from "./pointedArray";
 import { capitalizeFirstLetter } from "./toolbox";
-import { Schema } from "mongoose";
 
 type EditableDocumentPrimitive = string | number | boolean;
 

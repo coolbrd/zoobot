@@ -1,5 +1,6 @@
-import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { TextChannel, MessageEmbed, User } from "discord.js";
+
+import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { Animal, AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/toolbox";

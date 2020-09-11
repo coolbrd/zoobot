@@ -1,7 +1,8 @@
-import EditableDocumentMessage from './editableDocumentMessage';
 import { DMChannel, TextChannel, User } from 'discord.js';
-import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
+
+import EditableDocumentMessage from './editableDocumentMessage';
+import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { speciesSchema } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 

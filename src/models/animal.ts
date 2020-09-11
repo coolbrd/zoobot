@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+
 import { ImageSubObject, Species, SpeciesObject } from './species';
 
 export const animalSchema = new Schema({

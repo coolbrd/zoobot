@@ -1,8 +1,8 @@
 import { TextChannel } from 'discord.js';
+import { Schema } from 'mongoose';
 
 import { Species, SpeciesObject } from '../models/species';
 import EncounterMessage from '../messages/encountermessage';
-import { Schema } from 'mongoose';
 import { interactiveMessageHandler } from '..';
 import { getWeightedRandom } from '../utility/toolbox';
 
