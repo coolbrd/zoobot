@@ -1,5 +1,5 @@
 import { InteractiveMessage, InteractiveMessageHandler } from "./interactiveMessage";
-import { TextChannel, DMChannel, MessageEmbed, User } from "discord.js";
+import { TextChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { Animal } from "../models/animal";
 import { Document } from "mongoose";
@@ -13,7 +13,7 @@ export class InventoryMessage extends InteractiveMessage {
     private page = 0;
     private animalsPerPage = 10;
 
-    public constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, user: User) {
+    public constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
@@ -31,8 +31,8 @@ export class InventoryMessage extends InteractiveMessage {
 
         this.user = user;
 
-        // Get the user's inventory of animals
-        Animal.find({ owner: this.user.id }).populate('species').exec((error, result) => {
+        // Get the user's inventory of animals in the current server
+        Animal.find({ owner: this.user.id, server: channel.guild.id }).populate('species').exec((error, result) => {
             if (error) {
                 console.error('There was an error finding a user\'s collection of animals.');
                 return;
