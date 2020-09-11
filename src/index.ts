@@ -2,9 +2,9 @@ import Discord, { Message } from 'discord.js';
 import mongoose from 'mongoose';
 
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
-import CommandHandler from './commandHandler';
 import config from './config/botConfig';
-import { EncounterHandler } from './zoo/encounter';
+import CommandHandler from './commandHandler';
+import EncounterHandler from './zoo/encounterHandler';
 import InteractiveMessageHandler from './interactiveMessage/interactiveMessageHandler';
 
 // Create a new client for the bot to use
@@ -35,6 +35,25 @@ function complete() {
     }
 }
 
+// Connect to the MongoDB database
+mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log('MongoDB connected');
+    // Indicate that the bot has logged into the database
+    databaseLoaded = true;
+    complete();
+
+    // Now try to load the species rarity table
+    encounterHandler.loadRarityTable().then(() => {
+        console.log('Rarity table loaded');
+    
+        rarityTableLoaded = true;
+        complete();
+    })
+}).catch(error => {
+    // If there was an error connecting
+    console.error('MongoDB connection error: ', error)
+});
+
 // When the bot is ready to receive input
 client.on('ready', () => {
     console.log('Logged into Discord');
@@ -61,22 +80,3 @@ client.on('error', error => console.error('Discord client error: ', error));
 
 // Log the bot into the discord client with the provided token
 client.login(DISCORD_TOKEN);
-
-// Connect to the MongoDB database
-mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
-        console.log('MongoDB connected');
-        // Indicate that the bot has logged into the database
-        databaseLoaded = true;
-        complete();
-
-        // Now try to load the species rarity table
-        encounterHandler.loadRarityTable().then(() => {
-            console.log('Species rarity table loaded');
-        
-            rarityTableLoaded = true;
-            complete();
-        });
-    }).catch(error => {
-        // If there was an error connecting
-        console.error('MongoDB connection error: ', error)
-});

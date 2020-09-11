@@ -7,7 +7,7 @@ import { interactiveMessageHandler } from '..';
 import { getWeightedRandom } from '../utility/toolbox';
 
 // A handler class that deals with creating encounters with species from the total set
-export class EncounterHandler {
+export default class EncounterHandler {
     // The map of id and rarity pairs that will determine how common each species is
     private rarityMap: Map<Schema.Types.ObjectId, number> = new Map();
 
