@@ -1,6 +1,6 @@
 import { TextChannel } from 'discord.js';
 
-import { Species } from '../models/species';
+import { Species, SpeciesObject } from '../models/species';
 import EncounterMessage from '../messages/encountermessage';
 import { Schema } from 'mongoose';
 import { interactiveMessageHandler } from '..';
@@ -33,16 +33,16 @@ export class EncounterHandler {
         }
 
         // Get a weighted random species from the rarity map, and convert it to a species document
-        const species = await Species.findById(getWeightedRandom(this.rarityMap));
+        const speciesDocument = await Species.findById(getWeightedRandom(this.rarityMap));
 
         // If somehow no species by that id was found
-        if (!species) {
+        if (!speciesDocument) {
             throw new Error('No species was found by a given id from the encounter rarity table.');
         }
 
         try {
             // Send an encounter message to the channel
-            const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, species);
+            const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, new SpeciesObject(speciesDocument));
             await encounterMessage.send();
         }
         catch (error) {

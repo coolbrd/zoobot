@@ -1,14 +1,15 @@
-import { InteractiveMessage, InteractiveMessageHandler } from "./interactiveMessage";
+import InteractiveMessage from "./interactiveMessage";
 import { TextChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
-import { Animal } from "../models/animal";
-import { Document } from "mongoose";
+import { Animal, AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/toolbox";
+import InteractiveMessageHandler from "./interactiveMessageHandler";
 
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
+    protected readonly channel: TextChannel;
 
-    private readonly inventory: Document[] = [];
+    private readonly inventory: AnimalObject[] = [];
 
     private page = 0;
     private animalsPerPage = 10;
@@ -30,22 +31,37 @@ export class InventoryMessage extends InteractiveMessage {
         ]});
 
         this.user = user;
+        this.channel = channel;
+    }
+
+    // Pre-send build logic
+    public async build(): Promise<void> {
+        super.build();
 
         // Get the user's inventory of animals in the current server
-        Animal.find({ owner: this.user.id, server: channel.guild.id }).populate('species').exec((error, result) => {
-            if (error) {
-                console.error('There was an error finding a user\'s collection of animals.');
-                return;
-            }
+        const animalDocuments = await Animal.find({ owner: this.user.id, server: this.channel.guild.id });
 
-            // Add each animal to the message's inventory as simple animal objects
-            result.forEach(animal => {
-                this.inventory.push(animal);
-            });
+        // Iterate over every document returned
+        for (const animalDocument of animalDocuments) {
+            // Convert the document to an object
+            const animalObject = new AnimalObject(animalDocument);
+            
+            // Load the animal's species and image
+            await animalObject.populateSpecies();
+            await animalObject.populateImage();
+            
+            // Add the new animal object
+            this.inventory.push(animalObject);
+        }
 
-            // Only build the embed after the inventory has been formed
-            this.setEmbed(this.buildEmbed());
-        });
+        // If there's at least one animal in the user's inventory
+        if (this.inventory.length > 0) {
+            // Load that animal's image
+            await this.inventory[0].populateImage();
+        }
+
+        // Only build the embed after the inventory has been formed
+        this.setEmbed(this.buildEmbed());
     }
 
     private buildEmbed(): MessageEmbed {
@@ -58,7 +74,7 @@ export class InventoryMessage extends InteractiveMessage {
             return embed;
         }
 
-        embed.setThumbnail(this.inventory[0].get('species').get('images')[this.inventory[0].get('image')].get('url'));
+        embed.setThumbnail(this.inventory[0].getImage().url);
 
         let inventoryString = '';
         // Start the current page's display at the appropriate position
@@ -68,11 +84,11 @@ export class InventoryMessage extends InteractiveMessage {
             // Get the currently iterated animal in the user's inventory
             const animal = this.inventory[inventoryIndex];
 
-            const species = animal.get('species');
+            const species = animal.getSpecies();
 
-            const firstName = species.get('commonNames')[0];
+            const firstName = species.commonNames[0];
 
-            const breed = species.get('images')[animal.get('image')].breed || undefined;
+            const breed = animal.getImage().breed;
             const breedText = breed ? `(${breed})` : '';
 
             inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}\n`;

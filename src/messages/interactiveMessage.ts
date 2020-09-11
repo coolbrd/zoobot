@@ -1,112 +1,8 @@
-import { Message, MessageReaction, PartialUser, User, TextChannel, APIMessage, DMChannel, MessageEmbed, RateLimitData, Client } from 'discord.js';
+import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
 
 import { betterSend } from '../utility/toolbox';
 import { EventEmitter } from 'events';
-
-// A handler class for managing groups of InteractiveMessages
-// I haven't found a reason to ever make more than one that's used throughout the entire bot... yet
-// I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react
-// I don't want users to have to press every button twice to get anything to happen
-export class InteractiveMessageHandler {
-    // The map of all interactive messages that this handler is managing
-    private readonly messages = new Map<string, InteractiveMessage>();
-
-    // Needs a Discord client instance so it can listen for events
-    public constructor(client: Client) {
-        // When the client observes a user adding a reaction to a message
-        client.on('messageReactionAdd', (messageReaction, user) => {
-            // Handle the user's reaction
-            this.handleReaction(messageReaction, user);
-        });
-
-        // When the client observes a user removing a reaction from a message
-        client.on('messageReactionRemove', (messageReaction, user) => {
-            // Handle the user's reaction (same as a reaction being added)
-            this.handleReaction(messageReaction, user);
-        });
-
-        // When the client gets rate limited because something is happening too fast
-        client.on('rateLimit', info => {
-            // Handle the rate limit info (in the context of interactive messages)
-            this.handleRateLimit(info);
-        });
-    }
-
-    // Takes a user's message reaction and potentially activates an interactive message
-    private async handleReaction(messageReaction: MessageReaction, user: User | PartialUser): Promise<void> {
-        // If the user who reacted to something is a bot, or not a complete user
-        if (user.bot || user.partial) {
-            // Ignore the reaction entirely
-            // No bots allowed because buttons could be abused, and no partial users because they don't contain all necessary user info
-            return;
-        }
-
-        // Check the map of interactive messages for a message with the id of the one reacted to
-        const interactiveMessage = this.messages.get(messageReaction.message.id);
-
-        // If no message was found, don't try to do anything else
-        if (!interactiveMessage) {
-            // This is going to happen a lot, considering most reactions presumably won't be on one of these special messages
-            return;
-        }
-
-        // Get the emoji that was used to react
-        const emojiString = messageReaction.emoji.toString();
-
-        // If the reaction added to the message isn't an active button on the message
-        if (!interactiveMessage.getActiveButtonEmojis().includes(emojiString)) {
-            // Don't do anything with the reaction, either the button doesn't exist or its deactivated
-            return;
-        }
-        // If we're down here it means the reaction added was a valid button
-
-        // If the message is rate limited, don't apply the button press
-        // This is to prevent bottlenecked messages from accepting input but not processing it until the limit is over
-        if (interactiveMessage.isRateLimited()) {
-            return;
-        }
-
-        try {
-            // Activate the message's button that corresponds to the emoji reacted with
-            interactiveMessage.emojiPress(emojiString, user);
-        }
-        catch (error) {
-            console.error('Error activating an interactive message\'s button.', error);
-        }
-    }
-
-    // Takes rate limit info, and applies a rate limit to an interactive message if necessary
-    public handleRateLimit(info: RateLimitData): void {
-        // If the rate limit is not for an edit operation on a message
-        if (info.method !== 'patch' || !info.path.includes('messages')) {
-            return;
-        }
-    
-        // Get the message's id from the rate limit info (always the last 18 characters)
-        const id = info.path.slice(info.path.length - 18, info.path.length);
-
-        // Check if that message is an interactive message
-        const interactiveMessage = this.messages.get(id);
-
-        // Don't do anything if the message isn't interactive
-        if (!interactiveMessage) {
-            return
-        }
-
-        // Apply the a rate limit for the given amount of time on the appropriate message
-        interactiveMessage.applyRateLimit(info.timeout);
-    }
-
-    // Adds an existing interactive message to the global collection of them
-    public addMessage(interactiveMessage: InteractiveMessage): void {
-        this.messages.set(interactiveMessage.getMessage().id, interactiveMessage);
-    }
-
-    // Removes an interactive message from the global collection
-    public removeMessage(interactiveMessage: InteractiveMessage): void {
-        this.messages.delete(interactiveMessage.getMessage().id);
-    }
-}
+import InteractiveMessageHandler from './interactiveMessageHandler';
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance
 interface EmojiButton {
@@ -117,7 +13,7 @@ interface EmojiButton {
 }
 
 // A message with pressable reaction buttons
-export class InteractiveMessage extends EventEmitter {
+export default class InteractiveMessage extends EventEmitter {
     // This message's handler class, responsible for sending the message button press actions
     private readonly handler: InteractiveMessageHandler;
 
@@ -138,6 +34,8 @@ export class InteractiveMessage extends EventEmitter {
     private message: Message | undefined;
     // Whether or not the message has been sent
     private sent = false;
+    // Whether or not the message has been initially built
+    private built = false;
     // Whether or not the message can be edited (due to Discord rate limits)
     // This is mostly handled automatically by Discord.js, but I wanted to limit the control over messages that are rate limited
     private rateLimited = false;
@@ -235,6 +133,11 @@ export class InteractiveMessage extends EventEmitter {
         return this.sent;
     }
 
+    // Whether or not the message has been initially built (only used for pre-send behavior)
+    public isBuilt(): boolean {
+        return this.built;
+    }
+
     // Whether or not the message is currently rate limited
     public isRateLimited(): boolean {
         return this.rateLimited;
@@ -275,7 +178,7 @@ export class InteractiveMessage extends EventEmitter {
     }
 
     // Sends the message and adds its necessary reaction buttons
-    private async sendAndBuild(): Promise<void> {
+    private async sendAndAddButtons(): Promise<void> {
         // If the message hasn't had its content initialized
         if (!this.content) {
             throw new Error('Tried to send an interactive message with no content');
@@ -310,12 +213,26 @@ export class InteractiveMessage extends EventEmitter {
         this.timer = this.setTimer();
     }
 
+    // Optional base method for asynchronous pre-send message building logic
+    // Especially useful for requiring async behavior before the message is sent that can't be put in the constructor
+    // Can also be used to continually update the message as conditions change
+    public async build(): Promise<void> {
+        // Indicate that the message has been built
+        this.built = true;
+    }
+
     // The method for sending this message once it's ready
     public async send(): Promise<void> {
+        // If the message hasn't been built, build it
+        // This is only here as a courtesy, potentially re-building the message before sending it wouldn't hurt anything (presumably)
+        if (!this.built) {
+            await this.build();
+        }
+
         // If the message is already prepared for sending
         if (this.readyToSend()) {
             // Send the message and build it
-            this.sendAndBuild();
+            this.sendAndAddButtons();
         }
         // If the message isn't yet prepared to send
         else {
@@ -326,7 +243,7 @@ export class InteractiveMessage extends EventEmitter {
                     throw new Error('readyToSend event emitted before message is actually ready to send.');
                 }
                 // Send and build the message now that it's actually ready for that
-                this.sendAndBuild();
+                this.sendAndAddButtons();
             });
         }
     }

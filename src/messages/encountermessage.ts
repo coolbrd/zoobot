@@ -1,11 +1,12 @@
 import { TextChannel, User, APIMessage } from 'discord.js';
 
-import { InteractiveMessage, InteractiveMessageHandler } from './interactiveMessage';
+import InteractiveMessage from './interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
 import { SmartEmbed } from '../utility/smartEmbed';
 import { Animal } from '../models/animal';
-import { Document } from 'mongoose';
+import { SpeciesObject } from '../models/species';
+import InteractiveMessageHandler from './interactiveMessageHandler';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -13,23 +14,23 @@ export default class EncounterMessage extends InteractiveMessage {
     protected readonly channel: TextChannel;
 
     // The species of the animal contained within this encounter
-    private readonly species: Document;
+    private readonly species: SpeciesObject;
     // The image chosen to be displayed for this animal encounter
     private readonly imageIndex: number;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: Document) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: SpeciesObject) {
         const embed = new SmartEmbed();
         // Color the encounter's embed properly
         embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
 
-        embed.setTitle(capitalizeFirstLetter(species.get('commonNames')[0]));
+        embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
 
-        embed.addField('――――――――', capitalizeFirstLetter(species.get('scientificName')), true);
+        embed.addField('――――――――', capitalizeFirstLetter(species.scientificName), true);
 
         // Pick a random image from the animal's set of images
-        const imageIndex = Math.floor(Math.random() * species.get('images').length);
+        const imageIndex = Math.floor(Math.random() * species.images.length);
         // Get the image of the determined index
-        const image = species.get('images')[imageIndex];
+        const image = species.images[imageIndex];
         embed.setImage(image.url);
 
         // Add the breed field if it's there
@@ -61,14 +62,14 @@ export default class EncounterMessage extends InteractiveMessage {
         const message = this.getMessage();
 
         // Indicate that the user has caught the animal
-        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.get('commonNames')[0]}!`);
+        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
         this.setDeactivationText('(caught)');
 
         const animal = new Animal({
             species: this.species._id,
             owner: user.id,
             server: this.channel.guild.id,
-            image: this.imageIndex,
+            image: this.species.images[this.imageIndex]._id,
             experience: 0
         });
 
