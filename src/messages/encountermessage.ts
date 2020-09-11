@@ -1,12 +1,12 @@
 import { TextChannel, User, APIMessage } from 'discord.js';
 
-import InteractiveMessage from './interactiveMessage';
+import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
 import { client } from '..';
 import { SmartEmbed } from '../utility/smartEmbed';
 import { Animal } from '../models/animal';
 import { SpeciesObject } from '../models/species';
-import InteractiveMessageHandler from './interactiveMessageHandler';
+import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {

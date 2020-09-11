@@ -3,7 +3,7 @@ import { DMChannel, TextChannel, User } from 'discord.js';
 import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../utility/editableDocument';
 import { Document } from 'mongoose';
 import { speciesSchema } from '../models/species';
-import InteractiveMessageHandler from './interactiveMessageHandler';
+import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 
 export class SpeciesApprovalMessage extends EditableDocumentMessage {
     private pendingSpecies: Document;

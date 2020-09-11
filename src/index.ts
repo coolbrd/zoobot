@@ -5,7 +5,7 @@ import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import CommandHandler from './commandHandler';
 import config from './config/botConfig';
 import { EncounterHandler } from './zoo/encounter';
-import InteractiveMessageHandler from './messages/interactiveMessageHandler';
+import InteractiveMessageHandler from './interactiveMessage/interactiveMessageHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();

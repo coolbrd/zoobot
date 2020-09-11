@@ -1,10 +1,10 @@
-import InteractiveMessage from "./interactiveMessage";
+import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
 import { client } from "..";
 import { SpeciesObject } from "../models/species";
-import InteractiveMessageHandler from "./interactiveMessageHandler";
+import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 
 export class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;

@@ -1,9 +1,9 @@
-import InteractiveMessage from "./interactiveMessage";
+import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { TextChannel, MessageEmbed, User } from "discord.js";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { Animal, AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/toolbox";
-import InteractiveMessageHandler from "./interactiveMessageHandler";
+import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;

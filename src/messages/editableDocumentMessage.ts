@@ -1,11 +1,11 @@
 import { MessageEmbed, TextChannel, User, DMChannel } from 'discord.js';
 
-import InteractiveMessage from './interactiveMessage';
+import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import EditableDocument, { EditableDocumentField } from '../utility/editableDocument';
 import { capitalizeFirstLetter, betterSend, awaitUserNextMessage, safeDeleteMessage } from '../utility/toolbox';
 import { PointedArray } from '../utility/pointedArray';
 import { SmartEmbed } from '../utility/smartEmbed';
-import InteractiveMessageHandler from './interactiveMessageHandler';
+import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 
 // An interactive message that allows the user to edit and submit a configurable document
 export default class EditableDocumentMessage extends InteractiveMessage {
