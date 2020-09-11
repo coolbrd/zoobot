@@ -5,11 +5,16 @@ import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import CommandHandler from './commandHandler';
 import config from './config/botConfig';
 import { InteractiveMessageHandler } from './messages/interactiveMessage';
+import { EncounterHandler } from './zoo/encounter';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
 
+// Create the handler object for all interactive messages
 export const interactiveMessageHandler = new InteractiveMessageHandler(client);
+
+// Create the handler object for all animal encounters
+export const encounterHandler = new EncounterHandler();
 
 // Create a new commandhandler instance to parse incoming commands
 const commandHandler = new CommandHandler(config.prefix);
@@ -17,12 +22,13 @@ const commandHandler = new CommandHandler(config.prefix);
 // Flags for the bot's current initialization state
 let discordLoaded = false;
 let databaseLoaded = false;
+let rarityTableLoaded = false;
 let readyForInput = false;
 
 // Called whenever the bot completes a stage of initialization
 function complete() {
     // If all steps of initialization are complete
-    if (discordLoaded && databaseLoaded) {
+    if (discordLoaded && databaseLoaded && rarityTableLoaded) {
         // Allow the bot to receive input
         readyForInput = true;
         console.log('Ready for input');
@@ -57,14 +63,20 @@ client.on('error', error => console.error('Discord client error: ', error));
 client.login(DISCORD_TOKEN);
 
 // Connect to the MongoDB database
-mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(
-    // When a connection is established
-    () => {
+mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
         console.log('MongoDB connected');
         // Indicate that the bot has logged into the database
         databaseLoaded = true;
         complete();
-    },
-    // If there was an error connecting
-    error => console.error('MongoDB connection error: ', error)
-);
+
+        // Now try to load the species rarity table
+        encounterHandler.loadRarityTable().then(() => {
+            console.log('Species rarity table loaded');
+        
+            rarityTableLoaded = true;
+            complete();
+        });
+    }).catch(error => {
+        // If there was an error connecting
+        console.error('MongoDB connection error: ', error)
+});

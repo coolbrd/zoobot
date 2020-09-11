@@ -1,8 +1,8 @@
 import Command from "./commandInterface";
 import CommandParser from "../utility/commandParser";
-import { spawnAnimal } from "../zoo/encounter";
 import { betterSend } from "../utility/toolbox";
 import { DMChannel } from "discord.js";
+import { encounterHandler } from "..";
 
 export class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];
@@ -17,6 +17,6 @@ export class EncounterCommand implements Command {
             return;
         }
 
-        spawnAnimal(parsedUserCommand.channel);
+        encounterHandler.spawnAnimal(parsedUserCommand.channel);
     }
 }
