@@ -50,57 +50,36 @@ export class InventoryMessage extends InteractiveMessage {
     }
 
     // Pre-send build logic
-    public build(): Promise<void> {
+    public async build(): Promise<void> {
         super.build();
 
-        // Return the promise that will resolve only once the inventory is fully built
-        return new Promise(resolve => {
-            // Get the user's inventory of animals in the current server
-            Animal.find({ owner: this.user.id, server: this.channel.guild.id }).then(animalDocuments => {
-                // Iterate over every document returned
-                for (const animalDocument of animalDocuments) {
-                    // Convert the document to an object
-                    const animalObject = new AnimalObject(animalDocument);
+        const animalDocuments = await Animal.find({ owner: this.user.id, server: this.channel.guild.id });
 
-                    // Add the new animal object
-                    this.inventory.push(animalObject);
-                    
-                    // Load the animal's species and image
-                    animalObject.populateImage().then(() => {
-                        // When one animal finishes loading its info, check if all of them are done
-                        const allLoaded = !this.inventory.some(animal => {
-                            return !animal.imageLoaded();
-                        });
-
-                        // If all animals are loaded
-                        if (allLoaded) {
-                            // Only build the embed after the inventory has been formed
-                            this.setEmbed(this.buildEmbed());
-
-                            // Resolve the promies
-                            resolve();
-                        }
-                    });
-                }
-
-                // Calculate and set page count
-                this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
-            });
+        // Add every animal document to the inventory as a simpler object
+        animalDocuments.forEach(animalDocument => {
+            this.inventory.push(new AnimalObject(animalDocument));
         });
+
+        // Calculate and set page count
+        this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
+
+        this.setEmbed(await this.buildEmbed());
     }
 
-    private buildEmbed(): MessageEmbed {
+    // Build's the current page of the inventory's embed
+    // Is async because queries for each animal's species data are being made as requested, rather than initially
+    private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-            const userAvatar = this.user.avatarURL() || undefined;
-            embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
+        const userAvatar = this.user.avatarURL() || undefined;
+        embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
 
-            if (this.inventory.length < 1) {
-                return embed;
-            }
+        if (this.inventory.length < 1) {
+            return embed;
+        }
 
         if (!this.infoMode) {
-            embed.setThumbnail(this.inventory[0].getImage().url);
+            embed.setThumbnail((await this.inventory[0].getImageOnce()).url);
 
             let inventoryString = '';
             // Start the current page's display at the appropriate position
@@ -109,14 +88,15 @@ export class InventoryMessage extends InteractiveMessage {
             while (inventoryIndex < this.page * this.animalsPerPage + this.animalsPerPage && inventoryIndex < this.inventory.length) {
                 // Get the currently iterated animal in the user's inventory
                 const animal = this.inventory[inventoryIndex];
-
-                const species = animal.getSpecies();
+                const species = await animal.getSpeciesOnce();
+                const image = await animal.getImageOnce();
 
                 const firstName = species.commonNames[0];
 
-                const breed = animal.getImage().breed;
+                const breed = image.breed;
                 const breedText = breed ? `(${breed})` : '';
 
+                // The pointer text to draw on the current animal entry (if any)
                 const pointerText = inventoryIndex === this.pointerPosition ? ' 🔹' : '';
 
                 inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}${pointerText}\n`;
@@ -127,17 +107,19 @@ export class InventoryMessage extends InteractiveMessage {
         }
         else {
             const selectedAnimal = this.inventory[this.pointerPosition];
+            const species = await selectedAnimal.getSpeciesOnce();
+            const image = await selectedAnimal.getImageOnce();
 
-            embed.setThumbnail(selectedAnimal.getImage().url);
+            embed.setThumbnail(image.url);
 
-            embed.setTitle(`${capitalizeFirstLetter(selectedAnimal.getSpecies().commonNames[0])}`);
+            embed.setTitle(`${capitalizeFirstLetter(species.commonNames[0])}`);
             
-            embed.addField('Species', selectedAnimal.getSpecies().scientificName, true);
+            embed.addField('Species', species.scientificName, true);
 
-            const imageIndex = selectedAnimal.getSpecies().images.findIndex(image => {
-                return image._id.equals(selectedAnimal.getImage()._id);
+            const imageIndex = species.images.findIndex(image => {
+                return image._id.equals(image._id);
             });
-            embed.addField('Image', `${imageIndex + 1}/${selectedAnimal.getSpecies().images.length}`, true);
+            embed.addField('Image', `${imageIndex + 1}/${species.images.length}`, true);
         }
 
         return embed;
@@ -180,7 +162,7 @@ export class InventoryMessage extends InteractiveMessage {
         }
     }
 
-    public buttonPress(buttonName: string, user: User): void {
+    public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
@@ -206,6 +188,6 @@ export class InventoryMessage extends InteractiveMessage {
             }
         }
 
-        this.setEmbed(this.buildEmbed());
+        this.setEmbed(await this.buildEmbed());
     }
 }

@@ -73,6 +73,26 @@ export class AnimalObject {
         return this.image;
     }
 
+    // Asynchronously gets the animal's species, querying for it only if it has to
+    public async getSpeciesOnce(): Promise<SpeciesObject> {
+        if (this.speciesLoaded()) {
+            return this.getSpecies();
+        }
+        else {
+            return this.populateSpecies();
+        }
+    }
+
+    // Same as getSpeciesOnce but for the animal's image
+    public async getImageOnce(): Promise<ImageSubObject> {
+        if (this.imageLoaded()) {
+            return this.getImage();
+        }
+        else {
+            return this.populateImage();
+        }
+    }
+
     // Checks if the animal's species is loaded
     public speciesLoaded(): boolean {
         return Boolean(this.species);
@@ -84,7 +104,7 @@ export class AnimalObject {
     }
 
     // Loads the animal's species object
-    public async populateSpecies(): Promise<SpeciesObject> {
+    private async populateSpecies(): Promise<SpeciesObject> {
         // Get the Mongoose document that represents this animal's species
         const speciesDocument = await Species.findById(this.speciesID);
 
@@ -98,9 +118,18 @@ export class AnimalObject {
     }
 
     // Loads the animal's image object
-    public async populateImage(): Promise<ImageSubObject> {
-        // Loads the animal's species (it has to), then find this animal's corresponding image in the resulting species object
-        const imageSubObject = (await this.populateSpecies()).images.find(image => {
+    private async populateImage(): Promise<ImageSubObject> {
+        let species: SpeciesObject;
+        // Gets the animal's species, only populating it if it hasn't been loaded yet
+        if (this.speciesLoaded()) {
+            species = this.getSpecies();
+        }
+        else {
+            species = await this.populateSpecies();
+        }
+
+        // Finds this animal's corresponding image in its species
+        const imageSubObject = species.images.find(image => {
             return image._id.equals(this.imageID);
         });
 
