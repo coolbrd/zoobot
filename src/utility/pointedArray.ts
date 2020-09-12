@@ -1,3 +1,5 @@
+import { loopValue } from "./toolbox";
+
 // An array that has a movable pointer
 export class PointedArray<T> extends Array {
     // The position of the underlying pointer
@@ -106,7 +108,7 @@ export class PointedArray<T> extends Array {
 
     // Moves the pointer up one position, loops
     public incrementPointer(): number {
-        this.pointerPosition = this.pointerPosition + 1 > this.length - 1 ? 0 : this.pointerPosition + 1;
+        this.pointerPosition = loopValue(this.pointerPosition + 1, 0, this.length - 1);
 
         this.clampViewPort();
 
@@ -115,7 +117,7 @@ export class PointedArray<T> extends Array {
 
     // Moves the pointer down one position, loops
     public decrementPointer(): number {
-        this.pointerPosition = this.pointerPosition - 1 < 0 ? this.length - 1 : this.pointerPosition - 1;
+        this.pointerPosition = loopValue(this.pointerPosition - 1, 0, this.length - 1);
 
         this.clampViewPort();
 

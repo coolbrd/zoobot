@@ -2,6 +2,7 @@ import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
 
 import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
+import { loopValue } from '../utility/toolbox';
 
 // A message that allows an array of embeds to be linearly browsed
 export default class EmbedBookMessage extends InteractiveMessage {
@@ -53,8 +54,7 @@ export default class EmbedBookMessage extends InteractiveMessage {
     // Loops back to 0 if the resulting index is greater than the last page, and loops to the last page if the index is less than 0
     private async goToPage(newPage: number): Promise<void> {
         // Apply proper page looping
-        newPage = newPage >= this.book.length ? 0 : newPage;
-        newPage = newPage < 0 ? this.book.length - 1 : newPage; 
+        newPage = loopValue(newPage, 0, this.book.length - 1);
 
         // Get the next page and add its info to the footer
         const nextPage = this.getPage(newPage);
