@@ -80,7 +80,7 @@ export class AnimalObject {
 
     // Checks if the animal's image is loaded
     public imageLoaded(): boolean {
-        return Boolean(this.imageID);
+        return Boolean(this.image);
     }
 
     // Loads the animal's species object
