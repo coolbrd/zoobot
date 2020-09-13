@@ -91,6 +91,7 @@ export class InventoryMessage extends InteractiveMessage {
         // Load the unloaded animals if there are any
         unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
 
+        // When the inventory message is showing an overview of all animals
         if (!this.infoMode) {
             embed.setThumbnail(this.inventory[0].getImage().url);
 
@@ -119,6 +120,7 @@ export class InventoryMessage extends InteractiveMessage {
 
             embed.setDescription(inventoryString);
         }
+        // When the inventory message is displaying information about a specific animal
         else {
             const selectedAnimal = this.inventory[this.pointerPosition];
             const species = selectedAnimal.getSpecies();
