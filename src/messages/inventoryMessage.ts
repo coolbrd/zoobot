@@ -3,9 +3,8 @@ import { TextChannel, MessageEmbed, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { Animal, AnimalObject } from "../models/animal";
-import { capitalizeFirstLetter, loopValue } from "../utility/toolbox";
+import { bulkPopulate, capitalizeFirstLetter, loopValue } from "../utility/toolbox";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { resolve } from "path";
 
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
@@ -74,22 +73,37 @@ export class InventoryMessage extends InteractiveMessage {
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
 
+        // Don't try anything crazy if the user's inventory is empty
         if (this.inventory.length < 1) {
             return embed;
         }
 
+        // Calculate the start and end points of the current page
+        const startIndex = this.page * this.animalsPerPage;
+        const endIndex = startIndex + this.animalsPerPage;
+
+        // The array that will hold the asynchronous functions to execute in bulk
+        const unloadedAnimals: AnimalObject[] = this.inventory.slice(startIndex, endIndex).filter(animal => {
+            // Only fill the array with animal's that haven't been loaded yet
+            return !animal.populated();
+        });
+        
+        // Load the unloaded animals if there are any
+        unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
+
         if (!this.infoMode) {
-            embed.setThumbnail((await this.inventory[0].getImageOnce()).url);
+            embed.setThumbnail(this.inventory[0].getImage().url);
 
             let inventoryString = '';
             // Start the current page's display at the appropriate position
-            let inventoryIndex = this.page * this.animalsPerPage;
+            let inventoryIndex = startIndex;
             // Loop until either the index is above the entries per page limit or the length of the inventory
-            while (inventoryIndex < this.page * this.animalsPerPage + this.animalsPerPage && inventoryIndex < this.inventory.length) {
+            while (inventoryIndex < endIndex && inventoryIndex < this.inventory.length) {
                 // Get the currently iterated animal in the user's inventory
                 const animal = this.inventory[inventoryIndex];
-                const species = await animal.getSpeciesOnce();
-                const image = await animal.getImageOnce();
+
+                const species = animal.getSpecies();
+                const image = animal.getImage();
 
                 const firstName = species.commonNames[0];
 
@@ -107,8 +121,8 @@ export class InventoryMessage extends InteractiveMessage {
         }
         else {
             const selectedAnimal = this.inventory[this.pointerPosition];
-            const species = await selectedAnimal.getSpeciesOnce();
-            const image = await selectedAnimal.getImageOnce();
+            const species = selectedAnimal.getSpecies();
+            const image = selectedAnimal.getImage();
 
             embed.setThumbnail(image.url);
 

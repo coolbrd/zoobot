@@ -35,6 +35,7 @@ export const Animal = mongoose.model('Animal', animalSchema);
 // A lightweight and convenient object representing a captured animal
 // I only mention "lightweight and convenient" because something like this is smaller than a Mongoose document and easier to use
 export class AnimalObject {
+    public readonly _id: Types.ObjectId;
     public readonly speciesID: Types.ObjectId;
     public readonly owner: string;
     public readonly server: string;
@@ -48,6 +49,7 @@ export class AnimalObject {
     private image: ImageSubObject | undefined;
 
     constructor(animalDocument: Document) {
+        this._id = animalDocument._id;
         this.speciesID = animalDocument.get('species');
         this.owner = animalDocument.get('owner');
         this.server = animalDocument.get('server');
@@ -73,38 +75,13 @@ export class AnimalObject {
         return this.image;
     }
 
-    // Asynchronously gets the animal's species, querying for it only if it has to
-    public async getSpeciesOnce(): Promise<SpeciesObject> {
-        if (this.speciesLoaded()) {
-            return this.getSpecies();
-        }
-        else {
-            return this.populateSpecies();
-        }
+    // Checks if the animal's reference fields are loaded
+    public populated(): boolean {
+        return Boolean(this.species) && Boolean(this.image);
     }
 
-    // Same as getSpeciesOnce but for the animal's image
-    public async getImageOnce(): Promise<ImageSubObject> {
-        if (this.imageLoaded()) {
-            return this.getImage();
-        }
-        else {
-            return this.populateImage();
-        }
-    }
-
-    // Checks if the animal's species is loaded
-    public speciesLoaded(): boolean {
-        return Boolean(this.species);
-    }
-
-    // Checks if the animal's image is loaded
-    public imageLoaded(): boolean {
-        return Boolean(this.image);
-    }
-
-    // Loads the animal's species object
-    private async populateSpecies(): Promise<SpeciesObject> {
+    // Loads the animal's species and image
+    public async populate(): Promise<void> {
         // Get the Mongoose document that represents this animal's species
         const speciesDocument = await Species.findById(this.speciesID);
 
@@ -113,23 +90,11 @@ export class AnimalObject {
             throw new Error('Animal object attempted to populate its species field with an invalid ID.');
         }
 
-        // Convert the species document into an object, assign it to this object, and return it
-        return this.species = new SpeciesObject(speciesDocument);
-    }
-
-    // Loads the animal's image object
-    private async populateImage(): Promise<ImageSubObject> {
-        let species: SpeciesObject;
-        // Gets the animal's species, only populating it if it hasn't been loaded yet
-        if (this.speciesLoaded()) {
-            species = this.getSpecies();
-        }
-        else {
-            species = await this.populateSpecies();
-        }
+        // Convert the species document to an object and assign it
+        this.species = new SpeciesObject(speciesDocument);
 
         // Finds this animal's corresponding image in its species
-        const imageSubObject = species.images.find(image => {
+        const imageSubObject = this.getSpecies().images.find(image => {
             return image._id.equals(this.imageID);
         });
 
@@ -138,7 +103,7 @@ export class AnimalObject {
             throw new Error('Animal object attempted to populate its image field with an invalid ID.');
         }
 
-        // Assign this animal's image and return it
-        return this.image = imageSubObject;
+        // Assign this animal's image
+        this.image = imageSubObject;
     }
 }

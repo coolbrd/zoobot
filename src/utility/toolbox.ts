@@ -1,6 +1,7 @@
 import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, Channel, Guild } from 'discord.js';
 
 import { client } from '..';
+import { AnimalObject } from '../models/animal';
 
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
@@ -218,6 +219,7 @@ export function arrayToLowerCase(array: string[]): string[] {
     return newArray;
 }
 
+// Takes a value and its bounds, returns a value within the bounds if the given value is outside them
 export function loopValue(value: number, min: number, max: number): number {
     if (value > max) {
         return min + (value - max - 1);
@@ -228,4 +230,29 @@ export function loopValue(value: number, min: number, max: number): number {
     else {
         return value;
     }
+}
+
+// Takes an array of animals and resolved once all of them are populated
+export function bulkPopulate(animals: AnimalObject[]): Promise<void> {
+    // The number of animals whose population operation has been completed
+    let completed = 0;
+    
+    // Return the promise that will resolve once everything is loaded
+    return new Promise((resolve, reject) => {
+        // Iterate over every animal given
+        for (const animal of animals) {
+            // Populate the current animal
+            animal.populate().then(() => {
+                // Once the population is complete, check if all animals have been populated
+                if (++completed >= animals.length) {
+                    // Resolve if all animals are done
+                    resolve();
+                }
+            // If an error is encountered while populating any of the animals
+            }).catch(error => {
+                // Reject the promise
+                reject(error);
+            });
+        }
+    });
 }
