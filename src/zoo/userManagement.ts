@@ -5,6 +5,7 @@ import { Animal } from "../models/animal";
 import { GuildUser } from "../models/guildUser";
 import { SpeciesObject } from "../models/species";
 
+// Gets the document representing a guild user in the database
 export async function getGuildUserDocument(guildMember: GuildMember): Promise<Document> {
     // Find the guild user by the given information
     let guildUserDocument = await GuildUser.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
@@ -26,7 +27,7 @@ export async function getGuildUserDocument(guildMember: GuildMember): Promise<Do
 export async function createAnimal(owner: GuildMember, species: SpeciesObject, options?: { imageIndex: number }): Promise<void> {
     let imageIndex: number;
 
-    if (options && options.imageIndex) {
+    if (options && options.imageIndex !== undefined) {
         imageIndex = options.imageIndex;
     }
     else {
