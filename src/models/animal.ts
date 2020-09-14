@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import { Schema, Document, Types } from 'mongoose';
 
 import { ImageSubObject, Species, SpeciesObject } from './species';
 
@@ -6,14 +6,6 @@ export const animalSchema = new Schema({
     species: {
         type: Schema.Types.ObjectId,
         ref: 'Species',
-        required: true
-    },
-    ownerId: {
-        type: String,
-        required: true
-    },
-    guildId: {
-        type: String,
         required: true
     },
     image: {
@@ -30,15 +22,18 @@ export const animalSchema = new Schema({
     }
 });
 
-export const Animal = mongoose.model('Animal', animalSchema);
+export interface AnimalTemplate {
+    species: Types.ObjectId,
+    image: Types.ObjectId,
+    nickname?: string,
+    experience: number
+}
 
 // A lightweight and convenient object representing a captured animal
 // I only mention "lightweight and convenient" because something like this is smaller than a Mongoose document and easier to use
 export class AnimalObject {
     public readonly _id: Types.ObjectId;
     public readonly speciesId: Types.ObjectId;
-    public readonly owner: string;
-    public readonly server: string;
     public readonly imageId: Types.ObjectId;
     public readonly nickname: string | undefined;
     public readonly experience: number;
@@ -51,8 +46,6 @@ export class AnimalObject {
     constructor(animalDocument: Document) {
         this._id = animalDocument._id;
         this.speciesId = animalDocument.get('species');
-        this.owner = animalDocument.get('owner');
-        this.server = animalDocument.get('server');
         this.imageId = animalDocument.get('image');
         this.experience = animalDocument.get('experience');
     }

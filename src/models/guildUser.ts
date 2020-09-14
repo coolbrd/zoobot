@@ -1,7 +1,8 @@
 import { GuildMember } from "discord.js";
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
 import { getGuildMember } from "../utility/toolbox";
+import { AnimalObject, animalSchema } from "./animal";
 
 const guildUserSchema = new Schema({
     userId: {
@@ -13,7 +14,7 @@ const guildUserSchema = new Schema({
         required: true
     },
     animals: {
-        type: [Schema.Types.ObjectId],
+        type: [animalSchema],
         required: true
     }
 });
@@ -23,14 +24,17 @@ export const GuildUser = mongoose.model('GuildUser', guildUserSchema);
 export class GuildUserObject {
     public readonly userId: string;
     public readonly guildId: string;
-    public readonly animals: Types.ObjectId[];
+    public readonly animals: AnimalObject[] = [];
 
     public readonly member: GuildMember;
 
     constructor(guildUserDocument: Document) {
         this.userId = guildUserDocument.get('userId');
         this.guildId = guildUserDocument.get('guildId');
-        this.animals = guildUserDocument.get('animals');
+
+        guildUserDocument.get('animals').forEach((animalDocument: Document) => {
+            this.animals.push(new AnimalObject(animalDocument));
+        });
 
         this.member = getGuildMember(this.userId, this.guildId);
     }

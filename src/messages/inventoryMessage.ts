@@ -2,18 +2,17 @@ import { TextChannel, MessageEmbed, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { SmartEmbed } from "../utility/smartEmbed";
-import { Animal, AnimalObject } from "../models/animal";
+import { AnimalObject } from "../models/animal";
 import { bulkPopulate, capitalizeFirstLetter, getGuildMember, loopValue } from "../utility/toolbox";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { GuildUser } from "../models/guildUser";
-import { Types } from "mongoose";
 import { getGuildUserDocument } from "../zoo/userManagement";
+import { GuildUserObject } from "../models/guildUser";
 
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
     protected readonly channel: TextChannel;
 
-    private readonly inventory: AnimalObject[] = [];
+    private inventory: AnimalObject[] = [];
 
     private page = 0;
     private animalsPerPage = 10;
@@ -55,23 +54,11 @@ export class InventoryMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        // Get every animal document that belongs to the given user in the given guild
-        const animalDocuments = await Animal.find({ ownerId: this.user.id, guildId: this.channel.guild.id });
+        // Get the user's guild user document and convert it into an object
+        const guildUserObject = new GuildUserObject(await getGuildUserDocument(getGuildMember(this.user, this.channel.guild)));
 
-        // Get the user's guild user document
-        const guildUserDocument = await getGuildUserDocument(getGuildMember(this.user, this.channel.guild));
-        // Get the guild user's order of animals (just an array of ObjectIds)
-        const animalOrder = guildUserDocument.get('animals');
-
-        // Iterate over every animal ID in the user's inventory order
-        animalOrder.forEach((animalId: Types.ObjectId) => {
-            // Find a document in the list of animal documents whose ID matches the current ID
-            const animalDocument = animalDocuments.find(animalDocument => {
-                return animalDocument._id.equals(animalId);
-            });
-            // Add the corresponding animal object to the user's inventory in the correct order
-            animalDocument && this.inventory.push(new AnimalObject(animalDocument));
-        });
+        // Assign the user's animal inentory to this message's inventory
+        this.inventory = guildUserObject.animals;
 
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);

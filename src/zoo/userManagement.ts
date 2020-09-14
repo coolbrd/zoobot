@@ -1,7 +1,7 @@
 import { GuildMember } from "discord.js";
 import { Document } from "mongoose";
 
-import { Animal } from "../models/animal";
+import { AnimalTemplate } from "../models/animal";
 import { GuildUser } from "../models/guildUser";
 import { SpeciesObject } from "../models/species";
 
@@ -34,26 +34,20 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
         imageIndex = Math.floor(Math.random() * species.images.length);
     }
 
-    // Create the new animal
-    const animal = new Animal({
-        species: species._id,
-        ownerId: owner.user.id,
-        guildId: owner.guild.id,
-        image: species.images[imageIndex]._id,
-        experience: 0
-    });
-
     // Get the document that represents the owner
     const ownerDocument = await getGuildUserDocument(owner);
 
-    // Save the animal to the database
-    return animal.save().then(newAnimal => {
-        // Add the animal's ID to the owner's list of animals
-        // Do this only after the animal document has been saved in order to heavily couple these two operations
-        ownerDocument.updateOne({ $push: {
-            animals: newAnimal._id
-        }}).exec();
-    }).catch(error => {
-        console.error('Failed saving a new animal document.', error);
-    });
+    // Create the new animal
+    const animal: AnimalTemplate = {
+        species: species._id,
+        image: species.images[imageIndex]._id,
+        experience: 0
+    };
+
+    // Add the animal document to the owner's animal inventory
+    ownerDocument.updateOne({
+        $push: {
+            animals: animal
+        }
+    }).exec();
 }
