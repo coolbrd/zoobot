@@ -40,7 +40,7 @@ export default class InteractiveMessageHandler {
             return;
         }
 
-        // Check the map of interactive messages for a message with the id of the one reacted to
+        // Check the map of interactive messages for a message with the ID of the one reacted to
         const interactiveMessage = this.messages.get(messageReaction.message.id);
 
         // If no message was found, don't try to do anything else
@@ -81,7 +81,7 @@ export default class InteractiveMessageHandler {
             return;
         }
     
-        // Get the message's id from the rate limit info (always the last 18 characters)
+        // Get the message's ID from the rate limit info (always the last 18 characters)
         const id = info.path.slice(info.path.length - 18, info.path.length);
 
         // Check if that message is an interactive message

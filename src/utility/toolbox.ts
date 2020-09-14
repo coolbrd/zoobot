@@ -1,4 +1,4 @@
-import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, Channel, Guild } from 'discord.js';
+import { UserResolvable, GuildResolvable, TextChannel, Message, MessageReaction, User, DMChannel, APIMessage, Channel, Guild, GuildMember } from 'discord.js';
 
 import { client } from '..';
 import { AnimalObject } from '../models/animal';
@@ -6,6 +6,26 @@ import { AnimalObject } from '../models/animal';
 // Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Gets a GuildMember instance from a given guild and user
+export function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable): GuildMember {
+    const user = client.users.resolve(userResolvable);
+    if (!user) {
+        throw new Error('getGuildMember was given a UserResolvable that couldn\'t be resolved.');
+    }
+
+    const guild = client.guilds.resolve(guildResolvable);
+    if (!guild) {
+        throw new Error('getGuildMember was given a GuildResolvable that couldn\'t be resolved.');
+    }
+
+    const member = guild.member(user);
+    if (!member) {
+        throw new Error('getGuildMember couldn\'t resolve a guild and a user into a GuildMember.');
+    }
+
+    return member;
 }
 
 // Gets a user's display color in a given guild

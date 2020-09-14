@@ -1,12 +1,12 @@
 import { TextChannel, User, APIMessage } from 'discord.js';
 
 import InteractiveMessage from '../interactiveMessage/interactiveMessage';
-import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend } from '../utility/toolbox';
+import { getGuildUserDisplayColor, capitalizeFirstLetter, betterSend, getGuildMember } from '../utility/toolbox';
 import { client } from '..';
 import { SmartEmbed } from '../utility/smartEmbed';
-import { Animal } from '../models/animal';
 import { SpeciesObject } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
+import { createAnimal } from '../zoo/userManagement';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -58,22 +58,12 @@ export default class EncounterMessage extends InteractiveMessage {
 
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
-        // Get this encounter's message
-        const message = this.getMessage();
-
         // Indicate that the user has caught the animal
-        betterSend(message.channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
         this.setDeactivationText('(caught)');
 
-        const animal = new Animal({
-            species: this.species._id,
-            owner: user.id,
-            server: this.channel.guild.id,
-            image: this.species.images[this.imageIndex]._id,
-            experience: 0
-        });
-
-        animal.save();
+        // Create the new animal instance
+        await createAnimal(getGuildMember(user, this.channel.guild), this.species, {imageIndex: this.imageIndex });
         
         // Stop this message from receiving any more input
         this.deactivate();

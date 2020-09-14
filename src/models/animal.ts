@@ -8,11 +8,11 @@ export const animalSchema = new Schema({
         ref: 'Species',
         required: true
     },
-    owner: {
+    ownerId: {
         type: String,
         required: true
     },
-    server: {
+    guildId: {
         type: String,
         required: true
     },
@@ -36,10 +36,10 @@ export const Animal = mongoose.model('Animal', animalSchema);
 // I only mention "lightweight and convenient" because something like this is smaller than a Mongoose document and easier to use
 export class AnimalObject {
     public readonly _id: Types.ObjectId;
-    public readonly speciesID: Types.ObjectId;
+    public readonly speciesId: Types.ObjectId;
     public readonly owner: string;
     public readonly server: string;
-    public readonly imageID: Types.ObjectId;
+    public readonly imageId: Types.ObjectId;
     public readonly nickname: string | undefined;
     public readonly experience: number;
 
@@ -50,10 +50,10 @@ export class AnimalObject {
 
     constructor(animalDocument: Document) {
         this._id = animalDocument._id;
-        this.speciesID = animalDocument.get('species');
+        this.speciesId = animalDocument.get('species');
         this.owner = animalDocument.get('owner');
         this.server = animalDocument.get('server');
-        this.imageID = animalDocument.get('image');
+        this.imageId = animalDocument.get('image');
         this.experience = animalDocument.get('experience');
     }
 
@@ -83,7 +83,7 @@ export class AnimalObject {
     // Loads the animal's species and image
     public async populate(): Promise<void> {
         // Get the Mongoose document that represents this animal's species
-        const speciesDocument = await Species.findById(this.speciesID);
+        const speciesDocument = await Species.findById(this.speciesId);
 
         // If no document was found somehow
         if (!speciesDocument) {
@@ -95,7 +95,7 @@ export class AnimalObject {
 
         // Finds this animal's corresponding image in its species
         const imageSubObject = this.getSpecies().images.find(image => {
-            return image._id.equals(this.imageID);
+            return image._id.equals(this.imageId);
         });
 
         // If no image object was found by the given ID, somehow

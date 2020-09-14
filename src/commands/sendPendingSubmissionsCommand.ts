@@ -46,10 +46,10 @@ export class SendPendingSubmissionsCommand implements Command {
         const entriesPerPage = 10;
         // Iterate over every pending species submission in the database
         for (const submission of pendingSpecies) {
-            // Get the author's id
-            const authorID = submission.get('author');
-            // Try to resolve the author's id into their user instance
-            const author = client.users.resolve(authorID);
+            // Get the author's ID
+            const authorId = submission.get('author');
+            // Try to resolve the author's ID into their user instance
+            const author = client.users.resolve(authorId);
             
             // Add basic info about this submission to the page
             currentPageString += `• ${capitalizeFirstLetter(submission.get('commonNames')[0])}, by ${author ? author.tag : 'Unknown user'}\n`

@@ -8,7 +8,7 @@ import { getWeightedRandom } from '../utility/toolbox';
 
 // A handler class that deals with creating encounters with species from the total set
 export default class EncounterHandler {
-    // The map of id and rarity pairs that will determine how common each species is
+    // The map of ID and rarity pairs that will determine how common each species is
     private rarityMap: Map<Schema.Types.ObjectId, number> = new Map();
 
     // Loads/reloads the rarity table from the database
@@ -35,9 +35,9 @@ export default class EncounterHandler {
         // Get a weighted random species from the rarity map, and convert it to a species document
         const speciesDocument = await Species.findById(getWeightedRandom(this.rarityMap));
 
-        // If somehow no species by that id was found
+        // If somehow no species by that ID was found
         if (!speciesDocument) {
-            throw new Error('No species was found by a given id from the encounter rarity table.');
+            throw new Error('No species was found by a given ID from the encounter rarity table.');
         }
 
         try {
