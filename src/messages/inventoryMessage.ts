@@ -87,6 +87,8 @@ export class InventoryMessage extends InteractiveMessage {
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
 
+        embed.setFooter(`${this.inventory.length} in collection`);
+
         // Don't try anything crazy if the user's inventory is empty
         if (this.inventory.length < 1) {
             return embed;
@@ -98,7 +100,7 @@ export class InventoryMessage extends InteractiveMessage {
 
         // The array that will hold the asynchronous functions to execute in bulk
         const unloadedAnimals: AnimalObject[] = this.inventory.slice(startIndex, endIndex).filter(animal => {
-            // Only fill the array with animal's that haven't been loaded yet
+            // Only fill the array with animals that haven't been loaded yet
             return !animal.populated();
         });
         
@@ -122,6 +124,7 @@ export class InventoryMessage extends InteractiveMessage {
                 const firstName = species.commonNames[0];
 
                 const breed = image.breed;
+                // Write breed information only if it's present
                 const breedText = breed ? `(${breed})` : '';
 
                 // The pointer text to draw on the current animal entry (if any)
@@ -134,15 +137,17 @@ export class InventoryMessage extends InteractiveMessage {
             embed.setDescription(inventoryString);
         }
         else {
+            // Get the animal that's selected by the pointer
             const selectedAnimal = this.inventory[this.pointerPosition];
+            // Get the animal's necessary information
             const species = selectedAnimal.getSpecies();
             const image = selectedAnimal.getImage();
 
             embed.setThumbnail(image.url);
 
-            embed.setTitle(`${capitalizeFirstLetter(species.commonNames[0])}`);
+            embed.setTitle(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
             
-            embed.addField('Species', species.scientificName, true);
+            embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
 
             const imageIndex = species.images.findIndex(image => {
                 return image._id.equals(image._id);
