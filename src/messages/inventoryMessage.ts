@@ -136,8 +136,8 @@ export class InventoryMessage extends InteractiveMessage {
             
             embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
 
-            const imageIndex = species.images.findIndex(image => {
-                return image._id.equals(image._id);
+            const imageIndex = species.images.findIndex(speciesImage => {
+                return speciesImage._id.equals(image._id);
             });
             embed.addField('Image', `${imageIndex + 1}/${species.images.length}`, true);
         }
