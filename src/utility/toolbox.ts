@@ -77,9 +77,15 @@ export function getGuildUserDisplayColor(userResolvable: UserResolvable | null, 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
 export async function reactionInput(message: Message, timeOut: number, emojis: string[]): Promise<string | undefined> {
-    // Add all reactions
-    for await (const emoji of emojis) {
-        await message.react(emoji);
+    try {
+        // Add all reactions
+        for (const emoji of emojis) {
+            await message.react(emoji);
+        }
+    }
+    catch (error) {
+        console.error('There was an error reacting to a message in reactionInput.');
+        throw new Error(error);
     }
 
     // The filter used to determine a valid button press
@@ -102,15 +108,13 @@ export async function reactionInput(message: Message, timeOut: number, emojis: s
     // If this point is reached, a reaction was added
 
     if (!userReaction) {
-        console.error('pressAndGo collected a reaction but returned an undefined collection.');
-        return;
+        throw new Error('reactionInput collected a reaction but returned an undefined collection.');
     }
 
     const emojiReaction = userReaction.first();
 
     if (!emojiReaction) {
-        console.error('pressAndGo returned an empty collection.');
-        return;
+        throw new Error('reactionInput returned an empty collection.');
     }
 
     return emojiReaction.emoji.name;
@@ -185,7 +189,15 @@ export function safeDeleteMessage(message: Message | undefined): boolean {
     if (!message.deletable) {
         return false;
     }
-    message.delete();
+
+    // Delete the message
+    try {
+        message.delete();
+    }
+    catch (error) {
+        throw new Error(error)
+    }
+
     return true;
 }
 
