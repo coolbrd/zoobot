@@ -8,6 +8,12 @@ import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageH
 import { getGuildUserDocument } from "../zoo/userManagement";
 import { GuildUserObject } from "../models/guildUser";
 
+enum InventoryMessageState {
+    page,
+    info,
+    image
+}
+
 export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
     protected readonly channel: TextChannel;
@@ -20,7 +26,7 @@ export class InventoryMessage extends InteractiveMessage {
 
     private pointerPosition = 0;
 
-    private infoMode = false;
+    private state: InventoryMessageState;
 
     public constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
         super(handler, channel, { buttons: [
@@ -43,11 +49,17 @@ export class InventoryMessage extends InteractiveMessage {
             {
                 name: 'info',
                 emoji: 'ℹ️'
+            },
+            {
+                name: 'image',
+                emoji: '🖼️'
             }
         ]});
 
         this.user = user;
         this.channel = channel;
+
+        this.state = InventoryMessageState.page;
     }
 
     // Pre-send build logic
@@ -94,52 +106,68 @@ export class InventoryMessage extends InteractiveMessage {
         // Load the unloaded animals if there are any
         unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
 
-        if (!this.infoMode) {
-            embed.setThumbnail(this.inventory[0].getImage().url);
+        // Get the animal that's selected by the pointer
+        const selectedAnimal = this.inventory[this.pointerPosition];
+        // Get the animal's necessary information
+        const species = selectedAnimal.getSpecies();
+        const image = selectedAnimal.getImage();
 
-            let inventoryString = '';
-            // Start the current page's display at the appropriate position
-            let inventoryIndex = startIndex;
-            // Loop until either the index is above the entries per page limit or the length of the inventory
-            while (inventoryIndex < endIndex && inventoryIndex < this.inventory.length) {
-                // Get the currently iterated animal in the user's inventory
-                const animal = this.inventory[inventoryIndex];
+        const imageIndex = species.images.findIndex(speciesImage => {
+            return speciesImage._id.equals(image._id);
+        });
+        
+        // Display state behavior
+        switch (this.state) {
+            case InventoryMessageState.page: {
+                embed.setThumbnail(this.inventory[0].getImage().url);
 
-                const species = animal.getSpecies();
-                const image = animal.getImage();
+                let inventoryString = '';
+                // Start the current page's display at the appropriate position
+                let inventoryIndex = startIndex;
+                // Loop until either the index is above the entries per page limit or the length of the inventory
+                while (inventoryIndex < endIndex && inventoryIndex < this.inventory.length) {
+                    // Get the currently iterated animal in the user's inventory
+                    const animal = this.inventory[inventoryIndex];
 
-                const firstName = species.commonNames[0];
+                    const species = animal.getSpecies();
+                    const image = animal.getImage();
 
-                const breed = image.breed;
-                // Write breed information only if it's present
-                const breedText = breed ? `(${breed})` : '';
+                    const firstName = species.commonNames[0];
 
-                // The pointer text to draw on the current animal entry (if any)
-                const pointerText = inventoryIndex === this.pointerPosition ? ' 🔹' : '';
+                    const breed = image.breed;
+                    // Write breed information only if it's present
+                    const breedText = breed ? `(${breed})` : '';
 
-                inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}${pointerText}\n`;
-                inventoryIndex++;
+                    // The pointer text to draw on the current animal entry (if any)
+                    const pointerText = inventoryIndex === this.pointerPosition ? ' 🔹' : '';
+
+                    inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}${pointerText}\n`;
+                    inventoryIndex++;
+                }
+
+                embed.setDescription(inventoryString);
+
+                break;
             }
+            case InventoryMessageState.info: {
+                embed.setThumbnail(image.url);
 
-            embed.setDescription(inventoryString);
-        }
-        else {
-            // Get the animal that's selected by the pointer
-            const selectedAnimal = this.inventory[this.pointerPosition];
-            // Get the animal's necessary information
-            const species = selectedAnimal.getSpecies();
-            const image = selectedAnimal.getImage();
+                embed.setTitle(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
+                
+                embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
 
-            embed.setThumbnail(image.url);
+                embed.addField('Card', `${imageIndex + 1}/${species.images.length}`, true);
 
-            embed.setTitle(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
-            
-            embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
+                image.breed && embed.addField('Breed', capitalizeFirstLetter(image.breed));
 
-            const imageIndex = species.images.findIndex(speciesImage => {
-                return speciesImage._id.equals(image._id);
-            });
-            embed.addField('Image', `${imageIndex + 1}/${species.images.length}`, true);
+                break;
+            }
+            case InventoryMessageState.image: {
+                embed.setImage(image.url);
+                embed.addField(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`, `Card #${imageIndex + 1} of ${species.images.length}`);
+
+                break;
+            }
         }
 
         return embed;
@@ -195,16 +223,41 @@ export class InventoryMessage extends InteractiveMessage {
                 break;
             }
             case 'leftArrow': {
-                this.movePages(-1);
+                // Change pages if the message is in page mode, otherwise move the pointer
+                if (this.state === InventoryMessageState.page) {
+                    this.movePages(-1);
+                }
+                else {
+                    this.movePointer(-1);
+                }
                 break;
             }
             case 'rightArrow': {
-                this.movePages(1);
+                // Change pages if the message is in page mode, otherwise move the pointer
+                if (this.state === InventoryMessageState.page) {
+                    this.movePages(1);
+                }
+                else {
+                    this.movePointer(1);
+                }
                 break;
             }
             case 'info': {
-                this.infoMode = !this.infoMode;
+                if (this.state !== InventoryMessageState.info) {
+                    this.state = InventoryMessageState.info;
+                }
+                else {
+                    this.state = InventoryMessageState.page;
+                }
                 break;
+            }
+            case 'image': {
+                if (this.state !== InventoryMessageState.image) {
+                    this.state = InventoryMessageState.image;
+                }
+                else {
+                    this.state = InventoryMessageState.page;
+                }
             }
         }
 
