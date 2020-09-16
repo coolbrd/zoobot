@@ -2,12 +2,14 @@ import { stripIndents } from 'common-tags';
 import { MessageEmbed, APIMessage } from 'discord.js';
 
 import Command from './commandInterface';
-import CommandParser from '../utility/commandParser';
-import { reactionInput, betterSend, safeDeleteMessage, arrayToLowerCase } from '../utility/toolbox';
+import CommandParser from '../structures/commandParser';
+import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../utility/editableDocument';
+import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../structures/editableDocument';
 import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
 import { interactiveMessageHandler } from '..';
+import { reactionInput } from '../discordUtility/reactionInput';
+import { arrayToLowerCase } from '../utility/arraysAndSuch';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {

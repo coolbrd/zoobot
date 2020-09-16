@@ -1,7 +1,7 @@
 import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema } from "mongoose";
 
-import { getGuildMember } from "../utility/toolbox";
+import { getGuildMember } from "../discordUtility/getGuildMember";
 import { AnimalObject, animalSchema } from "./animal";
 
 const guildUserSchema = new Schema({

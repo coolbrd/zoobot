@@ -1,4 +1,4 @@
-import { loopValue } from "./toolbox";
+import { loopValue } from "../utility/loopValue";
 
 // An array that has a movable pointer
 export class PointedArray<T> extends Array {

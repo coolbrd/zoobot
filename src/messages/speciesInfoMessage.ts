@@ -1,11 +1,12 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import { SmartEmbed } from "../utility/smartEmbed";
-import { capitalizeFirstLetter, getGuildUserDisplayColor } from "../utility/toolbox";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import { client } from "..";
 import { SpeciesObject } from "../models/species";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
+import { getGuildUserDisplayColor } from "../discordUtility/getGuildUserDisplayColor";
+import { SmartEmbed } from "../discordUtility/smartEmbed";
 
 export class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;

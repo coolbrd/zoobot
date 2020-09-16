@@ -1,11 +1,12 @@
 import Command from './commandInterface';
-import CommandParser from '../utility/commandParser';
+import CommandParser from '../structures/commandParser';
 import { PendingSpecies } from '../models/pendingSpecies';
-import { betterSend, arrayToLowerCase } from '../utility/toolbox';
-import { SimpleDocument } from '../utility/editableDocument';
+import { betterSend } from "../discordUtility/messageMan";
+import { SimpleDocument } from '../structures/editableDocument';
 import { Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
+import { arrayToLowerCase } from '../utility/arraysAndSuch';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {

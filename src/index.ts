@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import config from './config/botConfig';
-import CommandHandler from './commandHandler';
+import CommandHandler from './structures/commandHandler';
 import EncounterHandler from './zoo/encounterHandler';
 import InteractiveMessageHandler from './interactiveMessage/interactiveMessageHandler';
 

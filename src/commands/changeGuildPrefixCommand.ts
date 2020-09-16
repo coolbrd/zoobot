@@ -1,6 +1,6 @@
 import { GuildModel } from "../models/guild";
-import CommandParser from "../utility/commandParser";
-import { betterSend } from "../utility/toolbox";
+import CommandParser from "../structures/commandParser";
+import { betterSend } from "../discordUtility/messageMan";
 import Command from "./commandInterface";
 
 // Changes the command prefix for a given guild

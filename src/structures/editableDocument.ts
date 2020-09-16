@@ -2,7 +2,7 @@ import clone from "clone";
 import { Schema } from "mongoose";
 
 import { PointedArray } from "./pointedArray";
-import { capitalizeFirstLetter } from "./toolbox";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 type EditableDocumentPrimitive = string | number | boolean;
 

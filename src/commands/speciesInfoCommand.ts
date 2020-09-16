@@ -1,7 +1,7 @@
 import Command from "./commandInterface";
-import CommandParser from "../utility/commandParser";
+import CommandParser from "../structures/commandParser";
 import { Species, SpeciesObject } from "../models/species";
-import { betterSend } from "../utility/toolbox";
+import { betterSend } from "../discordUtility/messageMan";
 import { SpeciesInfoMessage } from "../messages/speciesInfoMessage";
 import { interactiveMessageHandler } from "..";
 

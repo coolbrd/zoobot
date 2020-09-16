@@ -4,7 +4,7 @@ import { Schema } from 'mongoose';
 import { Species, SpeciesObject } from '../models/species';
 import EncounterMessage from '../messages/encountermessage';
 import { interactiveMessageHandler } from '..';
-import { getWeightedRandom } from '../utility/toolbox';
+import { getWeightedRandom } from "../utility/getWeightedRandom";
 
 // A handler class that deals with creating encounters with species from the total set
 export default class EncounterHandler {

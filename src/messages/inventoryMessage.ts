@@ -1,13 +1,16 @@
 import { TextChannel, MessageEmbed, User, GuildMember } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import { SmartEmbed } from "../utility/smartEmbed";
 import { AnimalObject } from "../models/animal";
-import { betterSend, bulkPopulate, capitalizeFirstLetter, getGuildMember, loopValue } from "../utility/toolbox";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import { getGuildMember } from "../discordUtility/getGuildMember";
+import { betterSend } from "../discordUtility/messageMan";
+import { loopValue } from "../utility/loopValue";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { getGuildUserDocument, releaseAnimal } from "../zoo/userManagement";
 import { GuildUserObject } from "../models/guildUser";
-import { PointedArray } from "../utility/pointedArray";
+import { PointedArray } from "../structures/pointedArray";
+import { SmartEmbed } from "../discordUtility/smartEmbed";
 
 enum InventoryMessageState {
     page,
@@ -124,7 +127,7 @@ export class InventoryMessage extends InteractiveMessage {
         
         try {
             // Load the unloaded animals if there are any
-            unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
+            unloadedAnimals.length && await AnimalObject.bulkPopulate(unloadedAnimals);
         }
         catch (error) {
             console.error('There was an error trying to bulk populate a list of animal objects in an inventory message.');

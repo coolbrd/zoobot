@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
 
-import { betterSend } from '../utility/toolbox';
+import { betterSend } from "../discordUtility/messageMan";
 import InteractiveMessageHandler from './interactiveMessageHandler';
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance

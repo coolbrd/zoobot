@@ -50,6 +50,31 @@ export class AnimalObject {
         this.experience = animalDocument.get('experience');
     }
 
+    // Takes an array of animals and resolved once all of them are populated
+    public static bulkPopulate(animals: AnimalObject[]): Promise<void> {
+        // The number of animals whose population operation has been completed
+        let completed = 0;
+        
+        // Return the promise that will resolve once everything is loaded
+        return new Promise((resolve, reject) => {
+            // Iterate over every animal given
+            for (const animal of animals) {
+                // Populate the current animal
+                animal.populate().then(() => {
+                    // Once the population is complete, check if all animals have been populated
+                    if (++completed >= animals.length) {
+                        // Resolve if all animals are done
+                        resolve();
+                    }
+                // If an error is encountered while populating any of the animals
+                }).catch(error => {
+                    // Reject the promise
+                    reject(error);
+                });
+            }
+        });
+    }
+
     // Gets the species object representing this animal's species
     public getSpecies(): SpeciesObject {
         if (!this.species) {

@@ -1,15 +1,15 @@
 import { Message } from 'discord.js';
 
-import Command from './commands/commandInterface';
-import CommandParser from './utility/commandParser';
-import { SubmitSpeciesCommand } from './commands/submitSpeciesCommand';
-import { betterSend } from './utility/toolbox';
-import { SendPendingSubmissionsCommand } from './commands/sendPendingSubmissionsCommand';
-import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCommand';
-import { SpeciesInfoCommand } from './commands/speciesInfoCommand';
-import { EncounterCommand } from './commands/encounterCommand';
-import { ViewInventoryCommand } from './commands/viewInventoryCommand';
-import { ChangeGuildPrefixCommand } from './commands/changeGuildPrefixCommand';
+import Command from '../commands/commandInterface';
+import CommandParser from './commandParser';
+import { SubmitSpeciesCommand } from '../commands/submitSpeciesCommand';
+import { betterSend } from "../discordUtility/messageMan";
+import { SendPendingSubmissionsCommand } from '../commands/sendPendingSubmissionsCommand';
+import { ApprovePendingSpeciesCommand } from '../commands/approvePendingSpeciesCommand';
+import { SpeciesInfoCommand } from '../commands/speciesInfoCommand';
+import { EncounterCommand } from '../commands/encounterCommand';
+import { ViewInventoryCommand } from '../commands/viewInventoryCommand';
+import { ChangeGuildPrefixCommand } from '../commands/changeGuildPrefixCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {

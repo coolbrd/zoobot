@@ -1,6 +1,6 @@
 import Command from "./commandInterface";
-import CommandParser from "../utility/commandParser";
-import { betterSend } from "../utility/toolbox";
+import CommandParser from "../structures/commandParser";
+import { betterSend } from "../discordUtility/messageMan";
 import { DMChannel } from "discord.js";
 import { encounterHandler } from "..";
 

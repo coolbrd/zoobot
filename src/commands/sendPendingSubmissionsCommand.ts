@@ -1,8 +1,9 @@
 import { MessageEmbed } from 'discord.js';
 
 import Command from './commandInterface';
-import CommandParser from '../utility/commandParser';
-import { betterSend, capitalizeFirstLetter } from '../utility/toolbox';
+import CommandParser from '../structures/commandParser';
+import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
+import { betterSend } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
 import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
