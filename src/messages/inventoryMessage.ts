@@ -1,12 +1,13 @@
-import { TextChannel, MessageEmbed, User } from "discord.js";
+import { TextChannel, MessageEmbed, User, GuildMember } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { SmartEmbed } from "../utility/smartEmbed";
 import { AnimalObject } from "../models/animal";
-import { bulkPopulate, capitalizeFirstLetter, getGuildMember, loopValue } from "../utility/toolbox";
+import { betterSend, bulkPopulate, capitalizeFirstLetter, getGuildMember, loopValue } from "../utility/toolbox";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { getGuildUserDocument } from "../zoo/userManagement";
+import { getGuildUserDocument, releaseAnimal } from "../zoo/userManagement";
 import { GuildUserObject } from "../models/guildUser";
+import { PointedArray } from "../utility/pointedArray";
 
 enum InventoryMessageState {
     page,
@@ -18,15 +19,15 @@ export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
     protected readonly channel: TextChannel;
 
-    private inventory: AnimalObject[] = [];
+    private inventory = new PointedArray<AnimalObject>();
 
     private page = 0;
     private animalsPerPage = 10;
     private pageCount = 0;
 
-    private pointerPosition = 0;
-
     private state: InventoryMessageState;
+
+    private guildMember: GuildMember;
 
     public constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
         super(handler, channel, { buttons: [
@@ -53,6 +54,10 @@ export class InventoryMessage extends InteractiveMessage {
             {
                 name: 'image',
                 emoji: '🖼️'
+            },
+            {
+                name: 'release',
+                emoji: '🗑️'
             }
         ]});
 
@@ -60,6 +65,8 @@ export class InventoryMessage extends InteractiveMessage {
         this.channel = channel;
 
         this.state = InventoryMessageState.page;
+
+        this.guildMember = getGuildMember(user, channel.guild);
     }
 
     // Pre-send build logic
@@ -67,15 +74,20 @@ export class InventoryMessage extends InteractiveMessage {
         super.build();
 
         // Get the user's guild user document and convert it into an object
-        const guildUserObject = new GuildUserObject(await getGuildUserDocument(getGuildMember(this.user, this.channel.guild)));
+        const guildUserObject = new GuildUserObject(await getGuildUserDocument(this.guildMember));
 
         // Assign the user's animal inentory to this message's inventory
-        this.inventory = guildUserObject.animals;
+        this.inventory = new PointedArray(guildUserObject.animals);
 
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
 
-        this.setEmbed(await this.buildEmbed());
+        try {
+            this.setEmbed(await this.buildEmbed());
+        }
+        catch (error) {
+            throw new Error(error);
+        }
     }
 
     // Build's the current page of the inventory's embed
@@ -103,11 +115,16 @@ export class InventoryMessage extends InteractiveMessage {
             return !animal.populated();
         });
         
-        // Load the unloaded animals if there are any
-        unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
+        try {
+            // Load the unloaded animals if there are any
+            unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
+        }
+        catch (error) {
+            throw new Error(error);
+        }
 
         // Get the animal that's selected by the pointer
-        const selectedAnimal = this.inventory[this.pointerPosition];
+        const selectedAnimal = this.inventory.selection();
         // Get the animal's necessary information
         const species = selectedAnimal.getSpecies();
         const image = selectedAnimal.getImage();
@@ -139,7 +156,7 @@ export class InventoryMessage extends InteractiveMessage {
                     const breedText = breed ? `(${breed})` : '';
 
                     // The pointer text to draw on the current animal entry (if any)
-                    const pointerText = inventoryIndex === this.pointerPosition ? ' 🔹' : '';
+                    const pointerText = inventoryIndex === this.inventory.getPointerPosition() ? ' 🔹' : '';
 
                     inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}${pointerText}\n`;
                     inventoryIndex++;
@@ -152,7 +169,7 @@ export class InventoryMessage extends InteractiveMessage {
             case InventoryMessageState.info: {
                 embed.setThumbnail(image.url);
 
-                embed.setTitle(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
+                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
                 
                 embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
 
@@ -164,7 +181,7 @@ export class InventoryMessage extends InteractiveMessage {
             }
             case InventoryMessageState.image: {
                 embed.setImage(image.url);
-                embed.addField(`\`${this.pointerPosition + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`, `Card #${imageIndex + 1} of ${species.images.length}`);
+                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`, `Card #${imageIndex + 1} of ${species.images.length}`);
 
                 break;
             }
@@ -180,13 +197,13 @@ export class InventoryMessage extends InteractiveMessage {
         // If the page move caused the pointer to be off the page
         if (!this.pointerIsOnPage()) {
             // Move the pointer to the first entry on the page
-            this.pointerPosition = this.page * this.animalsPerPage;
+            this.inventory.setPointerPosition(this.page * this.animalsPerPage);
         }
     }
 
     // Gets the page that the pointer is currently on
     private getPointerPage(): number {
-        return Math.floor(this.pointerPosition / this.animalsPerPage);
+        return Math.floor(this.inventory.getPointerPosition() / this.animalsPerPage);
     }
 
     // Checks if the pointer is on the message's currently displayed page
@@ -201,8 +218,8 @@ export class InventoryMessage extends InteractiveMessage {
 
     // Moves the pointer a number of positions
     private movePointer(count: number): void {
-        // Move the pointer, looping end-to-end if necessary
-        this.pointerPosition = loopValue(this.pointerPosition + count, 0, this.inventory.length - 1);
+        // Move the pointer to the new position
+        this.inventory.movePointer(count);
         // If moving the pointer made it leave the page
         if (!this.pointerIsOnPage()) {
             // Change the page to the one that the pointer's on
@@ -258,9 +275,31 @@ export class InventoryMessage extends InteractiveMessage {
                 else {
                     this.state = InventoryMessageState.page;
                 }
+                break;
+            }
+            case 'release': {
+                // Get the selected animal that will be released
+                const selectedAnimal = this.inventory.selection();
+
+                // Release the user's animal
+                try {
+                    await releaseAnimal(this.guildMember, selectedAnimal._id);
+                }
+                catch (error) {
+                    betterSend(this.channel, 'There was an error releasing this animal.');
+                    throw new Error(error);
+                }
+
+                // Delete the animal from the inventory message
+                this.inventory.deleteAtPointer();
             }
         }
 
-        this.setEmbed(await this.buildEmbed());
+        try {
+            this.setEmbed(await this.buildEmbed());
+        }
+        catch (error) {
+            throw new Error(error);
+        }
     }
 }
