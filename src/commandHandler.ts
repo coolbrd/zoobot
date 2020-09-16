@@ -9,6 +9,7 @@ import { ApprovePendingSpeciesCommand } from './commands/approvePendingSpeciesCo
 import { SpeciesInfoCommand } from './commands/speciesInfoCommand';
 import { EncounterCommand } from './commands/encounterCommand';
 import { ViewInventoryCommand } from './commands/viewInventoryCommand';
+import { ChangeGuildPrefixCommand } from './commands/changeGuildPrefixCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -25,6 +26,7 @@ export default class CommandHandler {
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
             ApprovePendingSpeciesCommand,
+            ChangeGuildPrefixCommand,
             EncounterCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
