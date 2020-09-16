@@ -73,8 +73,15 @@ export class InventoryMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        // Get the user's guild user document and convert it into an object
-        const guildUserObject = new GuildUserObject(await getGuildUserDocument(this.guildMember));
+        let guildUserObject: GuildUserObject;
+        try {
+            // Get the user's guild user document and convert it into an object
+            guildUserObject = new GuildUserObject(await getGuildUserDocument(this.guildMember));
+        }
+        catch (error) {
+            console.error('There was an error trying to create a GuildUserObject in an inventory message.');
+            throw new Error(error);
+        }
 
         // Assign the user's animal inentory to this message's inventory
         this.inventory = new PointedArray(guildUserObject.animals);
@@ -120,6 +127,7 @@ export class InventoryMessage extends InteractiveMessage {
             unloadedAnimals.length && await bulkPopulate(unloadedAnimals);
         }
         catch (error) {
+            console.error('There was an error trying to bulk populate a list of animal objects in an inventory message.');
             throw new Error(error);
         }
 
@@ -287,6 +295,7 @@ export class InventoryMessage extends InteractiveMessage {
                 }
                 catch (error) {
                     betterSend(this.channel, 'There was an error releasing this animal.');
+                    console.error('There was an error trying to release a user\'s animal from an inventory message.');
                     throw new Error(error);
                 }
 
