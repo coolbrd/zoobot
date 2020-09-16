@@ -90,7 +90,7 @@ export class PointedArray<T> extends Array {
 
     // Returns the pointer to within the bounds of the array
     private clampPointer(newPosition?: number): number {
-        return this.pointerPosition = Math.max(0, Math.min(this.length - 1, newPosition || this.pointerPosition));
+        return this.pointerPosition = Math.max(0, Math.min(this.length - 1, newPosition === undefined ? this.pointerPosition : newPosition));
     }
 
     // Keeps the viewport tied to the pointer's position
@@ -106,22 +106,22 @@ export class PointedArray<T> extends Array {
         }
     }
 
-    // Moves the pointer up one position, loops
-    public incrementPointer(): number {
-        this.pointerPosition = loopValue(this.pointerPosition + 1, 0, this.length - 1);
+    public movePointer(amount: number): number {
+        this.pointerPosition = loopValue(this.pointerPosition + amount, 0, this.length - 1);
 
         this.clampViewPort();
 
         return this.pointerPosition;
     }
 
+    // Moves the pointer up one position, loops
+    public incrementPointer(): number {
+        return this.movePointer(1);
+    }
+
     // Moves the pointer down one position, loops
     public decrementPointer(): number {
-        this.pointerPosition = loopValue(this.pointerPosition - 1, 0, this.length - 1);
-
-        this.clampViewPort();
-
-        return this.pointerPosition;
+        return this.movePointer(-1);
     }
 
     // Deletes the element currently under the pointer
