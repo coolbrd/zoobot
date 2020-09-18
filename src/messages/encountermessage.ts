@@ -34,11 +34,12 @@ export default class EncounterMessage extends InteractiveMessage {
         const imageIndex = Math.floor(Math.random() * species.images.length);
         // Get the image of the determined index
         const image = species.images[imageIndex];
-        embed.setImage(image.url);
+        embed.setImage(image.getUrl());
 
+        const breed = image.getBreed();
         // Add the breed field if it's there
-        if (image.breed) {
-            embed.addField('Breed', capitalizeFirstLetter(image.breed), true);
+        if (breed) {
+            embed.addField('Breed', capitalizeFirstLetter(breed), true);
         }
 
         embed.setFooter('Wild encounter');

@@ -1,25 +1,55 @@
-import { GuildMember } from "discord.js";
-import { Document, Types } from "mongoose";
+import { Guild, GuildMember } from "discord.js";
+import { Document } from "mongoose";
 
 import { AnimalTemplate } from "../models/animal";
-import { GuildUser } from "../models/guildUser";
+import { GuildModel, GuildObject } from "../models/guild";
+import { Player, PlayerObject } from "../models/player";
 import { SpeciesObject } from "../models/species";
 
-// Gets the document representing a guild user in the database
-export async function getGuildUserDocument(guildMember: GuildMember): Promise<Document> {
-    let guildUserDocument: Document | null;
+// Gets a guild document from the database that corresponds to a given guild object and returns it as an object
+export async function getGuildObject(guild: Guild): Promise<GuildObject> {
+    // Attempt to find an existing document that represents this guild
+    let guildDocument: Document | null;
     try {
-        // Find the guild user by the given information
-        guildUserDocument = await GuildUser.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
+        guildDocument = await GuildModel.findOne({ id: guild.id });
     }
     catch (error) {
         throw new Error(error);
     }
 
-    // If no guild user for this member exists
-    if (!guildUserDocument) {
+    // If no document currently represents the guild
+    if (!guildDocument) {
+        // Make one and save it
+        guildDocument = new GuildModel({
+            id: guild.id,
+            config: {
+                prefix: '>'
+            }
+        });
+
+        await guildDocument.save();
+    }
+
+    // Return the pre-existing or newly created guild document within a wrapper object
+    return new GuildObject(guildDocument);
+}
+
+// Gets the wrapper object representing a guild player in the database
+export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerObject> {
+    // Attempt to find a player document with the given information
+    let playerDocument: Document | null;
+    try {
+        playerDocument = await Player.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
+    }
+    catch (error) {
+        console.error('There was an error trying to find a player document.');
+        throw new Error(error);
+    }
+
+    // If no player document exists for the given guild member
+    if (!playerDocument) {
         // Create one
-        guildUserDocument = new GuildUser({
+        playerDocument = new Player({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
             animals: []
@@ -27,31 +57,36 @@ export async function getGuildUserDocument(guildMember: GuildMember): Promise<Do
 
         // Save it
         try {
-            await guildUserDocument.save();
+            await playerDocument.save();
         }
         catch (error) {
+            console.error('There was an error trying to save a new player document.');
             throw new Error(error);
         }
     }
 
-    return guildUserDocument;
+    // Return the player document within a wrapper object
+    return new PlayerObject(playerDocument);
 }
 
 // Takes a species and an owner, and creates a new animal assigned to that owner in the database
 export async function createAnimal(owner: GuildMember, species: SpeciesObject, options?: { imageIndex: number }): Promise<void> {
     let imageIndex: number;
-
+    // If an image index was provided
     if (options && options.imageIndex !== undefined) {
+        // Use the provided image
         imageIndex = options.imageIndex;
     }
+    // If no image index was provided
     else {
+        // Pick a random image
         imageIndex = Math.floor(Math.random() * species.images.length);
     }
 
-    let ownerDocument: Document;
+    // Get the player object of the guild member
+    let ownerObject: PlayerObject;
     try {
-        // Get the document that represents the owner
-        ownerDocument = await getGuildUserDocument(owner);
+        ownerObject = await getPlayerObject(owner);
     }
     catch (error) {
         throw new Error(error);
@@ -60,55 +95,16 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
     // Create the new animal
     const animal: AnimalTemplate = {
         species: species._id,
-        image: species.images[imageIndex]._id,
+        image: species.images[imageIndex].getId(),
         experience: 0
     };
 
+    // Save the new animal to the player's inventory
     try {
-        // Add the animal document to the owner's animal inventory
-        await ownerDocument.updateOne({
-            $push: {
-                animals: animal
-            }
-        }).exec();
+        await ownerObject.addAnimal(animal);
     }
     catch (error) {
+        console.error('There was an error trying to add a new animal to a player object\'s inventory.');
         throw new Error(error);
     }
-}
-
-// Releases an animal of a given ID from the inventory of a given guild member
-export async function releaseAnimal(member: GuildMember, animalID: Types.ObjectId): Promise<boolean> {
-    // Get the guild member's document
-    let guildUserDocument: Document;
-    try {
-        guildUserDocument = await getGuildUserDocument(member);
-    }
-    catch (error) {
-        throw new Error(error);
-    }
-
-    // Try to remove the animal and record the result
-    let result: { nModified: number }
-    try {
-        result = await guildUserDocument.updateOne({
-            $pull: {
-                animals: {
-                    _id: animalID
-                }
-            }
-        }).exec();
-    }
-    catch (error) {
-        throw new Error('Error');
-    }
-
-    // If nothing was removed from the user's inventory
-    if (result.nModified < 1) {
-        // Don't throw an error, but just indicate that nothing happened
-        return false;
-    }
-    
-    // Return true after the animal has been removed
-    return true;
 }

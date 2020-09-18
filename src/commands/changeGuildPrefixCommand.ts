@@ -1,7 +1,7 @@
-import { GuildModel } from "../models/guild";
 import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "./commandInterface";
+import { getGuildObject } from "../zoo/userManagement";
 
 // Changes the command prefix for a given guild
 export class ChangeGuildPrefixCommand implements Command {
@@ -12,42 +12,30 @@ export class ChangeGuildPrefixCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
+        // Make sure this command is only used in guilds
         if (parsedUserCommand.channel.type === 'dm') {
             betterSend(parsedUserCommand.channel, 'This command can only be used in servers.');
             return;
         }
 
+        // Get the full text after the initial command text
         const fullPrefix = parsedUserCommand.args.join(' ');
 
+        // Make sure a prefix to use was provided
         if (!fullPrefix) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.commandPrefix));
             return;
         }
 
-        const guild = parsedUserCommand.channel.guild;
-
-        let guildDocument = await GuildModel.findOne({ guildID: guild.id });
-        if (!guildDocument) {
-            guildDocument = new GuildModel({
-                guildID: guild.id,
-                commandPrefix: '>'
-            });
-            try {
-                await guildDocument.save();
-            }
-            catch (error) {
-                console.error('There was an error trying to save a new guild model in the change prefix command.');
-                throw new Error(error);
-            }
-        }
-
+        // Get the target guild's document
+        const guildObject = await getGuildObject(parsedUserCommand.channel.guild);
+        
+        // Attempt to change the guild's prefix
         try {
-            await guildDocument.updateOne({
-                commandPrefix: fullPrefix
-            });
+            await guildObject.setPrefix(fullPrefix);
         }
         catch (error) {
-            console.error('There was an error updating a guild model in the change prefix command.');
+            console.error('There was an error trying to change the prefix of a guild object.');
             throw new Error(error);
         }
 

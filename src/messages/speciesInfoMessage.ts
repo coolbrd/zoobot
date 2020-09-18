@@ -51,10 +51,11 @@ export class SpeciesInfoMessage extends InteractiveMessage {
 
             newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.scientificName), true);
 
-            newEmbed.setImage(image.url);
+            newEmbed.setImage(image.getUrl());
+            const breed = image.getBreed();
             // Display a breed field if the current image is associated with one
-            if (image.breed) {
-                newEmbed.addField('Breed', capitalizeFirstLetter(image.breed), true);
+            if (breed) {
+                newEmbed.addField('Breed', capitalizeFirstLetter(breed), true);
             }
         }
         // When the info message is displaying the species' details
@@ -70,7 +71,7 @@ export class SpeciesInfoMessage extends InteractiveMessage {
             newEmbed.addField('More info', this.species.wikiPage);
 
             // Use the currently selected image as a thumbnail instead
-            newEmbed.setThumbnail(image.url);
+            newEmbed.setThumbnail(image.getUrl());
         }
 
         // Show the currently selected image's index

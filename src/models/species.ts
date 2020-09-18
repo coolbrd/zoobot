@@ -50,14 +50,22 @@ export const Species = mongoose.model('Species', speciesSchema);
 
 // An object representing the subschema that's found within the array of images in a species document
 export class ImageSubObject {
-    public readonly _id: Types.ObjectId;
-    public readonly url: string;
-    public readonly breed: string | undefined;
+    private readonly document: Document;
 
     constructor(imageDocument: Document) {
-        this._id = imageDocument._id;
-        this.url = imageDocument.get('url');
-        this.breed = imageDocument.get('breed') || undefined;
+        this.document = imageDocument;
+    }
+
+    public getId(): Types.ObjectId {
+        return this.document._id;
+    }
+
+    public getUrl(): string {
+        return this.document.get('url');
+    }
+
+    public getBreed(): string | undefined {
+        return this.document.get('breed');
     }
 }
 

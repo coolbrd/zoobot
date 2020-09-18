@@ -7,11 +7,12 @@ import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { loopValue } from "../utility/loopValue";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { getGuildUserDocument, releaseAnimal } from "../zoo/userManagement";
-import { GuildUserObject } from "../models/guildUser";
+import { PlayerObject } from "../models/player";
 import { PointedArray } from "../structures/pointedArray";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
+import { getPlayerObject } from "../zoo/userManagement";
 
+// The set of states that an inventory message can be in
 enum InventoryMessageState {
     page,
     info,
@@ -30,7 +31,8 @@ export class InventoryMessage extends InteractiveMessage {
 
     private state: InventoryMessageState;
 
-    private guildMember: GuildMember;
+    private readonly guildMember: GuildMember;
+    private playerObject: PlayerObject | undefined;
 
     public constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
         super(handler, channel, { buttons: [
@@ -67,31 +69,45 @@ export class InventoryMessage extends InteractiveMessage {
         this.user = user;
         this.channel = channel;
 
+        // Start the inventory message in paged view mode
         this.state = InventoryMessageState.page;
 
+        // Find the Discord guild member corresponding to this message's requester
         this.guildMember = getGuildMember(user, channel.guild);
+    }
+
+    // Gets the document wrapper object corresponding to the player whose inventory this message represents
+    private getPlayerObject(): PlayerObject {
+        if (!this.playerObject) {
+            throw new Error('Attempted to get a player object in an inventory before it was initialized.');
+        }
+
+        return this.playerObject;
     }
 
     // Pre-send build logic
     public async build(): Promise<void> {
         super.build();
 
-        let guildUserObject: GuildUserObject;
+        // Attempt to get the user's player object
+        let playerObject: PlayerObject;
         try {
-            // Get the user's guild user document and convert it into an object
-            guildUserObject = new GuildUserObject(await getGuildUserDocument(this.guildMember));
+            playerObject = await getPlayerObject(this.guildMember);
         }
         catch (error) {
-            console.error('There was an error trying to create a GuildUserObject in an inventory message.');
+            console.error('There was an error trying to get a player object in an inventory message.');
             throw new Error(error);
         }
 
-        // Assign the user's animal inentory to this message's inventory
-        this.inventory = new PointedArray(guildUserObject.animals);
+        // Assign the new player object
+        this.playerObject = playerObject;
+        // Assign the player's animal inentory to this message's inventory (as a pointed array)
+        this.inventory = new PointedArray(this.playerObject.getAnimals());
 
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
 
+        // Build the initial embed
         try {
             this.setEmbed(await this.buildEmbed());
         }
@@ -125,8 +141,8 @@ export class InventoryMessage extends InteractiveMessage {
             return !animal.populated();
         });
         
+        // Attempt to load all unloaded animals
         try {
-            // Load the unloaded animals if there are any
             unloadedAnimals.length && await AnimalObject.bulkPopulate(unloadedAnimals);
         }
         catch (error) {
@@ -140,14 +156,16 @@ export class InventoryMessage extends InteractiveMessage {
         const species = selectedAnimal.getSpecies();
         const image = selectedAnimal.getImage();
 
+        // Calculate the index of the animal's image out of its species's images
         const imageIndex = species.images.findIndex(speciesImage => {
-            return speciesImage._id.equals(image._id);
+            return speciesImage.getId().equals(image.getId());
         });
         
         // Display state behavior
         switch (this.state) {
+            // When the message is in paged view mode
             case InventoryMessageState.page: {
-                embed.setThumbnail(this.inventory[0].getImage().url);
+                embed.setThumbnail(this.inventory[0].getImage().getUrl());
 
                 let inventoryString = '';
                 // Start the current page's display at the appropriate position
@@ -155,21 +173,24 @@ export class InventoryMessage extends InteractiveMessage {
                 // Loop until either the index is above the entries per page limit or the length of the inventory
                 while (inventoryIndex < endIndex && inventoryIndex < this.inventory.length) {
                     // Get the currently iterated animal in the user's inventory
-                    const animal = this.inventory[inventoryIndex];
+                    const animal: AnimalObject = this.inventory[inventoryIndex];
 
                     const species = animal.getSpecies();
                     const image = animal.getImage();
 
                     const firstName = species.commonNames[0];
 
-                    const breed = image.breed;
+                    const breed = image.getBreed();
                     // Write breed information only if it's present
                     const breedText = breed ? `(${breed})` : '';
 
                     // The pointer text to draw on the current animal entry (if any)
                     const pointerText = inventoryIndex === this.inventory.getPointerPosition() ? ' 🔹' : '';
 
-                    inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}${pointerText}\n`;
+                    inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}`;
+
+                    inventoryString += ` ${pointerText}\n`;
+
                     inventoryIndex++;
                 }
 
@@ -177,8 +198,9 @@ export class InventoryMessage extends InteractiveMessage {
 
                 break;
             }
+            // When the message is in info mode
             case InventoryMessageState.info: {
-                embed.setThumbnail(image.url);
+                embed.setThumbnail(image.getUrl());
 
                 embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
                 
@@ -186,12 +208,14 @@ export class InventoryMessage extends InteractiveMessage {
 
                 embed.addField('Card', `${imageIndex + 1}/${species.images.length}`, true);
 
-                image.breed && embed.addField('Breed', capitalizeFirstLetter(image.breed));
+                const breed = image.getBreed();
+                breed && embed.addField('Breed', capitalizeFirstLetter(breed));
 
                 break;
             }
+            // When the message is in image mode
             case InventoryMessageState.image: {
-                embed.setImage(image.url);
+                embed.setImage(image.getUrl());
                 embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`, `Card #${imageIndex + 1} of ${species.images.length}`);
 
                 break;
@@ -294,7 +318,7 @@ export class InventoryMessage extends InteractiveMessage {
 
                 // Release the user's animal
                 try {
-                    await releaseAnimal(this.guildMember, selectedAnimal._id);
+                    await this.getPlayerObject().removeAnimal(selectedAnimal.getId());
                 }
                 catch (error) {
                     betterSend(this.channel, 'There was an error releasing this animal.');

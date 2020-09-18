@@ -29,14 +29,8 @@ export interface AnimalTemplate {
     experience: number
 }
 
-// A lightweight and convenient object representing a captured animal
-// I only mention "lightweight and convenient" because something like this is smaller than a Mongoose document and easier to use
 export class AnimalObject {
-    public readonly _id: Types.ObjectId;
-    public readonly speciesId: Types.ObjectId;
-    public readonly imageId: Types.ObjectId;
-    public readonly nickname: string | undefined;
-    public readonly experience: number;
+    private readonly document: Document;
 
     // The lightweight object equivalents of this animal's species and image
     // Not loaded by default in order to keep things as performant as possible
@@ -44,10 +38,7 @@ export class AnimalObject {
     private image: ImageSubObject | undefined;
 
     constructor(animalDocument: Document) {
-        this._id = animalDocument._id;
-        this.speciesId = animalDocument.get('species');
-        this.imageId = animalDocument.get('image');
-        this.experience = animalDocument.get('experience');
+        this.document = animalDocument;
     }
 
     // Takes an array of animals and resolved once all of them are populated
@@ -73,6 +64,10 @@ export class AnimalObject {
                 });
             }
         });
+    }
+
+    public getId(): Types.ObjectId {
+        return this.document._id;
     }
 
     // Gets the species object representing this animal's species
@@ -101,7 +96,7 @@ export class AnimalObject {
     // Loads the animal's species and image
     public async populate(): Promise<void> {
         // Get the Mongoose document that represents this animal's species
-        const speciesDocument = await Species.findById(this.speciesId);
+        const speciesDocument = await Species.findById(this.document.get('species'));
 
         // If no document was found somehow
         if (!speciesDocument) {
@@ -113,7 +108,7 @@ export class AnimalObject {
 
         // Finds this animal's corresponding image in its species
         const imageSubObject = this.getSpecies().images.find(image => {
-            return image._id.equals(this.imageId);
+            return image.getId().equals(this.document.get('image'));
         });
 
         // If no image object was found by the given ID, somehow
