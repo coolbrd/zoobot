@@ -50,7 +50,7 @@ export const Species = mongoose.model('Species', speciesSchema);
 
 // An object representing the subschema that's found within the array of images in a species document
 export class ImageSubObject {
-    private readonly document: Document;
+    private document: Document;
 
     constructor(imageDocument: Document) {
         this.document = imageDocument;
@@ -70,28 +70,99 @@ export class ImageSubObject {
 }
 
 // A simple, stripped-down object used for easier interfacing with species documents returned from Mongoose queries
-// Not to be used if the species document needs to be changed (yet)
 export class SpeciesObject {
-    public readonly _id: Types.ObjectId;
-    public readonly commonNames: string[];
-    public readonly scientificName: string;
-    public readonly images: ImageSubObject[];
-    public readonly description: string;
-    public readonly naturalHabitat: string;
-    public readonly wikiPage: string;
-    public readonly rarity: number;
+    private readonly id: Types.ObjectId;
 
-    constructor(speciesDocument: Document) {
-        this._id = speciesDocument._id;
-        this.commonNames = speciesDocument.get('commonNames');
-        this.scientificName = speciesDocument.get('scientificName');
-        this.images = [];
-        speciesDocument.get('images').forEach((imageDocument: Document) => {
-            this.images.push(new ImageSubObject(imageDocument));
+    private document: Document | undefined;
+
+    private loaded = false;
+
+    private images: ImageSubObject[] | undefined;
+
+    constructor(speciesInfo: { speciesId?: Types.ObjectId, speciesDocument?: Document }) {
+        // Use whichever piece of information has been provided
+        if (speciesInfo.speciesId) {
+            this.id = speciesInfo.speciesId;
+        }
+        else if (speciesInfo.speciesDocument) {
+            this.id = speciesInfo.speciesDocument._id;
+            this.document = speciesInfo.speciesDocument;
+        }
+        // If neither of the fields were satisfied
+        else {
+            throw new Error('Insufficient information provided for species object.');
+        }
+    }
+
+    public getId(): Types.ObjectId {
+        return this.getDocument().id;
+    }
+
+    // Loads this species's data from the database
+    public async load(): Promise<void> {
+        // Don't load again if it's already loaded
+        if (this.isLoaded()) {
+            return;
+        }
+
+        // Only load the species document if it hasn't been supplied already
+        const speciesDocument = this.document || await Species.findById(this.id);
+
+        if (!speciesDocument) {
+            throw new Error('No species document was found for an id given to a species object.');
+        }
+
+        this.document = speciesDocument;
+
+        const imageSubObjects: ImageSubObject[] = [];
+        this.getDocument().get('images').forEach((imageDocument: Document) => {
+            imageSubObjects.push(new ImageSubObject(imageDocument));
         });
-        this.description = speciesDocument.get('description');
-        this.naturalHabitat = speciesDocument.get('naturalHabitat');
-        this.wikiPage = speciesDocument.get('wikiPage');
-        this.rarity = speciesDocument.get('rarity');
+
+        this.images = imageSubObjects;
+    }
+
+    public isLoaded(): boolean {
+        return this.loaded;
+    }
+
+    private getDocument(): Document {
+        if (!this.document) {
+            throw new Error('A species object\'s document was attempted to be read before it was loaded.');
+        }
+
+        return this.document;
+    }
+
+    public getCommonNames(): string[] {
+        return this.getDocument().get('commonNames');
+    }
+
+    public getScientificName(): string {
+        return this.getDocument().get('scientificName');
+    }
+
+    public getDescription(): string {
+        return this.getDocument().get('description');
+    }
+
+    public getNaturalHabitat(): string {
+        return this.getDocument().get('naturalHabitat');
+    }
+
+    public getWikiPage(): string {
+        return this.getDocument().get('wikiPage');
+    }
+
+    public getRarity(): number {
+        return this.getDocument().get('rarity');
+    }
+
+    public getImages(): ImageSubObject[] {
+        if (!this.images) {
+            throw new Error('Tried to get a species\'s images before they were loaded.');
+        }
+
+        return this.images;
     }
 }

@@ -1,7 +1,8 @@
 import { Guild, GuildMember } from "discord.js";
 import { Document } from "mongoose";
+import { getGuildMember } from "../discordUtility/getGuildMember";
+import { Animal, AnimalObject } from "../models/animal";
 
-import { AnimalTemplate } from "../models/animal";
 import { GuildModel, GuildObject } from "../models/guild";
 import { Player, PlayerObject } from "../models/player";
 import { SpeciesObject } from "../models/species";
@@ -51,8 +52,7 @@ export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerO
         // Create one
         playerDocument = new Player({
             userId: guildMember.user.id,
-            guildId: guildMember.guild.id,
-            animals: []
+            guildId: guildMember.guild.id
         });
 
         // Save it
@@ -66,7 +66,7 @@ export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerO
     }
 
     // Return the player document within a wrapper object
-    return new PlayerObject(playerDocument);
+    return new PlayerObject(playerDocument._id);
 }
 
 // Takes a species and an owner, and creates a new animal assigned to that owner in the database
@@ -80,31 +80,49 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
     // If no image index was provided
     else {
         // Pick a random image
-        imageIndex = Math.floor(Math.random() * species.images.length);
+        imageIndex = Math.floor(Math.random() * species.getImages().length);
     }
 
     // Get the player object of the guild member
     let ownerObject: PlayerObject;
     try {
         ownerObject = await getPlayerObject(owner);
+        await ownerObject.load();
     }
     catch (error) {
         throw new Error(error);
     }
 
     // Create the new animal
-    const animal: AnimalTemplate = {
-        species: species._id,
-        image: species.images[imageIndex].getId(),
+    const animal = new Animal({
+        ownerId: ownerObject.getUserId(),
+        guildId: ownerObject.getGuildId(),
+        species: species.getId(),
+        image: species.getImages()[imageIndex].getId(),
         experience: 0
-    };
+    });
 
-    // Save the new animal to the player's inventory
+    // Save the new animal
     try {
-        await ownerObject.addAnimal(animal);
+        await animal.save();
     }
     catch (error) {
-        console.error('There was an error trying to add a new animal to a player object\'s inventory.');
+        console.error('There was an error trying to save a new animal.');
         throw new Error(error);
     }
+
+    try {
+        await ownerObject.addAnimal(animal._id);
+    }
+    catch (error) {
+        console.error('There was an error trying to add a new animal id to a player object\'s inventory.');
+        throw new Error(error);
+    }
+}
+
+export async function deleteAnimal(animalObject: AnimalObject): Promise<void> {
+    const playerObject = await getPlayerObject(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
+
+    playerObject.removeAnimal(animalObject.getId());
+    animalObject.delete();
 }

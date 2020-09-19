@@ -42,7 +42,7 @@ export default class EncounterHandler {
 
         try {
             // Send an encounter message to the channel
-            const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, new SpeciesObject(speciesDocument));
+            const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, new SpeciesObject({speciesDocument: speciesDocument}));
             await encounterMessage.send();
         }
         catch (error) {

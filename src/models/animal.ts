@@ -1,8 +1,16 @@
-import { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-import { ImageSubObject, Species, SpeciesObject } from './species';
+import { ImageSubObject, SpeciesObject } from './species';
 
 export const animalSchema = new Schema({
+    ownerId: {
+        type: String,
+        required: true
+    },
+    guildId: {
+        type: String,
+        required: true
+    },
     species: {
         type: Schema.Types.ObjectId,
         ref: 'Species',
@@ -22,52 +30,94 @@ export const animalSchema = new Schema({
     }
 });
 
-export interface AnimalTemplate {
-    species: Types.ObjectId,
-    image: Types.ObjectId,
-    nickname?: string,
-    experience: number
-}
+export const Animal = mongoose.model('Animal', animalSchema);
 
+// A wrapper object for an animal's Mongoose document
 export class AnimalObject {
-    private readonly document: Document;
+    private readonly id: Types.ObjectId;
 
-    // The lightweight object equivalents of this animal's species and image
-    // Not loaded by default in order to keep things as performant as possible
+    private document: Document | undefined;
+
+    private loaded = false;
+
     private species: SpeciesObject | undefined;
     private image: ImageSubObject | undefined;
 
-    constructor(animalDocument: Document) {
-        this.document = animalDocument;
-    }
-
-    // Takes an array of animals and resolved once all of them are populated
-    public static bulkPopulate(animals: AnimalObject[]): Promise<void> {
-        // The number of animals whose population operation has been completed
-        let completed = 0;
-        
-        // Return the promise that will resolve once everything is loaded
-        return new Promise((resolve, reject) => {
-            // Iterate over every animal given
-            for (const animal of animals) {
-                // Populate the current animal
-                animal.populate().then(() => {
-                    // Once the population is complete, check if all animals have been populated
-                    if (++completed >= animals.length) {
-                        // Resolve if all animals are done
-                        resolve();
-                    }
-                // If an error is encountered while populating any of the animals
-                }).catch(error => {
-                    // Reject the promise
-                    reject(error);
-                });
-            }
-        });
+    constructor(animalInfo: { animalId?: Types.ObjectId, animalDocument?: Document }) {
+        if (animalInfo.animalId) {
+            this.id = animalInfo.animalId;
+        }
+        else if (animalInfo.animalDocument) {
+            this.id = animalInfo.animalDocument._id;
+            this.document = animalInfo.animalDocument;
+            this.loaded = true;
+        }
+        else {
+            throw new Error('Insufficient information provided for animal object.');
+        }
     }
 
     public getId(): Types.ObjectId {
-        return this.document._id;
+        return this.getDocument()._id;
+    }
+
+    public async load(): Promise<void> {
+        if (this.isLoaded()) {
+            return;
+        }
+
+        const animalDocument = await Animal.findById(this.id);
+
+        if (!animalDocument) {
+            throw new Error('No animal document by an animal object\'s id was found during load.');
+        }
+
+        this.document = animalDocument;
+
+        this.species = new SpeciesObject({speciesId: this.getSpeciesId()});
+        await this.species.load();
+
+        // Get the array of all images of the animal's species
+        const speciesImages = this.getSpecies().getImages();
+        // Set the animal's image to the one that corresponds to this animal's image id
+        this.image = speciesImages.find(speciesImage => {
+            return this.getImageId().equals(speciesImage.getId());
+        });
+
+        this.loaded = true;
+    }
+
+    public async refresh(): Promise<void> {
+        this.loaded = false;
+        this.load();
+    }
+
+    public isLoaded(): boolean {
+        return this.loaded;
+    }
+
+    private getDocument(): Document {
+        if (!this.document) {
+            throw new Error('Tried to get an AnimalObject\'s document before it was loaded.');
+        }
+
+        return this.document;
+    }
+
+    public getOwnerId(): string {
+        return this.getDocument().get('ownerId');
+    }
+
+    public getGuildId(): string {
+        return this.getDocument().get('guildId');
+    }
+
+    public getSpeciesId(): Types.ObjectId {
+        return this.getDocument().get('species');
+    }
+
+    public getImageId(): Types.ObjectId {
+        return this.getDocument().get('image');
     }
 
     // Gets the species object representing this animal's species
@@ -88,35 +138,17 @@ export class AnimalObject {
         return this.image;
     }
 
-    // Checks if the animal's reference fields are loaded
-    public populated(): boolean {
-        return Boolean(this.species) && Boolean(this.image);
+    public getExperience(): number {
+        return this.getDocument().get('experience');
     }
 
-    // Loads the animal's species and image
-    public async populate(): Promise<void> {
-        // Get the Mongoose document that represents this animal's species
-        const speciesDocument = await Species.findById(this.document.get('species'));
-
-        // If no document was found somehow
-        if (!speciesDocument) {
-            throw new Error('Animal object attempted to populate its species field with an invalid ID.');
+    public async delete(): Promise<void> {
+        try {
+            await this.getDocument().deleteOne();
         }
-
-        // Convert the species document to an object and assign it
-        this.species = new SpeciesObject(speciesDocument);
-
-        // Finds this animal's corresponding image in its species
-        const imageSubObject = this.getSpecies().images.find(image => {
-            return image.getId().equals(this.document.get('image'));
-        });
-
-        // If no image object was found by the given ID, somehow
-        if (!imageSubObject) {
-            throw new Error('Animal object attempted to populate its image field with an invalid ID.');
+        catch (error) {
+            console.error('There was an error trying to delete an animal object.');
+            throw new Error(error);
         }
-
-        // Assign this animal's image
-        this.image = imageSubObject;
     }
 }

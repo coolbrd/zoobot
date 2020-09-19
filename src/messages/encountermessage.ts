@@ -1,4 +1,4 @@
-import { TextChannel, User, APIMessage } from 'discord.js';
+import { TextChannel, User, APIMessage, MessageEmbed } from 'discord.js';
 
 import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
@@ -19,21 +19,48 @@ export default class EncounterMessage extends InteractiveMessage {
     // The species of the animal contained within this encounter
     private readonly species: SpeciesObject;
     // The image chosen to be displayed for this animal encounter
-    private readonly imageIndex: number;
+    private imageIndex: number | undefined;
 
     constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: SpeciesObject) {
+        super(handler, channel, { buttons: {
+                name: 'capture',
+                emoji: '🔘',
+                helpMessage: 'Capture'
+            },
+            deactivationText: '(fled)'
+        });
+        this.channel = channel;
+        this.species = species;
+    }
+
+    public async build(): Promise<void> {
+        super.build();
+
+        // Load the species's information
+        await this.species.load();
+
+        try {
+            this.setEmbed(await this.buildEmbed());
+        }
+        catch (error) {
+            console.error('There was an error trying to build an encounter message\'s embed.');
+            throw new Error(error);
+        }
+    }
+
+    private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
         // Color the encounter's embed properly
-        embed.setColor(getGuildUserDisplayColor(client.user, channel.guild));
+        embed.setColor(getGuildUserDisplayColor(client.user, this.channel.guild));
 
-        embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
+        embed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
 
-        embed.addField('――――――――', capitalizeFirstLetter(species.scientificName), true);
+        embed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
 
         // Pick a random image from the animal's set of images
-        const imageIndex = Math.floor(Math.random() * species.images.length);
+        this.imageIndex = Math.floor(Math.random() * this.species.getImages().length);
         // Get the image of the determined index
-        const image = species.images[imageIndex];
+        const image = this.species.getImages()[this.imageIndex];
         embed.setImage(image.getUrl());
 
         const breed = image.getBreed();
@@ -43,31 +70,17 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         embed.setFooter('Wild encounter');
-
-        const content = new APIMessage(channel, { embed: embed });
-
-        super(handler, channel, {
-            content: content,
-            buttons: {
-                name: 'capture',
-                emoji: '🔘',
-                helpMessage: 'Capture'
-            },
-            deactivationText: '(fled)'
-        });
-        this.channel = channel;
-        this.species = species;
-        this.imageIndex = imageIndex;
+        return embed;
     }
 
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
         // Indicate that the user has caught the animal
-        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.commonNames[0]}!`);
+        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.getCommonNames()[0]}!`);
         this.setDeactivationText('(caught)');
 
         // Create the new animal instance
-        await createAnimal(getGuildMember(user, this.channel.guild), this.species, {imageIndex: this.imageIndex });
+        await createAnimal(getGuildMember(user, this.channel.guild), this.species, { imageIndex: this.imageIndex as number });
         
         // Stop this message from receiving any more input
         this.deactivate();

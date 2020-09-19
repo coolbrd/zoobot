@@ -32,6 +32,12 @@ export class SpeciesInfoMessage extends InteractiveMessage {
         ]});
 
         this.species = species;
+    }
+
+    public async build(): Promise<void> {
+        super.build();
+
+        await this.species.load();
 
         this.setEmbed(this.buildEmbed());
     }
@@ -40,16 +46,16 @@ export class SpeciesInfoMessage extends InteractiveMessage {
         const newEmbed = new SmartEmbed();
 
         // Determine the image to display
-        const image = this.species.images[this.currentImage];
+        const image = this.species.getImages()[this.currentImage];
 
         // Set the embed's color
         newEmbed.setColor(getGuildUserDisplayColor(client.user, this.channel));
 
         // When the info message is showing a large picture of the species (not details)
         if (this.pictureMode) {
-            newEmbed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
+            newEmbed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
 
-            newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.scientificName), true);
+            newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
 
             newEmbed.setImage(image.getUrl());
             const breed = image.getBreed();
@@ -60,22 +66,22 @@ export class SpeciesInfoMessage extends InteractiveMessage {
         }
         // When the info message is displaying the species' details
         else {
-            newEmbed.setTitle(capitalizeFirstLetter(this.species.scientificName));
+            newEmbed.setTitle(capitalizeFirstLetter(this.species.getScientificName()));
 
-            newEmbed.setDescription(`Also known as: ${this.species.commonNames.join(', ')}`);
+            newEmbed.setDescription(`Also known as: ${this.species.getCommonNames().join(', ')}`);
 
-            newEmbed.addField('Description', this.species.description);
+            newEmbed.addField('Description', this.species.getDescription());
 
-            newEmbed.addField('Habitat', this.species.naturalHabitat);
+            newEmbed.addField('Habitat', this.species.getNaturalHabitat());
 
-            newEmbed.addField('More info', this.species.wikiPage);
+            newEmbed.addField('More info', this.species.getWikiPage());
 
             // Use the currently selected image as a thumbnail instead
             newEmbed.setThumbnail(image.getUrl());
         }
 
         // Show the currently selected image's index
-        newEmbed.setFooter(`${this.currentImage + 1}/${this.species.images.length}`);
+        newEmbed.setFooter(`${this.currentImage + 1}/${this.species.getImages().length}`);
 
         return newEmbed;
     }
@@ -85,11 +91,11 @@ export class SpeciesInfoMessage extends InteractiveMessage {
 
         switch (buttonName) {
             case 'rightArrow': {
-                this.currentImage = this.currentImage + 1 >= this.species.images.length ? 0 : this.currentImage + 1;
+                this.currentImage = this.currentImage + 1 >= this.species.getImages().length ? 0 : this.currentImage + 1;
                 break;
             }
             case 'leftArrow': {
-                this.currentImage = this.currentImage - 1 < 0 ? this.species.images.length - 1 : this.currentImage - 1;
+                this.currentImage = this.currentImage - 1 < 0 ? this.species.getImages().length - 1 : this.currentImage - 1;
                 break;
             }
             case 'info': {

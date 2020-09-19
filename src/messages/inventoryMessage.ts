@@ -10,7 +10,7 @@ import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageH
 import { PlayerObject } from "../models/player";
 import { PointedArray } from "../structures/pointedArray";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
-import { getPlayerObject } from "../zoo/userManagement";
+import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -23,12 +23,17 @@ export class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
     protected readonly channel: TextChannel;
 
+    // The inventory of AnimalObjects to display
     private inventory = new PointedArray<AnimalObject>();
 
+    // The page to start on
     private page = 0;
     private animalsPerPage = 10;
+    // The number of total pages in the inventory
+    // This has to be initialized as 0 because the page count can't be determined until the message is built
     private pageCount = 0;
 
+    // The current display state of the message
     private state: InventoryMessageState;
 
     private readonly guildMember: GuildMember;
@@ -87,12 +92,14 @@ export class InventoryMessage extends InteractiveMessage {
 
     // Pre-send build logic
     public async build(): Promise<void> {
+        console.time('init');
         super.build();
 
         // Attempt to get the user's player object
         let playerObject: PlayerObject;
         try {
             playerObject = await getPlayerObject(this.guildMember);
+            await playerObject.load();
         }
         catch (error) {
             console.error('There was an error trying to get a player object in an inventory message.');
@@ -101,11 +108,12 @@ export class InventoryMessage extends InteractiveMessage {
 
         // Assign the new player object
         this.playerObject = playerObject;
-        // Assign the player's animal inentory to this message's inventory (as a pointed array)
-        this.inventory = new PointedArray(this.playerObject.getAnimals());
+        this.inventory = new PointedArray(await this.playerObject.getAnimalObjects());
 
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
+
+        console.timeEnd('init');
 
         // Build the initial embed
         try {
@@ -119,6 +127,7 @@ export class InventoryMessage extends InteractiveMessage {
     // Build's the current page of the inventory's embed
     // Is async because queries for each animal's species data are being made as requested, rather than initially
     private async buildEmbed(): Promise<MessageEmbed> {
+        console.time('build');
         const embed = new SmartEmbed();
 
         const userAvatar = this.user.avatarURL() || undefined;
@@ -135,29 +144,34 @@ export class InventoryMessage extends InteractiveMessage {
         const startIndex = this.page * this.animalsPerPage;
         const endIndex = startIndex + this.animalsPerPage;
 
-        // The array that will hold the asynchronous functions to execute in bulk
-        const unloadedAnimals: AnimalObject[] = this.inventory.slice(startIndex, endIndex).filter(animal => {
-            // Only fill the array with animals that haven't been loaded yet
-            return !animal.populated();
+        // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
+        const unloadedAnimals: AnimalObject[] = this.inventory.slice(startIndex, endIndex).filter((animalObject: AnimalObject) => {
+            return !animalObject.isLoaded();
         });
         
-        // Attempt to load all unloaded animals
-        try {
-            unloadedAnimals.length && await AnimalObject.bulkPopulate(unloadedAnimals);
-        }
-        catch (error) {
-            console.error('There was an error trying to bulk populate a list of animal objects in an inventory message.');
-            throw new Error(error);
-        }
+        // If there are animals that need to be loaded, initiate a promise to load them all at once
+        unloadedAnimals.length && await new Promise(resolve => {
+            let count = 0;
+            unloadedAnimals.forEach(unloadedAnimal => {
+                // Load every animal in the necessary array
+                unloadedAnimal.load().then(() => {
+                    // When the last animal is loaded, resolve the promise and continue on
+                    if (++count >= unloadedAnimals.length) {
+                        resolve();
+                    }
+                })
+            });
+        });
 
         // Get the animal that's selected by the pointer
         const selectedAnimal = this.inventory.selection();
+
         // Get the animal's necessary information
         const species = selectedAnimal.getSpecies();
         const image = selectedAnimal.getImage();
 
         // Calculate the index of the animal's image out of its species's images
-        const imageIndex = species.images.findIndex(speciesImage => {
+        const imageIndex = species.getImages().findIndex(speciesImage => {
             return speciesImage.getId().equals(image.getId());
         });
         
@@ -178,7 +192,7 @@ export class InventoryMessage extends InteractiveMessage {
                     const species = animal.getSpecies();
                     const image = animal.getImage();
 
-                    const firstName = species.commonNames[0];
+                    const firstName = species.getCommonNames()[0];
 
                     const breed = image.getBreed();
                     // Write breed information only if it's present
@@ -202,26 +216,28 @@ export class InventoryMessage extends InteractiveMessage {
             case InventoryMessageState.info: {
                 embed.setThumbnail(image.getUrl());
 
-                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`);
+                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.getCommonNames()[0])}`);
                 
-                embed.addField('Species', capitalizeFirstLetter(species.scientificName), true);
+                embed.addField('Species', capitalizeFirstLetter(species.getScientificName()), true);
 
-                embed.addField('Card', `${imageIndex + 1}/${species.images.length}`, true);
+                embed.addField('Card', `${imageIndex + 1}/${species.getImages().length}`, true);
 
                 const breed = image.getBreed();
                 breed && embed.addField('Breed', capitalizeFirstLetter(breed));
+
+                embed.addField('Experience', `${selectedAnimal.getExperience()}`);
 
                 break;
             }
             // When the message is in image mode
             case InventoryMessageState.image: {
                 embed.setImage(image.getUrl());
-                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.commonNames[0])}`, `Card #${imageIndex + 1} of ${species.images.length}`);
+                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.getCommonNames()[0])}`, `Card #${imageIndex + 1} of ${species.getImages().length}`);
 
                 break;
             }
         }
-
+        console.timeEnd('build');
         return embed;
     }
 
@@ -316,9 +332,15 @@ export class InventoryMessage extends InteractiveMessage {
                 // Get the selected animal that will be released
                 const selectedAnimal = this.inventory.selection();
 
+                if (!(selectedAnimal instanceof AnimalObject)) {
+                    throw new Error('A plain ObjectId was selected for release.');
+                }
+
                 // Release the user's animal
                 try {
-                    await this.getPlayerObject().removeAnimal(selectedAnimal.getId());
+                    console.time('delete');
+                    await deleteAnimal(selectedAnimal);
+                    console.timeEnd('delete');
                 }
                 catch (error) {
                     betterSend(this.channel, 'There was an error releasing this animal.');
