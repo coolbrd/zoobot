@@ -1,5 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { GuildConfigObject, guildConfigSchema } from "./guildConfig";
+import mongoose, { Schema } from "mongoose";
+import DocumentWrapper from '../structures/documentWrapper';
+import { guildConfigSchema } from "./guildConfig";
 
 const guildScema = new Schema({
     id: {
@@ -14,26 +15,19 @@ const guildScema = new Schema({
 
 export const GuildModel = mongoose.model('Guild', guildScema);
 
-// A wrapper class for a Mongoose document. Used to simplify and restrict data access.
-export class GuildObject {
-    private readonly document: Document;
-
-    constructor(guildDocument: Document) {
-        this.document = guildDocument;
-    }
-
-    public getId(): string {
-        return this.document.get('id');
-    }
-
+export class GuildObject extends DocumentWrapper {
     public getPrefix(): string {
-        return this.document.get('config.prefix');
+        return this.getDocument().get('config.prefix');
     }
 
     public async setPrefix(newPrefix: string): Promise<void> {
+        if (!this.documentLoaded()) {
+            throw new Error('Tried to change a guild document\'s prefix before it was loaded.');
+        }
+
         // Attempt to update the guild's prefix
         try {
-            await this.document.updateOne({
+            await this.getDocument().updateOne({
                 $set: {
                     'config.prefix': newPrefix
                 }

@@ -108,7 +108,7 @@ export class InventoryMessage extends InteractiveMessage {
 
         // Assign the new player object
         this.playerObject = playerObject;
-        this.inventory = new PointedArray(await this.playerObject.getAnimalObjects());
+        this.inventory = new PointedArray(this.playerObject.getAnimals());
 
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
@@ -146,7 +146,7 @@ export class InventoryMessage extends InteractiveMessage {
 
         // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
         const unloadedAnimals: AnimalObject[] = this.inventory.slice(startIndex, endIndex).filter((animalObject: AnimalObject) => {
-            return !animalObject.isLoaded();
+            return !animalObject.fullyLoaded();
         });
         
         // If there are animals that need to be loaded, initiate a promise to load them all at once
@@ -170,7 +170,7 @@ export class InventoryMessage extends InteractiveMessage {
         const species = selectedAnimal.getSpecies();
         const image = selectedAnimal.getImage();
 
-        // Calculate the index of the animal's image out of its species's images
+        // Calculate the index of the animal's image out of its species' images
         const imageIndex = species.getImages().findIndex(speciesImage => {
             return speciesImage.getId().equals(image.getId());
         });
@@ -339,7 +339,7 @@ export class InventoryMessage extends InteractiveMessage {
                 // Release the user's animal
                 try {
                     console.time('delete');
-                    await deleteAnimal(selectedAnimal);
+                    await deleteAnimal({animalObject: selectedAnimal});
                     console.timeEnd('delete');
                 }
                 catch (error) {

@@ -36,7 +36,7 @@ export default class EncounterMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        // Load the species's information
+        // Load the species' information
         await this.species.load();
 
         try {
@@ -79,7 +79,7 @@ export default class EncounterMessage extends InteractiveMessage {
         betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.getCommonNames()[0]}!`);
         this.setDeactivationText('(caught)');
 
-        // Create the new animal instance
+        // Create the new animal
         await createAnimal(getGuildMember(user, this.channel.guild), this.species, { imageIndex: this.imageIndex as number });
         
         // Stop this message from receiving any more input

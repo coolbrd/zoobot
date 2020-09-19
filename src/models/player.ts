@@ -1,6 +1,7 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-import { Animal, AnimalObject } from "./animal";
+import DocumentWrapper from '../structures/documentWrapper';
+import { AnimalObject } from "./animal";
 
 const playerSchema = new Schema({
     userId: {
@@ -20,36 +21,9 @@ const playerSchema = new Schema({
 export const Player = mongoose.model('Player', playerSchema);
 
 // A wrapper object for a Mongoose player document
-export class PlayerObject {
-    private id: Types.ObjectId;
-
-    private document: Document | undefined;
-
-    constructor(playerId: Types.ObjectId) {
-        this.id = playerId;
-    }
-
-    public getId(): Types.ObjectId {
-        return this.id;
-    }
-
-    public async load(): Promise<void> {
-        const playerDocument = await Player.findById(this.getId());
-
-        if (!playerDocument) {
-            throw new Error('A player object couldn\'t find a corresponding document with its given id.');
-        }
-
-        this.document = playerDocument;
-    }
-
-    private getDocument(): Document {
-        if (!this.document) {
-            throw new Error('A player\'s document was attempted to be read before it was loaded.');
-        }
-
-        return this.document;
-    }
+export class PlayerObject extends DocumentWrapper {
+    // This player's inventory of animal objects
+    private animals: AnimalObject[] | undefined;
 
     public getUserId(): string {
         return this.getDocument().get('userId');
@@ -63,16 +37,12 @@ export class PlayerObject {
         return this.getDocument().get('animals');
     }
 
-    public async getAnimalObjects(): Promise<AnimalObject[]> {
-        const animalIds = this.getDocument().get('animals');
+    public getAnimals(): AnimalObject[] {
+        if (!this.animals) {
+            throw new Error('A player\'s animals were attempted to be retrieved before they were loaded.');
+        }
 
-        const animalObjects: AnimalObject[] = [];
-
-        animalIds.forEach((animalId: Types.ObjectId) => {
-            animalObjects.push(new AnimalObject({animalId: animalId}));
-        });
-
-        return animalObjects;
+        return this.animals;
     }
 
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
@@ -89,5 +59,65 @@ export class PlayerObject {
                 animals: animalId
             }
         });
+    }
+
+    public async loadDocument(): Promise<void> {
+        // If this player's document is already known, do nothing
+        if (this.documentLoaded()) {
+            return;
+        }
+
+        // Find and set this player's document
+        const playerDocument = await Player.findById(this.getId());
+        if (!playerDocument) {
+            throw new Error('A player object couldn\'t find a corresponding document with its given id.');
+        }
+        this.setDocument(playerDocument);
+    }
+
+    public async loadAnimals(): Promise<void> {
+        // Don't attempt to load any animals before this player's document is loaded
+        if (!this.documentLoaded()) {
+            throw new Error('A player object\'s animals were attempted to be loaded before the document was loaded.');
+        }
+
+        // If this player's animals are already known/loaded, do nothing
+        if (this.animalsLoaded()) {
+            return;
+        }
+
+        // Get this player's list of animal ids
+        const animalIds = this.getDocument().get('animals');
+
+        // For every animal id, add a new animal object of that id to this player's inventory
+        const animalObjects: AnimalObject[] = [];
+        animalIds.forEach((animalId: Types.ObjectId) => {
+            animalObjects.push(new AnimalObject({documentId: animalId}));
+        });
+        // Assign the array of animal objects to this player's inventory
+        this.animals = animalObjects;
+    }
+
+    public animalsLoaded(): boolean {
+        return Boolean(this.animals);
+    }
+
+    public fullyLoaded(): boolean {
+        return super.fullyLoaded() && this.animalsLoaded();
+    }
+
+    public async load(): Promise<void> {
+        // If all player information is already loaded, do nothing
+        if (this.fullyLoaded()) {
+            return;
+        }
+
+        await this.loadDocument();
+        await this.loadAnimals();
+    }
+
+    public unload(): void {
+        super.unload();
+        this.animals = undefined;
     }
 }

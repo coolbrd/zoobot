@@ -27,7 +27,7 @@ export class SpeciesInfoCommand implements Command {
         }
 
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(interactiveMessageHandler, channel, new SpeciesObject({speciesDocument: speciesDocument}));
+        const infoMessage = new SpeciesInfoMessage(interactiveMessageHandler, channel, new SpeciesObject({document: speciesDocument}));
         infoMessage.send();
     }
 }
