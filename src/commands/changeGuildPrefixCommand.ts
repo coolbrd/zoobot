@@ -42,6 +42,6 @@ export class ChangeGuildPrefixCommand implements Command {
             throw new Error(error);
         }
 
-        betterSend(parsedUserCommand.channel, `Success. My prefix is now \`${fullPrefix}\``);
+        betterSend(parsedUserCommand.channel, `Success. My prefix is now \`${fullPrefix}\`.`);
     }
 }
