@@ -1,4 +1,4 @@
-import { Guild, Message } from 'discord.js';
+import { Guild, Message, User } from 'discord.js';
 
 import Command from '../commands/commandInterface';
 import CommandParser from './commandParser';
@@ -11,6 +11,7 @@ import { EncounterCommand } from '../commands/encounterCommand';
 import { ViewInventoryCommand } from '../commands/viewInventoryCommand';
 import { ChangeGuildPrefixCommand } from '../commands/changeGuildPrefixCommand';
 import { GuildModel } from '../models/guild';
+import { client } from '..';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -50,10 +51,12 @@ export default class CommandHandler {
             return;
         }
 
-        // If the message is a command
-        if (this.isCommand(message)) {
+        // Check the message for a valid prefix
+        const messagePrefix = this.prefixUsed(message);
+        // If the message contained a valid prefix
+        if (messagePrefix) {
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
-            const commandParser = new CommandParser(message, this.getGuildPrefix(message.guild));
+            const commandParser = new CommandParser(message, messagePrefix, this.getGuildPrefix(message.guild));
 
             // Find a command class that matches the command specified in the message
             const matchedCommand = this.commands.find(command => command.commandNames.includes(commandParser.parsedCommandName));
@@ -81,13 +84,26 @@ export default class CommandHandler {
         return guild ? this.guildPrefixes.get(guild.id) || this.prefix : this.prefix;
     }
 
-    // Determines whether or not a message is a user command.
-    private isCommand(message: Message): boolean {
-        // Determine the prefix to use for this message's guild of origin (if any)
+    // Determines the prefix used at the beginning of the message, if there is one
+    private prefixUsed(message: Message): string | undefined {
+        // Get the prefix to be looking for
         const prefix = this.getGuildPrefix(message.guild);
 
-        // Check if the sent message starts with the proper prefix
-        return message.content.startsWith(prefix);
+        // If the message starts with the bot's prefix
+        if (message.content.startsWith(prefix)) {
+            return prefix;
+        }
+
+        // The string that represents the bot being tagged by a user
+        const tagString = `<@!${(client.user as User).id}>`;
+        // If the message starts with the bot's tag
+        if (message.content.startsWith(tagString)) {
+            // Return the tag string
+            return tagString;
+        }
+
+        // If the message doesn't start with any valid prefix
+        return undefined;
     }
 
     // Loads the map of guild prefixes to respond to in each given guild

@@ -3,23 +3,28 @@ import { Message, TextChannel, DMChannel } from 'discord.js';
 // The parsed version of a command given by a user's message
 export default class CommandParser {
     // The parsed name of the command that's being used in the message, even if it's not a valid command
-    readonly parsedCommandName: string;
+    public readonly parsedCommandName: string;
     // The array of text following the command, split by spaces
-    readonly args: string[];
+    public readonly args: string[];
     // The message as originally sent by the user
-    readonly originalMessage: Message;
+    public readonly originalMessage: Message;
     // The channel that the message was sent in
-    readonly channel: TextChannel | DMChannel;
+    public readonly channel: TextChannel | DMChannel;
     // The prefix used by the command handler
-    readonly commandPrefix: string;
+    public readonly commandPrefix: string;
+    // The prefix to give to help commands for display purposes
+    public readonly displayPrefix: string;
 
     // Initialization required the user's message and the prefix to cut out
-    constructor(message: Message, prefix: string) {
+    constructor(message: Message, prefixUsed: string, displayPrefix: string) {
         // Assign this instance's prefix to that which was supplied
-        this.commandPrefix = prefix;
+        this.commandPrefix = prefixUsed;
+
+        // Assign the prefix to show in messages
+        this.displayPrefix = displayPrefix;
         
         // Remove the message's prefix, split it by spaces, and store it in an array
-        const splitMessage = message.content.slice(prefix.length).trim().split(' ');
+        const splitMessage = message.content.slice(prefixUsed.length).trim().split(' ');
         // Remove the initial command from the message's array and store it in its own variable
         // Short-circuit to ensure that even if undefined is returned from the shift method, an empty string will be used
         const commandName = splitMessage.shift() || '';
