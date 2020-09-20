@@ -16,7 +16,8 @@ import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
 enum InventoryMessageState {
     page,
     info,
-    image
+    image,
+    release
 }
 
 export class InventoryMessage extends InteractiveMessage {
@@ -81,18 +82,8 @@ export class InventoryMessage extends InteractiveMessage {
         this.guildMember = getGuildMember(user, channel.guild);
     }
 
-    // Gets the document wrapper object corresponding to the player whose inventory this message represents
-    private getPlayerObject(): PlayerObject {
-        if (!this.playerObject) {
-            throw new Error('Attempted to get a player object in an inventory before it was initialized.');
-        }
-
-        return this.playerObject;
-    }
-
     // Pre-send build logic
     public async build(): Promise<void> {
-        console.time('init');
         super.build();
 
         // Attempt to get the user's player object
@@ -113,8 +104,6 @@ export class InventoryMessage extends InteractiveMessage {
         // Calculate and set page count
         this.pageCount = Math.ceil(this.inventory.length / this.animalsPerPage);
 
-        console.timeEnd('init');
-
         // Build the initial embed
         try {
             this.setEmbed(await this.buildEmbed());
@@ -127,7 +116,6 @@ export class InventoryMessage extends InteractiveMessage {
     // Build's the current page of the inventory's embed
     // Is async because queries for each animal's species data are being made as requested, rather than initially
     private async buildEmbed(): Promise<MessageEmbed> {
-        console.time('build');
         const embed = new SmartEmbed();
 
         const userAvatar = this.user.avatarURL() || undefined;
@@ -236,8 +224,15 @@ export class InventoryMessage extends InteractiveMessage {
 
                 break;
             }
+            // When the message is confirming the release of an animal
+            case InventoryMessageState.release: {
+                embed.setTitle(`Release ${selectedAnimal.getSpecies().getCommonNames()[0]}?`);
+
+                embed.setDescription(`Press the left arrow (${this.getButtonByName('leftArrow').emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
+
+                embed.setThumbnail(image.getUrl());
+            }
         }
-        console.timeEnd('build');
         return embed;
     }
 
@@ -281,66 +276,72 @@ export class InventoryMessage extends InteractiveMessage {
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        switch (buttonName) {
-            case 'upArrow': {
-                this.movePointer(-1);
-                break;
-            }
-            case 'downArrow': {
-                this.movePointer(1);
-                break;
-            }
-            case 'leftArrow': {
-                // Change pages if the message is in page mode, otherwise move the pointer
-                if (this.state === InventoryMessageState.page) {
-                    this.movePages(-1);
-                }
-                else {
+        // If the message in any state other than releasing an animal
+        if (this.state !== InventoryMessageState.release) {
+            // Button behavior
+            switch (buttonName) {
+                case 'upArrow': {
                     this.movePointer(-1);
+                    break;
                 }
-                break;
-            }
-            case 'rightArrow': {
-                // Change pages if the message is in page mode, otherwise move the pointer
-                if (this.state === InventoryMessageState.page) {
-                    this.movePages(1);
-                }
-                else {
+                case 'downArrow': {
                     this.movePointer(1);
+                    break;
                 }
-                break;
+                case 'leftArrow': {
+                    // Change pages if the message is in page mode, otherwise move the pointer
+                    if (this.state === InventoryMessageState.page) {
+                        this.movePages(-1);
+                    }
+                    else {
+                        this.movePointer(-1);
+                    }
+                    break;
+                }
+                case 'rightArrow': {
+                    // Change pages if the message is in page mode, otherwise move the pointer
+                    if (this.state === InventoryMessageState.page) {
+                        this.movePages(1);
+                    }
+                    else {
+                        this.movePointer(1);
+                    }
+                    break;
+                }
+                case 'info': {
+                    if (this.state !== InventoryMessageState.info) {
+                        this.state = InventoryMessageState.info;
+                    }
+                    else {
+                        this.state = InventoryMessageState.page;
+                    }
+                    break;
+                }
+                case 'image': {
+                    if (this.state !== InventoryMessageState.image) {
+                        this.state = InventoryMessageState.image;
+                    }
+                    else {
+                        this.state = InventoryMessageState.page;
+                    }
+                    break;
+                }
+                case 'release': {
+                    // Initiate relese mode
+                    this.state = InventoryMessageState.release;
+                }
             }
-            case 'info': {
-                if (this.state !== InventoryMessageState.info) {
-                    this.state = InventoryMessageState.info;
-                }
-                else {
-                    this.state = InventoryMessageState.page;
-                }
-                break;
-            }
-            case 'image': {
-                if (this.state !== InventoryMessageState.image) {
-                    this.state = InventoryMessageState.image;
-                }
-                else {
-                    this.state = InventoryMessageState.page;
-                }
-                break;
-            }
-            case 'release': {
+        }
+        // If the message is currently confirming the release of an animal
+        else {
+            // If the confirmation button is pressed
+            if (buttonName === 'leftArrow') {
                 // Get the selected animal that will be released
                 const selectedAnimal = this.inventory.selection();
 
-                if (!(selectedAnimal instanceof AnimalObject)) {
-                    throw new Error('A plain ObjectId was selected for release.');
-                }
-
                 // Release the user's animal
                 try {
-                    console.time('delete');
                     await deleteAnimal({animalObject: selectedAnimal});
-                    console.timeEnd('delete');
                 }
                 catch (error) {
                     betterSend(this.channel, 'There was an error releasing this animal.');
@@ -350,6 +351,14 @@ export class InventoryMessage extends InteractiveMessage {
 
                 // Delete the animal from the inventory message
                 this.inventory.deleteAtPointer();
+
+                // Put the message back in paged mode
+                this.state = InventoryMessageState.page;
+            }
+            // If any button other than the confirmation button is pressed
+            else {
+                // Return the message to paged mode
+                this.state = InventoryMessageState.page;
             }
         }
 
