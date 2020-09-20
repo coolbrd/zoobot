@@ -17,18 +17,19 @@ export const interactiveMessageHandler = new InteractiveMessageHandler(client);
 export const encounterHandler = new EncounterHandler();
 
 // Create a new commandhandler instance to parse incoming commands
-const commandHandler = new CommandHandler(config.prefix);
+export const commandHandler = new CommandHandler(config.prefix);
 
 // Flags for the bot's current initialization state
 let discordLoaded = false;
 let databaseLoaded = false;
 let rarityTableLoaded = false;
+let guildPrefixesLoaded = false;
 let readyForInput = false;
 
 // Called whenever the bot completes a stage of initialization
 function complete() {
     // If all steps of initialization are complete
-    if (discordLoaded && databaseLoaded && rarityTableLoaded) {
+    if (discordLoaded && databaseLoaded && rarityTableLoaded && guildPrefixesLoaded) {
         // Allow the bot to receive input
         readyForInput = true;
         console.log('Ready for input');
@@ -41,6 +42,14 @@ mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUni
     // Indicate that the bot has logged into the database
     databaseLoaded = true;
     complete();
+
+    // Load all custom guild prefixes
+    commandHandler.loadGuildPrefixes().then(() => {
+        console.log('Guild prefixes loaded');
+
+        guildPrefixesLoaded = true;
+        complete();
+    });
 
     // Now try to load the species rarity table
     encounterHandler.loadRarityTable().then(() => {

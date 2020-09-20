@@ -16,6 +16,10 @@ const guildScema = new Schema({
 export const GuildModel = mongoose.model('Guild', guildScema);
 
 export class GuildObject extends DocumentWrapper {
+    public getGuildId(): string {
+        return this.getDocument().get('id');
+    }
+
     public getPrefix(): string {
         return this.getDocument().get('config.prefix');
     }

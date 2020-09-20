@@ -2,6 +2,7 @@ import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "./commandInterface";
 import { getGuildObject } from "../zoo/userManagement";
+import { commandHandler } from '..';
 
 // Changes the command prefix for a given guild
 export class ChangeGuildPrefixCommand implements Command {
@@ -33,12 +34,14 @@ export class ChangeGuildPrefixCommand implements Command {
         // Attempt to change the guild's prefix
         try {
             await guildObject.setPrefix(fullPrefix);
+            // Update the guild's prefix in the command handler
+            commandHandler.changeGuildPrefix(guildObject.getGuildId(), fullPrefix);
         }
         catch (error) {
             console.error('There was an error trying to change the prefix of a guild object.');
             throw new Error(error);
         }
 
-        betterSend(parsedUserCommand.channel, `Success. My prefix is now "${fullPrefix}"`);
+        betterSend(parsedUserCommand.channel, `Success. My prefix is now \`${fullPrefix}\``);
     }
 }
