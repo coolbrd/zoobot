@@ -13,7 +13,7 @@ export class SendPendingSubmissionsCommand implements Command {
     public commandNames = ['pending', 'submissions'];
 
     public help(commandPrefix: string): string {
-        return `Use ${commandPrefix}pending to view a list of all pending species submissions.`;
+        return `Use \`${commandPrefix}pending\` to view a list of all pending species submissions.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

@@ -9,7 +9,7 @@ export class SpeciesInfoCommand implements Command {
     public readonly commandNames = ['info', 'i', 'search'];
 
     public help(commandPrefix: string): string {
-        return `Use ${commandPrefix}info <species> to view a species' traits and images.`;
+        return `Use \`${commandPrefix}info\` \`<species>\` to view a species' traits and images.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

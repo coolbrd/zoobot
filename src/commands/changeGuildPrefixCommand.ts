@@ -9,7 +9,7 @@ export class ChangeGuildPrefixCommand implements Command {
     public readonly commandNames = ['prefix', 'changeprefix'];
 
     public help(prefix: string): string {
-        return `Use ${prefix}prefix <new command prefix> to change the prefix that I respond to.`;
+        return `Use \`${prefix}prefix\` \`<new command prefix>\` to change the prefix that I respond to.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

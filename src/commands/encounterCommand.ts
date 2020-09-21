@@ -8,7 +8,7 @@ export class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];
 
     public help(commandPrefix: string): string {
-        return `Use ${commandPrefix} to initiate an animal encounter.`;
+        return `Use \`${commandPrefix}e\` to initiate an animal encounter.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

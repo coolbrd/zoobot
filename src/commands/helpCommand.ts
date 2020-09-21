@@ -7,7 +7,7 @@ export class HelpCommand implements Command {
     public readonly commandNames = ['help', 'h'];
 
     public help(prefix: string): string {
-        return `Use ${prefix}help <command> to see more information about the usage of a particular command.`;
+        return `Use \`${prefix}help\` \`<command>\` to see more information about the usage of a particular command.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

@@ -13,7 +13,7 @@ export class ApprovePendingSpeciesCommand implements Command {
     public readonly commandNames = ['approve', 'approvespecies'];
 
     public help(commandPrefix: string): string {
-        return `Use ${commandPrefix}approve to begin the process of reviewing and approving a species submission.`;
+        return `Use \`${commandPrefix}approve\` \`<pending species name>\` to begin the process of reviewing and approving a species submission.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

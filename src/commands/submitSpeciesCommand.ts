@@ -16,11 +16,10 @@ export class SubmitSpeciesCommand implements Command {
     public commandNames = ['submitspecies', 'submit'];
 
     public help(commandPrefix: string): string {
-        return `Use ${commandPrefix}submit to begin the species submission process. Only usable in DMs.`;
+        return `Use \`${commandPrefix}submit\` to begin the species submission process.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        // Cast the channel as a DMChannel or a TextChannel because that's what it is
         const channel = parsedUserCommand.channel;
 
         const user = parsedUserCommand.originalMessage.author;
