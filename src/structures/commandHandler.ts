@@ -12,6 +12,7 @@ import { ViewInventoryCommand } from '../commands/viewInventoryCommand';
 import { ChangeGuildPrefixCommand } from '../commands/changeGuildPrefixCommand';
 import { GuildModel } from '../models/guild';
 import { client } from '..';
+import { HelpCommand } from '../commands/helpCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -33,6 +34,7 @@ export default class CommandHandler {
             ApprovePendingSpeciesCommand,
             ChangeGuildPrefixCommand,
             EncounterCommand,
+            HelpCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
             SpeciesInfoCommand,
@@ -41,6 +43,13 @@ export default class CommandHandler {
 
         // Assign the array of commands to a new instance of each command class
         this.commands = commandClasses.map(commandClass => new commandClass());
+    }
+
+    // Gets a command by one of its names
+    public getCommand(commandName: string): Command | undefined {
+        return this.commands.find(command => {
+            return command.commandNames.includes(commandName);
+        });
     }
 
     // Executes user commands contained in a message if appropriate
@@ -55,15 +64,16 @@ export default class CommandHandler {
         const messagePrefix = this.prefixUsed(message);
         // If the message contained a valid prefix
         if (messagePrefix) {
+            const guildPrefix = this.getGuildPrefix(message.guild);
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
-            const commandParser = new CommandParser(message, messagePrefix, this.getGuildPrefix(message.guild));
+            const commandParser = new CommandParser(message, messagePrefix, guildPrefix);
 
             // Find a command class that matches the command specified in the message
-            const matchedCommand = this.commands.find(command => command.commandNames.includes(commandParser.parsedCommandName));
+            const matchedCommand = this.getCommand(commandParser.parsedCommandName);
 
             // If no matching command was found
             if (!matchedCommand) {
-                betterSend(commandParser.channel, `I don't recognize that command. Try ${this.prefix}help.`);
+                betterSend(commandParser.channel, `I don't recognize that command. Try ${guildPrefix}help.`);
             }
             // If a matching command was found
             else {
