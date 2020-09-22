@@ -45,6 +45,7 @@ export class PlayerObject extends DocumentWrapper {
         return this.animals;
     }
 
+    // Adds an animal id to the user's inventory
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
         await this.getDocument().updateOne({
             $push: {
@@ -53,12 +54,43 @@ export class PlayerObject extends DocumentWrapper {
         });
     }
 
+    // Adds a set of animals at a given base position
+    public async addAnimalsPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
+        await this.getDocument().updateOne({
+            $push: {
+                animals: {
+                    $each: animalIds,
+                    $position: position
+                }
+            }
+        });
+    }
+
+    // Removes an animal from the player's inventory by a given id
     public async removeAnimal(animalId: Types.ObjectId): Promise<void> {
         await this.getDocument().updateOne({
             $pull: {
                 animals: animalId
             }
         });
+    }
+
+    // Removes a set of animals by an array of positions
+    public async removeAnimalsPositional(animalPositions: number[]): Promise<Types.ObjectId[]> {
+        const animalIds: Types.ObjectId[] = [];
+        for (const position of animalPositions) {
+            animalIds.push(this.getAnimalIds()[position]);
+        }
+        
+        await this.getDocument().updateOne({
+            $pull: {
+                animals: {
+                    $in: animalIds
+                }
+            }
+        });
+
+        return animalIds;
     }
 
     public async loadDocument(): Promise<void> {

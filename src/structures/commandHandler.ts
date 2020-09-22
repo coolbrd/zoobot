@@ -13,6 +13,7 @@ import { ChangeGuildPrefixCommand } from '../commands/changeGuildPrefixCommand';
 import { GuildModel } from '../models/guild';
 import { client } from '..';
 import { HelpCommand } from '../commands/helpCommand';
+import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -35,6 +36,7 @@ export default class CommandHandler {
             ChangeGuildPrefixCommand,
             EncounterCommand,
             HelpCommand,
+            MoveAnimalsCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
             SpeciesInfoCommand,
