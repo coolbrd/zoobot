@@ -21,6 +21,10 @@ export const speciesSchema = new Schema({
         type: Array,
         required: true
     },
+    article: {
+        type: String,
+        required: true
+    },
     scientificName: {
         type: String,
         required: true
@@ -76,6 +80,10 @@ export class SpeciesObject extends DocumentWrapper {
 
     public getCommonNames(): string[] {
         return this.getDocument().get('commonNames');
+    }
+
+    public getArticle(): string {
+        return this.getDocument().get('article');
     }
 
     public getScientificName(): string {

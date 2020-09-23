@@ -257,16 +257,24 @@ export default class EditableDocument {
                     return false;
                 }
 
+                // If it is a document array
                 if (typeof field.fieldInfo.arrayType === 'object') {
-                    return !field.value.some((element: EditableDocument) => {
+                    // Check if all documents in the array have met their requirements
+                    const requirementsMet = !field.value.some((element: EditableDocument) => {
                         return !element.requirementsMet();
                     });
+                    // Only return false if any of the documents are unsatisfied. Continue with testing if all are met.
+                    if (!requirementsMet) {
+                        return false;
+                    }
                 }
             }
             // If the field is a document
             else if (field.value instanceof EditableDocument) {
-                // Return whether or not the document's requirements are met
-                return field.value.requirementsMet();
+                // Return false if any required subdocument's requirements aren't met (continue with checking if true)
+                if (!field.value.requirementsMet()) {
+                    return false;
+                }
             }
             // If the field is a string, make sure it's not empty or undefined
             else if (typeof field.value === 'string' && !field.value) {

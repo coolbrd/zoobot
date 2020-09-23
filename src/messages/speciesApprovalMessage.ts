@@ -17,6 +17,9 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             commonNames: {
                 alias: 'common names'
             },
+            article: {
+                alias: 'article'
+            },
             scientificName: {
                 alias: 'scientific name'
             },
