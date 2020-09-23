@@ -9,9 +9,7 @@ import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageH
 export class SpeciesApprovalMessage extends EditableDocumentMessage {
     private pendingSpecies: Document;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpecies: Document) {
-        const pendingSpeciesDocument = pendingSpecies;
-
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpeciesDocument: Document) {
         // Create the document skeleton for the approval document
         const approvalSkeleton = schemaToSkeleton(speciesSchema, {
             commonNames: {
@@ -67,7 +65,7 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
         
         super(handler, channel, new EditableDocument(approvalSkeleton), 'new submission');
 
-        this.pendingSpecies = pendingSpecies;
+        this.pendingSpecies = pendingSpeciesDocument;
 
         this.addButton({
             name: 'deny',
@@ -85,6 +83,8 @@ export class SpeciesApprovalMessage extends EditableDocumentMessage {
             this.pendingSpecies.deleteOne();
 
             this.emit('deny');
+
+            this.deactivate();
         }
     }
 }
