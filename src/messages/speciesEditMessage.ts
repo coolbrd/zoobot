@@ -7,8 +7,6 @@ import { speciesSchema } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 
 export class SpeciesEditMessage extends EditableDocumentMessage {
-    private species: Document;
-
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, speciesDocument: Document) {
         // Create the document skeleton for the species
         const editSkeleton = schemaToSkeleton(speciesSchema, {
@@ -69,8 +67,6 @@ export class SpeciesEditMessage extends EditableDocumentMessage {
         }
         
         super(handler, channel, new EditableDocument(editSkeleton), speciesDocument.get('commonNames.0'));
-
-        this.species = speciesDocument;
 
         this.setEmbed(this.buildEmbed());
     }
