@@ -76,7 +76,7 @@ export default class EncounterMessage extends InteractiveMessage {
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
         // Indicate that the user has caught the animal
-        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.getCommonNames()[0]}!`);
+        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.getArticle()} ${this.species.getCommonNames()[0]}!`);
         this.setDeactivationText('(caught)');
 
         // Create the new animal
