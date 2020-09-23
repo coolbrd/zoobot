@@ -5,6 +5,7 @@ import { SimpleDocument } from '../structures/editableDocument';
 import { Species } from '../models/species';
 import { interactiveMessageHandler } from '..';
 import { SpeciesEditMessage } from '../messages/speciesEditMessage';
+import { arrayToLowerCase } from '../utility/arraysAndSuch';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class EditSpeciesCommand implements Command {
@@ -53,6 +54,7 @@ export class EditSpeciesCommand implements Command {
             // Update the existing species' information
             species.updateOne({
                 commonNames: finalDocument['commonNames'],
+                commonNamesLower: arrayToLowerCase(finalDocument['commonNames'] as string[]),
                 article: finalDocument['article'],
                 scientificName: finalDocument['scientificName'],
                 description: finalDocument['description'],
