@@ -22,6 +22,11 @@ export class ApprovePendingSpeciesCommand implements Command {
         // Interpret everything after the command as the name of the species for approval
         const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
 
+        if (!fullSearchTerm) {
+            betterSend(channel, this.help(parsedUserCommand.displayPrefix));
+            return;
+        }
+
         // Get a pending species whose first common name is the search term
         const pendingSpecies = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
 
