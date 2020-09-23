@@ -124,6 +124,11 @@ export default class EditableDocumentMessage extends InteractiveMessage {
 
             // Iterate over every field in the document
             for (const [key, field] of document.getFieldEntries()) {
+                // Don't show the id field
+                if (key === '_id') {
+                    continue;
+                }
+
                 // Whether or not the current field is the one that's selected by the editor
                 let selected = false;
                 // If the name of the current field is marked as the document's currently selected field

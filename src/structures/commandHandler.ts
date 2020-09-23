@@ -14,6 +14,7 @@ import { GuildModel } from '../models/guild';
 import { client } from '..';
 import { HelpCommand } from '../commands/helpCommand';
 import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
+import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -34,6 +35,7 @@ export default class CommandHandler {
         const commandClasses = [
             ApprovePendingSpeciesCommand,
             ChangeGuildPrefixCommand,
+            EditSpeciesCommand,
             EncounterCommand,
             HelpCommand,
             MoveAnimalsCommand,

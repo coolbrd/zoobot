@@ -1,10 +1,10 @@
 import clone from "clone";
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 
 import { PointedArray } from "./pointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-type EditableDocumentPrimitive = string | number | boolean;
+type EditableDocumentPrimitive = string | number | boolean | Types.ObjectId;
 
 type EditableDocumentFieldValue = EditableDocumentPrimitive | EditableDocument | PointedArray<EditableDocument | string>;
 
@@ -16,7 +16,7 @@ interface EditableDocumentFieldInfo {
     alias: string,
     // The optional prompt for informing the user about input guidelines
     prompt?: string,
-    type: 'document' | 'array' | 'string' | 'boolean' | 'number',
+    type: 'document' | 'array' | 'string' | 'boolean' | 'number' | 'objectId',
     // Whether or not the document will submit without this field
     required?: boolean,
     // The max length, in characters, that the field is allowed to be (only applies to strings and string arrays)
@@ -178,10 +178,21 @@ export default class EditableDocument {
                 }
                 case 'number': {
                     if (field.value && typeof field.value !== 'number') {
-                        throw new Error('Non-boolean value given to an EditableDocumentSkeleton boolean field.');
+                        throw new Error('Non-number value given to an EditableDocumentSkeleton number field.');
                     }
 
                     value = field.value === undefined ? 0 : field.value;
+                    break;
+                }
+                case 'objectId': {
+                    if (!field.value) {
+                        throw new Error('No id provided for ObjectId field in an editable document.');
+                    }
+                    else if (!(field.value instanceof Types.ObjectId)) {
+                        throw new Error('Non-ObjectId value provided for ObjectId field.');
+                    }
+
+                    value = field.value as Types.ObjectId;
                     break;
                 }
                 default: {
@@ -194,8 +205,11 @@ export default class EditableDocument {
                 fieldInfo: field.fieldInfo,
                 value: value
             });
-            // Add the name to the pointed array
-            this.fieldNames.push(key);
+            // If the key doesn't represent the special id field
+            if (key !== '_id') {
+                // Add the name to the pointed array
+                this.fieldNames.push(key);
+            }
         }
     }
 
@@ -203,9 +217,12 @@ export default class EditableDocument {
     public toString(delimiter?: string): string {
         let content = '';
         let fieldIndex = 0;
-        for (const field of this.fields.values()) {
-            const currentDelimiter = fieldIndex < this.fields.size - 1 ? (delimiter ? delimiter : '\n') : '';
-            content += `${capitalizeFirstLetter(field.fieldInfo.alias)}: ${field.value || '*None*'}${currentDelimiter}`;
+        for (const [key, field] of this.fields.entries()) {
+            // Only display non-id fields
+            if (key !== '_id') {
+                const currentDelimiter = fieldIndex < this.fields.size - 1 ? (delimiter ? delimiter : '\n') : '';
+                content += `${capitalizeFirstLetter(field.fieldInfo.alias)}: ${field.value || '*None*'}${currentDelimiter}`;
+            }
             fieldIndex++;
         }
         return content;
@@ -354,59 +371,74 @@ export function schemaToSkeleton(schema: Schema, info: EditableDocumentSkeletonI
 
     // Iterate over every field in the info objext
     for (const [key, value] of Object.entries(info)) {
-        // If the current info field's key isn't also in the schema
-        if (!(key in schema.obj)) {
-            throw new Error('Field name found in info skeleton not found in Mongoose schema.');
-        }
-
+        let alias: string;
+        let required: boolean;
         // The type to assign for the current field in the skeleton
-        let fieldType: 'string' | 'number' | 'array' | 'document';
+        let fieldType: 'string' | 'number' | 'array' | 'document' | 'objectId';
         // The optional type of the array to assign to the current field in the skeleton (only if it's an array)
         let fieldArrayType: EditableDocumentSkeleton | 'string' | undefined;
         // The optional document type of this field
         let fieldDocumentType: EditableDocumentSkeleton | undefined;
 
-        const schemaFieldType = schema.obj[key].type;
-        if (schemaFieldType === String) {
-            fieldType = 'string';
-        }
-        else if (schemaFieldType === Number) {
-            fieldType = 'number';
-        }
-        else if (schemaFieldType === Array || schemaFieldType === [String]) {
-            fieldType = 'array';
-            fieldArrayType = 'string';
-        }
-        // If the field is a nested document
-        else if (schemaFieldType instanceof Schema) {
-            if (!value.nestedInfo) {
-                throw new Error('Field info must be provided in the nestedInfo field for fields containing documents.');
-            }
-
-            fieldType = 'document';
-            // Set its type to a skeleton created from the subschema
-            fieldDocumentType = schemaToSkeleton(schemaFieldType, value.nestedInfo)
-        }
-        else if (Array.isArray(schemaFieldType) && schemaFieldType.length > 0 && schemaFieldType[0] instanceof Schema) {
-            if (!value.nestedInfo) {
-                throw new Error('Field info must be provided in the nestedInfo field for fields containing arrays of documents.');
-            }
-
-            fieldType = 'array';
-            fieldArrayType = schemaToSkeleton(schemaFieldType[0], value.nestedInfo);
+        // If the field is the special id field (not explicitly present in schema)
+        if (key === '_id') {
+            // Assign information manually
+            alias = '_id';
+            required = true;
+            fieldType = 'objectId';
         }
         else {
-            throw new Error('Unsupported type encountered in schema upon trying to convert to an EditableDocumentSkeleton');
+            // If the current info field's key isn't also in the schema
+            if (!(key in schema.obj)) {
+                throw new Error('Field name found in info skeleton not found in Mongoose schema.');
+            }
+
+            const schemaFieldType = schema.obj[key].type;
+            if (schemaFieldType === String) {
+                fieldType = 'string';
+            }
+            else if (schemaFieldType === Number) {
+                fieldType = 'number';
+            }
+            else if (schemaFieldType === Array || schemaFieldType === [String]) {
+                fieldType = 'array';
+                fieldArrayType = 'string';
+            }
+            // If the field is a nested document
+            else if (schemaFieldType instanceof Schema) {
+                if (!value.nestedInfo) {
+                    throw new Error('Field info must be provided in the nestedInfo field for fields containing documents.');
+                }
+
+                fieldType = 'document';
+                // Set its type to a skeleton created from the subschema
+                fieldDocumentType = schemaToSkeleton(schemaFieldType, value.nestedInfo);
+            }
+            else if (Array.isArray(schemaFieldType) && schemaFieldType.length > 0 && schemaFieldType[0] instanceof Schema) {
+                if (!value.nestedInfo) {
+                    throw new Error('Field info must be provided in the nestedInfo field for fields containing arrays of documents.');
+                }
+
+                fieldType = 'array';
+                fieldArrayType = schemaToSkeleton(schemaFieldType[0], value.nestedInfo);
+            }
+            else {
+                throw new Error('Unsupported type encountered in schema upon trying to convert to an EditableDocumentSkeleton');
+            }
+
+            // Assign required field information shared by all field types
+            alias = value.alias;
+            required = schema.obj[key].required;
         }
 
         // Add the field to the skeleton
         Object.defineProperty(skeleton, key, {
             value: {
                 fieldInfo: {
-                    alias: value.alias,
+                    alias: alias,
                     prompt: value.prompt,
                     type: fieldType,
-                    required: schema.obj[key].required,
+                    required: required,
                     maxLength: value.maxLength,
                     arrayViewPortSize: value.arrayViewPortSize,
                     arrayType: fieldArrayType,
