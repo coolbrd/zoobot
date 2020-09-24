@@ -73,8 +73,20 @@ export class AnimalObject extends DocumentWrapper {
         return this.getDocument().get('image');
     }
 
+    public getNickname(): string {
+        return this.getDocument().get('nickname');
+    }
+
     public getExperience(): number {
         return this.getDocument().get('experience');
+    }
+
+    public async setNickname(newNickname: string | null): Promise<void> {
+        await this.getDocument().updateOne({
+            $set: {
+                nickname: newNickname
+            }
+        });
     }
 
     // Gets the species object representing this animal's species

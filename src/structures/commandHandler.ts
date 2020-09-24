@@ -16,6 +16,7 @@ import { HelpCommand } from '../commands/helpCommand';
 import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
 import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
 import { ADMIN_SERVER_ID } from '../config/secrets';
+import { ChangeAnimalNicknameCommand } from '../commands/changeAnimalNicknameCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -35,6 +36,7 @@ export default class CommandHandler {
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
             ApprovePendingSpeciesCommand,
+            ChangeAnimalNicknameCommand,
             ChangeGuildPrefixCommand,
             EditSpeciesCommand,
             EncounterCommand,
