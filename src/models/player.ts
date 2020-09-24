@@ -126,6 +126,19 @@ export class PlayerObject extends DocumentWrapper {
         animalIds.forEach((animalId: Types.ObjectId) => {
             animalObjects.push(new AnimalObject({documentId: animalId}));
         });
+
+        // Load all animal objects
+        await new Promise(resolve => {
+            let completed = 0;
+            for (const animalObject of animalObjects) {
+                animalObject.load().then(() => {
+                    if (++completed >= animalObjects.length) {
+                        resolve();
+                    }
+                });
+            }
+        })
+
         // Assign the array of animal objects to this player's inventory
         this.animals = animalObjects;
     }
