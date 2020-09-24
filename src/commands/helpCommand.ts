@@ -20,7 +20,7 @@ export class HelpCommand implements Command {
         }
 
         // Try to find a command by the given search term
-        const command = commandHandler.getCommand(commandName.toLowerCase());
+        const command = commandHandler.getCommand(commandName.toLowerCase(), parsedUserCommand.originalMessage);
 
         // If no command by that name exists
         if (!command) {

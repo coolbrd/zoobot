@@ -7,10 +7,11 @@ import { betterSend } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
 import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
-//import { ADMIN_SERVER_ID } from '../config/secrets';
 
 export class SendPendingSubmissionsCommand implements Command {
-    public commandNames = ['pending', 'submissions'];
+    public readonly commandNames = ['pending', 'submissions'];
+
+    public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}pending\` to view a list of all pending species submissions.`;
@@ -18,12 +19,6 @@ export class SendPendingSubmissionsCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
-        const guild = parsedUserCommand.originalMessage.guild;
-
-        if (!guild /*|| guild.id !== ADMIN_SERVER_ID*/) {
-            betterSend(channel, 'This command can only be used in the designated admin server. Try it there.');
-            return;
-        }
 
         // Get all pending species documents
         const pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });

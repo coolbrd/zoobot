@@ -12,6 +12,8 @@ import { arrayToLowerCase } from '../utility/arraysAndSuch';
 export class ApprovePendingSpeciesCommand implements Command {
     public readonly commandNames = ['approve', 'approvespecies'];
 
+    public readonly adminOnly = true;
+
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}approve\` \`<pending species name>\` to begin the process of reviewing and approving a species submission.`;
     }

@@ -15,6 +15,7 @@ import { client } from '..';
 import { HelpCommand } from '../commands/helpCommand';
 import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
 import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
+import { ADMIN_SERVER_ID } from '../config/secrets';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -50,10 +51,25 @@ export default class CommandHandler {
     }
 
     // Gets a command by one of its names
-    public getCommand(commandName: string): Command | undefined {
-        return this.commands.find(command => {
+    public getCommand(commandName: string, message?: Message): Command | undefined {
+        // Find a command that matches the given string
+        const foundCommand = this.commands.find(command => {
             return command.commandNames.includes(commandName);
         });
+
+        // If nothing was found, return nothing
+        if (!foundCommand) {
+            return undefined;
+        }
+
+        // If a command was found, it's admin only, and either no message was provided or the message isn't in an admin server
+        if (foundCommand.adminOnly && (!message || !this.inAdminServer(message))) {
+            // Return nothing (act like the admin commands don't exist)
+            return undefined;
+        }
+
+        // If the above checks were passed, just return the found command
+        return foundCommand;
     }
 
     // Executes user commands contained in a message if appropriate
@@ -72,8 +88,8 @@ export default class CommandHandler {
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
             const commandParser = new CommandParser(message, messagePrefix, guildPrefix);
 
-            // Find a command class that matches the command specified in the message
-            const matchedCommand = this.getCommand(commandParser.parsedCommandName);
+            // Find a command class that matches the command specified in the message (taking into account the visibilit of admin commands)
+            const matchedCommand = this.getCommand(commandParser.parsedCommandName, message);
 
             // If no matching command was found
             if (!matchedCommand) {
@@ -91,6 +107,14 @@ export default class CommandHandler {
                 }
             }
         }
+    }
+
+    // Tells whether or not a given message is in the admin server
+    private inAdminServer(message: Message): boolean {
+        if (message.channel.type === 'dm') {
+            return false;
+        }
+        return message.channel.guild.id === ADMIN_SERVER_ID;
     }
 
     // Returns the prefix to use for a given guild id, returns the default prefix if the guild has not set one

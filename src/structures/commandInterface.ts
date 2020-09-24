@@ -6,6 +6,9 @@ export default interface Command {
     // The first entry is the command's primary name
     readonly commandNames: string[];
 
+    // Whether or not this command can only be used by admins
+    readonly adminOnly?: boolean;
+
     // The command's usage documentation
     help(commandPrefix: string): string;
 

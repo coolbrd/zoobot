@@ -10,6 +10,8 @@ import { SpeciesEditMessage } from '../messages/speciesEditMessage';
 export class EditSpeciesCommand implements Command {
     public readonly commandNames = ['edit', 'editspecies'];
 
+    public readonly adminOnly = true;
+
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}edit\` \`<species name>\` to edit an existing species.`;
     }
