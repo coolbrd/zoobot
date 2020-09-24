@@ -74,6 +74,6 @@ export default class DocumentWrapper {
     // Used if something was likely to have changed about the document in the database, and the most current data is desired
     public async refresh(): Promise<void> {
         this.unload();
-        this.load();
+        await this.load();
     }
 }
