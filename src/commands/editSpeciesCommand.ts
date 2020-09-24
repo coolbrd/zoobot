@@ -2,10 +2,9 @@ import Command from './commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend } from "../discordUtility/messageMan";
 import { SimpleDocument } from '../structures/editableDocument';
-import { Species } from '../models/species';
+import { Species, SpeciesObject } from '../models/species';
 import { interactiveMessageHandler } from '..';
 import { SpeciesEditMessage } from '../messages/speciesEditMessage';
-import { arrayToLowerCase } from '../utility/arraysAndSuch';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class EditSpeciesCommand implements Command {
@@ -35,8 +34,12 @@ export class EditSpeciesCommand implements Command {
             return;
         }
 
-        // Create a new approval message from the found document and send it
-        const editMessage = new SpeciesEditMessage(interactiveMessageHandler, channel, species);
+        // Create and load a species object representing the target species
+        const speciesObject = new SpeciesObject({ document: species });
+        await speciesObject.load();
+
+        // Create a new species edit message from the species object and send it
+        const editMessage = new SpeciesEditMessage(interactiveMessageHandler, channel, speciesObject);
         editMessage.send();
 
         // When the message's time limit is reached
@@ -52,18 +55,20 @@ export class EditSpeciesCommand implements Command {
         // When the editing process is complete
         editMessage.once('submit', (finalDocument: SimpleDocument) => {
             // Update the existing species' information
-            species.updateOne({
-                commonNames: finalDocument['commonNames'],
-                commonNamesLower: arrayToLowerCase(finalDocument['commonNames'] as string[]),
-                article: finalDocument['article'],
-                scientificName: finalDocument['scientificName'],
-                description: finalDocument['description'],
-                naturalHabitat: finalDocument['naturalHabitat'],
-                wikiPage: finalDocument['wikiPage'],
-                rarity: finalDocument['rarity']
-            }).exec();
-
-            betterSend(channel, 'Edit successful.');
+            speciesObject.setFields({
+                commonNames: finalDocument['commonNames'] as string[],
+                article: finalDocument['article'] as string,
+                scientificName: finalDocument['scientificName'] as string,
+                description: finalDocument['description'] as string,
+                naturalHabitat: finalDocument['naturalHabitat'] as string,
+                wikiPage: finalDocument['wikiPage'] as string,
+                rarity: finalDocument['rarity'] as number
+            }).then(() =>{
+                betterSend(channel, 'Edit successful.');
+            }).catch(error => {
+                console.error('There was an error saving a species\' images after an edit. ', error);
+                betterSend(channel, 'Edit failed. Error logged to the console.');
+            });
         });
     }
 }
