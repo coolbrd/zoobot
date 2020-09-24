@@ -120,7 +120,7 @@ export default class CommandHandler {
     }
 
     // Returns the prefix to use for a given guild id, returns the default prefix if the guild has not set one
-    private getGuildPrefix(guild: Guild | null): string {
+    public getGuildPrefix(guild: Guild | null): string {
         return guild ? this.guildPrefixes.get(guild.id) || this.prefix : this.prefix;
     }
 
