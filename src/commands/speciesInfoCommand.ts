@@ -1,4 +1,4 @@
-import Command from "./commandInterface";
+import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { Species, SpeciesObject } from "../models/species";
 import { betterSend } from "../discordUtility/messageMan";

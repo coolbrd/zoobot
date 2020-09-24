@@ -1,4 +1,4 @@
-import Command from "./commandInterface";
+import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { InventoryMessage } from "../messages/inventoryMessage";
 import { interactiveMessageHandler } from "..";

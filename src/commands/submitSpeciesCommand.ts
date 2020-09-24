@@ -1,7 +1,7 @@
 import { stripIndents } from 'common-tags';
 import { MessageEmbed, APIMessage } from 'discord.js';
 
-import Command from './commandInterface';
+import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import EditableDocumentMessage from '../messages/editableDocumentMessage';

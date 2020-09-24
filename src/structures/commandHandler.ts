@@ -1,6 +1,6 @@
 import { Guild, Message, User } from 'discord.js';
 
-import Command from '../commands/commandInterface';
+import Command from './commandInterface';
 import CommandParser from './commandParser';
 import { SubmitSpeciesCommand } from '../commands/submitSpeciesCommand';
 import { betterSend } from "../discordUtility/messageMan";

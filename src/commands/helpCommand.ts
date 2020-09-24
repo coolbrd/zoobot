@@ -1,7 +1,7 @@
 import { commandHandler } from '..';
 import { betterSend } from '../discordUtility/messageMan';
 import CommandParser from '../structures/commandParser';
-import Command from './commandInterface';
+import Command from '../structures/commandInterface';
 
 export class HelpCommand implements Command {
     public readonly commandNames = ['help', 'h'];

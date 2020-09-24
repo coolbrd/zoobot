@@ -4,7 +4,7 @@ import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/commandParser";
 import { getPlayerObject } from "../zoo/userManagement";
-import Command from "./commandInterface";
+import Command from "../structures/commandInterface";
 
 export class MoveAnimalsCommand implements Command {
     public readonly commandNames = ['moveanimals', 'ma'];

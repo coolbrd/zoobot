@@ -1,6 +1,6 @@
 import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import Command from "./commandInterface";
+import Command from "../structures/commandInterface";
 import { getGuildObject } from "../zoo/userManagement";
 import { commandHandler } from '..';
 

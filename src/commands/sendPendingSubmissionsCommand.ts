@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 
-import Command from './commandInterface';
+import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import { betterSend } from "../discordUtility/messageMan";
