@@ -118,8 +118,6 @@ export class PlayerObject extends DocumentWrapper {
             return;
         }
 
-        console.log('loading animals')
-
         // Get this player's list of animal ids
         const animalIds = this.getDocument().get('animals');
 
