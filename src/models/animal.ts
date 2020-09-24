@@ -107,6 +107,10 @@ export class AnimalObject extends DocumentWrapper {
         return this.image;
     }
 
+    public getName(): string {
+        return this.getNickname() || this.getSpecies().getCommonNames()[0];
+    }
+
     public speciesLoaded(): boolean {
         return Boolean(this.species);
     }
