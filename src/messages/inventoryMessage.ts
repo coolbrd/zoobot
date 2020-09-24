@@ -11,6 +11,7 @@ import { PlayerObject } from "../models/player";
 import { PointedArray } from "../structures/pointedArray";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
 import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
+import { commandHandler } from "..";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -133,7 +134,7 @@ export class InventoryMessage extends InteractiveMessage {
 
         // Don't try anything crazy if the user's inventory is empty
         if (this.inventory.length < 1) {
-            embed.setDescription('It\'s empty in here. Try catching an animal with the encounter command!');
+            embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getGuildPrefix(this.channel.guild)}encounter\`!`);
             return embed;
         }
 
