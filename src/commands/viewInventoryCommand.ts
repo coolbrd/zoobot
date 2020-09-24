@@ -19,6 +19,6 @@ export class ViewInventoryCommand implements Command {
         }
 
         const inventoryMessage = new InventoryMessage(interactiveMessageHandler, parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
-        inventoryMessage.send();
+        await inventoryMessage.send();
     }
 }

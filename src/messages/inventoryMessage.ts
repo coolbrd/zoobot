@@ -120,13 +120,20 @@ export class InventoryMessage extends InteractiveMessage {
     private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
+        if (this.state === InventoryMessageState.release) {
+            this.setButtonHelpMessage('leftArrow', 'confirm release');
+        }
+        else {
+            this.setButtonHelpMessage('leftArrow', 'page left');
+        }
+
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
-
         embed.setFooter(`${this.inventory.length} in collection\n${this.getButtonHelpString()}`);
 
         // Don't try anything crazy if the user's inventory is empty
         if (this.inventory.length < 1) {
+            embed.setDescription('It\'s empty in here. Try catching an animal with the encounter command!');
             return embed;
         }
 
@@ -164,7 +171,7 @@ export class InventoryMessage extends InteractiveMessage {
         const imageIndex = species.getImages().findIndex(speciesImage => {
             return speciesImage.getId().equals(image.getId());
         });
-        
+
         // Display state behavior
         switch (this.state) {
             // When the message is in paged view mode
@@ -177,21 +184,20 @@ export class InventoryMessage extends InteractiveMessage {
                 // Loop until either the index is above the entries per page limit or the length of the inventory
                 while (inventoryIndex < endIndex && inventoryIndex < this.inventory.length) {
                     // Get the currently iterated animal in the user's inventory
-                    const animal: AnimalObject = this.inventory[inventoryIndex];
+                    const currentAnimal: AnimalObject = this.inventory[inventoryIndex];
 
-                    const species = animal.getSpecies();
-                    const image = animal.getImage();
+                    const image = currentAnimal.getImage();
 
-                    const firstName = species.getCommonNames()[0];
+                    const animalName = currentAnimal.getNickname() || capitalizeFirstLetter(currentAnimal.getName());
 
                     const breed = image.getBreed();
-                    // Write breed information only if it's present
-                    const breedText = breed ? `(${breed})` : '';
+                    // Write breed information only if it's present (and the animal doesn't have a nickname)
+                    const breedText = !currentAnimal.getNickname() && breed ? `(${breed})` : '';
 
                     // The pointer text to draw on the current animal entry (if any)
                     const pointerText = inventoryIndex === this.inventory.getPointerPosition() ? ' 🔹' : '';
 
-                    inventoryString += `\`${inventoryIndex + 1})\` ${capitalizeFirstLetter(firstName)} ${breedText}`;
+                    inventoryString += `\`${inventoryIndex + 1})\` ${animalName} ${breedText}`;
 
                     inventoryString += ` ${pointerText}\n`;
 
@@ -206,7 +212,9 @@ export class InventoryMessage extends InteractiveMessage {
             case InventoryMessageState.info: {
                 embed.setThumbnail(image.getUrl());
 
-                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.getCommonNames()[0])}`);
+                const animalDisplayName = selectedAnimal.getNickname() || capitalizeFirstLetter(selectedAnimal.getName());
+
+                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${animalDisplayName}`);
                 
                 embed.addField('Species', capitalizeFirstLetter(species.getScientificName()), true);
 
@@ -220,13 +228,16 @@ export class InventoryMessage extends InteractiveMessage {
             // When the message is in image mode
             case InventoryMessageState.image: {
                 embed.setImage(image.getUrl());
-                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${capitalizeFirstLetter(species.getCommonNames()[0])}`, `Card #${imageIndex + 1} of ${species.getImages().length}`);
+
+                const animalDisplayName = selectedAnimal.getNickname() || capitalizeFirstLetter(selectedAnimal.getName());
+
+                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${animalDisplayName}`, `Card #${imageIndex + 1} of ${species.getImages().length}`);
 
                 break;
             }
             // When the message is confirming the release of an animal
             case InventoryMessageState.release: {
-                embed.setTitle(`Release ${selectedAnimal.getSpecies().getCommonNames()[0]}?`);
+                embed.setTitle(`Release ${selectedAnimal.getName()}?`);
 
                 embed.setDescription(`Press the left arrow (${this.getButtonByName('leftArrow').emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
 
