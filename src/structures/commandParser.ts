@@ -6,6 +6,8 @@ export default class CommandParser {
     public readonly parsedCommandName: string;
     // The array of text following the command, split by spaces
     public readonly args: string[];
+    // The full, uncut string after the command name
+    public readonly fullArguments: string;
     // The message as originally sent by the user
     public readonly originalMessage: Message;
     // The channel that the message was sent in
@@ -23,11 +25,18 @@ export default class CommandParser {
         // Assign the prefix to show in messages
         this.displayPrefix = displayPrefix;
         
-        // Remove the message's prefix, split it by spaces, and store it in an array
-        const splitMessage = message.content.slice(prefixUsed.length).trim().split(' ');
-        // Remove the initial command from the message's array and store it in its own variable
+        // Remove the message's prefix
+        const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
+
+        // Get the full string that comes directly after the command name
+        this.fullArguments = messageWithoutPrefix.slice(messageWithoutPrefix.indexOf(' '), messageWithoutPrefix.length).trim();
+
+        // Split the message by spaces to get the indiviual command and arguments
+        const splitMessage = messageWithoutPrefix.split(' ');
+
+        // Get the command used and remove it from the list of arguments
         // Short-circuit to ensure that even if undefined is returned from the shift method, an empty string will be used
-        const commandName = splitMessage.shift() || '';
+        const commandName = messageWithoutPrefix.split(' ').shift() || '';
         
         // Tranform the command name used to lowercase and assign it to this instance
         this.parsedCommandName = commandName.toLowerCase();

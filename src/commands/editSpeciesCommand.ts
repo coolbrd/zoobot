@@ -20,7 +20,7 @@ export class EditSpeciesCommand implements Command {
         const channel = parsedUserCommand.channel;
         
         // Interpret everything after the command as the name of the species to edit
-        const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
+        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
         if (!fullSearchTerm) {
             betterSend(channel, this.help(parsedUserCommand.displayPrefix));

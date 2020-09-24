@@ -15,7 +15,7 @@ export class SpeciesInfoCommand implements Command {
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
 
-        const fullSearchTerm = parsedUserCommand.args.join(' ').toLowerCase();
+        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
         // Find a species by either its common name, or its scientific name if no common name matches were made
         const speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }) || await Species.findOne({ scientificName: fullSearchTerm });

@@ -11,7 +11,7 @@ export class HelpCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const commandName = parsedUserCommand.args.join(' ');
+        const commandName = parsedUserCommand.fullArguments.toLowerCase();
 
         // If the user didn't provide a command name to search
         if (!commandName) {

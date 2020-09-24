@@ -20,7 +20,7 @@ export class ChangeGuildPrefixCommand implements Command {
         }
 
         // Get the full text after the initial command text
-        const fullPrefix = parsedUserCommand.args.join(' ');
+        const fullPrefix = parsedUserCommand.fullArguments;
 
         // Make sure a prefix to use was provided
         if (!fullPrefix) {
