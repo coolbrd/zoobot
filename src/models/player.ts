@@ -118,6 +118,8 @@ export class PlayerObject extends DocumentWrapper {
             return;
         }
 
+        console.log('loading animals')
+
         // Get this player's list of animal ids
         const animalIds = this.getDocument().get('animals');
 
@@ -128,7 +130,7 @@ export class PlayerObject extends DocumentWrapper {
         });
 
         // Load all animal objects
-        await new Promise(resolve => {
+        animalObjects.length && await new Promise(resolve => {
             let completed = 0;
             for (const animalObject of animalObjects) {
                 animalObject.load().then(() => {
