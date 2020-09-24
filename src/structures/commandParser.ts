@@ -36,7 +36,7 @@ export default class CommandParser {
 
         // Get the command used and remove it from the list of arguments
         // Short-circuit to ensure that even if undefined is returned from the shift method, an empty string will be used
-        const commandName = messageWithoutPrefix.split(' ').shift() || '';
+        const commandName = splitMessage.shift() || '';
         
         // Tranform the command name used to lowercase and assign it to this instance
         this.parsedCommandName = commandName.toLowerCase();
