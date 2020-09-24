@@ -44,31 +44,33 @@ export class InventoryMessage extends InteractiveMessage {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
-                emoji: '⬅️'
+                emoji: '⬅️',
+                helpMessage: 'page left'
             },
             {
                 name: 'rightArrow',
-                emoji: '➡️'
+                emoji: '➡️',
+                helpMessage: 'page right'
             },
             {
                 name: 'upArrow',
-                emoji: '⬆️'
+                emoji: '⬆️',
+                helpMessage: 'pointer up'
             },
             {
                 name: 'downArrow',
-                emoji: '⬇️'
+                emoji: '⬇️',
+                helpMessage: 'pointer down'
             },
             {
-                name: 'info',
-                emoji: 'ℹ️'
-            },
-            {
-                name: 'image',
-                emoji: '🖼️'
+                name: 'mode',
+                emoji: 'Ⓜ️',
+                helpMessage: 'view mode'
             },
             {
                 name: 'release',
-                emoji: '🗑️'
+                emoji: '🗑️',
+                helpMessage: 'release'
             }
         ]});
 
@@ -121,7 +123,7 @@ export class InventoryMessage extends InteractiveMessage {
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
 
-        embed.setFooter(`${this.inventory.length} in collection`);
+        embed.setFooter(`${this.inventory.length} in collection\n${this.getButtonHelpString()}`);
 
         // Don't try anything crazy if the user's inventory is empty
         if (this.inventory.length < 1) {
@@ -167,7 +169,7 @@ export class InventoryMessage extends InteractiveMessage {
         switch (this.state) {
             // When the message is in paged view mode
             case InventoryMessageState.page: {
-                embed.setThumbnail(this.inventory[0].getImage().getUrl());
+                embed.setThumbnail(image.getUrl());
 
                 let inventoryString = '';
                 // Start the current page's display at the appropriate position
@@ -212,9 +214,7 @@ export class InventoryMessage extends InteractiveMessage {
 
                 const breed = image.getBreed();
                 breed && embed.addField('Breed', capitalizeFirstLetter(breed));
-
-                embed.addField('Experience', `${selectedAnimal.getExperience()}`);
-
+                
                 break;
             }
             // When the message is in image mode
@@ -233,6 +233,7 @@ export class InventoryMessage extends InteractiveMessage {
                 embed.setThumbnail(image.getUrl());
             }
         }
+
         return embed;
     }
 
@@ -308,17 +309,11 @@ export class InventoryMessage extends InteractiveMessage {
                     }
                     break;
                 }
-                case 'info': {
-                    if (this.state !== InventoryMessageState.info) {
+                case 'mode': {
+                    if (this.state === InventoryMessageState.page) {
                         this.state = InventoryMessageState.info;
                     }
-                    else {
-                        this.state = InventoryMessageState.page;
-                    }
-                    break;
-                }
-                case 'image': {
-                    if (this.state !== InventoryMessageState.image) {
+                    else if (this.state === InventoryMessageState.info) {
                         this.state = InventoryMessageState.image;
                     }
                     else {
