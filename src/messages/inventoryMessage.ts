@@ -216,6 +216,8 @@ export class InventoryMessage extends InteractiveMessage {
                 const animalDisplayName = selectedAnimal.getNickname() || capitalizeFirstLetter(selectedAnimal.getName());
 
                 embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${animalDisplayName}`);
+
+                embed.setDescription(capitalizeFirstLetter(selectedAnimal.getSpecies().getCommonNames()[0]));
                 
                 embed.addField('Species', capitalizeFirstLetter(species.getScientificName()), true);
 
