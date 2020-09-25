@@ -159,3 +159,15 @@ export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, ani
     // Delete the animal from the animal collection
     animalObject.delete();
 }
+
+// Gets an animal object by a given inventory position from a player's inventory
+export async function getAnimalByInventoryPosition(playerObject: PlayerObject, animalPosition: number): Promise<AnimalObject> {
+    // Get the animal document that corresponds to the given inventory position
+    const animalDocument = await Animal.findById(playerObject.getAnimalIds()[animalPosition]);
+
+    if (!animalDocument) {
+        throw new Error('An animal id with no corresponding animal document was found in a player\'s inventory.');
+    }
+
+    return new AnimalObject({ document: animalDocument });
+}
