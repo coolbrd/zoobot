@@ -1,6 +1,6 @@
 import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Animal, AnimalObject } from "../models/animal";
+import { AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
