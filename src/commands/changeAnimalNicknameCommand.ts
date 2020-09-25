@@ -1,5 +1,6 @@
 import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
+import { Animal, AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { getPlayerObject } from "../zoo/userManagement";
@@ -56,11 +57,14 @@ export class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
-        // Load the player's animals
-        await playerObject.loadAnimals();
+        // Get the animal document that corresponds to the given inventory position
+        const animalDocument = await Animal.findById(playerObject.getAnimalIds()[animalNumber - 1]);
 
-        // Get the animal object that corresponds to the given identifier
-        const animalObject = playerObject.getAnimals()[animalNumber - 1];
+        if (!animalDocument) {
+            throw new Error('An animal id with no corresponding animal document was found in a player\'s inventory.');
+        }
+
+        const animalObject = new AnimalObject({ document: animalDocument });
 
         // The nickname string that will be used
         let newNickname: string | null;
