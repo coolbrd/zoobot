@@ -12,6 +12,8 @@ import { PointedArray } from "../structures/pointedArray";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
 import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
 import { commandHandler } from "..";
+import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
+import buildAnimalImage from "../embedBuilders/buildAnimalImage";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -163,15 +165,7 @@ export class InventoryMessage extends InteractiveMessage {
 
         // Get the animal that's selected by the pointer
         const selectedAnimal = this.inventory.selection();
-
-        // Get the animal's necessary information
-        const species = selectedAnimal.getSpecies();
         const image = selectedAnimal.getImage();
-
-        // Calculate the index of the animal's image out of its species' images
-        const imageIndex = species.getImages().findIndex(speciesImage => {
-            return speciesImage.getId().equals(image.getId());
-        });
 
         // Display state behavior
         switch (this.state) {
@@ -211,30 +205,17 @@ export class InventoryMessage extends InteractiveMessage {
             }
             // When the message is in info mode
             case InventoryMessageState.info: {
-                embed.setThumbnail(image.getUrl());
+                buildAnimalInfo(embed, selectedAnimal);
 
-                const animalDisplayName = selectedAnimal.getNickname() || capitalizeFirstLetter(selectedAnimal.getName());
-
-                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${animalDisplayName}`);
-
-                embed.setDescription(capitalizeFirstLetter(selectedAnimal.getSpecies().getCommonNames()[0]));
-                
-                embed.addField('Species', capitalizeFirstLetter(species.getScientificName()), true);
-
-                embed.addField('Card', `${imageIndex + 1}/${species.getImages().length}`, true);
-
-                const breed = image.getBreed();
-                breed && embed.addField('Breed', capitalizeFirstLetter(breed));
+                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${embed.title}`);
                 
                 break;
             }
             // When the message is in image mode
             case InventoryMessageState.image: {
-                embed.setImage(image.getUrl());
+                buildAnimalImage(embed, selectedAnimal);
 
-                const animalDisplayName = selectedAnimal.getNickname() || capitalizeFirstLetter(selectedAnimal.getName());
-
-                embed.addField(`\`${this.inventory.getPointerPosition() + 1})\` ${animalDisplayName}`, `Card #${imageIndex + 1} of ${species.getImages().length}`);
+                embed.setTitle(`\`${this.inventory.getPointerPosition() + 1})\` ${embed.title}`);
 
                 break;
             }

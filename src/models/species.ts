@@ -63,11 +63,11 @@ export interface ImageFieldsTemplate {
 // An object representing the subschema that's found within the array of images in a species document
 export class ImageSubObject {
     private document: Document;
-    private speciesDocument: Document;
+    private speciesObject: SpeciesObject;
 
-    constructor(imageDocument: Document, speciesDocument: Document) {
+    constructor(imageDocument: Document, speciesObject: SpeciesObject) {
         this.document = imageDocument;
-        this.speciesDocument = speciesDocument;
+        this.speciesObject = speciesObject;
     }
 
     public getId(): Types.ObjectId {
@@ -84,12 +84,23 @@ export class ImageSubObject {
 
     public async setFields(fields: ImageFieldsTemplate): Promise<void> {
         await Species.updateOne({
-            _id: this.speciesDocument._id,
+            _id: this.speciesObject.getId(),
             'images._id': this.document._id
         }, {
             'images.$.url': fields.url || this.getUrl(),
             'images.$.breed': fields.breed || this.getBreed() || ''
         });
+    }
+
+    // Gets this image's index in its parent species' list of images
+    public getIndex(): number {
+        const index = this.speciesObject.getImageDocuments().findIndex(imageDocument => {
+            return this.getId().equals(imageDocument._id)
+        });
+        if (index === undefined) {
+            throw new Error('A species image with no place in its species was found.');
+        }
+        return index;
     }
 }
 
@@ -118,6 +129,10 @@ export class SpeciesObject extends DocumentWrapper {
 
     public getScientificName(): string {
         return this.getDocument().get('scientificName');
+    }
+
+    public getImageDocuments(): Document[] {
+        return this.getDocument().get('images');
     }
 
     public getDescription(): string {
@@ -257,7 +272,7 @@ export class SpeciesObject extends DocumentWrapper {
         // Get this species' images and add each of them as an object
         const imageSubObjects: ImageSubObject[] = [];
         this.getDocument().get('images').forEach((imageDocument: Document) => {
-            imageSubObjects.push(new ImageSubObject(imageDocument, this.getDocument()));
+            imageSubObjects.push(new ImageSubObject(imageDocument, this));
         });
         this.images = imageSubObjects;
     }

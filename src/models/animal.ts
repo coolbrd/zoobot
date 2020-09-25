@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 import DocumentWrapper from '../structures/documentWrapper';
+import { Player, PlayerObject } from './player';
 
 import { ImageSubObject, SpeciesObject } from './species';
 
@@ -33,6 +34,8 @@ export const animalSchema = new Schema({
 });
 
 export const Animal = mongoose.model('Animal', animalSchema);
+
+Animal.collection.createIndex({ nickname: 'text' });
 
 // An animal's version of a Mongoose document wrapper
 // Allows for animal information to be loaded, reloaded, and set more easily
@@ -109,6 +112,23 @@ export class AnimalObject extends DocumentWrapper {
 
     public getName(): string {
         return this.getNickname() || this.getSpecies().getCommonNames()[0];
+    }
+
+    // Gets this animal's position within its owner's inventory
+    public async getInventoryIndex(): Promise<number> {
+        // Get the animal's owner object
+        const ownerDocument = await Player.findOne({
+            userId: this.getOwnerId()
+        });
+
+        if (!ownerDocument) {
+            throw new Error('An animal with an invalid owner id tried to get its owner object.');
+        }
+
+        const ownerObject = new PlayerObject({ document: ownerDocument });
+
+        // Return this animal's place in its owner's inventory
+        return ownerObject.getAnimalIds().indexOf(this.getId());
     }
 
     public speciesLoaded(): boolean {
@@ -188,7 +208,6 @@ export class AnimalObject extends DocumentWrapper {
         await this.loadDocument();
         // Then its species
         await this.loadSpecies();
-        // Then its image
         this.loadImage();
     }
 
