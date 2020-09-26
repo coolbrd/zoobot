@@ -3,7 +3,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
-import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
+import { getAnimalByInventoryPosition, getPlayerObject, searchAnimal } from "../zoo/userManagement";
 
 // Changes a user's animal's nickname
 export class ChangeAnimalNicknameCommand implements Command {
@@ -37,33 +37,15 @@ export class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
-        // What happens when the user provides an animal identifier that's out of their inventory's range
-        const sendOutOfRangeMessage = () => {
-            betterSend(parsedUserCommand.channel, 'Numeric animal identifiers need to be within the range of numbers in your animal collection.');
-        }
-
         // Get the player object that represents the player changing the nickname
         const playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
 
-        // Don't allow 0 or negative identifiers
-        if (animalNumber < 1) {
-            sendOutOfRangeMessage();
-            return;
-        }
+        // Get the animal at the player's given inventory position
+        const animalObject = await getAnimalByInventoryPosition(playerObject, animalNumber - 1);
 
-        // Don't allow identifiers that are out of the player's collection's range
-        if (animalNumber > playerObject.getAnimalIds().length) {
-            sendOutOfRangeMessage();
+        if (!animalObject) {
+            betterSend(parsedUserCommand.channel, 'No animal in your inventory with that number exists.');
             return;
-        }
-
-        // Get the player's animal that's at the given inventory position
-        let animalObject: AnimalObject;
-        try {
-            animalObject = await getAnimalByInventoryPosition(playerObject, animalNumber - 1);
-        }
-        catch (error) {
-            throw new Error(error);
         }
 
         // The nickname string that will be used

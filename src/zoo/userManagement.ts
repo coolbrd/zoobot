@@ -65,7 +65,7 @@ export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerO
     }
 
     // Return the player document within a wrapper object
-    return new PlayerObject({document: playerDocument});
+    return new PlayerObject({ document: playerDocument });
 }
 
 // Takes a species and an owner, and creates a new animal assigned to that owner in the database
@@ -161,7 +161,12 @@ export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, ani
 }
 
 // Gets an animal object by a given inventory position from a player's inventory
-export async function getAnimalByInventoryPosition(playerObject: PlayerObject, animalPosition: number): Promise<AnimalObject> {
+export async function getAnimalByInventoryPosition(playerObject: PlayerObject, animalPosition: number): Promise<AnimalObject | undefined> {
+    // Return nothing if the position provided is out of the player's inventory's range
+    if (animalPosition < 0 || animalPosition >= playerObject.getAnimalIds().length) {
+        return undefined;
+    }
+    
     // Get the animal document that corresponds to the given inventory position
     const animalDocument = await Animal.findById(playerObject.getAnimalIds()[animalPosition]);
 
@@ -170,4 +175,97 @@ export async function getAnimalByInventoryPosition(playerObject: PlayerObject, a
     }
 
     return new AnimalObject({ document: animalDocument });
+}
+
+export async function getAnimalByNickname(nickname: string, guildId?: string): Promise<AnimalObject | undefined> {
+        // The base search query to add options to as needed
+        const searchQuery = {
+            $text: {
+                $search: nickname
+            }
+        };
+
+        // If a guild id was provided to narrow down the search
+        if (guildId) {
+            // Add the appropriate property to the search query options
+            Object.defineProperty(searchQuery, 'guildId', {
+                value: guildId,
+                writable: false,
+                enumerable: true
+            });
+        }
+
+        // Attempt to find the animal by the given search options
+        const animalDocument = await Animal.findOne(searchQuery);
+
+        // Return the document as an object if one was found
+        if (!animalDocument) {
+            return undefined;
+        }
+
+        return new AnimalObject({ document: animalDocument });
+}
+
+// Searches for an animal in
+export async function searchAnimal(
+    searchTerm: string,
+    searchOptions?: {
+        guildId?: string,
+        userId?: string,
+        playerObject?: PlayerObject,
+        searchByPosition?: boolean
+    }): Promise<AnimalObject | undefined> {
+    // Pull the potential guild id and player object from the search options (undefined if none)
+    const guildId = searchOptions && searchOptions.guildId;
+    const userId = searchOptions && searchOptions.userId;
+    let playerObject = searchOptions && searchOptions.playerObject;
+    const searchByPosition = searchOptions && searchOptions.searchByPosition;
+
+    // If the search is only to be done by nickname
+    if (!searchByPosition) {
+        return await getAnimalByNickname(searchTerm, guildId);
+    }
+    // If we're out here, it means that animal indexes need to be considered
+
+    // First make sure the search term isn't a numeric index in a player's inventory to search
+    const searchNumber = Number(searchTerm);
+
+    // If the search term isn't a number (it's a nickname)
+    if (isNaN(searchNumber)) {
+        // Attempt to get an animal by the nickname provided
+        const animalObject = await getAnimalByNickname(searchTerm, guildId);
+
+        // Only return something if an animal was found, if not continue for more checks
+        if (animalObject) {
+            return animalObject;
+        }
+    }
+    // If the search term is a number
+    else {
+        // If no player object wasn't provided
+        if (!playerObject) {
+            // Make sure there's enough info provided to determine the player object
+            if (!guildId || !userId) {
+                throw new Error('Insufficient information was provided to searchAnimal for the purpose of seraching by animal position.');
+            }
+
+            // Get the player object corresponding to the user provided for the search
+            playerObject = await getPlayerObject(getGuildMember(userId, guildId));
+        }
+
+        // Get the animal by its position in the player's inventory
+        const animalObject = await getAnimalByInventoryPosition(playerObject, searchNumber - 1);
+
+        if (animalObject) {
+            return animalObject;
+        }
+    }
+
+    // If the search term is a number, but none of the other search options have returned anything so far
+    if (!isNaN(searchNumber)) {
+        // Search the number as a nickname (last resort)
+        return await getAnimalByNickname(searchTerm, guildId);
+    }
+
+    return undefined;
 }
