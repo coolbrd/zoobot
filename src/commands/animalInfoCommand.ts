@@ -1,10 +1,9 @@
 import { interactiveMessageHandler } from "..";
-import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/animalInfoMessage";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
-import { getPlayerObject, searchAnimal } from "../zoo/userManagement";
+import { searchAnimal } from "../zoo/userManagement";
 
 export class AnimalInfoCommand implements Command {
     public readonly commandNames = ['animalinfo', 'ai', 'stats'];
