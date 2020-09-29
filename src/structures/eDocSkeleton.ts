@@ -1,7 +1,7 @@
 // Acceptable values for an eDoc's declared type
 // Types that are nested eDocs are simply declared in their simple skeletal form
 // Array types are indicated by encapsulating any declared type in square brackets
-export type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | EDocTypeHint[];
+export type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | [EDocTypeHint];
 
 // Reduces an eDoc type hint to a simple string
 export function getEDocTypeString(type: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
