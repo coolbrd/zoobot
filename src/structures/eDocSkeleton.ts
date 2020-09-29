@@ -53,7 +53,9 @@ export interface EDocFieldInfo {
         // The minimum number of elements required to satisfy an array that's marked as required (defaults to 1)
         minimumLength?: number,
         // The size of the viewable portion of the array
-        viewportSize?: number
+        viewportSize?: number,
+        // The alias for each element within the array
+        elementAlias?: string
     }
 }
 

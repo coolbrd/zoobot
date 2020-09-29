@@ -30,7 +30,7 @@ export class PointedArray<T> extends Array {
     }
 
     // Converts the array to a string, with a number of optional formatting fields
-    public toString(options?: { delimiter?: string, numbered?: boolean, pointer?: string }): string {
+    public toString(options?: { delimiter?: string, numbered?: boolean, pointer?: string, filter?: (element: T) => string }): string {
         // Get the visible array of elements from this array (all elements within the viewport)
         const returnArray = this.getViewableSlice();
 
@@ -47,9 +47,23 @@ export class PointedArray<T> extends Array {
         // Iterate over every value to display
         for (const value of returnArray) {
             // Append the index of the element, if indicated to do so
-            returnString += `${options && options.numbered ? `${arrayIndex + 1}) ` : ''}`
+            returnString += `${options && options.numbered ? `${arrayIndex + 1}) ` : ''}`;
+            
+            // The string representation of the current value
+            let currentValueString: string;
+            // If a filter was provided in the options object
+            if (options && options.filter) {
+                // Get the value's string by running it through the filter
+                currentValueString = options.filter(value);
+            }
+            // If no filter was provided
+            else {
+                // Get the value's string as according to String and toString
+                currentValueString = String(value).toString();
+            }
+
             // Append the current value 
-            returnString += String(value).toString();
+            returnString += currentValueString;
             // Append the pointer if one was provided and the current element is the selection
             returnString += options && options.pointer ? (arrayIndex === this.getPointerPosition() ? ` ${options.pointer}` : '') : '';
             // Append a delimiter
