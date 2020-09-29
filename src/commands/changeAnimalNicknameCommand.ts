@@ -1,16 +1,15 @@
 import { getGuildMember } from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
-import { getAnimalByInventoryPosition, getPlayerObject, searchAnimal } from "../zoo/userManagement";
+import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
 
 // Changes a user's animal's nickname
 export class ChangeAnimalNicknameCommand implements Command {
     public readonly commandNames = ['nickname', 'nick', 'nn'];
 
     public help(prefix: string): string {
-        return `Use ${prefix}nickname <animal identifier> to change the nickname of an animal in your collection.`;
+        return `Use \`${prefix}nickname\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
