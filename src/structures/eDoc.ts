@@ -3,12 +3,13 @@ import { PointedArray } from "./pointedArray";
 import { UserError } from "./userError";
 
 // The type of values found within an eDoc instance
-export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField>;
+export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
 // An eDoc instance's field, contains information about the field and the value itself
-export interface EDocField {
+// Generic so type inferences about the field's value don't have to constantly be made
+export interface EDocField<ValueType extends EDocValue> {
     info: EDocFieldInfo,
-    value: EDocValue
+    value: ValueType
 }
 
 // An eDoc object that can be initialized from an eDoc skeleton
@@ -18,7 +19,7 @@ export class EDoc {
     private skeleton: EDocSkeleton;
 
     // This eDoc's fields to be set and manipulated
-    private fields = new Map<string, EDocField>();
+    private fields = new Map<string, EDocField<EDocValue>>();
 
     // This eDoc's field names, repeated in a pointed array so they can be traversed easily with a pointer
     private fieldNames = new PointedArray<string>();
@@ -29,7 +30,7 @@ export class EDoc {
         // Iterate over every field's information in the provided eDoc skeleton
         for (const [fieldName, fieldInfo] of Object.entries(skeleton)) {
             // Initialize a new field with the given field information
-            const newField: EDocField = {
+            const newField: EDocField<EDocValue> = {
                 info: fieldInfo,
                 value: undefined
             }
@@ -38,7 +39,7 @@ export class EDoc {
             switch (getEDocTypeString(fieldInfo.type)) {
                 // Give array fields an empty pointed array
                 case 'array': {
-                    newField.value = new PointedArray<EDocField>();
+                    newField.value = new PointedArray<EDocField<EDocValue>>();
                     break;
                 }
                 // Give eDoc fields a new eDoc according to their type
@@ -61,7 +62,7 @@ export class EDoc {
     }
 
     // Gets a field by its identifier
-    public getField(fieldName: string): EDocField {
+    public getField(fieldName: string): EDocField<EDocValue> {
         const field = this.fields.get(fieldName);
 
         if (!field) {
@@ -72,12 +73,12 @@ export class EDoc {
     }
 
     // Gets this document's field map
-    public getFields(): Map<string, EDocField> {
+    public getFields(): Map<string, EDocField<EDocValue>> {
         return this.fields;
     }
 
-    // Get the document's currently selected field name
-    public getSelectedField(): EDocField {
+    // Get the document's currently selected field
+    public getSelectedField(): EDocField<EDocValue> {
         const selectedField = this.fields.get(this.fieldNames.selection());
 
         if (!selectedField) {
