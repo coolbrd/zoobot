@@ -4,10 +4,10 @@ import { UserError } from "./userError";
 // Acceptable values for an eDoc's declared type
 // Types that are nested eDocs are simply declared in their simple skeletal form
 // Array types are indicated by encapsulating any declared type in square brackets
-type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | EDocTypeHint[];
+export type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | EDocTypeHint[];
 
 // The set of information that goes with every eDoc field
-interface EDocFieldInfo {
+export interface EDocFieldInfo {
     // The field's value's type
     type: EDocTypeHint,
     // Whether or not the value is marked as being required for completion
