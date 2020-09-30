@@ -1,11 +1,14 @@
 // Acceptable values for an eDoc's declared type
 // Types that are nested eDocs are simply declared in their simple skeletal form
-// Array types are indicated by encapsulating any declared type in square brackets
-export type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | [EDocTypeHint];
+// Array types are declared by wrapping any simple type in square brackets
+// Arrays of eDocs must be declared with the document's field information (type, etc.), hence EDocFieldInfo appearing here
+export type EDocPrimitiveType = StringConstructor | NumberConstructor;
+export type EDocSimpleType = EDocPrimitiveType | [EDocSimpleType | EDocFieldInfo];
+export type EDocTypeHint = EDocSimpleType | EDocSkeleton;
 
 // Reduces an eDoc type hint to a simple string
-export function getEDocTypeString(type: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
-    switch (type) {
+export function getEDocTypeString(fieldType: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
+    switch (fieldType) {
         case String: {
             return 'string';
         }
@@ -13,10 +16,11 @@ export function getEDocTypeString(type: EDocTypeHint): 'string' | 'number' | 'ar
             return 'number';
         }
         default: {
-            if (Array.isArray(type)) {
+            if (Array.isArray(fieldType)) {
                 return 'array';
             }
             else {
+                fieldType;
                 return 'edoc';
             }
         }
@@ -56,6 +60,11 @@ export interface EDocFieldInfo {
         viewportSize?: number,
         // The alias for each element within the array
         elementAlias?: string
+    },
+    // Options for document behavior
+    documentOptions?: {
+        // The name of the field's value to display instead of "<name> document"
+        displayField?: string
     }
 }
 

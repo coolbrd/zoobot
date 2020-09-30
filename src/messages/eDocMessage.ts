@@ -45,6 +45,11 @@ export default class EDocMessage extends InteractiveMessage {
                 name: 'new',
                 emoji: '🆕',
                 helpMessage: 'New item'
+            },
+            {
+                name: 'delete',
+                emoji: '🗑️',
+                helpMessage: 'Delete item'
             }
         ]});
         
@@ -103,17 +108,17 @@ export default class EDocMessage extends InteractiveMessage {
                 switch (getEDocTypeString(field.info.type)) {
                     // If the field holds a string
                     case 'string': {
-                        valueString = eDocFieldToString(field) || '*Empty*';
+                        valueString = eDocFieldToString(field);
                         break;
                     }
                     // If the field holds a number
                     case 'number': {
-                        valueString = eDocFieldToString(field) || '*NaN*';
+                        valueString = eDocFieldToString(field);
                         break;
                     }
                     // If the field holds an array
                     case 'array': {
-                        valueString = eDocFieldToString(field) || '*Empty list*';
+                        valueString = eDocFieldToString(field);
                         break;
                     }
                     // If the field holds a nested eDoc
@@ -122,7 +127,7 @@ export default class EDocMessage extends InteractiveMessage {
                             throw new Error('Value for a nested EDoc cannot be undefined. Must be initialized.');
                         }
 
-                        valueString = capitalizeFirstLetter(eDocFieldToString(field));
+                        valueString = eDocFieldToString(field);
                         break;
                     }
                 }
@@ -156,6 +161,13 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Document controls
         if (selectedField.value instanceof EDoc) {
+            // Get the field that the pointer is currently selecting
+            const selectedNestedFieldName = selectedField.value.getSelectedFieldName();
+            const selectedNestedField = selectedField.value.getSelectedField();
+
+            // Button behavior depends on the field's contained information
+            const fieldType = getEDocTypeString(selectedNestedField.info.type);
+
             switch (buttonName) {
                 case 'pointerUp': {
                     selectedField.value.decrementPointer();
@@ -166,12 +178,6 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case 'edit': {
-                    // Get the field that the pointer is currently selecting
-                    const selectedNestedFieldName = selectedField.value.getSelectedFieldName();
-                    const selectedNestedField = selectedField.value.getSelectedField();
-
-                    // Edit behavior depends on the field's contained information
-                    const fieldType = getEDocTypeString(selectedNestedField.info.type);
                     switch (fieldType) {
                         case 'string': 
                         case 'number': {
@@ -211,6 +217,20 @@ export default class EDocMessage extends InteractiveMessage {
                         }
                         case 'edoc': {
                             this.selectionStack.push(selectedNestedField);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 'delete': {
+                    switch (fieldType) {
+                        case 'string':
+                        case 'number': {
+                            setEDocField(selectedNestedField, undefined);
+                            break;
+                        }
+                        case 'array': {
+                            setEDocField(selectedNestedField, new PointedArray<EDocField<EDocValue>>());
                             break;
                         }
                     }
@@ -315,6 +335,10 @@ export default class EDocMessage extends InteractiveMessage {
                             break;
                         }
                     }
+                    break;
+                }
+                case 'delete': {
+                    selectedField.value.deleteAtPointer();
                     break;
                 }
             }

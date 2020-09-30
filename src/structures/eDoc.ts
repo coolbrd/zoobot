@@ -108,6 +108,10 @@ export class EDoc {
         setEDocField(field, input);
     }
 
+    public hasField(fieldName: string): boolean {
+        return this.fieldNames.includes(fieldName);
+    }
+
     // Pointer movement
     public decrementPointer(): void {
         this.fieldNames.decrementPointer();
@@ -123,11 +127,11 @@ export function eDocFieldToString(field: EDocField<EDocValue>, options?: { array
     switch (getEDocTypeString(field.info.type)) {
         case 'string': {
             field.value = field.value as string;
-            return field.value;
+            return field.value || '*Empty*';
         }
         case 'number': {
             field.value = field.value as number;
-            return field.value === undefined ? '' : field.value.toString();
+            return field.value === undefined ? '*NaN*' : field.value.toString();
         }
         case 'array': {
             field.value = field.value as PointedArray<EDocField<EDocValue>>;
@@ -135,22 +139,41 @@ export function eDocFieldToString(field: EDocField<EDocValue>, options?: { array
             // Convert the array to a string, but use the eDoc element's value fields instead of just displaying them as [Object]
             return field.value.toString({ delimiter: '\n', numbered: true, pointer: options && options.arrayPointer, filter: (field: EDocField<EDocValue>) => {
                 return capitalizeFirstLetter(eDocFieldToString(field));
-            }});
+            }}) || '*Empty list*';
         }
         case 'edoc': {
-            return `${field.info.alias || 'anonymous'} document`;
+            field.value = field.value as EDoc;
+
+            if (field.info.documentOptions && field.info.documentOptions.displayField) {
+                const displayFieldName = field.info.documentOptions.displayField;
+                if (!field.value.hasField(displayFieldName)) {
+                    throw new Error('Invalid field name found in eDocField.info.documentOptions.displayField');
+                }
+
+                const displayField = field.value.getField(displayFieldName);
+
+                return eDocFieldToString(displayField);
+            }
+            else {
+                return `${capitalizeFirstLetter(field.info.alias || 'anonymous')} document`;
+            }
         }
     }
 }
 
 // Takes a field, some input, and attempts to set the field as the given input
-export function setEDocField(field: EDocField<EDocValue>, input: string | number): void {
+export function setEDocField(field: EDocField<EDocValue>, input: EDocValue): void {
     // Get a human-friendly name for this field, even if it doesn't have one by default
     const fieldAlias = field.info.alias || 'field';
 
     // Set behavior depending on the type contained within this field
     switch (getEDocTypeString(field.info.type)) {
         case 'string': {
+            if (input === undefined) {
+                field.value = input;
+                return;
+            }
+
             if (typeof input !== 'string') {
                 throw new TypeError('Non-string input given to an eDoc string field.')
             }
@@ -187,6 +210,11 @@ export function setEDocField(field: EDocField<EDocValue>, input: string | number
             return;
         }
         case 'number': {
+            if (input === undefined) {
+                field.value = input;
+                return;
+            }
+
             // Attempt to convert the input to a number
             const inputNumber = Number(input);
 
@@ -215,9 +243,26 @@ export function setEDocField(field: EDocField<EDocValue>, input: string | number
             return;
         }
         // Don't let the set method be used with arrays and documents, that doesn't make sense!
-        case 'array':
+        case 'array': {
+            if (!Array.isArray(input)) {
+                throw new Error('Non-array type given to eDoc array field.');
+            }
+
+            field.value = new PointedArray<EDocField<EDocValue>>();
+
+            for (const element of input) {
+                try {
+                    pushEDocArrayField(field as EDocField<PointedArray<EDocField<EDocValue>>>, element);
+                }
+                catch (error) {
+                    console.error('There was an error trying to push a value from a set of values to an eDoc array field.');
+                    throw error;
+                }
+            }
+            break;
+        }
         case 'edoc': {
-            throw new Error('Array and eDoc fields cannot be set.');
+            throw new Error('eDoc fields cannot be set.');
         }
     }
 }
@@ -226,19 +271,32 @@ export function setEDocField(field: EDocField<EDocValue>, input: string | number
 export function pushEDocArrayField(field: EDocField<PointedArray<EDocField<EDocValue>>>, input?: string | number): void {
     // Clone the array's info so its element type can be extracted
     const elementInfo = clone(field.info);
-    // The array's type is going to be a type hint within brackets
-    elementInfo.type = elementInfo.type as [EDocTypeHint];
-    // Extract the type from the brackets, this is the type of the element to create
-    const elementType = elementInfo.type[0];
+    
+    if (!Array.isArray(elementInfo.type)) {
+        throw new Error('Non-array eDoc field given to pushEDocArrayField.');
+    }
 
-    // Initialize a new field to insert into the array
-    const newField: EDocField<EDocValue> = {
-        info: {
-            type: elementType,
-            // Give each entry a human-readable name
-            alias: field.info.arrayOptions && field.info.arrayOptions.elementAlias || `${field.info.alias || 'anonymous list'} entry`
-        },
-        value: undefined
+    const possibleElementType = elementInfo.type[0];
+
+    let elementType: EDocTypeHint;
+    let newField: EDocField<EDocValue>;
+    if (!Array.isArray(possibleElementType) && typeof possibleElementType === 'object') {
+        elementType = possibleElementType.type;
+        newField = {
+            info: possibleElementType,
+            value: undefined
+        }
+    }
+    else {
+        elementType = possibleElementType;
+        newField = {
+            info: {
+                type: possibleElementType,
+                // Give each entry a human-readable name
+                alias: field.info.arrayOptions && field.info.arrayOptions.elementAlias || `${field.info.alias || 'anonymous list'} entry`
+            },
+            value: undefined
+        }
     }
 
     // Initialize different values depending on the type of the element to add
