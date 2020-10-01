@@ -13,8 +13,6 @@ export interface EDocFieldInfo {
     alias?: string,
     // The text that prompts the user for input for this field
     prompt?: string,
-    // Whether or not this field should be hidden from plain view (usually used to store immutable data for later programatic use)
-    hidden?: boolean,
     // Options for what constitutes valid string input, and what to do with string input
     stringOptions?: {
         // The string value's max length, in characters
@@ -31,11 +29,7 @@ export interface EDocFieldInfo {
     // Options for array behavior
     arrayOptions?: {
         // The minimum number of elements required to satisfy an array that's marked as required (defaults to 1)
-        minimumLength?: number,
-        // The size of the viewable portion of the array
-        viewportSize?: number,
-        // The alias for each element within the array
-        elementAlias?: string
+        minimumLength?: number
     },
     // Options for document behavior
     documentOptions?: {
