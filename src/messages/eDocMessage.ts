@@ -124,6 +124,7 @@ export default class EDocMessage extends InteractiveMessage {
         embed.setTitle(`Now editing: ${fieldTitle}`);
 
         if (selectedFieldValue instanceof EDoc) {
+            // Hide array buttons
             this.disableButton('new');
             this.disableButton('delete');
 
@@ -153,6 +154,7 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
         else {
+            // Show array buttons
             this.enableButton('new');
             this.enableButton('delete');
 
@@ -161,16 +163,22 @@ export default class EDocMessage extends InteractiveMessage {
             embed.setDescription(arrayString);
         }
 
+        // If the top level is selected and the top document's requirements are met
         if (this.selectionStack.length === 1 && this.selectionStack[0].requirementsMet()) {
+            // Allow the document to be submitted
             this.enableButton('submit');
         }
+        // Otherwise, hide and disable the submit button
         else {
             this.disableButton('submit');
         }
 
+        // If anything but the top document is selected
         if (this.selectionStack.length > 1) {
+            // Show the back button
             this.enableButton('back');
         }
+        // Otherwise, hide it
         else {
             this.disableButton('back');
         }
@@ -313,8 +321,11 @@ export default class EDocMessage extends InteractiveMessage {
                     }
                     break;
                 }
+                // New array element behavior
                 case 'new': {
+                    // Behavior depends on the type of element contained within the array
                     switch (selectedField.getNestedTypeString()) {
+                        // For strings and numbers, get user input and push it
                         case 'string':
                         case 'number': {
                             const promptString = selectedField.getPrompt() || 'Enter your input for a new list entry:';
@@ -336,6 +347,7 @@ export default class EDocMessage extends InteractiveMessage {
                             safeDeleteMessage(promptMessage);
                             break;
                         }
+                        // For arrays and eDocs, just add a new one to the array
                         case 'array':
                         case 'edoc': {
                             selectedField.push();
@@ -351,14 +363,17 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
 
+        // Universal button behavior
         switch (buttonName) {
             case 'back': {
+                // Only go back if there's something to go back to
                 if (this.selectionStack.length > 1) {
                     this.selectionStack.pop();
                 }
                 break;
             }
             case 'submit': {
+                // Only submit if the top level is selected
                 if (this.selectionStack.length === 1) {
                     this.emit('submit', this.selectionStack[0].getSimpleValue() as SimpleEDoc);
                 }
