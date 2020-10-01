@@ -30,7 +30,13 @@ export class PointedArray<T> extends Array {
     }
 
     // Converts the array to a string, with a number of optional formatting fields
-    public toString(options?: { delimiter?: string, numbered?: boolean, pointer?: string, filter?: (element: T) => string }): string {
+    public toString(options?: {
+        delimiter?: string,
+        numbered?: boolean,
+        pointer?: string,
+        filter?: (element: T) => string,
+        numberFilter?: (element: string) => string
+    }): string {
         // Get the visible array of elements from this array (all elements within the viewport)
         const returnArray = this.getViewableSlice();
 
@@ -46,8 +52,20 @@ export class PointedArray<T> extends Array {
 
         // Iterate over every value to display
         for (const value of returnArray) {
-            // Append the index of the element, if indicated to do so
-            returnString += `${options && options.numbered ? `${arrayIndex + 1}) ` : ''}`;
+            // If the array is supposed to be numbered
+            if (options && options.numbered) {
+                // Create the number string for this element
+                let numberString = `${arrayIndex + 1})`;
+
+                // If a number filter was provided
+                if (options && options.numberFilter) {
+                    // Style the number according to the filter
+                    numberString = options.numberFilter(numberString);
+                }
+
+                // Add the number to the string
+                returnString += numberString;
+            }
             
             // The string representation of the current value
             let currentValueString: string;
