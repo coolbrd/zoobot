@@ -9,7 +9,7 @@ export class AnimalInfoCommand implements Command {
     public readonly commandNames = ['animalinfo', 'ai', 'stats'];
 
     public help(prefix: string): string {
-        return `Use ${prefix}animalinfo <animal number or nickname> to view information about that animal.`;
+        return `Use \`${prefix}animalinfo\` \`<animal number or nickname>\` to view information about that animal.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
