@@ -4,12 +4,12 @@ import { MessageEmbed, APIMessage } from 'discord.js';
 import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
-import EditableDocumentMessage from '../messages/editableDocumentMessage';
-import EditableDocument, { schemaToSkeleton, SimpleDocument } from '../structures/editableDocument';
-import { PendingSpecies, pendingSpeciesSchema } from '../models/pendingSpecies';
+import { PendingSpecies } from '../models/pendingSpecies';
 import { interactiveMessageHandler } from '..';
 import { reactionInput } from '../discordUtility/reactionInput';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
+import { EDoc, SimpleEDoc } from '../structures/eDoc';
+import EDocMessage from '../messages/eDocMessage';
 
 // Initiates the species submission process. Only to be used in DMs.
 export class SubmitSpeciesCommand implements Command {
@@ -50,7 +50,7 @@ export class SubmitSpeciesCommand implements Command {
         // There's also only a 60 second window to press the button so bonus burn if they have to send the command again
         if (!(await reactionInput(infoMessage, 60000, ['✅']))) {
             // If we're in here, the button didn't get pressed
-            betterSend(channel, 'Your time to initiate the previous submission process has expired. Perform the submit command again if you wish try again.');
+            betterSend(channel, 'Your time to initiate the previous submission process has expired. Perform the submit command again to try again.');
             return;
         }
         // If we're out here that means the button was pressed
@@ -58,48 +58,69 @@ export class SubmitSpeciesCommand implements Command {
         // Attempt to delete the info message
         safeDeleteMessage(infoMessage);
 
-        // Combine the pending species schema and some info about it
-        // This returns a skeleton, which is an awesome object that tells an EditableDocument how to act
-        const skeleton = schemaToSkeleton(pendingSpeciesSchema, {
+        // The eDoc containing all field information regarding the new submission
+        const submissionDocument = new EDoc({
             commonNames: {
+                type: [{
+                    type: String,
+                    alias: 'common name',
+                    stringOptions: {
+                        maxLength: 96
+                    }
+                }],
+                required: true,
                 alias: 'common names',
-                prompt: 'Enter a name that is used to refer to this animal conversationally, e.g. "dog", "cat", "bottlenose dolphin".',
-                maxLength: 96,
-                arrayViewPortSize: 10
+                prompt: 'Enter a name that is used to refer to this animal conversationally (e.g. "dog", "cat", "bottlenose dolphin"):',
             },
             scientificName: {
+                type: String,
+                required: true,
                 alias: 'scientific name',
-                prompt: 'Enter this animal\'s scientific (taxonomical) name.',
-                maxLength: 256
+                prompt: 'Enter this animal\'s scientific (taxonomical) name:',
+                stringOptions: {
+                    maxLength: 128
+                }
             },
             images: {
+                type: [{
+                    type: String,
+                    alias: 'url',
+                    stringOptions: {
+                        maxLength: 128
+                    }
+                }],
                 alias: 'images',
-                prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image, e.g. "i.imgur.com/fake-image"',
-                maxLength: 128,
-                arrayViewPortSize: 10
+                prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):'
             },
             description: {
+                type: String,
                 alias: 'description',
-                prompt: 'Enter a concise description of the animal. See other animals for examples.',
-                maxLength: 1024
+                prompt: 'Enter a concise description of the animal (see other animals for examples):',
+                stringOptions: {
+                    maxLength: 512
+                }
             },
             naturalHabitat: {
+                type: String,
                 alias: 'natural habitat',
-                prompt: 'Enter a concise summary of where the animal is naturally found. See other animals for examples.',
-                maxLength: 1024
+                prompt: 'Enter a concise summary of where the animal is naturally found (see other animals for examples):',
+                stringOptions: {
+                    maxLength: 512
+                }
             },
             wikiPage: {
-                alias: 'wikipedia page',
-                prompt: 'Enter the link leading to the Wikipedia page of the animal\'s species.',
-                maxLength: 256
+                type: String,
+                alias: 'Wikipedia page',
+                prompt: 'Enter the link that leads to this animal\'s page on Wikipedia:',
+                stringOptions: {
+                    maxLength: 256
+                }
             }
         });
 
-        const document = new EditableDocument(skeleton);
-
-        // Create and send an editable document for the user's new species submission
-        const submissionMessage = new EditableDocumentMessage(interactiveMessageHandler, channel, document, 'new submission');
-        submissionMessage.send();
+        // Create and send the submission message
+        const submissionMessage = new EDocMessage(interactiveMessageHandler, channel, submissionDocument, 'new submission');
+        await submissionMessage.send();
 
         // When the message reaches its time limit
         submissionMessage.once('timeExpired', () => {
@@ -112,14 +133,19 @@ export class SubmitSpeciesCommand implements Command {
         });
 
         // When the user presses the submit button
-        submissionMessage.once('submit', (finalDocument: SimpleDocument) => {
-            // Create a new pending species based on the SimpleDocument that was returned
-            // This works because SimpleDocument is just a plain object with the same field names as the Skeleton that was passed in
-            const pendingSpecies = new PendingSpecies(finalDocument);
+        submissionMessage.once('submit', (finalDocument: SimpleEDoc) => {
+            const pendingSpecies = new PendingSpecies();
+
+            // Assign fields
+            pendingSpecies.set('commonNames', finalDocument['commonNames']);
+            pendingSpecies.set('scientificName', finalDocument['scientificName']);
+            pendingSpecies.set('images', finalDocument['images']);
+            pendingSpecies.set('description', finalDocument['description']);
+            pendingSpecies.set('naturalHabitat', finalDocument['naturalHabitat']);
+            pendingSpecies.set('wikiPage', finalDocument['wikiPage']);
 
             // Assign case-normalized names
             pendingSpecies.set('commonNamesLower', arrayToLowerCase(pendingSpecies.get('commonNames')));
-
             // Set the author
             pendingSpecies.set('author', user.id);
 

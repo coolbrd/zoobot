@@ -3,11 +3,11 @@ import mongoose, { Schema } from 'mongoose';
 // The schema for a pending species submission
 export const pendingSpeciesSchema = new Schema({
     commonNames: {
-        type: Array,
+        type: [String],
         required: true,
     },
     commonNamesLower: {
-        type: Array,
+        type: [String],
         required: true
     },
     scientificName: {
@@ -15,7 +15,7 @@ export const pendingSpeciesSchema = new Schema({
         required: true,
     },
     images: {
-        type: Array,
+        type: [String],
         required: false,
     },
     description: {
