@@ -6,7 +6,7 @@ import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { EDoc, EDocField, EDocValue } from "../structures/eDoc";
+import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/eDoc";
 import { EDocFieldInfo } from "../structures/eDocSkeleton";
 import { PointedArray } from "../structures/pointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
@@ -47,6 +47,16 @@ export default class EDocMessage extends InteractiveMessage {
                 name: 'delete',
                 emoji: '🗑️',
                 helpMessage: 'Delete item'
+            },
+            {
+                name: 'submit',
+                emoji: '✅',
+                helpMessage: 'Submit'
+            },
+            {
+                name: 'exit',
+                emoji: '❌',
+                helpMessage: 'Exit'
             }
         ]});
 
@@ -114,6 +124,9 @@ export default class EDocMessage extends InteractiveMessage {
         embed.setTitle(`Now editing: ${fieldTitle}`);
 
         if (selectedFieldValue instanceof EDoc) {
+            this.disableButton('new');
+            this.disableButton('delete');
+
             // Iterate over every field in the eDoc
             for (const [fieldName, field] of selectedFieldValue.getFields()) {
                 // The string that will represent the current field
@@ -140,9 +153,26 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
         else {
+            this.enableButton('new');
+            this.enableButton('delete');
+
             const arrayString = selectedField.toString({ arrayPointer: '✏️' });
 
             embed.setDescription(arrayString);
+        }
+
+        if (this.selectionStack.length === 1 && this.selectionStack[0].requirementsMet()) {
+            this.enableButton('submit');
+        }
+        else {
+            this.disableButton('submit');
+        }
+
+        if (this.selectionStack.length > 1) {
+            this.enableButton('back');
+        }
+        else {
+            this.disableButton('back');
         }
 
         embed.setFooter(this.getButtonHelpString());
@@ -156,6 +186,7 @@ export default class EDocMessage extends InteractiveMessage {
         // Get the current field that's being displayed
         const selectedField = this.getSelection();
 
+        // Get the value of the currently displayed selection
         const selectedFieldValue = selectedField.getValue();
 
         // Make sure the selected field's value is either a document or an array
@@ -229,6 +260,7 @@ export default class EDocMessage extends InteractiveMessage {
                 }
             }
         }
+        // Array controls
         else {
             switch (buttonName) {
                 case 'pointerUp': {
@@ -282,7 +314,7 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case 'new': {
-                    switch (selectedField.getTypeString()) {
+                    switch (selectedField.getNestedTypeString()) {
                         case 'string':
                         case 'number': {
                             const promptString = selectedField.getPrompt() || 'Enter your input for a new list entry:';
@@ -319,9 +351,24 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
 
-        // Back button behavior
-        if (buttonName === 'back' && this.selectionStack.length > 1) {
-            this.selectionStack.pop();
+        switch (buttonName) {
+            case 'back': {
+                if (this.selectionStack.length > 1) {
+                    this.selectionStack.pop();
+                }
+                break;
+            }
+            case 'submit': {
+                if (this.selectionStack.length === 1) {
+                    this.emit('submit', this.selectionStack[0].getSimpleValue() as SimpleEDoc);
+                }
+                break;
+            }
+            case 'exit': {
+                this.emit('exit');
+                this.deactivate();
+                break;
+            }
         }
 
         this.setEmbed(this.buildEmbed());

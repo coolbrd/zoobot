@@ -8,6 +8,9 @@ import { UserError } from "./userError";
 // The type of values found within an eDoc instance
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
+export type SimpleEDoc = { [fieldName: string]: EDocReturn };
+export type EDocReturn = undefined | string | number | SimpleEDoc | EDocReturn[];
+
 export class EDocField<ValueType extends EDocValue> {
     private readonly info: EDocFieldInfo;
     private value: ValueType;
@@ -50,6 +53,14 @@ export class EDocField<ValueType extends EDocValue> {
 
     public getTypeString(): 'string' | 'number' | 'array' | 'edoc' {
         return getEDocTypeString(this.info.type);
+    }
+
+    public getNestedTypeString(): 'string' | 'number' | 'array' | 'edoc' | undefined {
+        if (!Array.isArray(this.info.type)) {
+            return undefined;
+        }
+
+        return getEDocTypeString(this.info.type[0].type);
     }
 
     public setValue(input: EDocValue): void {
@@ -160,6 +171,7 @@ export class EDocField<ValueType extends EDocValue> {
         }
     }
 
+    // Resets the field to a valid empty value
     public clearValue(): void {
         switch (this.getTypeString()) {
             case 'string': {
@@ -275,6 +287,53 @@ export class EDocField<ValueType extends EDocValue> {
         
         // If all tests were passed, this field's requirements are met
         return true;
+    }
+
+    // Returns this field's value in a simpler form (important for array and eDoc values)
+    public getSimpleValue(): EDocReturn {
+        // Cover the case of an empty value right away
+        if (this.value === undefined) {
+            return undefined;
+        }
+
+        // Process return info depending on this field's type
+        switch (this.getTypeString()) {
+            // Return strings and numbers plainly
+            case 'string': {
+                return this.value as string;
+            }
+            case 'number': {
+                return this.value as number;
+            }
+            // Return a simple array of simple values
+            case 'array': {
+                const value = this.value as PointedArray<EDocField<EDocValue>>;
+
+                const returnArray: EDocReturn[] = [];
+                // Add every element in this array as its simple value form
+                for (const field of value) {
+                    returnArray.push(field.getSimpleValue());
+                }
+
+                return returnArray;
+            }
+            // Return a simple object of simple values
+            case 'edoc': {
+                const value = this.value as EDoc;
+
+                const returnObject: EDocReturn = {};
+                // Add every field in this eDoc as its simple value form
+                for (const [fieldName, field] of value.getFields()) {
+                    Object.defineProperty(returnObject, fieldName, {
+                        value: field.getSimpleValue(),
+                        writable: false,
+                        enumerable: true
+                    });
+                }
+
+                return returnObject;
+            }
+        }
     }
 
     // Converts an eDoc field to a string
