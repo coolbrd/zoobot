@@ -1,31 +1,7 @@
-// Acceptable values for an eDoc's declared type
-// Types that are nested eDocs are simply declared in their simple skeletal form
-// Array types are declared by wrapping any simple type in square brackets
-// Arrays of eDocs must be declared with the document's field information (type, etc.), hence EDocFieldInfo appearing here
-export type EDocPrimitiveType = StringConstructor | NumberConstructor;
-export type EDocSimpleType = EDocPrimitiveType | [EDocSimpleType | EDocFieldInfo];
-export type EDocTypeHint = EDocSimpleType | EDocSkeleton;
-
-// Reduces an eDoc type hint to a simple string
-export function getEDocTypeString(fieldType: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
-    switch (fieldType) {
-        case String: {
-            return 'string';
-        }
-        case Number: {
-            return 'number';
-        }
-        default: {
-            if (Array.isArray(fieldType)) {
-                return 'array';
-            }
-            else {
-                fieldType;
-                return 'edoc';
-            }
-        }
-    }
-}
+// The accepted types found within a declaration of an eDoc's field
+// Arrays of any value found in a normal field are allowed, but the type declaration needs to be an array of field information
+// For example, a string array would not be [String], it would be a field object (with String in the type field) in brackets
+export type EDocTypeHint = StringConstructor | NumberConstructor | EDocSkeleton | [EDocFieldInfo];
 
 // The set of information that goes with every eDoc field
 export interface EDocFieldInfo {
@@ -71,4 +47,24 @@ export interface EDocFieldInfo {
 // A set of eDoc field information, used in the creation of eDoc instances and nested eDocs
 export interface EDocSkeleton {
     [fieldName: string]: EDocFieldInfo
+}
+
+// Reduces an eDoc type hint to a simple string
+export function getEDocTypeString(fieldType: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
+    switch (fieldType) {
+        case String: {
+            return 'string';
+        }
+        case Number: {
+            return 'number';
+        }
+        default: {
+            if (Array.isArray(fieldType)) {
+                return 'array';
+            }
+            else {
+                return 'edoc';
+            }
+        }
+    }
 }

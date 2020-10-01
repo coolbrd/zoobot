@@ -1,21 +1,18 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 
 import { awaitUserNextMessage } from "../discordUtility/awaitUserNextMessage";
+import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { SmartEmbed } from "../discordUtility/smartEmbed";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { EDoc, EDocField, eDocFieldToString, EDocValue, pushEDocArrayField, setEDocField } from "../structures/eDoc";
-import { EDocTypeHint, getEDocTypeString } from "../structures/eDocSkeleton";
+import { EDoc, EDocField, EDocValue } from "../structures/eDoc";
+import { EDocFieldInfo } from "../structures/eDocSkeleton";
 import { PointedArray } from "../structures/pointedArray";
-import { UserError } from "../structures/userError";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // An interactive message containing an editable document that allows for the editing of said document
 export default class EDocMessage extends InteractiveMessage {
-    // The base document
-    private readonly eDoc: EDoc;
-
     // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
@@ -52,21 +49,17 @@ export default class EDocMessage extends InteractiveMessage {
                 helpMessage: 'Delete item'
             }
         ]});
-        
-        this.eDoc = eDoc;
 
         // Create an eDoc field based on the eDoc skeleton provided
         // This is done in here so declarations of top-level eDocs don't need to explicitly declare their type, as it's implicit
-        const topField: EDocField<EDoc> = {
-            info: {
-                // Use the eDoc's skeleton as the field's type
-                type: eDoc.getSkeleton(),
-                // Assign the field a friendly name
-                alias: docName || 'top document'
-            },
-            // Assign the eDoc as this field's value
-            value: this.eDoc
+        const topFieldInfo: EDocFieldInfo = {
+            type: eDoc.getSkeleton(),
+            alias: docName || 'top document',
+            required: true
         }
+
+        const topField = new EDocField(topFieldInfo);
+        topField.setValue(eDoc);
 
         // Add the newly created eDoc field to the front of the selection stack, meaning it's selected
         this.selectionStack.push(topField);
@@ -84,63 +77,72 @@ export default class EDocMessage extends InteractiveMessage {
     private buildEmbed(): MessageEmbed {
         const selectedField = this.getSelection();
 
-        if (!(selectedField.value instanceof EDoc) && !(selectedField.value instanceof PointedArray)) {
+        const selectedFieldValue = selectedField.getValue();
+
+        if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
             throw new Error('Unexpected value type selected in eDoc.');
         }
 
         const embed = new SmartEmbed();
 
-        if (selectedField.value instanceof EDoc) {
-            embed.setTitle(`Now editing: __${capitalizeFirstLetter(selectedField.info.alias as string)}__`);
+        // The label for the currently selected field
+        let fieldTitle = '';
 
+        // Add the field's name
+        fieldTitle += selectedField.getAlias();
+
+        if (!fieldTitle) {
+            if (selectedField.getTypeString() === 'edoc') {
+                fieldTitle = 'anonymous document';
+            }
+            else {
+                fieldTitle = 'anonymous list';
+            }
+        }
+
+        fieldTitle = capitalizeFirstLetter(fieldTitle);
+
+        if (selectedField.getTypeString() === 'edoc') {
+            fieldTitle = `__${fieldTitle}__`;
+        }
+
+        // Indicate whether or not this field is satisfied
+        if (!selectedField.requirementsMet()) {
+            fieldTitle += ' (incomplete)'
+        }
+
+        embed.setTitle(`Now editing: ${fieldTitle}`);
+
+        if (selectedFieldValue instanceof EDoc) {
             // Iterate over every field in the eDoc
-            for (const [fieldName, field] of selectedField.value.getFields()) {
-                // Label the field
-                let fieldLabel = (field.info.alias || 'anonymous field') + ': ';
+            for (const [fieldName, field] of selectedFieldValue.getFields()) {
+                // The string that will represent the current field
+                let fieldLabel = '';
+
+                // Indicate if a field's requirements aren't met
+                if (!field.requirementsMet()) {
+                    fieldLabel += '✗ '
+                }
+
+                // Add field name
+                fieldLabel += capitalizeFirstLetter(field.getAlias() || 'anonymous field') + ': ';
+
                 // Draw the edit icon if the current field is the selected field
-                if (fieldName === selectedField.value.getSelectedFieldName()) {
+                if (fieldName === selectedFieldValue.getSelectedFieldName()) {
                     fieldLabel += '✏️';
                 }
 
-                // The string form of this field's value
-                let valueString: string;
-                // Determine the string value based on the current field's type
-                switch (getEDocTypeString(field.info.type)) {
-                    // If the field holds a string
-                    case 'string': {
-                        valueString = eDocFieldToString(field);
-                        break;
-                    }
-                    // If the field holds a number
-                    case 'number': {
-                        valueString = eDocFieldToString(field);
-                        break;
-                    }
-                    // If the field holds an array
-                    case 'array': {
-                        valueString = eDocFieldToString(field);
-                        break;
-                    }
-                    // If the field holds a nested eDoc
-                    case 'edoc': {
-                        if (field.value === undefined) {
-                            throw new Error('Value for a nested EDoc cannot be undefined. Must be initialized.');
-                        }
+                // Get the current field's string representation
+                const valueString = field.toString();
 
-                        valueString = eDocFieldToString(field);
-                        break;
-                    }
-                }
-
-                embed.addField(capitalizeFirstLetter(fieldLabel), valueString);
+                // Add a new field to the embed corresponding to the current field
+                embed.addField(fieldLabel, valueString);
             }
         }
         else {
-            embed.setTitle(`Now editing: __${capitalizeFirstLetter(selectedField.info.alias || 'list')}__`);
+            const arrayString = selectedField.toString({ arrayPointer: '✏️' });
 
-            const arrayString = eDocFieldToString(selectedField, { arrayPointer: '✏️' });
-
-            embed.setDescription(arrayString || '*Empty list*');
+            embed.setDescription(arrayString);
         }
 
         embed.setFooter(this.getButtonHelpString());
@@ -154,27 +156,28 @@ export default class EDocMessage extends InteractiveMessage {
         // Get the current field that's being displayed
         const selectedField = this.getSelection();
 
+        const selectedFieldValue = selectedField.getValue();
+
         // Make sure the selected field's value is either a document or an array
-        if (!(selectedField.value instanceof EDoc) && !(selectedField.value instanceof PointedArray)) {
+        if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
             throw new Error('Unexpected value type selected in eDoc.');
         }
 
         // Document controls
-        if (selectedField.value instanceof EDoc) {
+        if (selectedFieldValue instanceof EDoc) {
             // Get the field that the pointer is currently selecting
-            const selectedNestedFieldName = selectedField.value.getSelectedFieldName();
-            const selectedNestedField = selectedField.value.getSelectedField();
+            const selectedNestedField = selectedFieldValue.getSelectedField();
 
             // Button behavior depends on the field's contained information
-            const fieldType = getEDocTypeString(selectedNestedField.info.type);
+            const fieldType = selectedNestedField.getTypeString();
 
             switch (buttonName) {
                 case 'pointerUp': {
-                    selectedField.value.decrementPointer();
+                    selectedFieldValue.decrementPointer();
                     break;
                 }
                 case 'pointerDown': {
-                    selectedField.value.incrementPointer();
+                    selectedFieldValue.incrementPointer();
                     break;
                 }
                 case 'edit': {
@@ -183,10 +186,10 @@ export default class EDocMessage extends InteractiveMessage {
                         case 'number': {
                             let promptString: string;
                             if (fieldType === 'string') {
-                                promptString = selectedNestedField.info.prompt || 'Enter your input for this field:';
+                                promptString = selectedNestedField.getPrompt() || 'Enter your input for this field:';
                             }
                             else {
-                                promptString = selectedNestedField.info.prompt || 'Enter your numeric input for this field:'
+                                promptString = selectedNestedField.getPrompt() || 'Enter your numeric input for this field:'
                             }
 
                             const promptMessage = await betterSend(this.channel, promptString);
@@ -194,15 +197,10 @@ export default class EDocMessage extends InteractiveMessage {
 
                             if (responseMessage) {
                                 try {
-                                    selectedField.value.setFieldByName(selectedNestedFieldName, responseMessage.content);
+                                    selectedNestedField.setValue(responseMessage.content);
                                 }
                                 catch (error) {
-                                    if (error instanceof UserError) {
-                                        betterSend(this.channel, 'Error: ' + error.message, 10000);
-                                    }
-                                    else {
-                                        throw new Error(error.message);
-                                    }
+                                    handleUserError(responseMessage.channel, error);
                                 }
 
                                 safeDeleteMessage(responseMessage);
@@ -223,16 +221,9 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case 'delete': {
-                    switch (fieldType) {
-                        case 'string':
-                        case 'number': {
-                            setEDocField(selectedNestedField, undefined);
-                            break;
-                        }
-                        case 'array': {
-                            setEDocField(selectedNestedField, new PointedArray<EDocField<EDocValue>>());
-                            break;
-                        }
+                    // Allow all fields other than nested documents to be cleared
+                    if (selectedNestedField.getTypeString() !== 'edoc') {
+                        selectedNestedField.clearValue();
                     }
                     break;
                 }
@@ -241,16 +232,16 @@ export default class EDocMessage extends InteractiveMessage {
         else {
             switch (buttonName) {
                 case 'pointerUp': {
-                    selectedField.value.decrementPointer();
+                    selectedFieldValue.decrementPointer();
                     break;
                 }
                 case 'pointerDown': {
-                    selectedField.value.incrementPointer();
+                    selectedFieldValue.incrementPointer();
                     break;
                 }
                 // Edit a single item within an array
                 case 'edit': {
-                    const selectedElement = selectedField.value.selection();
+                    const selectedElement = selectedFieldValue.selection();
 
                     // Don't do anything if the array is empty
                     if (!selectedElement) {
@@ -258,26 +249,21 @@ export default class EDocMessage extends InteractiveMessage {
                     }
 
                     // Edit behavior depends on the type of array
-                    switch (getEDocTypeString(selectedElement.info.type)) {
+                    switch (selectedElement.getTypeString()) {
                         // For simple types, ask the user for input to replace the selected element
                         case 'string':
                         case 'number': {
-                            const promptString = selectedField.info.prompt || 'Enter your input to replace this list entry:';
+                            const promptString = selectedField.getPrompt() || 'Enter your input to replace this list entry:';
 
                             const promptMessage = await betterSend(this.channel, promptString);
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                             if (responseMessage) {
                                 try {
-                                    setEDocField(selectedField.value.selection(), responseMessage.content);
+                                    selectedElement.setValue(responseMessage.content);
                                 }
                                 catch (error) {
-                                    if (error instanceof UserError) {
-                                        betterSend(this.channel, 'Error: ' + error.message, 10000);
-                                    }
-                                    else {
-                                        throw new Error(error.message);
-                                    }
+                                    handleUserError(responseMessage.channel, error);
                                 }
 
                                 safeDeleteMessage(responseMessage);
@@ -295,31 +281,21 @@ export default class EDocMessage extends InteractiveMessage {
                     }
                     break;
                 }
-                // Adding a new element to the selected array field
                 case 'new': {
-                    // Get the type of element that this array stores
-                    switch (getEDocTypeString((selectedField.info.type as [EDocTypeHint])[0])) {
-                        // For string and number arrays, just get input and make a new element from it
+                    switch (selectedField.getTypeString()) {
                         case 'string':
                         case 'number': {
-                            const promptString = selectedField.info.prompt || 'Enter your input for a new list entry:';
+                            const promptString = selectedField.getPrompt() || 'Enter your input for a new list entry:';
 
                             const promptMessage = await betterSend(this.channel, promptString);
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                             if (responseMessage) {
                                 try {
-                                    // Push user input to the array
-                                    pushEDocArrayField(selectedField as EDocField<PointedArray<EDocField<EDocValue>>>, responseMessage.content);
+                                    selectedField.push(responseMessage.content);
                                 }
                                 catch (error) {
-                                    // Display user errors as a message
-                                    if (error instanceof UserError) {
-                                        betterSend(this.channel, 'Error: ' + error.message, 10000);
-                                    }
-                                    else {
-                                        throw new Error(error.message);
-                                    }
+                                    handleUserError(responseMessage.channel, error);
                                 }
 
                                 safeDeleteMessage(responseMessage);
@@ -328,17 +304,16 @@ export default class EDocMessage extends InteractiveMessage {
                             safeDeleteMessage(promptMessage);
                             break;
                         }
-                        // For array and document arrays, just push a new field (no input required)
                         case 'array':
                         case 'edoc': {
-                            pushEDocArrayField(selectedField as EDocField<PointedArray<EDocField<EDocValue>>>);
+                            selectedField.push();
                             break;
                         }
                     }
                     break;
                 }
                 case 'delete': {
-                    selectedField.value.deleteAtPointer();
+                    selectedFieldValue.deleteAtPointer();
                     break;
                 }
             }
