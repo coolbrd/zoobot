@@ -2,12 +2,10 @@ import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
-import { SimpleDocument } from '../structures/editableDocument';
-import { CommonNameFieldsTemplate, Species } from '../models/species';
+import { CommonNameFieldsTemplate, commonNamesToLower, Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
-import { arrayToLowerCase } from '../utility/arraysAndSuch';
-import { SimpleEDoc, SimpleEDocValue } from '../structures/eDoc';
+import { SimpleEDoc } from '../structures/eDoc';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {
@@ -64,14 +62,9 @@ export class ApprovePendingSpeciesCommand implements Command {
         approvalMessage.once('submit', (finalDocument: SimpleEDoc) => {
             const speciesDocument = new Species();
 
-            // Get the array of common name objects from the final document
-            const commonNames = finalDocument['commonNames'] as SimpleEDoc[];
-            // The array that will contain lowercase forms of all the common names
-            const commonNamesLower: string[] = [];
-            // Add each name's lowercase form to the list
-            commonNames.forEach(commonName => {
-                commonNamesLower.push((commonName['name'] as string).toLowerCase());
-            });
+            // Get common names and their lowercase array form
+            const commonNames = finalDocument['commonNames'] as unknown as CommonNameFieldsTemplate[];
+            const commonNamesLower = commonNamesToLower(commonNames);
             
             // Assign fields
             speciesDocument.set('commonNames', commonNames);

@@ -120,6 +120,17 @@ export interface SpeciesFieldsTemplate {
     rarity?: number
 }
 
+export function commonNamesToLower(commonNames: CommonNameFieldsTemplate[]): string[] {
+    // The array that will contain lowercase forms of all the common names
+    const commonNamesLower: string[] = [];
+    // Add each name's lowercase form to the list
+    commonNames.forEach(commonName => {
+        commonNamesLower.push((commonName['name'] as string).toLowerCase());
+    });
+
+    return commonNamesLower;
+}
+
 // A simple, stripped-down object used for easier interfacing with species documents returned from Mongoose queries
 export class SpeciesObject extends DocumentWrapper {
     private images: ImageSubObject[] | undefined;
@@ -157,20 +168,11 @@ export class SpeciesObject extends DocumentWrapper {
         // Reload fields so default information is as current as possible
         await this.refresh();
 
-        // Get the array of common names to use (use the supplied value over the default)
-        const commonNamesArray = fields.commonNames || this.getCommonNames();
-        // The array that will contain all common names as lowercase strings
-        const commonNamesLower: string[] = [];
-        // Add each common name's name as a lowercase string to the array
-        commonNamesArray.forEach(commonName => {
-            commonNamesLower.push(commonName.name.toLowerCase());
-        });
-
         // Change the species' simple fields, using this object's default known value for unchanged fields
         await this.getDocument().updateOne({
             $set: {
                 commonNames: fields.commonNames || this.getCommonNames(),
-                commonNamesLower: commonNamesLower,
+                commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNames()),
                 scientificName: fields.scientificName || this.getScientificName(),
                 description: fields.description || this.getDescription(),
                 naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
