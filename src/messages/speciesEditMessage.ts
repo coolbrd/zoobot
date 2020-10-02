@@ -49,6 +49,11 @@ export default class SpeciesEditMessage extends EDocMessage {
             images: {
                 type: [{
                     type: {
+                        _id: {
+                            type: String,
+                            required: false,
+                            hidden: true
+                        },
                         url: {
                             type: String,
                             required: true,
@@ -100,7 +105,6 @@ export default class SpeciesEditMessage extends EDocMessage {
         });
 
         const commonNamesField = eDoc.getField('commonNames');
-
         const commonNames = speciesObject.getCommonNameObjects();
         commonNames.forEach(commonName => {
             commonNamesField.push({
@@ -110,7 +114,22 @@ export default class SpeciesEditMessage extends EDocMessage {
             })
         });
 
-        console.log(eDoc);
+        eDoc.setField('scientificName', speciesObject.getScientificName());
+
+        const imagesField = eDoc.getField('images');
+        const images = speciesObject.getImageObjects();
+        images.forEach(image => {
+            imagesField.push({
+                _id: image._id ? String(image._id) : undefined,
+                url: image.url,
+                breed: image.breed
+            });
+        });
+
+        eDoc.setField('description', speciesObject.getDescription());
+        eDoc.setField('naturalHabitat', speciesObject.getNaturalHabitat());
+        eDoc.setField('wikiPage', speciesObject.getWikiPage());
+        eDoc.setField('rarity', speciesObject.getRarity());
 
         super(handler, channel, eDoc);
     }

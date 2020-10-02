@@ -2,7 +2,7 @@ import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
-import { CommonNameFieldsTemplate, commonNamesToLower, Species } from '../models/species';
+import { commonNamesToLower, CommonNameTemplate, Species } from '../models/species';
 import SpeciesApprovalMessage from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
 import { SimpleEDoc } from '../structures/eDoc';
@@ -65,7 +65,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
             const speciesDocument = new Species(finalDocument);
 
             // Get common names and their lowercase array form
-            const commonNames = finalDocument['commonNames'] as unknown as CommonNameFieldsTemplate[];
+            const commonNames = finalDocument['commonNames'] as unknown as CommonNameTemplate[];
             const commonNamesLower = commonNamesToLower(commonNames);
             
             // Assign lowercase common names

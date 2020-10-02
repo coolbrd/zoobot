@@ -55,10 +55,14 @@ export const speciesSchema = new Schema({
 
 export const Species = mongoose.model('Species', speciesSchema);
 
-export interface ImageFieldsTemplate {
+export interface ImageTemplate {
     _id?: Types.ObjectId,
-    url?: string,
+    url: string,
     breed?: string
+}
+
+export interface ImageField extends ImageTemplate {
+    _id: Types.ObjectId;
 }
 
 // An object representing the subschema that's found within the array of images in a species document
@@ -83,20 +87,20 @@ export class ImageSubObject {
         return this.document.get('breed');
     }
 
-    public async setFields(fields: ImageFieldsTemplate): Promise<void> {
+    public async setFields(template: ImageTemplate): Promise<void> {
         await Species.updateOne({
             _id: this.speciesObject.getId(),
             'images._id': this.document._id
         }, {
-            'images.$.url': fields.url || this.getUrl(),
-            'images.$.breed': fields.breed || this.getBreed() || ''
+            'images.$.url': template.url || this.getUrl(),
+            'images.$.breed': template.breed || this.getBreed() || ''
         });
     }
 
     // Gets this image's index in its parent species' list of images
     public getIndex(): number {
-        const index = this.speciesObject.getImageDocuments().findIndex(imageDocument => {
-            return this.getId().equals(imageDocument._id)
+        const index = this.speciesObject.getImageObjects().findIndex(image => {
+            return this.getId().equals(image._id)
         });
         if (index === undefined) {
             throw new Error('A species image with no place in its species was found.');
@@ -105,23 +109,27 @@ export class ImageSubObject {
     }
 }
 
-export interface CommonNameFieldsTemplate {
+export interface CommonNameTemplate {
     _id?: Types.ObjectId,
     name: string,
     article: string
 }
 
+export interface CommonNameField extends CommonNameTemplate {
+    _id: Types.ObjectId
+}
+
 export interface SpeciesFieldsTemplate {
-    commonNames?: CommonNameFieldsTemplate[],
+    commonNames?: CommonNameTemplate[],
     scientificName?: string,
-    images?: ImageFieldsTemplate[],
+    images?: ImageTemplate[],
     description?: string,
     naturalHabitat?: string,
     wikiPage?: string,
     rarity?: number
 }
 
-export function commonNamesToLower(commonNames: CommonNameFieldsTemplate[]): string[] {
+export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] {
     // The array that will contain lowercase forms of all the common names
     const commonNamesLower: string[] = [];
     // Add each name's lowercase form to the list
@@ -136,7 +144,7 @@ export function commonNamesToLower(commonNames: CommonNameFieldsTemplate[]): str
 export class SpeciesObject extends DocumentWrapper {
     private images: ImageSubObject[] | undefined;
 
-    public getCommonNameObjects(): CommonNameFieldsTemplate[] {
+    public getCommonNameObjects(): CommonNameField[] {
         return this.getDocument().get('commonNames');
     }
 
@@ -144,7 +152,7 @@ export class SpeciesObject extends DocumentWrapper {
         return this.getDocument().get('scientificName');
     }
 
-    public getImageDocuments(): Document[] {
+    public getImageObjects(): ImageField[] {
         return this.getDocument().get('images');
     }
 
