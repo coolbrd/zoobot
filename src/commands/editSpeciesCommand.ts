@@ -1,7 +1,7 @@
 import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend } from "../discordUtility/messageMan";
-import { Species, SpeciesObject } from '../models/species';
+import { CommonNameTemplate, ImageTemplate, Species, SpeciesObject } from '../models/species';
 import { interactiveMessageHandler } from '..';
 import SpeciesEditMessage from '../messages/speciesEditMessage';
 import { SimpleEDoc } from '../structures/eDoc';
@@ -19,7 +19,6 @@ export default class EditSpeciesCommand implements Command {
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
         
-        // Interpret everything after the command as the name of the species to edit
         const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
         if (!fullSearchTerm) {
@@ -56,7 +55,21 @@ export default class EditSpeciesCommand implements Command {
 
         // When the editing process is complete
         editMessage.once('submit', (finalDocument: SimpleEDoc) => {
-            console.log(finalDocument);
+            // Assign the species its new information
+            speciesObject.setFields({
+                commonNames: finalDocument['commonNames'] as unknown as CommonNameTemplate[],
+                scientificName: finalDocument['scientificName'] as string,
+                images: finalDocument['images'] as unknown as ImageTemplate[],
+                description: finalDocument['description'] as string,
+                naturalHabitat: finalDocument['naturalHabitat'] as string,
+                wikiPage: finalDocument['wikiPage'] as string,
+                rarity: finalDocument['rarity'] as number
+            }).then(() => {
+                betterSend(channel, 'Edit successful.');
+            }).catch(error => {
+                betterSend(channel, 'Edit unsuccessful, inform the developer.');
+                console.error('There was an error editing a species.', error);
+            });
         });
     }
 }

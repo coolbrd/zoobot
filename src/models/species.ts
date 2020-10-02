@@ -183,6 +183,7 @@ export class SpeciesObject extends DocumentWrapper {
                 commonNames: fields.commonNames || this.getCommonNameObjects(),
                 commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
                 scientificName: fields.scientificName || this.getScientificName(),
+                images: fields.images || this.getImageObjects(),
                 description: fields.description || this.getDescription(),
                 naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
                 wikiPage: fields.wikiPage || this.getWikiPage(),

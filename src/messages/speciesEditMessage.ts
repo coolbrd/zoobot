@@ -4,9 +4,11 @@ import { SpeciesObject } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import EDocMessage from './eDocMessage';
 import { EDoc, } from '../structures/eDoc';
+import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 
 export default class SpeciesEditMessage extends EDocMessage {
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, speciesObject: SpeciesObject) {
+        // The eDoc that will represent the edited state of the species object
         const eDoc = new EDoc({
             commonNames: {
                 type: [{
@@ -104,6 +106,7 @@ export default class SpeciesEditMessage extends EDocMessage {
             }
         });
 
+        // Assign common names (with id being converted to a string)
         const commonNamesField = eDoc.getField('commonNames');
         const commonNames = speciesObject.getCommonNameObjects();
         commonNames.forEach(commonName => {
@@ -114,8 +117,7 @@ export default class SpeciesEditMessage extends EDocMessage {
             })
         });
 
-        eDoc.setField('scientificName', speciesObject.getScientificName());
-
+        // Same deal with images
         const imagesField = eDoc.getField('images');
         const images = speciesObject.getImageObjects();
         images.forEach(image => {
@@ -126,11 +128,13 @@ export default class SpeciesEditMessage extends EDocMessage {
             });
         });
 
+        // Assign simple fields
+        eDoc.setField('scientificName', speciesObject.getScientificName());
         eDoc.setField('description', speciesObject.getDescription());
         eDoc.setField('naturalHabitat', speciesObject.getNaturalHabitat());
         eDoc.setField('wikiPage', speciesObject.getWikiPage());
         eDoc.setField('rarity', speciesObject.getRarity());
 
-        super(handler, channel, eDoc);
+        super(handler, channel, eDoc, capitalizeFirstLetter(speciesObject.getCommonNames()[0]));
     }
 }
