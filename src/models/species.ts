@@ -87,16 +87,6 @@ export class ImageSubObject {
         return this.document.get('breed');
     }
 
-    public async setFields(template: ImageTemplate): Promise<void> {
-        await Species.updateOne({
-            _id: this.speciesObject.getId(),
-            'images._id': this.document._id
-        }, {
-            'images.$.url': template.url || this.getUrl(),
-            'images.$.breed': template.breed || this.getBreed() || ''
-        });
-    }
-
     // Gets this image's index in its parent species' list of images
     public getIndex(): number {
         const index = this.speciesObject.getImageObjects().findIndex(image => {
