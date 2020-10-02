@@ -17,6 +17,7 @@ import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
 import { ADMIN_SERVER_ID } from '../config/secrets';
 import { ChangeAnimalNicknameCommand } from '../commands/changeAnimalNicknameCommand';
 import { AnimalInfoCommand } from '../commands/animalInfoCommand';
+import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -39,6 +40,7 @@ export default class CommandHandler {
             ApprovePendingSpeciesCommand,
             ChangeAnimalNicknameCommand,
             ChangeGuildPrefixCommand,
+            EditSpeciesCommand,
             EncounterCommand,
             HelpCommand,
             MoveAnimalsCommand,
