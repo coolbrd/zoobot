@@ -37,11 +37,12 @@ export class ApprovePendingSpeciesCommand implements Command {
             return;
         }
 
+        // Create a new pending species object from the found document
         const pendingSpeciesObject = new PendingSpeciesObject({ document: pendingSpeciesDocument });
 
-        // Create a new approval message from the found document and send it
+        // Create a new approval message from the object and send it
         const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpeciesObject);
-        approvalMessage.send();
+        await approvalMessage.send();
 
         // When the message's time limit is reached
         approvalMessage.once('timeExpired', () => {
