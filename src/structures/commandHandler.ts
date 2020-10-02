@@ -14,7 +14,6 @@ import { GuildModel } from '../models/guild';
 import { client } from '..';
 import { HelpCommand } from '../commands/helpCommand';
 import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
-import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
 import { ADMIN_SERVER_ID } from '../config/secrets';
 import { ChangeAnimalNicknameCommand } from '../commands/changeAnimalNicknameCommand';
 import { AnimalInfoCommand } from '../commands/animalInfoCommand';
@@ -40,7 +39,6 @@ export default class CommandHandler {
             ApprovePendingSpeciesCommand,
             ChangeAnimalNicknameCommand,
             ChangeGuildPrefixCommand,
-            EditSpeciesCommand,
             EncounterCommand,
             HelpCommand,
             MoveAnimalsCommand,
