@@ -4,7 +4,7 @@ export default class UserError implements Error {
     public readonly name = 'UserError';
     public readonly message: string;
 
-    public constructor(message: string) {
+    constructor(message: string) {
         this.message = message;
     }
 }

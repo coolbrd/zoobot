@@ -15,7 +15,7 @@ export class EDocField<ValueType extends EDocValue> {
     private readonly info: EDocFieldInfo;
     private value: ValueType;
 
-    public constructor(info: EDocFieldInfo) {
+    constructor(info: EDocFieldInfo) {
         this.info = info;
 
         switch(getEDocTypeString(info.type)) {
@@ -440,7 +440,7 @@ export class EDoc {
     // This eDoc's field names, repeated in a pointed array so they can be traversed easily with a pointer
     private fieldNames = new PointedArray<string>();
 
-    public constructor(skeleton: EDocSkeleton) {
+    constructor(skeleton: EDocSkeleton) {
         this.skeleton = skeleton;
 
         // Iterate over every field's information in the provided eDoc skeleton

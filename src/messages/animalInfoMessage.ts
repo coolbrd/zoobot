@@ -17,7 +17,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     // Whether or not this message is showing the animal's image
     private imageMode = false;
 
-    public constructor(handler: InteractiveMessageHandler, channel: TextChannel, animalObject: AnimalObject) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel, animalObject: AnimalObject) {
         super(handler, channel, { buttons: [
             {
                 name: 'mode',

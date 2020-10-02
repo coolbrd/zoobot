@@ -16,7 +16,7 @@ export default class EDocMessage extends InteractiveMessage {
     // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
-    public constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
         super(handler, channel, { buttons: [
             {
                 name: 'pointerUp',

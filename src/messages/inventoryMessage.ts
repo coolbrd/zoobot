@@ -43,7 +43,7 @@ export default class InventoryMessage extends InteractiveMessage {
     private readonly guildMember: GuildMember;
     private playerObject: PlayerObject | undefined;
 
-    public constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',

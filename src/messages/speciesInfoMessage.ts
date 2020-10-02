@@ -15,7 +15,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     // Whether the info message is displaying a large image, or the species' details
     private pictureMode = true;
 
-    public constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, species: SpeciesObject) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, species: SpeciesObject) {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',

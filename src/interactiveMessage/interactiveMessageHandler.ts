@@ -11,7 +11,7 @@ export default class InteractiveMessageHandler {
     private readonly messages = new Map<string, InteractiveMessage>();
 
     // Needs a Discord client instance so it can listen for events
-    public constructor(client: Client) {
+    constructor(client: Client) {
         // When the client observes a user adding a reaction to a message
         client.on('messageReactionAdd', (messageReaction, user) => {
             // Handle the user's reaction
