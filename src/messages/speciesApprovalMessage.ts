@@ -90,15 +90,15 @@ export class SpeciesApprovalMessage extends EDocMessage {
             }
         });
 
+        // Get common names array and add it as an eDoc array
         const commonNamesField = eDoc.getField('commonNames');
         for (const commonName of pendingSpeciesObject.getCommonNames()) {
             commonNamesField.push({
                 name: commonName
             });
         }
-
-        eDoc.setField('scientificName', pendingSpeciesObject.getScientificName());
         
+        // Get image url array and add is as an eDoc array
         const imagesField = eDoc.getField('images');
         const imageUrls = pendingSpeciesObject.getImages();
         if (imageUrls) {
@@ -109,6 +109,8 @@ export class SpeciesApprovalMessage extends EDocMessage {
             }
         }
 
+        // Assign simple fields
+        eDoc.setField('scientificName', pendingSpeciesObject.getScientificName());
         eDoc.setField('description', pendingSpeciesObject.getDescription());
         eDoc.setField('naturalHabitat', pendingSpeciesObject.getNaturalHabitat());
         eDoc.setField('wikiPage', pendingSpeciesObject.getWikiPage());
