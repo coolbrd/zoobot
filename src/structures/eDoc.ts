@@ -56,6 +56,10 @@ export class EDocField<ValueType extends EDocValue> {
         return Boolean(this.info.required);
     }
 
+    public getHidden(): boolean {
+        return Boolean(this.info.hidden);
+    }
+
     public getTypeString(): 'string' | 'number' | 'array' | 'edoc' {
         return getEDocTypeString(this.info.type);
     }
@@ -446,7 +450,11 @@ export class EDoc {
 
             // Add the new field
             this.fields.set(fieldName, newField);
-            this.fieldNames.push(fieldName);
+
+            // Add the new field's name if it's not a hidden field
+            if (!fieldInfo.hidden) {
+                this.fieldNames.push(fieldName);
+            }
         }
     }
 
@@ -488,14 +496,14 @@ export class EDoc {
 
     public setField(fieldName: string, value: SimpleEDocValue): void {
         if (!this.hasField(fieldName)) {
-            throw new Error('Attempted to set an eDoc\'s field by a name that doesn\'t map to any existing field.');
+            throw new Error(`Attempted to set an eDoc's field by a name that doesn't map to any existing field. Invalid field: '${fieldName}'`);
         }
 
         this.getField(fieldName).setValue(value);
     }
 
     public hasField(fieldName: string): boolean {
-        return this.fieldNames.includes(fieldName);
+        return this.fields.has(fieldName);
     }
 
     // Pointer movement

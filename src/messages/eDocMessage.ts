@@ -130,6 +130,10 @@ export default class EDocMessage extends InteractiveMessage {
 
             // Iterate over every field in the eDoc
             for (const [fieldName, field] of selectedFieldValue.getFields()) {
+                if (field.getHidden()) {
+                    continue;
+                }
+
                 // The string that will represent the current field
                 let fieldLabel = '';
 

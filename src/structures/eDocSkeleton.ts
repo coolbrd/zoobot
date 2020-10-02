@@ -13,6 +13,8 @@ export interface EDocFieldInfo {
     alias?: string,
     // The text that prompts the user for input for this field
     prompt?: string,
+    // Whether or not to display this field
+    hidden?: boolean,
     // Options for what constitutes valid string input, and what to do with string input
     stringOptions?: {
         // The string value's max length, in characters
