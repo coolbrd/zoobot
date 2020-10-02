@@ -29,7 +29,9 @@ export interface EDocFieldInfo {
     // Options for array behavior
     arrayOptions?: {
         // The minimum number of elements required to satisfy an array that's marked as required (defaults to 1)
-        minimumLength?: number
+        minimumLength?: number,
+        // The maximum number of elements to show at once
+        viewportSize?: number
     },
     // Options for document behavior
     documentOptions?: {

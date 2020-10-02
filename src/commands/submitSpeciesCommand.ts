@@ -71,6 +71,9 @@ export class SubmitSpeciesCommand implements Command {
                 required: true,
                 alias: 'common names',
                 prompt: 'Enter a name that is used to refer to this animal conversationally (e.g. "dog", "cat", "bottlenose dolphin"):',
+                arrayOptions: {
+                    viewportSize: 10
+                }
             },
             scientificName: {
                 type: String,
@@ -90,7 +93,10 @@ export class SubmitSpeciesCommand implements Command {
                     }
                 }],
                 alias: 'images',
-                prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):'
+                prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):',
+                arrayOptions: {
+                    viewportSize: 10
+                }
             },
             description: {
                 type: String,

@@ -33,7 +33,10 @@ export class SpeciesApprovalMessage extends EDocMessage {
                     }
                 }],
                 required: true,
-                alias: 'common names'
+                alias: 'common names',
+                arrayOptions: {
+                    viewportSize: 10
+                }
             },
             scientificName: {
                 type: String,
@@ -63,7 +66,10 @@ export class SpeciesApprovalMessage extends EDocMessage {
                     }
                 }],
                 required: true,
-                alias: 'images'
+                alias: 'images',
+                arrayOptions: {
+                    viewportSize: 10
+                }
             },
             description: {
                 type: String,

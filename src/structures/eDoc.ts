@@ -20,7 +20,12 @@ export class EDocField<ValueType extends EDocValue> {
 
         switch(getEDocTypeString(info.type)) {
             case 'array': {
-                this.value = new PointedArray<EDocField<EDocValue>>() as ValueType;
+                let viewportSize = 0;
+                if (this.info.arrayOptions && this.info.arrayOptions.viewportSize) {
+                    viewportSize = this.info.arrayOptions.viewportSize;
+                }
+
+                this.value = new PointedArray<EDocField<EDocValue>>([], { viewSize: viewportSize }) as ValueType;
                 break;
             }
             case 'edoc': {
@@ -148,8 +153,11 @@ export class EDocField<ValueType extends EDocValue> {
                     throw new Error('Non-array type given to eDoc array field.');
                 }
 
-                this.value = new PointedArray<EDocField<EDocValue>>() as ValueType;
+                // Clear the current array of all values
+                // Don't assign the value a new array, as the current array has information (viewport size) to be preserved
+                (this.value as PointedArray<EDocField<EDocValue>>).clear();
 
+                // Add each element to the empty array
                 for (const element of input) {
                     try {
                         this.push(element);
