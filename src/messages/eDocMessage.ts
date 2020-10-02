@@ -376,6 +376,7 @@ export default class EDocMessage extends InteractiveMessage {
                 // Only submit if the top level is selected
                 if (this.selectionStack.length === 1) {
                     this.emit('submit', this.selectionStack[0].getSimpleValue() as SimpleEDoc);
+                    this.deactivate();
                 }
                 break;
             }
