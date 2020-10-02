@@ -1,11 +1,11 @@
-import { getGuildMember } from "../discordUtility/getGuildMember";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
 
 // Changes a user's animal's nickname
-export class ChangeAnimalNicknameCommand implements Command {
+export default class ChangeAnimalNicknameCommand implements Command {
     public readonly commandNames = ['nickname', 'nick', 'nn'];
 
     public help(prefix: string): string {

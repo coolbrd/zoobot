@@ -1,7 +1,7 @@
 // Selects a random item from a map of items and their respective weights
 // Two items with the same weigh will have the same chance to be selected as one another
 // An item with 10% the weight of another will, surprisingly, be selected 10% as often as the other item
-export function getWeightedRandom<T>(items: Map<T, number>): T {
+export default function getWeightedRandom<T>(items: Map<T, number>): T {
     // Calculate the cumulative weight of the item pool
     let totalWeight = 0;
     for (const weight of items.values()) {

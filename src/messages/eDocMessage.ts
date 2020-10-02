@@ -1,14 +1,14 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 
-import { awaitUserNextMessage } from "../discordUtility/awaitUserNextMessage";
+import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
-import { SmartEmbed } from "../discordUtility/smartEmbed";
+import SmartEmbed from "../discordUtility/smartEmbed";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/eDoc";
 import { EDocFieldInfo } from "../structures/eDocSkeleton";
-import { PointedArray } from "../structures/pointedArray";
+import PointedArray from "../structures/pointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // An interactive message containing an editable document that allows for the editing of said document

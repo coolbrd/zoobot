@@ -6,7 +6,7 @@ import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { EDoc } from '../structures/eDoc';
 import EDocMessage from './eDocMessage';
 
-export class SpeciesApprovalMessage extends EDocMessage {
+export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpeciesObject;
 
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpeciesObject) {

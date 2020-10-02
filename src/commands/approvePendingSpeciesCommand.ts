@@ -3,12 +3,12 @@ import CommandParser from '../structures/commandParser';
 import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
 import { CommonNameFieldsTemplate, commonNamesToLower, Species } from '../models/species';
-import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
+import SpeciesApprovalMessage from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
 import { SimpleEDoc } from '../structures/eDoc';
 
 // The command used to review, edit, and approve a pending species into a real species
-export class ApprovePendingSpeciesCommand implements Command {
+export default class ApprovePendingSpeciesCommand implements Command {
     public readonly commandNames = ['approve', 'approvespecies'];
 
     public readonly adminOnly = true;

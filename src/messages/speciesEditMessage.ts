@@ -5,7 +5,7 @@ import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageH
 import EDocMessage from './eDocMessage';
 import { EDoc, } from '../structures/eDoc';
 
-export class SpeciesEditMessage extends EDocMessage {
+export default class SpeciesEditMessage extends EDocMessage {
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, speciesObject: SpeciesObject) {
         const eDoc = new EDoc({
             commonNames: {

@@ -5,10 +5,10 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import { client } from "..";
 import { SpeciesObject } from "../models/species";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
-import { getGuildUserDisplayColor } from "../discordUtility/getGuildUserDisplayColor";
-import { SmartEmbed } from "../discordUtility/smartEmbed";
+import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
+import SmartEmbed from "../discordUtility/smartEmbed";
 
-export class SpeciesInfoMessage extends InteractiveMessage {
+export default class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
     // The current image of the species that's being displayed by the info message
     private currentImage = 0;

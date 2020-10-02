@@ -6,13 +6,13 @@ import CommandParser from '../structures/commandParser';
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
 import { interactiveMessageHandler } from '..';
-import { reactionInput } from '../discordUtility/reactionInput';
+import reactionInput from '../discordUtility/reactionInput';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
 import { EDoc, SimpleEDoc } from '../structures/eDoc';
 import EDocMessage from '../messages/eDocMessage';
 
 // Initiates the species submission process. Only to be used in DMs.
-export class SubmitSpeciesCommand implements Command {
+export default class SubmitSpeciesCommand implements Command {
     public commandNames = ['submitspecies', 'submit'];
 
     public help(commandPrefix: string): string {

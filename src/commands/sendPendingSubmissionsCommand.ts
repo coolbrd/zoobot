@@ -8,7 +8,7 @@ import { PendingSpecies } from '../models/pendingSpecies';
 import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
 
-export class SendPendingSubmissionsCommand implements Command {
+export default class SendPendingSubmissionsCommand implements Command {
     public readonly commandNames = ['pending', 'submissions'];
 
     public readonly adminOnly = true;

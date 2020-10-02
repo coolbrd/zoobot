@@ -4,7 +4,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { DMChannel } from "discord.js";
 import { encounterHandler } from "..";
 
-export class EncounterCommand implements Command {
+export default class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];
 
     public help(commandPrefix: string): string {

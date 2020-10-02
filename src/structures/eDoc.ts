@@ -1,9 +1,9 @@
 import clone from "clone";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-import { EDocFieldInfo, EDocSkeleton, getEDocTypeString } from "./eDocSkeleton";
-import { PointedArray } from "./pointedArray";
-import { UserError } from "./userError";
+import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./eDocSkeleton";
+import PointedArray from "./pointedArray";
+import UserError from "./userError";
 
 // The type of values found within an eDoc instance
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;

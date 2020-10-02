@@ -5,7 +5,7 @@ import { getGuildObject } from "../zoo/userManagement";
 import { commandHandler } from '..';
 
 // Changes the command prefix for a given guild
-export class ChangeGuildPrefixCommand implements Command {
+export default class ChangeGuildPrefixCommand implements Command {
     public readonly commandNames = ['prefix', 'changeprefix'];
 
     public help(prefix: string): string {

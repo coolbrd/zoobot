@@ -1,7 +1,7 @@
 import { TextChannel, Message, User, DMChannel } from 'discord.js';
 
 // Waits for a given user's next message and returns it
-export async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {
+export default async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {
     // The filter that'll be used to select response messages
     const messageCollectorFilter = (response: Message) => {
         // Only accept a message from the given user

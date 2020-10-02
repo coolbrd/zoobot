@@ -3,7 +3,7 @@ import { MessageEmbed } from "discord.js";
 // A child of MessageEmbed that just appends some overflow text to fields that have exceeded their limits
 // Designed to make embeds always sendable, even if an oversight allowed their fields to be invalid
 // All methods have the same functionality as their parents, with the addition of length validation
-export class SmartEmbed extends MessageEmbed {
+export default class SmartEmbed extends MessageEmbed {
     private readonly overFlowString = ' . . .';
 
     public setTitle(title: string): this {

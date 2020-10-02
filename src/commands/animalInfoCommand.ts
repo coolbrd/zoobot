@@ -5,7 +5,7 @@ import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { searchAnimal } from "../zoo/userManagement";
 
-export class AnimalInfoCommand implements Command {
+export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ['animalinfo', 'ai', 'stats'];
 
     public help(prefix: string): string {

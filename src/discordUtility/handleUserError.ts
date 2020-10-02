@@ -1,5 +1,5 @@
 import { DMChannel, NewsChannel, TextChannel } from "discord.js";
-import { UserError } from "../structures/userError";
+import UserError from "../structures/userError";
 import { betterSend } from "./messageMan";
 
 export default function handleUserError(channel: TextChannel | DMChannel | NewsChannel, error: Error): void {

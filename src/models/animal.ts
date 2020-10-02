@@ -2,7 +2,6 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 import DocumentWrapper from '../structures/documentWrapper';
 import { Player, PlayerObject } from './player';
-
 import { ImageSubObject, SpeciesObject } from './species';
 
 export const animalSchema = new Schema({

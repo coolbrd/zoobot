@@ -2,10 +2,10 @@ import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { Species, SpeciesObject } from "../models/species";
 import { betterSend } from "../discordUtility/messageMan";
-import { SpeciesInfoMessage } from "../messages/speciesInfoMessage";
+import SpeciesInfoMessage from "../messages/speciesInfoMessage";
 import { interactiveMessageHandler } from "..";
 
-export class SpeciesInfoCommand implements Command {
+export default class SpeciesInfoCommand implements Command {
     public readonly commandNames = ['info', 'i', 'search'];
 
     public help(commandPrefix: string): string {

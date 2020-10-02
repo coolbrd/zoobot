@@ -1,6 +1,6 @@
 import { Guild, GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
-import { getGuildMember } from "../discordUtility/getGuildMember";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal, AnimalObject } from "../models/animal";
 
 import { GuildModel, GuildObject } from "../models/guild";

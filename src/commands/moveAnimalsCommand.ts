@@ -1,12 +1,12 @@
 import { stripIndents } from "common-tags";
 import { Types } from "mongoose";
-import { getGuildMember } from "../discordUtility/getGuildMember";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/commandParser";
 import { getPlayerObject } from "../zoo/userManagement";
 import Command from "../structures/commandInterface";
 
-export class MoveAnimalsCommand implements Command {
+export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ['moveanimals', 'ma'];
 
     public help(prefix: string): string {

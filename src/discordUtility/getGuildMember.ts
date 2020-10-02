@@ -3,7 +3,7 @@ import { UserResolvable, GuildResolvable, GuildMember } from 'discord.js';
 import { client } from '..';
 
 // Gets a GuildMember instance from a given guild and user
-export function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable): GuildMember {
+export default function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable): GuildMember {
     const user = client.users.resolve(userResolvable);
     if (!user) {
         throw new Error('getGuildMember was given a UserResolvable that couldn\'t be resolved.');

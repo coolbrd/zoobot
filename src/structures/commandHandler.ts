@@ -2,22 +2,22 @@ import { Guild, Message, User } from 'discord.js';
 
 import Command from './commandInterface';
 import CommandParser from './commandParser';
-import { SubmitSpeciesCommand } from '../commands/submitSpeciesCommand';
+import SubmitSpeciesCommand from '../commands/submitSpeciesCommand';
 import { betterSend } from "../discordUtility/messageMan";
-import { SendPendingSubmissionsCommand } from '../commands/sendPendingSubmissionsCommand';
-import { ApprovePendingSpeciesCommand } from '../commands/approvePendingSpeciesCommand';
-import { SpeciesInfoCommand } from '../commands/speciesInfoCommand';
-import { EncounterCommand } from '../commands/encounterCommand';
-import { ViewInventoryCommand } from '../commands/viewInventoryCommand';
-import { ChangeGuildPrefixCommand } from '../commands/changeGuildPrefixCommand';
+import SendPendingSubmissionsCommand from '../commands/sendPendingSubmissionsCommand';
+import ApprovePendingSpeciesCommand from '../commands/approvePendingSpeciesCommand';
+import SpeciesInfoCommand from '../commands/speciesInfoCommand';
+import EncounterCommand from '../commands/encounterCommand';
+import ViewInventoryCommand from '../commands/viewInventoryCommand';
+import ChangeGuildPrefixCommand from '../commands/changeGuildPrefixCommand';
 import { GuildModel } from '../models/guild';
 import { client } from '..';
-import { HelpCommand } from '../commands/helpCommand';
-import { MoveAnimalsCommand } from '../commands/moveAnimalsCommand';
+import HelpCommand from '../commands/helpCommand';
+import MoveAnimalsCommand from '../commands/moveAnimalsCommand';
 import { ADMIN_SERVER_ID } from '../config/secrets';
-import { ChangeAnimalNicknameCommand } from '../commands/changeAnimalNicknameCommand';
-import { AnimalInfoCommand } from '../commands/animalInfoCommand';
-import { EditSpeciesCommand } from '../commands/editSpeciesCommand';
+import ChangeAnimalNicknameCommand from '../commands/changeAnimalNicknameCommand';
+import AnimalInfoCommand from '../commands/animalInfoCommand';
+import EditSpeciesCommand from '../commands/editSpeciesCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {

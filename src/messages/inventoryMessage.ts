@@ -3,13 +3,13 @@ import { TextChannel, MessageEmbed, User, GuildMember } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import { getGuildMember } from "../discordUtility/getGuildMember";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { loopValue } from "../utility/loopValue";
+import loopValue from "../utility/loopValue";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { PlayerObject } from "../models/player";
-import { PointedArray } from "../structures/pointedArray";
-import { SmartEmbed } from "../discordUtility/smartEmbed";
+import PointedArray from "../structures/pointedArray";
+import SmartEmbed from "../discordUtility/smartEmbed";
 import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
 import { commandHandler } from "..";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
@@ -23,7 +23,7 @@ enum InventoryMessageState {
     release
 }
 
-export class InventoryMessage extends InteractiveMessage {
+export default class InventoryMessage extends InteractiveMessage {
     private readonly user: User;
     protected readonly channel: TextChannel;
 

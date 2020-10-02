@@ -43,7 +43,7 @@ export interface EDocFieldInfo {
 }
 
 // A set of eDoc field information, used in the creation of eDoc instances and nested eDocs
-export interface EDocSkeleton {
+export default interface EDocSkeleton {
     [fieldName: string]: EDocFieldInfo
 }
 

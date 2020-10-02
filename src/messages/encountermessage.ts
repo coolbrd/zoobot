@@ -2,14 +2,14 @@ import { TextChannel, User, APIMessage, MessageEmbed } from 'discord.js';
 
 import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
-import { getGuildMember } from "../discordUtility/getGuildMember";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from '..';
 import { SpeciesObject } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { createAnimal } from '../zoo/userManagement';
-import { getGuildUserDisplayColor } from '../discordUtility/getGuildUserDisplayColor';
-import { SmartEmbed } from '../discordUtility/smartEmbed';
+import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
+import SmartEmbed from '../discordUtility/smartEmbed';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {

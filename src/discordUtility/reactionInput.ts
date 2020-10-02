@@ -2,7 +2,7 @@ import { Message, MessageReaction, User } from 'discord.js';
 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
-export async function reactionInput(message: Message, timeOut: number, emojis: string[]): Promise<string | undefined> {
+export default async function reactionInput(message: Message, timeOut: number, emojis: string[]): Promise<string | undefined> {
     try {
         // Add all reactions
         for (const emoji of emojis) {

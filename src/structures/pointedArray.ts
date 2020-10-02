@@ -1,7 +1,7 @@
-import { loopValue } from "../utility/loopValue";
+import loopValue from "../utility/loopValue";
 
 // An array that has a movable pointer
-export class PointedArray<T> extends Array {
+export default class PointedArray<T> extends Array {
     // The position of the underlying pointer
     private pointerPosition = 0;
 

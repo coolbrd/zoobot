@@ -3,11 +3,11 @@ import CommandParser from '../structures/commandParser';
 import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesObject } from '../models/species';
 import { interactiveMessageHandler } from '..';
-import { SpeciesEditMessage } from '../messages/speciesEditMessage';
+import SpeciesEditMessage from '../messages/speciesEditMessage';
 import { SimpleEDoc } from '../structures/eDoc';
 
 // The command used to review, edit, and approve a pending species into a real species
-export class EditSpeciesCommand implements Command {
+export default class EditSpeciesCommand implements Command {
     public readonly commandNames = ['edit', 'editspecies'];
 
     public readonly adminOnly = true;

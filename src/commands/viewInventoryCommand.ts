@@ -1,10 +1,10 @@
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
-import { InventoryMessage } from "../messages/inventoryMessage";
+import InventoryMessage from "../messages/inventoryMessage";
 import { interactiveMessageHandler } from "..";
 import { betterSend } from "../discordUtility/messageMan";
 
-export class ViewInventoryCommand implements Command {
+export default class ViewInventoryCommand implements Command {
     commandNames = ['inventory', 'inv', 'vi'];
 
     public help(commandPrefix: string): string {

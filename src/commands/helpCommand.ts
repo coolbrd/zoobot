@@ -3,7 +3,7 @@ import { betterSend } from '../discordUtility/messageMan';
 import CommandParser from '../structures/commandParser';
 import Command from '../structures/commandInterface';
 
-export class HelpCommand implements Command {
+export default class HelpCommand implements Command {
     public readonly commandNames = ['help', 'h'];
 
     public help(prefix: string): string {
