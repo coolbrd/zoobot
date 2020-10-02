@@ -166,4 +166,11 @@ export class PointedArray<T> extends Array {
     public addAtPointer(element: T): void {
         this.splice(this.pointerPosition, 0, element);
     }
+
+    // Clears the array of all values
+    public clear(): void {
+        while (this.length > 0) {
+            this.pop();
+        }
+    }
 }
