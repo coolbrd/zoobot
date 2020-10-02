@@ -60,25 +60,18 @@ export class ApprovePendingSpeciesCommand implements Command {
 
         // If the submission gets approved (submitted)
         approvalMessage.once('submit', (finalDocument: SimpleEDoc) => {
-            const speciesDocument = new Species();
+            // Create a new species from the final document
+            const speciesDocument = new Species(finalDocument);
 
             // Get common names and their lowercase array form
             const commonNames = finalDocument['commonNames'] as unknown as CommonNameFieldsTemplate[];
             const commonNamesLower = commonNamesToLower(commonNames);
             
-            // Assign fields
-            speciesDocument.set('commonNames', commonNames);
+            // Assign lowercase common names
             speciesDocument.set('commonNamesLower', commonNamesLower);
-            speciesDocument.set('scientificName', finalDocument['scientificName']);
-            speciesDocument.set('images', finalDocument['images']);
-            speciesDocument.set('description', finalDocument['description']);
-            speciesDocument.set('naturalHabitat', finalDocument['naturalHabitat']);
-            speciesDocument.set('wikiPage', finalDocument['wikiPage']);
-            speciesDocument.set('rarity', finalDocument['rarity']);
 
             // Save the new species
             speciesDocument.save();
-
             // Delete the pending species
             pendingSpeciesObject.delete();
 
