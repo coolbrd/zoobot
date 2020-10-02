@@ -135,7 +135,7 @@ export function commonNamesToLower(commonNames: CommonNameFieldsTemplate[]): str
 export class SpeciesObject extends DocumentWrapper {
     private images: ImageSubObject[] | undefined;
 
-    public getCommonNames(): CommonNameFieldsTemplate[] {
+    public getCommonNameObjects(): CommonNameFieldsTemplate[] {
         return this.getDocument().get('commonNames');
     }
 
@@ -171,8 +171,8 @@ export class SpeciesObject extends DocumentWrapper {
         // Change the species' simple fields, using this object's default known value for unchanged fields
         await this.getDocument().updateOne({
             $set: {
-                commonNames: fields.commonNames || this.getCommonNames(),
-                commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNames()),
+                commonNames: fields.commonNames || this.getCommonNameObjects(),
+                commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
                 scientificName: fields.scientificName || this.getScientificName(),
                 description: fields.description || this.getDescription(),
                 naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
@@ -180,6 +180,16 @@ export class SpeciesObject extends DocumentWrapper {
                 rarity: fields.rarity || this.getRarity()
             }
         });
+    }
+
+    // Gets a simple array of this species' common names
+    public getCommonNames(): string[] {
+        const commonNameObjects = this.getCommonNameObjects();
+        const commonNames: string[] = [];
+        commonNameObjects.forEach(commonNameObject => {
+            commonNames.push(commonNameObject.name);
+        });
+        return commonNames;
     }
 
     public getImages(): ImageSubObject[] {

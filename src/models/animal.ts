@@ -111,7 +111,7 @@ export class AnimalObject extends DocumentWrapper {
     }
 
     public getName(): string {
-        return this.getNickname() || this.getSpecies().getCommonNames()[0].name;
+        return this.getNickname() || this.getSpecies().getCommonNames()[0];
     }
 
     // Gets this animal's position within its owner's inventory
