@@ -1,4 +1,5 @@
 import { DMChannel, TextChannel, User } from 'discord.js';
+import { client } from '..';
 
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { PendingSpeciesObject } from '../models/pendingSpecies';
@@ -115,7 +116,15 @@ export class SpeciesApprovalMessage extends EDocMessage {
         eDoc.setField('naturalHabitat', pendingSpeciesObject.getNaturalHabitat());
         eDoc.setField('wikiPage', pendingSpeciesObject.getWikiPage());
 
-        super(handler, channel, eDoc);
+        // Get the user that made this submission
+        const authorUser = client.users.resolve(pendingSpeciesObject.getAuthorId());
+        // Name the top document accordingly
+        let docName = 'Submission';
+        if (authorUser) {
+            docName += ` by ${authorUser.tag}`;
+        }
+
+        super(handler, channel, eDoc, docName);
 
         this.pendingSpeciesObject = pendingSpeciesObject;
 

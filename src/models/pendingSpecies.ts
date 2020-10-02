@@ -63,4 +63,8 @@ export class PendingSpeciesObject extends DocumentWrapper {
     public getWikiPage(): string | undefined {
         return this.getDocument().get('wikiPage');
     }
+
+    public getAuthorId(): string {
+        return this.getDocument().get('author');
+    }
 }
