@@ -106,6 +106,7 @@ export class ImageSubObject {
 }
 
 export interface CommonNameFieldsTemplate {
+    _id?: Types.ObjectId,
     name: string,
     article: string
 }
