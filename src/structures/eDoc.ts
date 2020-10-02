@@ -8,8 +8,8 @@ import { UserError } from "./userError";
 // The type of values found within an eDoc instance
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
-export type SimpleEDoc = { [fieldName: string]: EDocReturn };
-export type EDocReturn = undefined | string | number | SimpleEDoc | EDocReturn[];
+export type SimpleEDoc = { [fieldName: string]: SimpleEDocValue };
+export type SimpleEDocValue = undefined | string | number | SimpleEDoc | SimpleEDocValue[];
 
 export class EDocField<ValueType extends EDocValue> {
     private readonly info: EDocFieldInfo;
@@ -63,7 +63,7 @@ export class EDocField<ValueType extends EDocValue> {
         return getEDocTypeString(this.info.type[0].type);
     }
 
-    public setValue(input: EDocValue): void {
+    public setValue(input: SimpleEDocValue | EDoc): void {
         // Get a human-friendly name for this field, even if it doesn't have one by default
         const fieldAlias = this.info.alias || 'field';
 
@@ -162,11 +162,35 @@ export class EDocField<ValueType extends EDocValue> {
                 break;
             }
             case 'edoc': {
-                if (!(input instanceof EDoc)) {
-                    throw new Error('Non-eDoc value given to an eDoc field.');
+                if (typeof input !== 'object') {
+                    throw new Error('Non-Object value given to the set function of an eDoc field.');
                 }
 
-                this.value = input as ValueType;
+                // If this field was just given a pre-created eDoc
+                if (input instanceof EDoc) {
+                    // Trust that the eDoc meets this field's requirements and set it
+                    this.value = input as ValueType;
+                }
+                // If this field was given a simple object of values
+                else {
+                    // Create a new eDoc of this field's type
+                    const newEDoc = new EDoc(this.info.type as EDocSkeleton);
+
+                    // Iterate over every key/value pair given in the values object
+                    for (const [fieldName, fieldValue] of Object.entries(input)) {
+                        // Attempt to set each field of the new eDoc to the given values
+                        try {
+                            newEDoc.setField(fieldName, fieldValue);
+                        }
+                        catch (error) {
+                            console.error('There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.');
+                            throw error;
+                        }
+                    }
+
+                    // Assign the new eDoc as this field's value
+                    this.value = newEDoc as ValueType;
+                }
             }
         }
     }
@@ -193,7 +217,11 @@ export class EDocField<ValueType extends EDocValue> {
         }
     }
 
-    public push(input?: string | number): void {
+    public push(input?: SimpleEDocValue): void {
+        if (this.getTypeString() !== 'array') {
+            throw new Error('A non-array eDoc field was attempted to be used like an array field with the push method.');
+        }
+
         // Clone the array's info so its element type can be extracted
         const arrayInfo = clone(this.info);
 
@@ -290,7 +318,7 @@ export class EDocField<ValueType extends EDocValue> {
     }
 
     // Returns this field's value in a simpler form (important for array and eDoc values)
-    public getSimpleValue(): EDocReturn {
+    public getSimpleValue(): SimpleEDocValue {
         // Cover the case of an empty value right away
         if (this.value === undefined) {
             return undefined;
@@ -309,7 +337,7 @@ export class EDocField<ValueType extends EDocValue> {
             case 'array': {
                 const value = this.value as PointedArray<EDocField<EDocValue>>;
 
-                const returnArray: EDocReturn[] = [];
+                const returnArray: SimpleEDocValue[] = [];
                 // Add every element in this array as its simple value form
                 for (const field of value) {
                     returnArray.push(field.getSimpleValue());
@@ -321,7 +349,7 @@ export class EDocField<ValueType extends EDocValue> {
             case 'edoc': {
                 const value = this.value as EDoc;
 
-                const returnObject: EDocReturn = {};
+                const returnObject: SimpleEDocValue = {};
                 // Add every field in this eDoc as its simple value form
                 for (const [fieldName, field] of value.getFields()) {
                     Object.defineProperty(returnObject, fieldName, {
@@ -448,6 +476,14 @@ export class EDoc {
     // Gets the eDoc's currently selected field's identifier
     public getSelectedFieldName(): string {
         return this.fieldNames.selection();
+    }
+
+    public setField(fieldName: string, value: SimpleEDocValue): void {
+        if (!this.hasField(fieldName)) {
+            throw new Error('Attempted to set an eDoc\'s field by a name that doesn\'t map to any existing field.');
+        }
+
+        this.getField(fieldName).setValue(value);
     }
 
     public hasField(fieldName: string): boolean {

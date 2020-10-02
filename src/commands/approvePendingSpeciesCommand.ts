@@ -1,12 +1,13 @@
 import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
-import { PendingSpecies } from '../models/pendingSpecies';
+import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
 import { SimpleDocument } from '../structures/editableDocument';
-import { Species } from '../models/species';
+import { CommonNameFieldsTemplate, Species } from '../models/species';
 import { SpeciesApprovalMessage } from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
+import { SimpleEDoc, SimpleEDocValue } from '../structures/eDoc';
 
 // The command used to review, edit, and approve a pending species into a real species
 export class ApprovePendingSpeciesCommand implements Command {
@@ -30,16 +31,18 @@ export class ApprovePendingSpeciesCommand implements Command {
         }
 
         // Get a pending species whose first common name is the search term
-        const pendingSpecies = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
+        const pendingSpeciesDocument = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
 
         // If nothing was found by that name
-        if (!pendingSpecies) {
+        if (!pendingSpeciesDocument) {
             betterSend(channel, `No pending species submission with the common name '${fullSearchTerm}' could be found.`);
             return;
         }
 
+        const pendingSpeciesObject = new PendingSpeciesObject({ document: pendingSpeciesDocument });
+
         // Create a new approval message from the found document and send it
-        const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpecies);
+        const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpeciesObject);
         approvalMessage.send();
 
         // When the message's time limit is reached
@@ -58,17 +61,33 @@ export class ApprovePendingSpeciesCommand implements Command {
         });
 
         // If the submission gets approved (submitted)
-        approvalMessage.once('submit', (finalDocument: SimpleDocument) => {
-            // Create a species document from the output document
-            const speciesDocument = new Species(finalDocument);
+        approvalMessage.once('submit', (finalDocument: SimpleEDoc) => {
+            const speciesDocument = new Species();
 
-            // Assign case-normalized names
-            speciesDocument.set('commonNamesLower', arrayToLowerCase(speciesDocument.get('commonNames')));
+            // Get the array of common name objects from the final document
+            const commonNames = finalDocument['commonNames'] as SimpleEDoc[];
+            // The array that will contain lowercase forms of all the common names
+            const commonNamesLower: string[] = [];
+            // Add each name's lowercase form to the list
+            commonNames.forEach(commonName => {
+                commonNamesLower.push((commonName['name'] as string).toLowerCase());
+            });
+            
+            // Assign fields
+            speciesDocument.set('commonNames', commonNames);
+            speciesDocument.set('commonNamesLower', commonNamesLower);
+            speciesDocument.set('scientificName', finalDocument['scientificName']);
+            speciesDocument.set('images', finalDocument['images']);
+            speciesDocument.set('description', finalDocument['description']);
+            speciesDocument.set('naturalHabitat', finalDocument['naturalHabitat']);
+            speciesDocument.set('wikiPage', finalDocument['wikiPage']);
+            speciesDocument.set('rarity', finalDocument['rarity']);
 
             // Save the new species
             speciesDocument.save();
-            // Remove the pending species from the database
-            pendingSpecies.deleteOne();
+
+            // Delete the pending species
+            pendingSpeciesObject.delete();
 
             betterSend(channel, 'Species approved.');
         });

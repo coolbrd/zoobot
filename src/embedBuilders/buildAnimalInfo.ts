@@ -19,7 +19,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animalObject: Anima
     embed.addField('Card', `${image.getIndex() + 1}/${species.getImages().length}`, true);
 
     // Only show the animal's common name if its nickname is displayed
-    animalObject.getNickname() && embed.setDescription(capitalizeFirstLetter(animalObject.getSpecies().getCommonNames()[0]));
+    animalObject.getNickname() && embed.setDescription(capitalizeFirstLetter(animalObject.getSpecies().getCommonNames()[0].name));
     // Only add a breed field if the animal has one
     breed && embed.addField('Breed', capitalizeFirstLetter(breed));
 }

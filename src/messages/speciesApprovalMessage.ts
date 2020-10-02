@@ -1,86 +1,134 @@
 import { DMChannel, TextChannel, User } from 'discord.js';
-import { Document } from 'mongoose';
 
-import EditableDocumentMessage from './editableDocumentMessage';
-import EditableDocument, { EditableDocumentObjectSkeleton, schemaToSkeleton } from '../structures/editableDocument';
-import { speciesSchema } from '../models/species';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
+import { PendingSpeciesObject } from '../models/pendingSpecies';
+import { EDoc } from '../structures/eDoc';
+import EDocMessage from './eDocMessage';
 
-export class SpeciesApprovalMessage extends EditableDocumentMessage {
-    private pendingSpecies: Document;
+export class SpeciesApprovalMessage extends EDocMessage {
+    private pendingSpeciesObject: PendingSpeciesObject;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpeciesDocument: Document) {
-        // Create the document skeleton for the approval document
-        const approvalSkeleton = schemaToSkeleton(speciesSchema, {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpeciesObject) {
+        const eDoc = new EDoc({
             commonNames: {
+                type: [{
+                    type: {
+                        name: {
+                            type: String,
+                            required: true,
+                            alias: 'name',
+                            prompt: 'Enter a name that is used to refer to this animal conversationally (e.g. "dog", "cat", "bottlenose dolphin"):'
+                        },
+                        article: {
+                            type: String,
+                            required: true,
+                            alias: 'article',
+                            prompt: 'Enter the grammatical article (a, an, etc.) that precedes this name:'
+                        }
+                    },
+                    alias: 'common name',
+                    documentOptions: {
+                        displayField: 'name'
+                    }
+                }],
+                required: true,
                 alias: 'common names'
             },
-            article: {
-                alias: 'article'
-            },
             scientificName: {
-                alias: 'scientific name'
+                type: String,
+                required: true,
+                alias: 'scientific name',
+                prompt: 'Enter this animal\'s scientific (taxonomical) name:'
             },
             images: {
-                alias: 'images',
-                arrayViewPortSize: 5,
-                nestedInfo: {
-                    url: {
-                        alias: 'url'
+                type: [{
+                    type: {
+                        url: {
+                            type: String,
+                            required: true,
+                            alias: 'url',
+                            prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):'
+                        },
+                        breed: {
+                            type: String,
+                            required: false,
+                            alias: 'breed',
+                            prompt: 'Enter the breed of the animal depicted in this image, if one is apparent:'
+                        }
                     },
-                    breed: {
-                        alias: 'breed'
+                    alias: 'image',
+                    documentOptions: {
+                        displayField: 'url'
                     }
-                }
+                }],
+                required: true,
+                alias: 'images'
             },
             description: {
-                alias: 'description'
+                type: String,
+                required: true,
+                alias: 'description',
+                prompt: 'Enter a concise description of the animal (see other animals for examples):'
             },
             naturalHabitat: {
-                alias: 'natural habitat'
+                type: String,
+                required: true,
+                alias: 'natural habitat',
+                prompt: 'Enter a concise summary of where the animal is naturally found (see other animals for examples):'
             },
             wikiPage: {
-                alias: 'wikipedia page'
+                type: String,
+                required: true,
+                alias: 'Wikipedia page',
+                prompt: 'Enter the link that leads to this animal\'s page on Wikipedia:'
             },
             rarity: {
-                alias: 'rarity'
+                type: Number,
+                required: true,
+                alias: 'rarity',
+                prompt: 'Enter this animal\'s weighted rarity:'
             }
         });
 
-        // Set known values that simply map to their pending species forms
-        approvalSkeleton['commonNames'].value = pendingSpeciesDocument.get('commonNames');
-        approvalSkeleton['scientificName'].value = pendingSpeciesDocument.get('scientificName');
-        approvalSkeleton['description'].value = pendingSpeciesDocument.get('description');
-        approvalSkeleton['naturalHabitat'].value = pendingSpeciesDocument.get('naturalHabitat');
-        approvalSkeleton['wikiPage'].value = pendingSpeciesDocument.get('wikiPage');
-
-        // Turn the images array into an array of objects that contain optional breed info
-        const imageLinks: string[] = pendingSpeciesDocument.get('images');
-        approvalSkeleton['images'].value = [] as EditableDocumentObjectSkeleton[];
-        for (const link of imageLinks) {
-            approvalSkeleton['images'].value.push({
-                url: link
+        const commonNamesField = eDoc.getField('commonNames');
+        for (const commonName of pendingSpeciesObject.getCommonNames()) {
+            commonNamesField.push({
+                name: commonName
             });
         }
-        
-        super(handler, channel, new EditableDocument(approvalSkeleton), 'new submission');
 
-        this.pendingSpecies = pendingSpeciesDocument;
+        eDoc.setField('scientificName', pendingSpeciesObject.getScientificName());
+        
+        const imagesField = eDoc.getField('images');
+        const imageUrls = pendingSpeciesObject.getImages();
+        if (imageUrls) {
+            for (const url of imageUrls) {
+                imagesField.push({
+                    url: url
+                });
+            }
+        }
+
+        eDoc.setField('description', pendingSpeciesObject.getDescription());
+        eDoc.setField('naturalHabitat', pendingSpeciesObject.getNaturalHabitat());
+        eDoc.setField('wikiPage', pendingSpeciesObject.getWikiPage());
+
+        super(handler, channel, eDoc);
+
+        this.pendingSpeciesObject = pendingSpeciesObject;
 
         this.addButton({
             name: 'deny',
             emoji: '⛔',
             helpMessage: 'Deny'
         });
-
-        this.setEmbed(this.buildEmbed());
     }
 
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
         if (buttonName === 'deny') {
-            this.pendingSpecies.deleteOne();
+            await this.pendingSpeciesObject.delete();
 
             this.emit('deny');
 

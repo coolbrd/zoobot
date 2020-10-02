@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import DocumentWrapper from '../structures/documentWrapper';
 
 // The schema for a pending species submission
 export const pendingSpeciesSchema = new Schema({
@@ -37,3 +38,29 @@ export const pendingSpeciesSchema = new Schema({
 });
 
 export const PendingSpecies = mongoose.model('PendingSpecies', pendingSpeciesSchema);
+
+export class PendingSpeciesObject extends DocumentWrapper {
+    public getCommonNames(): string[] {
+        return this.getDocument().get('commonNames');
+    }
+
+    public getScientificName(): string {
+        return this.getDocument().get('scientificName');
+    }
+
+    public getImages(): string[] | undefined {
+        return this.getDocument().get('images');
+    }
+
+    public getDescription(): string | undefined {
+        return this.getDocument().get('description');
+    }
+
+    public getNaturalHabitat(): string | undefined {
+        return this.getDocument().get('naturalHabitat');
+    }
+
+    public getWikiPage(): string | undefined {
+        return this.getDocument().get('wikiPage');
+    }
+}

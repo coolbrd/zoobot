@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import DocumentWrapper from '../structures/documentWrapper';
-import { arrayToLowerCase } from '../utility/arraysAndSuch';
 
 export const imageSubSchema = new Schema({
     url: {
@@ -14,16 +13,18 @@ export const imageSubSchema = new Schema({
 });
 
 export const speciesSchema = new Schema({
-    commonNames: {
-        type: Array,
-        required: true
-    },
+    commonNames: [{
+        name: {
+            type: String,
+            required: true
+        },
+        article: {
+            type: String,
+            required: true
+        }
+    }],
     commonNamesLower: {
         type: Array,
-        required: true
-    },
-    article: {
-        type: String,
         required: true
     },
     scientificName: {
@@ -104,9 +105,13 @@ export class ImageSubObject {
     }
 }
 
+export interface CommonNameFieldsTemplate {
+    name: string,
+    article: string
+}
+
 export interface SpeciesFieldsTemplate {
-    commonNames?: string[],
-    article?: string,
+    commonNames?: CommonNameFieldsTemplate[],
     scientificName?: string,
     images?: ImageFieldsTemplate[],
     description?: string,
@@ -119,12 +124,8 @@ export interface SpeciesFieldsTemplate {
 export class SpeciesObject extends DocumentWrapper {
     private images: ImageSubObject[] | undefined;
 
-    public getCommonNames(): string[] {
+    public getCommonNames(): CommonNameFieldsTemplate[] {
         return this.getDocument().get('commonNames');
-    }
-
-    public getArticle(): string {
-        return this.getDocument().get('article');
     }
 
     public getScientificName(): string {
@@ -155,12 +156,21 @@ export class SpeciesObject extends DocumentWrapper {
     public async setFields(fields: SpeciesFieldsTemplate): Promise<void> {
         // Reload fields so default information is as current as possible
         await this.refresh();
+
+        // Get the array of common names to use (use the supplied value over the default)
+        const commonNamesArray = fields.commonNames || this.getCommonNames();
+        // The array that will contain all common names as lowercase strings
+        const commonNamesLower: string[] = [];
+        // Add each common name's name as a lowercase string to the array
+        commonNamesArray.forEach(commonName => {
+            commonNamesLower.push(commonName.name.toLowerCase());
+        });
+
         // Change the species' simple fields, using this object's default known value for unchanged fields
         await this.getDocument().updateOne({
             $set: {
                 commonNames: fields.commonNames || this.getCommonNames(),
-                commonNamesLower: arrayToLowerCase(fields.commonNames || this.getCommonNames()),
-                article: fields.article || this.getArticle(),
+                commonNamesLower: commonNamesLower,
                 scientificName: fields.scientificName || this.getScientificName(),
                 description: fields.description || this.getDescription(),
                 naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
@@ -168,63 +178,6 @@ export class SpeciesObject extends DocumentWrapper {
                 rarity: fields.rarity || this.getRarity()
             }
         });
-        // Handle new/updated images if present
-        if (fields.images) {
-            // The list of images to update
-            const updatedImages = fields.images;
-
-            // Wait for this promise to complete
-            await new Promise(resolve => {
-                // Initiate the indicator of how many images have finished updating
-                let completed = 0;
-                // The function that will be called every time an image update finishes, resolves the promise if all images are updated
-                const complete = () => {
-                    if (++completed >= updatedImages.length) {
-                        resolve();
-                    }
-                }
-                // Iterate over every image to update
-                for (const updatedImage of updatedImages) {
-                    // If the image has an id associated with it (it's a change made to an existing image)
-                    if (updatedImage._id) {
-                        const existingImageId = updatedImage._id;
-                        // Find the image to change
-                        const imageToUpdate = this.getImages().find(imageObject => {
-                            return imageObject.getId().equals(existingImageId);
-                        });
-
-                        // If not existing image was found
-                        if (!imageToUpdate) {
-                            throw new Error('An updated image object given to SpeciesObject.prototype.setFields does not map to any existing image of the species.');
-                        }
-
-                        // Update the image
-                        imageToUpdate.setFields(updatedImage).then(() => {
-                            complete();
-                        });
-                    }
-                    // If no image id was provided (new image)
-                    else {
-                        // If no url was provided (a required field for new images)
-                        if (!updatedImage.url) {
-                            throw new Error('A new image (no id) with no url field was given to a species in setFields.');
-                        }
-
-                        // Add the new image to the species
-                        this.getDocument().updateOne({
-                            $push: {
-                                images: {
-                                    url: updatedImage.url,
-                                    breed: updatedImage.breed
-                                }
-                            }
-                        }).then(() => {
-                            complete();
-                        });
-                    }
-                }
-            })
-        }
     }
 
     public getImages(): ImageSubObject[] {

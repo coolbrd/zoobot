@@ -53,7 +53,7 @@ export default class EncounterMessage extends InteractiveMessage {
         // Color the encounter's embed properly
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel.guild));
 
-        embed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
+        embed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0].name));
 
         embed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
 
@@ -75,8 +75,11 @@ export default class EncounterMessage extends InteractiveMessage {
 
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
+        // Get the species' primary common name object
+        const commonName = this.species.getCommonNames()[0];
+
         // Indicate that the user has caught the animal
-        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${this.species.getArticle()} ${this.species.getCommonNames()[0]}!`);
+        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${commonName.article} ${commonName.name}!`);
         this.setDeactivationText('(caught)');
 
         // Create the new animal

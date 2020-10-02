@@ -53,7 +53,7 @@ export class SpeciesInfoMessage extends InteractiveMessage {
 
         // When the info message is showing a large picture of the species (not details)
         if (this.pictureMode) {
-            newEmbed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
+            newEmbed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0].name));
 
             newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
 
