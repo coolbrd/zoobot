@@ -11,3 +11,6 @@ export const MONGODB_PATH = process.env.mongopath as string;
 
 // The admin server for configuring the bot
 export const ADMIN_SERVER_ID = process.env.adminserverid as string;
+
+// The user id of the developer to receive information about errors
+export const DEVELOPER_ID = process.env.developerid as string;
