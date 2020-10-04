@@ -1,4 +1,4 @@
-import { TextChannel, User, APIMessage, MessageEmbed } from 'discord.js';
+import { TextChannel, User, MessageEmbed } from 'discord.js';
 
 import InteractiveMessage from '../interactiveMessage/interactiveMessage';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
@@ -10,6 +10,7 @@ import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageH
 import { createAnimal } from '../zoo/userManagement';
 import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
 import SmartEmbed from '../discordUtility/smartEmbed';
+import { errorHandler } from '../structures/errorHandler';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -43,8 +44,7 @@ export default class EncounterMessage extends InteractiveMessage {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            console.error('There was an error trying to build an encounter message\'s embed.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to build an encounter message\'s embed.');
         }
     }
 
@@ -83,8 +83,14 @@ export default class EncounterMessage extends InteractiveMessage {
         this.setDeactivationText('(caught)');
 
         // Create the new animal
-        await createAnimal(getGuildMember(user, this.channel.guild), this.species, { imageIndex: this.imageIndex as number });
-        
+        try {
+            await createAnimal(getGuildMember(user, this.channel.guild), this.species, { imageIndex: this.imageIndex as number });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'Thre was an error creating a new animal in an encounter message.');
+            return;
+        }
+
         // Stop this message from receiving any more input
         this.deactivate();
     }

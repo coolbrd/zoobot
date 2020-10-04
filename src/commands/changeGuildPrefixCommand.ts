@@ -3,6 +3,8 @@ import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/commandInterface";
 import { getGuildObject } from "../zoo/userManagement";
 import { commandHandler } from '..';
+import { GuildObject } from "../models/guild";
+import { errorHandler } from "../structures/errorHandler";
 
 // Changes the command prefix for a given guild
 export default class ChangeGuildPrefixCommand implements Command {
@@ -28,19 +30,27 @@ export default class ChangeGuildPrefixCommand implements Command {
             return;
         }
 
+        let guildObject: GuildObject;
         // Get the target guild's document
-        const guildObject = await getGuildObject(parsedUserCommand.channel.guild);
-        
+        try {
+            guildObject = await getGuildObject(parsedUserCommand.channel.guild);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to get a guild object from a guild id.');
+            return;
+        }
+
         // Attempt to change the guild's prefix
         try {
             await guildObject.setPrefix(fullPrefix);
-            // Update the guild's prefix in the command handler
-            commandHandler.changeGuildPrefix(guildObject.getGuildId(), fullPrefix);
         }
         catch (error) {
-            console.error('There was an error trying to change the prefix of a guild object.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to change the prefix of a guild object.');
+            return;
         }
+
+        // Update the guild's prefix in the command handler
+        commandHandler.changeGuildPrefix(guildObject.getGuildId(), fullPrefix);
 
         betterSend(parsedUserCommand.channel, `Success. My prefix is now \`${fullPrefix}\`.`);
     }

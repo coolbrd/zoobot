@@ -4,6 +4,7 @@ import { client } from '..';
 import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { EDoc } from '../structures/eDoc';
+import { errorHandler } from '../structures/errorHandler';
 import EDocMessage from './eDocMessage';
 
 export default class SpeciesApprovalMessage extends EDocMessage {
@@ -145,7 +146,13 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         super.buttonPress(buttonName, user);
 
         if (buttonName === 'deny') {
-            await this.pendingSpeciesObject.delete();
+            try {
+                await this.pendingSpeciesObject.delete();
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error deleting a denied pending species.');
+                return;
+            }
 
             this.emit('deny');
 

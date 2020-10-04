@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 import DocumentWrapper from '../structures/documentWrapper';
 import { AnimalObject } from "./animal";
@@ -47,32 +47,47 @@ export class PlayerObject extends DocumentWrapper {
 
     // Adds an animal id to the user's inventory
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
-        await this.getDocument().updateOne({
-            $push: {
-                animals: animalId
-            }
-        });
+        try {
+            await this.getDocument().updateOne({
+                $push: {
+                    animals: animalId
+                }
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error adding an animal to a player\'s inventory.');
+        }
     }
 
     // Adds a set of animals at a given base position
     public async addAnimalsPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
-        await this.getDocument().updateOne({
-            $push: {
-                animals: {
-                    $each: animalIds,
-                    $position: position
+        try {
+            await this.getDocument().updateOne({
+                $push: {
+                    animals: {
+                        $each: animalIds,
+                        $position: position
+                    }
                 }
-            }
-        });
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error adding animals to a player\'s animal inventory.');
+        }
     }
 
     // Removes an animal from the player's inventory by a given id
     public async removeAnimal(animalId: Types.ObjectId): Promise<void> {
-        await this.getDocument().updateOne({
-            $pull: {
-                animals: animalId
-            }
-        });
+        try {
+            await this.getDocument().updateOne({
+                $pull: {
+                    animals: animalId
+                }
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error removing an animal from a player\'s animal inventory.');
+        }
     }
 
     // Removes a set of animals by an array of positions
@@ -82,13 +97,18 @@ export class PlayerObject extends DocumentWrapper {
             animalIds.push(this.getAnimalIds()[position]);
         }
         
-        await this.getDocument().updateOne({
-            $pull: {
-                animals: {
-                    $in: animalIds
+        try {
+            await this.getDocument().updateOne({
+                $pull: {
+                    animals: {
+                        $in: animalIds
+                    }
                 }
-            }
-        });
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error removing animals from a player\'s animal inventory.');
+        }
 
         return animalIds;
     }
@@ -99,11 +119,19 @@ export class PlayerObject extends DocumentWrapper {
             return;
         }
 
+        let playerDocument: Document | null;
         // Find and set this player's document
-        const playerDocument = await Player.findById(this.getId());
+        try {
+            playerDocument = await Player.findById(this.getId());
+        }
+        catch (error) {
+            throw new Error('There was an error finding a player document by an id.');
+        }
+
         if (!playerDocument) {
             throw new Error('A player object couldn\'t find a corresponding document with its given id.');
         }
+
         this.setDocument(playerDocument);
     }
 

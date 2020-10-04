@@ -7,6 +7,8 @@ import { betterSend } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
 import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
+import { Document } from 'mongoose';
+import { errorHandler } from '../structures/errorHandler';
 
 export default class SendPendingSubmissionsCommand implements Command {
     public readonly commandNames = ['pending', 'submissions'];
@@ -20,8 +22,15 @@ export default class SendPendingSubmissionsCommand implements Command {
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
 
+        let pendingSpecies: Document[];
         // Get all pending species documents
-        const pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });
+        try {
+            pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding all species pending approval.');
+            return;
+        }
 
         // Don't send an empty embed if there are no pending species
         if (pendingSpecies.length < 1) {
@@ -67,6 +76,11 @@ export default class SendPendingSubmissionsCommand implements Command {
 
         // Send the embed book
         const embedBookMessage = new EmbedBookMessage(interactiveMessageHandler, channel, embedBook);
-        embedBookMessage.send();
+        try {
+            await embedBookMessage.send();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error sending a new embed book message.');
+        }
     }
 }

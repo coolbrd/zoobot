@@ -6,6 +6,7 @@ import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { AnimalObject } from "../models/animal";
+import { errorHandler } from "../structures/errorHandler";
 
 // Displays a single animal's basic info and image
 export default class AnimalInfoMessage extends InteractiveMessage {
@@ -39,7 +40,13 @@ export default class AnimalInfoMessage extends InteractiveMessage {
 
     public async build(): Promise<void> {
         // Load the animal's information
-        await this.animalObject.load();
+        try {
+            await this.animalObject.load();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading an animal object\'s data.');
+            return;
+        }
 
         // Get the owner's user instance
         this.ownerUser = getGuildMember(this.animalObject.getOwnerId(), this.animalObject.getGuildId()).user;

@@ -1,7 +1,10 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
+import { AnimalObject } from "../models/animal";
+import { PlayerObject } from "../models/player";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
+import { errorHandler } from "../structures/errorHandler";
 import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
 
 // Changes a user's animal's nickname
@@ -36,11 +39,25 @@ export default class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
+        let playerObject: PlayerObject;
         // Get the player object that represents the player changing the nickname
-        const playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+        try {
+            playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to get a player object representation of a user in the animal nickname command.');
+            return;
+        }
 
+        let animalObject: AnimalObject | undefined;
         // Get the animal at the player's given inventory position
-        const animalObject = await getAnimalByInventoryPosition(playerObject, animalNumber - 1);
+        try {
+            animalObject = await getAnimalByInventoryPosition(playerObject, animalNumber - 1);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to get an animal object by a player\'s inventory position.');
+            return;
+        }
 
         if (!animalObject) {
             betterSend(parsedUserCommand.channel, 'No animal in your inventory with that number exists.');
@@ -60,10 +77,19 @@ export default class ChangeAnimalNicknameCommand implements Command {
             const args = parsedUserCommand.fullArguments;
             newNickname = args.slice(args.indexOf(animalIdentifier) + animalIdentifier.length, args.length).trim();
         }
+
         // Change the animal's nickname to the determined string
-        await animalObject.setNickname(newNickname);
+        try {
+            await animalObject.setNickname(newNickname);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to change the nickname of an animal object.');
+            return;
+        }
 
         // Indicate that the command was performed successfully
-        parsedUserCommand.originalMessage.react('✅');
+        parsedUserCommand.originalMessage.react('✅').catch(error => {
+            errorHandler.handleError(error, 'There was an error attempting to react to a message in the animal nickname command.');
+        });
     }
 }

@@ -24,7 +24,6 @@ export default function getGuildUserDisplayColor(userResolvable: UserResolvable 
         }
         guild = guildResolvable.guild;
     }
-
     // If the thing to resolve into a guild is anything else (handled by a build-in method)
     else {
         const resolvedGuild = client.guilds.resolve(guildResolvable);

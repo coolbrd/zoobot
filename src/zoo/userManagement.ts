@@ -6,6 +6,7 @@ import { Animal, AnimalObject } from "../models/animal";
 import { GuildModel, GuildObject } from "../models/guild";
 import { Player, PlayerObject } from "../models/player";
 import { SpeciesObject } from "../models/species";
+import { errorHandler } from "../structures/errorHandler";
 
 // Gets a guild document from the database that corresponds to a given guild object and returns it as an object
 export async function getGuildObject(guild: Guild): Promise<GuildObject> {
@@ -27,7 +28,13 @@ export async function getGuildObject(guild: Guild): Promise<GuildObject> {
                 prefix: '>'
             }
         });
-        await guildDocument.save();
+
+        try {
+            await guildDocument.save();
+        }
+        catch (error) {
+            throw new Error('There was an error saving a new guild document to the database.');
+        }
     }
 
     // Return the pre-existing or newly created guild document within a wrapper object
@@ -42,8 +49,7 @@ export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerO
         playerDocument = await Player.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
     }
     catch (error) {
-        console.error('There was an error trying to find a player document.');
-        throw new Error(error);
+        throw new Error('There was an error finding an existing player document.');
     }
 
     // If no player document exists for the given guild member
@@ -59,8 +65,7 @@ export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerO
             await playerDocument.save();
         }
         catch (error) {
-            console.error('There was an error trying to save a new player document.');
-            throw new Error(error);
+            throw new Error('There was an error trying to save a new player document.');
         }
     }
 
@@ -86,10 +91,17 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
     let ownerObject: PlayerObject;
     try {
         ownerObject = await getPlayerObject(owner);
+    }
+    catch (error) {
+        errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
+        return;
+    }
+
+    try {
         await ownerObject.load();
     }
     catch (error) {
-        throw new Error(error);
+        errorHandler.handleError(error, 'There was an error loading a new animal\'s owner object.');
     }
 
     // Create the new animal
@@ -106,8 +118,7 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
         await animal.save();
     }
     catch (error) {
-        console.error('There was an error trying to save a new animal.');
-        throw new Error(error);
+        throw new Error('There was an error saving a new animal.');
     }
 
     // Add the animal's id to the owner's inventory
@@ -115,8 +126,7 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
         await ownerObject.addAnimal(animal._id);
     }
     catch (error) {
-        console.error('There was an error trying to add a new animal id to a player object\'s inventory.');
-        throw new Error(error);
+        throw new Error('There was an error adding a new animal to a player\'s inventory.');
     }
 }
 
@@ -138,8 +148,15 @@ export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, ani
     }
     // If just an animal id was provided
     else if (animalInfo.animalId) {
+        let animalDocument: Document | null;
         // Try to find the given animal
-        const animalDocument = await Animal.findById(animalInfo.animalId);
+        try {
+            animalDocument = await Animal.findById(animalInfo.animalId);
+        }
+        catch (error) {
+            throw new Error('There was an error finding an animal by an id.');
+        }
+        
         if (!animalDocument) {
             throw new Error('Couldn\'t find an animal with a given id for deletion.');
         }
@@ -152,12 +169,31 @@ export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, ani
     }
 
     // Only query for a player object if one hasn't already been assigned
-    playerObject = playerObject || await getPlayerObject(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
+    try {
+        playerObject = playerObject || await getPlayerObject(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
+    }
+    catch (error) {
+        errorHandler.handleError(error, 'There was an error getting a player object from a guild member.');
+        return;
+    }
 
     // Remove the animal's id from the player's inventory
-    playerObject.removeAnimal(animalObject.getId());
+    try {
+        await playerObject.removeAnimal(animalObject.getId());
+    }
+    catch (error) {
+        errorHandler.handleError(error, 'There as an error removing an animal from a player\'s inventory.');
+        return;
+    }
+
     // Delete the animal from the animal collection
-    animalObject.delete();
+    try {
+        await animalObject.delete();
+    }
+    catch (error) {
+        errorHandler.handleError(error, 'There was an error deleting an animal document.');
+        return;
+    }
 }
 
 // Gets an animal object by a given inventory position from a player's inventory
@@ -167,8 +203,14 @@ export async function getAnimalByInventoryPosition(playerObject: PlayerObject, a
         return undefined;
     }
     
+    let animalDocument: Document | null;
     // Get the animal document that corresponds to the given inventory position
-    const animalDocument = await Animal.findById(playerObject.getAnimalIds()[animalPosition]);
+    try {
+        animalDocument = await Animal.findById(playerObject.getAnimalIds()[animalPosition]);
+    }
+    catch (error) {
+        throw new Error('There was an error finding an animal by an id.');
+    }
 
     if (!animalDocument) {
         throw new Error('An animal id with no corresponding animal document was found in a player\'s inventory.');
@@ -195,8 +237,14 @@ export async function getAnimalByNickname(nickname: string, guildId?: string): P
             });
         }
 
+        let animalDocument: Document | null;
         // Attempt to find the animal by the given search options
-        const animalDocument = await Animal.findOne(searchQuery);
+        try {
+            animalDocument = await Animal.findOne(searchQuery);
+        }
+        catch (error) {
+            throw new Error('There was an error finding an animal by its nickname.');
+        }
 
         // Return the document as an object if one was found
         if (!animalDocument) {
@@ -223,7 +271,13 @@ export async function searchAnimal(
 
     // If the search is only to be done by nickname
     if (!searchByPosition) {
-        return await getAnimalByNickname(searchTerm, guildId);
+        try {
+            return await getAnimalByNickname(searchTerm, guildId);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding an animal by a given nickname.');
+            return;
+        }
     }
     // If we're out here, it means that animal indexes need to be considered
 
@@ -232,8 +286,14 @@ export async function searchAnimal(
 
     // If the search term isn't a number (it's a nickname)
     if (isNaN(searchNumber)) {
+        let animalObject: AnimalObject | undefined;
         // Attempt to get an animal by the nickname provided
-        const animalObject = await getAnimalByNickname(searchTerm, guildId);
+        try {
+            animalObject = await getAnimalByNickname(searchTerm, guildId);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+        }
 
         // Only return something if an animal was found, if not continue for more checks
         if (animalObject) {
@@ -250,11 +310,24 @@ export async function searchAnimal(
             }
 
             // Get the player object corresponding to the user provided for the search
-            playerObject = await getPlayerObject(getGuildMember(userId, guildId));
+            try {
+                playerObject = await getPlayerObject(getGuildMember(userId, guildId));
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
+                return;
+            }
         }
 
+        let animalObject: AnimalObject | undefined;
         // Get the animal by its position in the player's inventory
-        const animalObject = await getAnimalByInventoryPosition(playerObject, searchNumber - 1);
+        try {
+            animalObject = await getAnimalByInventoryPosition(playerObject, searchNumber - 1);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error getting an animal by an inventory position.');
+            return;
+        }
 
         if (animalObject) {
             return animalObject;
@@ -264,7 +337,12 @@ export async function searchAnimal(
     // If the search term is a number, but none of the other search options have returned anything so far
     if (!isNaN(searchNumber)) {
         // Search the number as a nickname (last resort)
-        return await getAnimalByNickname(searchTerm, guildId);
+        try {
+            return await getAnimalByNickname(searchTerm, guildId);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+        }
     }
 
     return undefined;

@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
@@ -6,6 +8,7 @@ import { commonNamesToLower, CommonNameTemplate, Species } from '../models/speci
 import SpeciesApprovalMessage from '../messages/speciesApprovalMessage';
 import { interactiveMessageHandler } from '..';
 import { SimpleEDoc } from '../structures/eDoc';
+import { errorHandler } from '../structures/errorHandler';
 
 // The command used to review, edit, and approve a pending species into a real species
 export default class ApprovePendingSpeciesCommand implements Command {
@@ -28,8 +31,15 @@ export default class ApprovePendingSpeciesCommand implements Command {
             return;
         }
 
+        let pendingSpeciesDocument: Document | null;
         // Get a pending species whose first common name is the search term
-        const pendingSpeciesDocument = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
+        try {
+            pendingSpeciesDocument = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error trying to find a pending species document in the database.');
+            return;
+        }
 
         // If nothing was found by that name
         if (!pendingSpeciesDocument) {
@@ -42,7 +52,14 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
         // Create a new approval message from the object and send it
         const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpeciesObject);
-        await approvalMessage.send();
+
+        try {
+            await approvalMessage.send();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to send a species approval message.');
+            return;
+        }
 
         // When the message's time limit is reached
         approvalMessage.once('timeExpired', () => {
@@ -72,11 +89,16 @@ export default class ApprovePendingSpeciesCommand implements Command {
             speciesDocument.set('commonNamesLower', commonNamesLower);
 
             // Save the new species
-            speciesDocument.save();
-            // Delete the pending species
-            pendingSpeciesObject.delete();
+            speciesDocument.save().then(() => {
+                betterSend(channel, 'Species approved.');
 
-            betterSend(channel, 'Species approved.');
+                // Delete the pending species
+                pendingSpeciesObject.delete().catch(error => {
+                    errorHandler.handleError(error, 'There was an error attempting to delete a newly approved pending species from the database.');
+                });
+            }).catch(error => {
+                errorHandler.handleError(error, 'There was an error attempting to save a newly approved species to the database.');
+            });
         });
     }
 }

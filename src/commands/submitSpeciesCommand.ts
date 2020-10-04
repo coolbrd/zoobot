@@ -10,6 +10,7 @@ import reactionInput from '../discordUtility/reactionInput';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
 import { EDoc, SimpleEDoc } from '../structures/eDoc';
 import EDocMessage from '../messages/eDocMessage';
+import { errorHandler } from '../structures/errorHandler';
 
 // Initiates the species submission process. Only to be used in DMs.
 export default class SubmitSpeciesCommand implements Command {
@@ -126,7 +127,13 @@ export default class SubmitSpeciesCommand implements Command {
 
         // Create and send the submission message
         const submissionMessage = new EDocMessage(interactiveMessageHandler, channel, submissionDocument, 'new submission');
-        await submissionMessage.send();
+        try {
+            await submissionMessage.send();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error sending a new species submission message.');
+            return;
+        }
 
         // When the message reaches its time limit
         submissionMessage.once('timeExpired', () => {
@@ -156,9 +163,11 @@ export default class SubmitSpeciesCommand implements Command {
             pendingSpecies.set('author', user.id);
 
             // Save the document
-            pendingSpecies.save();
-
-            betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
+            pendingSpecies.save().then(() => {
+                betterSend(channel, 'Submission accepted. Thanks for contributing to The Beastiary!');
+            }).catch(error => {
+                errorHandler.handleError(error, 'There was an error saving a new pending species document.');
+            });
         });
     }
 }

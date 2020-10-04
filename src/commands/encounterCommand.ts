@@ -3,6 +3,7 @@ import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { DMChannel } from "discord.js";
 import { encounterHandler } from "..";
+import { errorHandler } from "../structures/errorHandler";
 
 export default class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];
@@ -17,6 +18,11 @@ export default class EncounterCommand implements Command {
             return;
         }
 
-        encounterHandler.spawnAnimal(parsedUserCommand.channel);
+        try {
+            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an rror creating a new animal encounter.');
+        }
     }
 }

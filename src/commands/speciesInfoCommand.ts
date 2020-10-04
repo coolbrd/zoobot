@@ -4,6 +4,8 @@ import { Species, SpeciesObject } from "../models/species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/speciesInfoMessage";
 import { interactiveMessageHandler } from "..";
+import { errorHandler } from "../structures/errorHandler";
+import { Document } from "mongoose";
 
 export default class SpeciesInfoCommand implements Command {
     public readonly commandNames = ['info', 'i', 'search'];
@@ -17,8 +19,15 @@ export default class SpeciesInfoCommand implements Command {
 
         const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
+        let speciesDocument: Document | null;
         // Find a species by either its common name, or its scientific name if no common name matches were made
-        const speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }) || await Species.findOne({ scientificName: fullSearchTerm });
+        try {
+            speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }) || await Species.findOne({ scientificName: fullSearchTerm });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding a species by its common name and scientific name.');
+            return;
+        }
 
         // If no species with the given name was found
         if (!speciesDocument) {
@@ -28,6 +37,11 @@ export default class SpeciesInfoCommand implements Command {
 
         // Construct and send an informational message about the species
         const infoMessage = new SpeciesInfoMessage(interactiveMessageHandler, channel, new SpeciesObject({document: speciesDocument}));
-        infoMessage.send();
+        try {
+            await infoMessage.send();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error sending a new species info message.');
+        }
     }
 }

@@ -5,6 +5,8 @@ import { CommonNameTemplate, ImageTemplate, Species, SpeciesObject } from '../mo
 import { interactiveMessageHandler } from '..';
 import SpeciesEditMessage from '../messages/speciesEditMessage';
 import { SimpleEDoc } from '../structures/eDoc';
+import { Document } from 'mongoose';
+import { errorHandler } from '../structures/errorHandler';
 
 // The command used to review, edit, and approve a pending species into a real species
 export default class EditSpeciesCommand implements Command {
@@ -26,22 +28,41 @@ export default class EditSpeciesCommand implements Command {
             return;
         }
 
+        let speciesDocument: Document | null;
         // Get a species whose first common name is the search term
-        const species = await Species.findOne({ commonNamesLower: fullSearchTerm });
+        try {
+            speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error finding a species document in the edit species command.');
+            return;
+        }
 
         // If nothing was found by that name
-        if (!species) {
+        if (!speciesDocument) {
             betterSend(channel, `No species with the common name '${fullSearchTerm}' could be found.`);
             return;
         }
 
         // Create and load a species object representing the target species
-        const speciesObject = new SpeciesObject({ document: species });
-        await speciesObject.load();
+        const speciesObject = new SpeciesObject({ document: speciesDocument });
+        try {
+            await speciesObject.load();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading a species object in the edit species command.');
+            return;
+        }
 
         // Create a new species edit message from the species object and send it
         const editMessage = new SpeciesEditMessage(interactiveMessageHandler, channel, speciesObject);
-        editMessage.send();
+        try {
+            await editMessage.send();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error sending a species edit message.');
+            return;
+        }
 
         // When the message's time limit is reached
         editMessage.once('timeExpired', () => {
@@ -68,7 +89,8 @@ export default class EditSpeciesCommand implements Command {
                 betterSend(channel, 'Edit successful.');
             }).catch(error => {
                 betterSend(channel, 'Edit unsuccessful, inform the developer.');
-                console.error('There was an error editing a species.', error);
+
+                errorHandler.handleError(error, 'There was an error editing a species.');
             });
         });
     }

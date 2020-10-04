@@ -7,6 +7,7 @@ import { SpeciesObject } from "../models/species";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/smartEmbed";
+import { errorHandler } from "../structures/errorHandler";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
@@ -37,7 +38,13 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        await this.species.load();
+        try {
+            await this.species.load();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading a species in a species info message.');
+            return;
+        }
 
         this.setEmbed(this.buildEmbed());
     }

@@ -1,8 +1,10 @@
 import { interactiveMessageHandler } from "..";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/animalInfoMessage";
+import { AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
+import { errorHandler } from "../structures/errorHandler";
 import { searchAnimal } from "../zoo/userManagement";
 
 export default class AnimalInfoCommand implements Command {
@@ -28,11 +30,18 @@ export default class AnimalInfoCommand implements Command {
         // The string representing the animal to get the info of
         const animalIdentifier = parsedUserCommand.fullArguments;
 
-        const animalObject = await searchAnimal(animalIdentifier, {
-            guildId: parsedUserCommand.channel.guild.id,
-            userId: parsedUserCommand.originalMessage.author.id,
-            searchByPosition: true 
-        });
+        let animalObject: AnimalObject | undefined;
+        try {
+            animalObject = await searchAnimal(animalIdentifier, {
+                guildId: parsedUserCommand.channel.guild.id,
+                userId: parsedUserCommand.originalMessage.author.id,
+                searchByPosition: true 
+            });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to search an animal for the info command.');
+            return;
+        }
 
         if (!animalObject) {
             betterSend(parsedUserCommand.channel, 'No animal by that nickname/number could be found in this server.');

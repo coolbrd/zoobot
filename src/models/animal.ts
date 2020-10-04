@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 import DocumentWrapper from '../structures/documentWrapper';
+import { errorHandler } from '../structures/errorHandler';
 import { Player, PlayerObject } from './player';
 import { ImageSubObject, SpeciesObject } from './species';
 
@@ -115,10 +116,16 @@ export class AnimalObject extends DocumentWrapper {
 
     // Gets this animal's position within its owner's inventory
     public async getInventoryIndex(): Promise<number> {
+        let ownerDocument: Document | null;
         // Get the animal's owner object
-        const ownerDocument = await Player.findOne({
-            userId: this.getOwnerId()
-        });
+        try {
+            ownerDocument = await Player.findOne({
+                userId: this.getOwnerId()
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error finding an animal\'s owner\'s player object.');
+        }
 
         if (!ownerDocument) {
             throw new Error('An animal with an invalid owner id tried to get its owner object.');
@@ -204,9 +211,24 @@ export class AnimalObject extends DocumentWrapper {
         }
 
         // Load the animal's document
-        await this.loadDocument();
+        try {
+            await this.loadDocument();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading an animal\'s document.');
+            return;
+        }
+
         // Then its species
-        await this.loadSpecies();
+        try {
+            await this.loadSpecies();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading an animal\'s species.');
+            return;
+        }
+
+        // Then its image
         this.loadImage();
     }
 
@@ -223,8 +245,7 @@ export class AnimalObject extends DocumentWrapper {
             await this.getDocument().deleteOne();
         }
         catch (error) {
-            console.error('There was an error trying to delete an animal object.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to delete an animal object.');
         }
     }
 }

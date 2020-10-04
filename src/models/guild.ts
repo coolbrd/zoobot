@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import DocumentWrapper from '../structures/documentWrapper';
+import { errorHandler } from "../structures/errorHandler";
 import { guildConfigSchema } from "./guildConfig";
 
 const guildScema = new Schema({
@@ -38,8 +39,7 @@ export class GuildObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            console.error('There was an error updating a guild model in the change prefix command.');
-            throw new Error(error);
+            throw new Error('There was an error updating a guild model in the change prefix command.');
         }
     }
 }

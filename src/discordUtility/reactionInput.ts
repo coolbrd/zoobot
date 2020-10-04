@@ -1,4 +1,5 @@
 import { Message, MessageReaction, User } from 'discord.js';
+import { errorHandler } from '../structures/errorHandler';
 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
@@ -10,8 +11,8 @@ export default async function reactionInput(message: Message, timeOut: number, e
         }
     }
     catch (error) {
-        console.error('There was an error reacting to a message in reactionInput.');
-        throw new Error(error);
+        errorHandler.handleError(error, 'There was an error reacting to a message in reactionInput.');
+        return;
     }
 
     // The filter used to determine a valid button press
@@ -32,14 +33,18 @@ export default async function reactionInput(message: Message, timeOut: number, e
         return;
     }
     // If this point is reached, a reaction was added
+
+    // Return nothing if no reactions were collected for some reason
     if (!userReaction) {
-        throw new Error('reactionInput collected a reaction but returned an undefined collection.');
+        return;
     }
 
+    // Get the first (and only) reaction from the collector
     const emojiReaction = userReaction.first();
 
+    // Return nothing if for some reason there's no emoji associated with the reaction
     if (!emojiReaction) {
-        throw new Error('reactionInput returned an empty collection.');
+        return;
     }
 
     return emojiReaction.emoji.name;

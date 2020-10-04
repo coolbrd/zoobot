@@ -1,4 +1,5 @@
 import { Guild, Message, User } from 'discord.js';
+import { Document } from 'mongoose';
 
 import Command from './commandInterface';
 import CommandParser from './commandParser';
@@ -18,6 +19,7 @@ import { ADMIN_SERVER_ID } from '../config/secrets';
 import ChangeAnimalNicknameCommand from '../commands/changeAnimalNicknameCommand';
 import AnimalInfoCommand from '../commands/animalInfoCommand';
 import EditSpeciesCommand from '../commands/editSpeciesCommand';
+import { errorHandler } from './errorHandler';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -106,7 +108,9 @@ export default class CommandHandler {
                     await matchedCommand.run(commandParser);
                 }
                 catch (error) {
-                    console.error('Command execution failed.', error);
+                    errorHandler.handleError(error, 'Command execution failed.');
+
+                    betterSend(commandParser.channel, 'Something went wrong while performing that command. Please report this to the developer.');
                     return;
                 }
             }
@@ -150,8 +154,15 @@ export default class CommandHandler {
 
     // Loads the map of guild prefixes to respond to in each given guild
     public async loadGuildPrefixes(): Promise<void> {
+        let guildDocuments: Document[] | null;
         // Find all known guild documents
-        const guildDocuments = await GuildModel.find({}, { _id: 0, id: 1, config: 1 });
+        try {
+            guildDocuments = await GuildModel.find({}, { _id: 0, id: 1, config: 1 });
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error attempting to load guild prefixes from the database.');
+            return;
+        }
 
         // Clear any possible current entries in the prefix map
         this.guildPrefixes.clear();

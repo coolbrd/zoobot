@@ -14,6 +14,7 @@ import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
 import { commandHandler } from "..";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalImage from "../embedBuilders/buildAnimalImage";
+import { errorHandler } from "../structures/errorHandler";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -98,8 +99,8 @@ export default class InventoryMessage extends InteractiveMessage {
             await playerObject.load();
         }
         catch (error) {
-            console.error('There was an error trying to get a player object in an inventory message.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to get a player object in an inventory message.');
+            return;
         }
 
         // Assign the new player object
@@ -114,7 +115,8 @@ export default class InventoryMessage extends InteractiveMessage {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error building the embed of an inventory message.');
+            return;
         }
     }
 
@@ -159,7 +161,10 @@ export default class InventoryMessage extends InteractiveMessage {
                     if (++count >= unloadedAnimals.length) {
                         resolve();
                     }
-                })
+                }).catch(error => {
+                    errorHandler.handleError(error, 'There was an error loading an unloaded animal in an inventory message.');
+                    return;
+                });
             });
         });
 
@@ -334,9 +339,8 @@ export default class InventoryMessage extends InteractiveMessage {
                     await deleteAnimal({animalObject: selectedAnimal});
                 }
                 catch (error) {
-                    betterSend(this.channel, 'There was an error releasing this animal.');
-                    console.error('There was an error trying to release a user\'s animal from an inventory message.');
-                    throw new Error(error);
+                    errorHandler.handleError(error, 'There was an error trying to release a user\'s animal from an inventory message.');
+                    return;
                 }
 
                 // Delete the animal from the inventory message
@@ -356,7 +360,8 @@ export default class InventoryMessage extends InteractiveMessage {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error building the embed of an inventory message.');
+            return;
         }
     }
 }

@@ -1,4 +1,5 @@
 import { TextChannel, Message, User, DMChannel } from 'discord.js';
+import { errorHandler } from '../structures/errorHandler';
 
 // Waits for a given user's next message and returns it
 export default async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {
@@ -22,9 +23,12 @@ export default async function awaitUserNextMessage(channel: TextChannel | DMChan
         return;
     }
     // If we're out here that means the user responded to the prompt
+
+    // If no response was returned for some reason, just return nothing
     if (!userResponse) {
-        throw new Error('A user\'s message was collected with awaitUserNextMessage, but the collector came back undefined.');
+        return;
     }
 
+    // Return the first (and only) message that met the given criteria
     return userResponse.first();
 }

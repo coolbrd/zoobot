@@ -1,12 +1,11 @@
-import { DMChannel, TextChannel } from "discord.js";
 import { client } from "..";
 import { DEVELOPER_ID } from "../config/secrets";
 import { betterSend } from "../discordUtility/messageMan";
 
 class ErrorHandler {
-    private readonly developerChannel: DMChannel;
+    public handleError(error: Error, message?: string): void {
+        console.error(message || 'Error message from the centralized error-handling component', error);
 
-    constructor() {
         const developer = client.users.resolve(DEVELOPER_ID);
 
         if (!developer) {
@@ -17,16 +16,7 @@ class ErrorHandler {
             throw new Error('Could not access DM channel with developer.');
         }
 
-        this.developerChannel = developer.dmChannel;
-    }
-
-    public handleError(error: Error): void {
-        console.error(
-            'Error message from the centralized error-handling component',
-            error,
-        );
-        
-        betterSend(this.developerChannel, error.message);
+        betterSend(developer.dmChannel, error.message);
     }
 
     public isTrustedError(_error: Error) {

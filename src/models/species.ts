@@ -92,6 +92,7 @@ export class ImageSubObject {
         const index = this.speciesObject.getImageObjects().findIndex(image => {
             return this.getId().equals(image._id)
         });
+        
         if (index === undefined) {
             throw new Error('A species image with no place in its species was found.');
         }
@@ -168,18 +169,23 @@ export class SpeciesObject extends DocumentWrapper {
         await this.refresh();
 
         // Change the species' simple fields, using this object's default known value for unchanged fields
-        await this.getDocument().updateOne({
-            $set: {
-                commonNames: fields.commonNames || this.getCommonNameObjects(),
-                commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
-                scientificName: fields.scientificName || this.getScientificName(),
-                images: fields.images || this.getImageObjects(),
-                description: fields.description || this.getDescription(),
-                naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
-                wikiPage: fields.wikiPage || this.getWikiPage(),
-                rarity: fields.rarity || this.getRarity()
-            }
-        });
+        try {
+            await this.getDocument().updateOne({
+                $set: {
+                    commonNames: fields.commonNames || this.getCommonNameObjects(),
+                    commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
+                    scientificName: fields.scientificName || this.getScientificName(),
+                    images: fields.images || this.getImageObjects(),
+                    description: fields.description || this.getDescription(),
+                    naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
+                    wikiPage: fields.wikiPage || this.getWikiPage(),
+                    rarity: fields.rarity || this.getRarity()
+                }
+            });
+        }
+        catch (error) {
+            throw new Error('There was an error updating a species\' fields.');
+        }
     }
 
     // Gets a simple array of this species' common names
@@ -215,11 +221,19 @@ export class SpeciesObject extends DocumentWrapper {
             return;
         }
 
+        let speciesDocument: Document | null;
         // Find the species document and set it
-        const speciesDocument = await Species.findById(this.getId());
+        try {
+            speciesDocument = await Species.findById(this.getId());
+        }
+        catch (error) {
+            throw new Error('There was an error finding a species by an id.');
+        }
+
         if (!speciesDocument) {
             throw new Error('No species document was found for an id given to a species object.');
         }
+        
         this.setDocument(speciesDocument);
     }
 

@@ -1,4 +1,5 @@
 import { Client, MessageReaction, User, PartialUser, RateLimitData } from "discord.js";
+import { errorHandler } from "../structures/errorHandler";
 
 import InteractiveMessage from "./interactiveMessage";
 
@@ -70,7 +71,7 @@ export default class InteractiveMessageHandler {
             interactiveMessage.emojiPress(emojiString, user);
         }
         catch (error) {
-            console.error('Error activating an interactive message\'s button.', error);
+            errorHandler.handleError(error, 'Error activating an interactive message\'s button.');
         }
     }
 

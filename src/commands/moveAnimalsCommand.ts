@@ -5,6 +5,8 @@ import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/commandParser";
 import { getPlayerObject } from "../zoo/userManagement";
 import Command from "../structures/commandInterface";
+import { PlayerObject } from "../models/player";
+import { errorHandler } from "../structures/errorHandler";
 
 export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ['moveanimals', 'ma'];
@@ -29,8 +31,15 @@ export default class MoveAnimalsCommand implements Command {
             return;
         }
 
+        let playerObject: PlayerObject;
         // Get the player game object
-        const playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+        try {
+            playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error getting a player object in the move animals command.');
+            return;
+        }
 
         const positions: number[] = [];
         const errors: string[] = [];
@@ -79,20 +88,14 @@ export default class MoveAnimalsCommand implements Command {
         // Get the id of the animal that's acting as the anchor in the movement
         const baseAnimalId = playerObject.getAnimalIds()[sortPosition];
 
-        // What happens if the move fails
-        const onFail = () => {
-            betterSend(parsedUserCommand.channel, 'There was an error moving your animals. If there are animals missing from your inventory, please contact support. (Don\'t worry, they\'re not gone)');
-        }
-
         // Try to remove all animal ids at the given positions from the user's inventory
         let animalIds: Types.ObjectId[];
         try {
             animalIds = await playerObject.removeAnimalsPositional(positions);
         }
         catch (error) {
-            onFail();
-            console.error('There was an error trying to bulk remove animals from a player\'s inventory for movement.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to bulk remove animals from a player\'s inventory for movement.');
+            return;
         }
 
         // After the animals have been removed, get the new position of the base animal to sort under
@@ -103,11 +106,12 @@ export default class MoveAnimalsCommand implements Command {
             await playerObject.addAnimalsPositional(animalIds, basePosition + 1);
         }
         catch (error) {
-            onFail();
-            console.error('There was an error trying to add animals back to a player\'s inventory for movement.');
-            throw new Error(error);
+            errorHandler.handleError(error, 'There was an error trying to add animals back to a player\'s inventory for movement.');
+            return;
         }
 
-        parsedUserCommand.originalMessage.react('✅');
+        parsedUserCommand.originalMessage.react('✅').catch(error => {
+            errorHandler.handleError(error, 'There was an error reacting to a message in the move animals command.');
+        });
     }
 }

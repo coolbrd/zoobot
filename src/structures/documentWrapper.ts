@@ -79,7 +79,13 @@ export default class DocumentWrapper {
 
     // Deletes the wrapped document from the database
     public async delete(): Promise<void> {
-        await this.getDocument().deleteOne();
+        try {
+            await this.getDocument().deleteOne();
+        }
+        catch (error) {
+            throw new Error('There was an error deleting a document wrapper\'s document.');
+        }
+
         this.unload();
     }
 }
