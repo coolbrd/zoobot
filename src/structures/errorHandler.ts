@@ -1,6 +1,5 @@
 import { client } from "..";
 import { DEVELOPER_ID } from "../config/secrets";
-import { betterSend } from "../discordUtility/messageMan";
 
 class ErrorHandler {
     public handleError(error: Error, message?: string): void {
@@ -8,15 +7,13 @@ class ErrorHandler {
 
         const developer = client.users.resolve(DEVELOPER_ID);
 
+        console.log(developer)
+
         if (!developer) {
             throw new Error('Developer user could not be found for error handler.');
         }
 
-        if (!developer.dmChannel) {
-            throw new Error('Could not access DM channel with developer.');
-        }
-
-        betterSend(developer.dmChannel, error.message);
+        developer.send(error.message);
     }
 
     public isTrustedError(_error: Error) {
