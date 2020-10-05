@@ -4,7 +4,6 @@ import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { betterSend } from "../discordUtility/messageMan";
 import loopValue from "../utility/loopValue";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { PlayerObject } from "../models/player";
