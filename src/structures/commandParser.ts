@@ -28,8 +28,18 @@ export default class CommandParser {
         // Remove the message's prefix
         const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
 
-        // Get the full string that comes directly after the command name
-        this.fullArguments = messageWithoutPrefix.slice(messageWithoutPrefix.indexOf(' '), messageWithoutPrefix.length).trim();
+        // Get the position of the beginning of the message arguments
+        const startOfArgs = messageWithoutPrefix.indexOf(' ');
+        // If there are no spaces in the message, so no arguments provided
+        if (startOfArgs === -1) {
+            // Manually assign the full set of arguments as nothing
+            this.fullArguments = '';
+        }
+        // If there are arguments
+        else {
+            // Get the string of arguments that comes after the first space
+            this.fullArguments = messageWithoutPrefix.slice(startOfArgs).trim();
+        }
 
         // Split the message by spaces to get the indiviual command and arguments
         const splitMessage = messageWithoutPrefix.split(' ');
