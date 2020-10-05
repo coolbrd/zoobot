@@ -324,6 +324,13 @@ export default class InteractiveMessage extends EventEmitter {
         this.message && this.message.react(button.emoji);
     }
 
+    // Adds an array of buttons instead of multiple explicit addButton calls
+    protected addButtons(buttons: EmojiButton[]): void {
+        buttons.forEach(button => {
+            this.addButton(button);
+        });
+    }
+
     // Removes a button from this message's list of active buttons
     // Doesn't visually remove the button (sorry, I really can't do anything about this)
     protected removeButton(buttonName: string): void {
