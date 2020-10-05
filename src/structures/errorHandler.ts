@@ -7,8 +7,6 @@ class ErrorHandler {
 
         const developer = client.users.resolve(DEVELOPER_ID);
 
-        console.log(developer)
-
         if (!developer) {
             throw new Error('Developer user could not be found for error handler.');
         }
