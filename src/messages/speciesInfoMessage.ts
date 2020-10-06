@@ -1,7 +1,6 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import { client } from "..";
 import { SpeciesObject } from "../models/species";
 import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
@@ -10,6 +9,7 @@ import SmartEmbed from "../discordUtility/smartEmbed";
 import { errorHandler } from "../structures/errorHandler";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesImage from "../embedBuilders/buildSpeciesImage";
+import loopValue from "../utility/loopValue";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
@@ -32,7 +32,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             },
             {
                 name: 'info',
-                emoji: 'ℹ️',
+                emoji: '❔',
                 helpMessage: 'Info'
             }
         ]});
@@ -55,28 +55,26 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     }
 
     private buildEmbed(): MessageEmbed {
-        const newEmbed = new SmartEmbed();
+        const embed = new SmartEmbed();
 
         // Determine the image to display
         const image = this.species.getImages()[this.currentImage];
 
         // Set the embed's color
-        newEmbed.setColor(getGuildUserDisplayColor(client.user, this.channel));
+        embed.setColor(getGuildUserDisplayColor(client.user, this.channel));
 
         // When the info message is showing a large picture of the species (not details)
         if (this.pictureMode) {
-            buildSpeciesImage(newEmbed, this.species, image);
+            buildSpeciesImage(embed, this.species, image);
         }
         // When the info message is displaying the species' details
         else {
-            buildSpeciesInfo(newEmbed, this.species, image);
+            buildSpeciesInfo(embed, this.species, image);
         }
 
-        let footerText = `Card #${this.currentImage + 1}/${this.species.getImages().length}\n`;
-        footerText += this.getButtonHelpString();
-        newEmbed.setFooter(footerText);
+        embed.appendToFooter('\n' + this.getButtonHelpString());
 
-        return newEmbed;
+        return embed;
     }
 
     public buttonPress(buttonName: string, user: User): void {
@@ -84,11 +82,11 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         switch (buttonName) {
             case 'rightArrow': {
-                this.currentImage = this.currentImage + 1 >= this.species.getImages().length ? 0 : this.currentImage + 1;
+                this.currentImage = loopValue(this.currentImage + 1, 0, this.species.getImages().length);
                 break;
             }
             case 'leftArrow': {
-                this.currentImage = this.currentImage - 1 < 0 ? this.species.getImages().length - 1 : this.currentImage - 1;
+                this.currentImage = loopValue(this.currentImage - 1, 0, this.species.getImages().length);
                 break;
             }
             case 'info': {
