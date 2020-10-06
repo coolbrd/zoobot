@@ -4,15 +4,12 @@ import mongoose from 'mongoose';
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import config from './config/botConfig';
 import CommandHandler from './structures/commandHandler';
-import EncounterHandler from './zoo/encounterHandler';
 import { errorHandler } from './structures/errorHandler';
 import { interactiveMessageHandler } from './interactiveMessage/interactiveMessageHandler';
+import { encounterHandler } from './zoo/encounterHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
-
-// Create the handler object for all animal encounters
-export const encounterHandler = new EncounterHandler();
 
 // Create a new commandhandler instance to parse incoming commands
 export const commandHandler = new CommandHandler(config.prefix);
@@ -78,6 +75,8 @@ client.on('ready', () => {
 
         handlersInitialized = true;
         complete();
+    }).catch(error => {
+        throw new Error('There was an error intiailizing the error handler (uh oh!): ' + error);
     });
 });
 

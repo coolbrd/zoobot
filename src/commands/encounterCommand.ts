@@ -2,8 +2,8 @@ import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { DMChannel } from "discord.js";
-import { encounterHandler } from "..";
 import { errorHandler } from "../structures/errorHandler";
+import { encounterHandler } from "../zoo/encounterHandler";
 
 export default class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];

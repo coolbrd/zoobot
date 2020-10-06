@@ -7,7 +7,7 @@ import getWeightedRandom from "../utility/getWeightedRandom";
 import { errorHandler } from '../structures/errorHandler';
 
 // A handler class that deals with creating encounters with species from the total set
-export default class EncounterHandler {
+class EncounterHandler {
     // The map of ID and rarity pairs that will determine how common each species is
     private rarityMap: Map<Schema.Types.ObjectId, number> = new Map();
 
@@ -64,3 +64,4 @@ export default class EncounterHandler {
         }
     }
 }
+export const encounterHandler = new EncounterHandler();
