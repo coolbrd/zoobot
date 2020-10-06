@@ -8,6 +8,8 @@ import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageH
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/smartEmbed";
 import { errorHandler } from "../structures/errorHandler";
+import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
+import buildSpeciesImage from "../embedBuilders/buildSpeciesImage";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: SpeciesObject;
@@ -20,15 +22,18 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
-                emoji: '⬅️'
+                emoji: '⬅️',
+                helpMessage: 'Previous card'
             },
             {
                 name: 'rightArrow',
-                emoji: '➡️'
+                emoji: '➡️',
+                helpMessage: 'Next card'
             },
             {
                 name: 'info',
-                emoji: 'ℹ️'
+                emoji: 'ℹ️',
+                helpMessage: 'Info'
             }
         ]});
 
@@ -60,35 +65,16 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         // When the info message is showing a large picture of the species (not details)
         if (this.pictureMode) {
-            newEmbed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
-
-            newEmbed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
-
-            newEmbed.setImage(image.getUrl());
-            const breed = image.getBreed();
-            // Display a breed field if the current image is associated with one
-            if (breed) {
-                newEmbed.addField('Breed', capitalizeFirstLetter(breed), true);
-            }
+            buildSpeciesImage(newEmbed, this.species, image);
         }
         // When the info message is displaying the species' details
         else {
-            newEmbed.setTitle(capitalizeFirstLetter(this.species.getScientificName()));
-
-            newEmbed.setDescription(`Also known as: ${this.species.getCommonNames().join(', ')}`);
-
-            newEmbed.addField('Description', this.species.getDescription());
-
-            newEmbed.addField('Habitat', this.species.getNaturalHabitat());
-
-            newEmbed.addField('More info', this.species.getWikiPage());
-
-            // Use the currently selected image as a thumbnail instead
-            newEmbed.setThumbnail(image.getUrl());
+            buildSpeciesInfo(newEmbed, this.species, image);
         }
 
-        // Show the currently selected image's index
-        newEmbed.setFooter(`${this.currentImage + 1}/${this.species.getImages().length}`);
+        let footerText = `Card #${this.currentImage + 1}/${this.species.getImages().length}\n`;
+        footerText += this.getButtonHelpString();
+        newEmbed.setFooter(footerText);
 
         return newEmbed;
     }
