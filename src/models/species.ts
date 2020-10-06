@@ -206,6 +206,10 @@ export class SpeciesObject extends DocumentWrapper {
         return this.images;
     }
 
+    public getImageCount(): number {
+        return this.getImages().length;
+    }
+
     public imagesLoaded(): boolean {
         return Boolean(this.images);
     }
