@@ -19,6 +19,11 @@ export default class SpeciesInfoCommand implements Command {
 
         const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
+        if (!fullSearchTerm) {
+            betterSend(channel, this.help(parsedUserCommand.displayPrefix));
+            return;
+        }
+
         let speciesDocument: Document | null;
         // Find a species by either its common name, or its scientific name if no common name matches were made
         try {
