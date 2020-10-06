@@ -7,12 +7,11 @@ import InteractiveMessage from "./interactiveMessage";
 // I haven't found a reason to ever make more than one that's used throughout the entire bot... yet
 // I'm using this instead of repeated awaitReactions calls because it gives me control over when users un-react as well as react
 // I don't want users to have to press every button twice to get anything to happen
-export default class InteractiveMessageHandler {
+class InteractiveMessageHandler {
     // The map of all interactive messages that this handler is managing
     private readonly messages = new Map<string, InteractiveMessage>();
 
-    // Needs a Discord client instance so it can listen for events
-    constructor(client: Client) {
+    public init(client: Client): void {
         // When the client observes a user adding a reaction to a message
         client.on('messageReactionAdd', (messageReaction, user) => {
             // Handle the user's reaction
@@ -107,3 +106,4 @@ export default class InteractiveMessageHandler {
         this.messages.delete(interactiveMessage.getMessage().id);
     }
 }
+export const interactiveMessageHandler = new InteractiveMessageHandler();

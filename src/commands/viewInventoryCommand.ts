@@ -1,7 +1,6 @@
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import InventoryMessage from "../messages/inventoryMessage";
-import { interactiveMessageHandler } from "..";
 import { betterSend } from "../discordUtility/messageMan";
 import { errorHandler } from "../structures/errorHandler";
 
@@ -19,7 +18,7 @@ export default class ViewInventoryCommand implements Command {
             return;
         }
 
-        const inventoryMessage = new InventoryMessage(interactiveMessageHandler, parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
+        const inventoryMessage = new InventoryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
         try {
             await inventoryMessage.send();
         }

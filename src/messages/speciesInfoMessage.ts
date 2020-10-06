@@ -3,7 +3,6 @@ import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
 import { client } from "..";
 import { SpeciesObject } from "../models/species";
-import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/smartEmbed";
 import { errorHandler } from "../structures/errorHandler";
@@ -18,8 +17,8 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     // Whether the info message is displaying a large image, or the species' details
     private pictureMode = true;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, species: SpeciesObject) {
-        super(handler, channel, { buttons: [
+    constructor(channel: TextChannel | DMChannel, species: SpeciesObject) {
+        super(channel, { buttons: [
             {
                 name: 'leftArrow',
                 emoji: '⬅️',

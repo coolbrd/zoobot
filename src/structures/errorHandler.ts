@@ -4,8 +4,8 @@ import { DEVELOPER_ID } from "../config/secrets";
 class ErrorHandler {
     private developer: User | undefined;
 
-    public init(client: Client): void {
-        const developer = client.users.resolve(DEVELOPER_ID);
+    public async init(client: Client): Promise<void> {
+        const developer = await client.users.fetch(DEVELOPER_ID);
 
         if (!developer) {
             throw new Error('Developer user could not be found for error handler.');

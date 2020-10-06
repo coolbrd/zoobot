@@ -1,7 +1,6 @@
 import { DMChannel, TextChannel, User } from 'discord.js';
 import { client } from '..';
 
-import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { PendingSpeciesObject } from '../models/pendingSpecies';
 import { EDoc } from '../structures/eDoc';
 import { errorHandler } from '../structures/errorHandler';
@@ -10,7 +9,7 @@ import EDocMessage from './eDocMessage';
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpeciesObject;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpeciesObject) {
+    constructor(channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpeciesObject) {
         const eDoc = new EDoc({
             commonNames: {
                 type: [{
@@ -131,7 +130,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             docName += ` by ${authorUser.tag}`;
         }
 
-        super(handler, channel, eDoc, docName);
+        super(channel, eDoc, docName);
 
         this.pendingSpeciesObject = pendingSpeciesObject;
 

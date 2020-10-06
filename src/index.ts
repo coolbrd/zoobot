@@ -5,17 +5,11 @@ import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import config from './config/botConfig';
 import CommandHandler from './structures/commandHandler';
 import EncounterHandler from './zoo/encounterHandler';
-import InteractiveMessageHandler from './interactiveMessage/interactiveMessageHandler';
 import { errorHandler } from './structures/errorHandler';
+import { interactiveMessageHandler } from './interactiveMessage/interactiveMessageHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
-
-// Initialize the centralized error handler
-errorHandler.init(client);
-
-// Create the handler object for all interactive messages
-export const interactiveMessageHandler = new InteractiveMessageHandler(client);
 
 // Create the handler object for all animal encounters
 export const encounterHandler = new EncounterHandler();
@@ -28,12 +22,13 @@ let discordLoaded = false;
 let databaseLoaded = false;
 let rarityTableLoaded = false;
 let guildPrefixesLoaded = false;
+let handlersInitialized = false;
 let readyForInput = false;
 
 // Called whenever the bot completes a stage of initialization
 function complete() {
     // If all steps of initialization are complete
-    if (discordLoaded && databaseLoaded && rarityTableLoaded && guildPrefixesLoaded) {
+    if (discordLoaded && databaseLoaded && rarityTableLoaded && guildPrefixesLoaded && handlersInitialized) {
         // Allow the bot to receive input
         readyForInput = true;
         console.log('Ready for input');
@@ -74,6 +69,16 @@ client.on('ready', () => {
     // Indicate that the bot has logged into Discord
     discordLoaded = true;
     complete();
+
+    // Initialize all centralized handlers
+    errorHandler.init(client).then(() => {
+        interactiveMessageHandler.init(client);
+
+        console.log('Handlers initialized');
+
+        handlersInitialized = true;
+        complete();
+    });
 });
 
 // When the bot receives a message

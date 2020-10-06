@@ -1,9 +1,8 @@
-import { TextChannel, MessageEmbed, User, GuildMember } from "discord.js";
+import { TextChannel, MessageEmbed, User } from "discord.js";
 
 import { AnimalObject } from "../models/animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
-import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { PlayerObject } from "../models/player";
 import SmartEmbed from "../discordUtility/smartEmbed";
 import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
@@ -30,8 +29,8 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
 
     private playerObject: PlayerObject | undefined;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel, user: User) {
-        super(handler, channel);
+    constructor(channel: TextChannel, user: User) {
+        super(channel);
 
         this.addButtons([{
             name: 'upArrow',

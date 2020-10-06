@@ -6,7 +6,6 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from '..';
 import { SpeciesObject } from '../models/species';
-import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { createAnimal } from '../zoo/userManagement';
 import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
 import SmartEmbed from '../discordUtility/smartEmbed';
@@ -22,8 +21,8 @@ export default class EncounterMessage extends InteractiveMessage {
     // The image chosen to be displayed for this animal encounter
     private imageIndex: number | undefined;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel, species: SpeciesObject) {
-        super(handler, channel, { buttons: {
+    constructor(channel: TextChannel, species: SpeciesObject) {
+        super(channel, { buttons: {
                 name: 'capture',
                 emoji: '🔘',
                 helpMessage: 'Capture'

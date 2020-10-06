@@ -1,4 +1,3 @@
-import { interactiveMessageHandler } from "..";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/animalInfoMessage";
 import { AnimalObject } from "../models/animal";
@@ -49,7 +48,7 @@ export default class AnimalInfoCommand implements Command {
         }
 
         // Create and send an info message with the found animal object
-        const infoMessage = new AnimalInfoMessage(interactiveMessageHandler, parsedUserCommand.channel, animalObject);
+        const infoMessage = new AnimalInfoMessage(parsedUserCommand.channel, animalObject);
         infoMessage.send();
     }
 }

@@ -5,10 +5,10 @@ import CommandParser from '../structures/commandParser';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import { betterSend } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
-import { client, interactiveMessageHandler } from '..';
 import EmbedBookMessage from '../messages/embedBookMessage';
 import { Document } from 'mongoose';
 import { errorHandler } from '../structures/errorHandler';
+import { client } from '..';
 
 export default class SendPendingSubmissionsCommand implements Command {
     public readonly commandNames = ['pending', 'submissions'];
@@ -75,7 +75,7 @@ export default class SendPendingSubmissionsCommand implements Command {
         }
 
         // Send the embed book
-        const embedBookMessage = new EmbedBookMessage(interactiveMessageHandler, channel, embedBook);
+        const embedBookMessage = new EmbedBookMessage(channel, embedBook);
         try {
             await embedBookMessage.send();
         }

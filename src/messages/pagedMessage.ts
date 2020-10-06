@@ -1,6 +1,5 @@
 import { DMChannel, TextChannel } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import PointedArray from "../structures/pointedArray";
 import loopValue from "../utility/loopValue";
 
@@ -14,8 +13,8 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
     // The number of elements displayed on one page
     private elementsPerPage = 10;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, elementsPerPage?: number) {
-        super(handler, channel, { buttons: [
+    constructor(channel: TextChannel | DMChannel, elementsPerPage?: number) {
+        super(channel, { buttons: [
             {
                 name: 'leftArrow',
                 emoji: '⬅️',

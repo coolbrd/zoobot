@@ -2,7 +2,6 @@ import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend } from "../discordUtility/messageMan";
 import { CommonNameTemplate, ImageTemplate, Species, SpeciesObject } from '../models/species';
-import { interactiveMessageHandler } from '..';
 import SpeciesEditMessage from '../messages/speciesEditMessage';
 import { SimpleEDoc } from '../structures/eDoc';
 import { Document } from 'mongoose';
@@ -55,7 +54,7 @@ export default class EditSpeciesCommand implements Command {
         }
 
         // Create a new species edit message from the species object and send it
-        const editMessage = new SpeciesEditMessage(interactiveMessageHandler, channel, speciesObject);
+        const editMessage = new SpeciesEditMessage(channel, speciesObject);
         try {
             await editMessage.send();
         }

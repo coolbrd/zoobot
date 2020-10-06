@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
 
 import { betterSend } from "../discordUtility/messageMan";
-import InteractiveMessageHandler from './interactiveMessageHandler';
+import { interactiveMessageHandler } from './interactiveMessageHandler';
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance
 interface EmojiButton {
@@ -15,9 +15,6 @@ interface EmojiButton {
 
 // A message with pressable reaction buttons
 export default class InteractiveMessage extends EventEmitter {
-    // This message's handler class, responsible for sending the message button press actions
-    private readonly handler: InteractiveMessageHandler;
-
     // The text channel that the message will be sent in
     // No news channels allowed, I hardly understand how those work
     protected readonly channel: TextChannel | DMChannel;
@@ -55,7 +52,6 @@ export default class InteractiveMessage extends EventEmitter {
     protected deactivationText = '(message deactivated)';
 
     constructor(
-        handler: InteractiveMessageHandler,
         channel: TextChannel | DMChannel,
         options?: {
             content?: APIMessage,
@@ -68,8 +64,6 @@ export default class InteractiveMessage extends EventEmitter {
         // Do EventEmitter stuff
         super();
 
-        // Assign this message's handler
-        this.handler = handler;
         // Assign channel
         this.channel = channel;
 
@@ -197,7 +191,7 @@ export default class InteractiveMessage extends EventEmitter {
         this.sent = true;
 
         // Add this message to the map of other interactive messages
-        this.handler.addMessage(this);
+        interactiveMessageHandler.addMessage(this);
 
         // Iterate over every button's emoji
         for (const button of this.buttons.values()) {
@@ -435,7 +429,7 @@ export default class InteractiveMessage extends EventEmitter {
         this.timer && clearTimeout(this.timer);
 
         // Remove the message from the handler's list
-        this.handler.removeMessage(this);
+        interactiveMessageHandler.removeMessage(this);
 
         // Remove all listeners from this message
         this.removeAllListeners();

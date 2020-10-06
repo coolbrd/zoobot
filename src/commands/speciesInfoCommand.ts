@@ -3,7 +3,6 @@ import CommandParser from "../structures/commandParser";
 import { Species, SpeciesObject } from "../models/species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/speciesInfoMessage";
-import { interactiveMessageHandler } from "..";
 import { errorHandler } from "../structures/errorHandler";
 import { Document } from "mongoose";
 
@@ -41,7 +40,7 @@ export default class SpeciesInfoCommand implements Command {
         }
 
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(interactiveMessageHandler, channel, new SpeciesObject({document: speciesDocument}));
+        const infoMessage = new SpeciesInfoMessage(channel, new SpeciesObject({document: speciesDocument}));
         try {
             await infoMessage.send();
         }

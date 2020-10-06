@@ -5,7 +5,6 @@ import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/smartEmbed";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/eDoc";
 import { EDocFieldInfo } from "../structures/eDocSkeleton";
 import PointedArray from "../structures/pointedArray";
@@ -16,8 +15,8 @@ export default class EDocMessage extends InteractiveMessage {
     // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
-        super(handler, channel, { lifetime: 300000, buttons: [
+    constructor(channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
+        super(channel, { lifetime: 300000, buttons: [
             {
                 name: 'pointerUp',
                 emoji: '⬆️',

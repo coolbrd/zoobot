@@ -6,7 +6,6 @@ import { PendingSpecies, PendingSpeciesObject } from '../models/pendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
 import { commonNamesToLower, CommonNameTemplate, Species } from '../models/species';
 import SpeciesApprovalMessage from '../messages/speciesApprovalMessage';
-import { interactiveMessageHandler } from '..';
 import { SimpleEDoc } from '../structures/eDoc';
 import { errorHandler } from '../structures/errorHandler';
 
@@ -51,7 +50,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         const pendingSpeciesObject = new PendingSpeciesObject({ document: pendingSpeciesDocument });
 
         // Create a new approval message from the object and send it
-        const approvalMessage = new SpeciesApprovalMessage(interactiveMessageHandler, channel, pendingSpeciesObject);
+        const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpeciesObject);
 
         try {
             await approvalMessage.send();

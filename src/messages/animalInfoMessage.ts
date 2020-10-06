@@ -4,7 +4,6 @@ import SmartEmbed from "../discordUtility/smartEmbed";
 import buildAnimalImage from "../embedBuilders/buildAnimalImage";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import InteractiveMessage from "../interactiveMessage/interactiveMessage";
-import InteractiveMessageHandler from "../interactiveMessage/interactiveMessageHandler";
 import { AnimalObject } from "../models/animal";
 import { errorHandler } from "../structures/errorHandler";
 
@@ -18,8 +17,8 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     // Whether or not this message is showing the animal's image
     private imageMode = false;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel, animalObject: AnimalObject) {
-        super(handler, channel, { buttons: [
+    constructor(channel: TextChannel, animalObject: AnimalObject) {
+        super(channel, { buttons: [
             {
                 name: 'mode',
                 emoji: '🖼️',

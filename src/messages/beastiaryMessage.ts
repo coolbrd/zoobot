@@ -2,7 +2,6 @@ import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
 import { Document } from 'mongoose';
 
 import SmartEmbed from '../discordUtility/smartEmbed';
-import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import { Species, SpeciesObject } from '../models/species';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import PagedMessage from './pagedMessage';
@@ -10,8 +9,8 @@ import PagedMessage from './pagedMessage';
 export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
     private readonly user: User;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, user: User) {
-        super(handler, channel, 10);
+    constructor(channel: TextChannel | DMChannel, user: User) {
+        super(channel, 10);
 
         this.user = user;
     }

@@ -3,7 +3,6 @@ import { Document, Schema } from 'mongoose';
 
 import { Species, SpeciesObject } from '../models/species';
 import EncounterMessage from '../messages/encountermessage';
-import { interactiveMessageHandler } from '..';
 import getWeightedRandom from "../utility/getWeightedRandom";
 import { errorHandler } from '../structures/errorHandler';
 
@@ -54,7 +53,7 @@ export default class EncounterHandler {
             throw new Error('No species was found by a given ID from the encounter rarity table.');
         }
 
-        const encounterMessage = new EncounterMessage(interactiveMessageHandler, channel, new SpeciesObject({document: speciesDocument}));
+        const encounterMessage = new EncounterMessage(channel, new SpeciesObject({document: speciesDocument}));
         // Send an encounter message to the channel
         try {
             await encounterMessage.send();

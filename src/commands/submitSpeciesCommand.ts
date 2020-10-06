@@ -5,7 +5,6 @@ import Command from '../structures/commandInterface';
 import CommandParser from '../structures/commandParser';
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { PendingSpecies } from '../models/pendingSpecies';
-import { interactiveMessageHandler } from '..';
 import reactionInput from '../discordUtility/reactionInput';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
 import { EDoc, SimpleEDoc } from '../structures/eDoc';
@@ -126,7 +125,7 @@ export default class SubmitSpeciesCommand implements Command {
         });
 
         // Create and send the submission message
-        const submissionMessage = new EDocMessage(interactiveMessageHandler, channel, submissionDocument, 'new submission');
+        const submissionMessage = new EDocMessage(channel, submissionDocument, 'new submission');
         try {
             await submissionMessage.send();
         }

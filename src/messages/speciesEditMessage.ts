@@ -1,13 +1,12 @@
 import { DMChannel, TextChannel } from 'discord.js';
 
 import { SpeciesObject } from '../models/species';
-import InteractiveMessageHandler from '../interactiveMessage/interactiveMessageHandler';
 import EDocMessage from './eDocMessage';
 import { EDoc, } from '../structures/eDoc';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 
 export default class SpeciesEditMessage extends EDocMessage {
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, speciesObject: SpeciesObject) {
+    constructor(channel: TextChannel | DMChannel, speciesObject: SpeciesObject) {
         // The eDoc that will represent the edited state of the species object
         const eDoc = new EDoc({
             commonNames: {
@@ -135,6 +134,6 @@ export default class SpeciesEditMessage extends EDocMessage {
         eDoc.setField('wikiPage', speciesObject.getWikiPage());
         eDoc.setField('rarity', speciesObject.getRarity());
 
-        super(handler, channel, eDoc, capitalizeFirstLetter(speciesObject.getCommonNames()[0]));
+        super(channel, eDoc, capitalizeFirstLetter(speciesObject.getCommonNames()[0]));
     }
 }
