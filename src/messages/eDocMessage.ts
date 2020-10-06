@@ -126,7 +126,8 @@ export default class EDocMessage extends InteractiveMessage {
         if (selectedFieldValue instanceof EDoc) {
             // Hide array buttons
             this.disableButton('new');
-            this.disableButton('delete');
+
+            this.setButtonHelpMessage('delete', 'Clear field');
 
             // Iterate over every field in the eDoc
             for (const [fieldName, field] of selectedFieldValue.getFields()) {
@@ -160,7 +161,8 @@ export default class EDocMessage extends InteractiveMessage {
         else {
             // Show array buttons
             this.enableButton('new');
-            this.enableButton('delete');
+
+            this.setButtonHelpMessage('delete', 'Delete entry');
 
             const arrayString = selectedField.toString({ arrayPointer: '✏️' });
 
