@@ -17,7 +17,7 @@ export default class EDocMessage extends InteractiveMessage {
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
-        super(handler, channel, { buttons: [
+        super(handler, channel, { lifetime: 300000, buttons: [
             {
                 name: 'pointerUp',
                 emoji: '⬆️',
