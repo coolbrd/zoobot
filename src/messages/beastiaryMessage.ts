@@ -7,15 +7,7 @@ import { Species, SpeciesObject } from '../models/species';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import PagedMessage from './pagedMessage';
 
-enum BeastiaryViewMode {
-    paged,
-    info,
-    image
-}
-
 export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
-    private state = BeastiaryViewMode.paged;
-
     private readonly user: User;
 
     constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, user: User) {
@@ -65,18 +57,13 @@ export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
     public buttonPress(buttonName: string, user: User): void {
         super.buttonPress(buttonName, user);
 
-        switch (this.state) {
-            case BeastiaryViewMode.paged: {
-                switch (buttonName) {
-                    case 'leftArrow': {
-                        this.movePages(-1);
-                        break;
-                    }
-                    case 'rightArrow': {
-                        this.movePages(1);
-                        break;
-                    }
-                }
+        switch (buttonName) {
+            case 'leftArrow': {
+                this.movePages(-1);
+                break;
+            }
+            case 'rightArrow': {
+                this.movePages(1);
                 break;
             }
         }
