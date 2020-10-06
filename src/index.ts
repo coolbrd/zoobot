@@ -11,17 +11,19 @@ import { commandHandler } from './structures/commandHandler';
 export const client = new Discord.Client();
 
 // Flags for the bot's current initialization state
-let discordLoaded = false;
-let databaseLoaded = false;
-let rarityTableLoaded = false;
-let guildPrefixesLoaded = false;
-let handlersInitialized = false;
+const preLoad = {
+    discordLoaded: false,
+    databaseLoaded: false,
+    rarityTableLoaded: false,
+    guildPrefixesLoaded: false,
+    handlersInitialized: false
+}
 let readyForInput = false;
 
 // Called whenever the bot completes a stage of initialization
 function complete() {
     // If all steps of initialization are complete
-    if (discordLoaded && databaseLoaded && rarityTableLoaded && guildPrefixesLoaded && handlersInitialized) {
+    if (Object.values(preLoad).every(requirement => requirement)) {
         // Allow the bot to receive input
         readyForInput = true;
         console.log('Ready for input');
@@ -32,14 +34,14 @@ function complete() {
 mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log('MongoDB connected');
     // Indicate that the bot has logged into the database
-    databaseLoaded = true;
+    preLoad.databaseLoaded = true;
     complete();
 
     // Load all custom guild prefixes
     commandHandler.loadGuildPrefixes().then(() => {
         console.log('Guild prefixes loaded');
 
-        guildPrefixesLoaded = true;
+        preLoad.guildPrefixesLoaded = true;
         complete();
     });
 
@@ -47,7 +49,7 @@ mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUni
     encounterHandler.loadRarityTable().then(() => {
         console.log('Rarity table loaded');
     
-        rarityTableLoaded = true;
+        preLoad.rarityTableLoaded = true;
         complete();
     })
 }).catch(error => {
@@ -60,7 +62,7 @@ client.on('ready', () => {
     console.log('Logged into Discord');
 
     // Indicate that the bot has logged into Discord
-    discordLoaded = true;
+    preLoad.discordLoaded = true;
     complete();
 
     // Initialize all centralized handlers
@@ -69,7 +71,7 @@ client.on('ready', () => {
 
         console.log('Handlers initialized');
 
-        handlersInitialized = true;
+        preLoad.handlersInitialized = true;
         complete();
     }).catch(error => {
         throw new Error('There was an error intiailizing the error handler (uh oh!): ' + error);
