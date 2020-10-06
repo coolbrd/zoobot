@@ -51,7 +51,7 @@ mongoose.connect(MONGODB_PATH, { dbName: 'zoobot', useNewUrlParser: true, useUni
     
         preLoad.rarityTableLoaded = true;
         complete();
-    })
+    });
 }).catch(error => {
     // If there was an error connecting
     console.error('MongoDB connection error: ', error)
