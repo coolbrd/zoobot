@@ -13,4 +13,6 @@ export default function buildSpeciesImage(embed: MessageEmbed, species: SpeciesO
     if (breed) {
         embed.addField('Breed', capitalizeFirstLetter(breed), true);
     }
+
+    embed.setFooter(`Card #${image.getIndex() + 1} of ${species.getImageCount()}`);
 }
