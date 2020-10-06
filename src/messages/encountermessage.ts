@@ -79,7 +79,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const commonName = this.species.getCommonNameObjects()[0];
 
         // Indicate that the user has caught the animal
-        betterSend(this.getMessage().channel as TextChannel, `${user}, You caught ${commonName.article} ${commonName.name}!`);
+        betterSend(this.getMessage().channel as TextChannel, `${user}, you caught ${commonName.article} ${commonName.name}!`);
         this.setDeactivationText('(caught)');
 
         // Create the new animal
