@@ -43,4 +43,10 @@ export default class SmartEmbed extends MessageEmbed {
 
         return this;
     }
+
+    public appendToFooter(value: string): this {
+        const footerText = this.footer && this.footer.text || '';
+        this.setFooter(footerText + value)
+        return this;
+    }
 }
