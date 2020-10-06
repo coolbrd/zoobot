@@ -12,7 +12,7 @@ export default class BeastiaryCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const beastiaryMessage = new BeastiaryMessage(interactiveMessageHandler, parsedUserCommand.channel);
+        const beastiaryMessage = new BeastiaryMessage(interactiveMessageHandler, parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
         try {
             await beastiaryMessage.send();
         }

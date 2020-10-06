@@ -16,25 +16,12 @@ enum BeastiaryViewMode {
 export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
     private state = BeastiaryViewMode.paged;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel) {
-        super(handler, channel, 15);
+    private readonly user: User;
 
-        this.addButtons([
-            {
-                name: 'upArrow',
-                emoji: '⬆️',
-                helpMessage: 'Pointer up'
-            },
-            {
-                name: 'downArrow',
-                emoji: '⬇️',
-                helpMessage: 'Pointer down'
-            },
-            {
-                name: 'mode',
-                emoji: 'Ⓜ️',
-                helpMessage: 'View mode'
-        }]);
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, user: User) {
+        super(handler, channel, 10);
+
+        this.user = user;
     }
 
     public async build(): Promise<void> {
@@ -48,7 +35,6 @@ export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
 
         speciesDocuments.forEach(speciesDocument => {
             const currentSpecies = new SpeciesObject({ document: speciesDocument });
-            currentSpecies.loadImages();
             this.getElements().push(currentSpecies);
         });
 
@@ -62,31 +48,16 @@ export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
     private buildEmbed(): MessageEmbed {
         const embed = new SmartEmbed();
 
-        embed.setTitle('Beastiary');
+        embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
+
+        let pageString = '';
+        this.getVisibleElements().forEach(speciesObject => {
+            pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]) + '\n';
+        });
+
+        embed.setDescription(pageString);
 
         embed.setFooter(this.getButtonHelpString());
-
-        const selectedSpecies = this.getElements().selection();
-
-        switch (this.state) {
-            case BeastiaryViewMode.paged: {
-                const images = selectedSpecies.getImages();
-
-                embed.setThumbnail(images[Math.floor(Math.random() * images.length)].getUrl());
-
-                let pageString = '';
-                this.getVisibleElements().forEach(speciesObject => {
-                    pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]);
-                    if (this.getElements().selection() === speciesObject) {
-                        pageString += ' 🔹'
-                    }
-                    pageString += '\n'
-                });
-
-                embed.setDescription(pageString);
-                break;
-            }
-        }
 
         return embed;
     }
@@ -97,12 +68,12 @@ export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
         switch (this.state) {
             case BeastiaryViewMode.paged: {
                 switch (buttonName) {
-                    case 'upArrow': {
-                        this.movePointer(-1);
+                    case 'leftArrow': {
+                        this.movePages(-1);
                         break;
                     }
-                    case 'downArrow': {
-                        this.movePointer(1);
+                    case 'rightArrow': {
+                        this.movePages(1);
                         break;
                     }
                 }
