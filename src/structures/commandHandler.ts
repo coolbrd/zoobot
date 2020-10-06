@@ -20,6 +20,7 @@ import ChangeAnimalNicknameCommand from '../commands/changeAnimalNicknameCommand
 import AnimalInfoCommand from '../commands/animalInfoCommand';
 import EditSpeciesCommand from '../commands/editSpeciesCommand';
 import { errorHandler } from './errorHandler';
+import BeastiaryCommand from '../commands/beastiaryCommand';
 
 // The class responsible for executing commands
 export default class CommandHandler {
@@ -40,6 +41,7 @@ export default class CommandHandler {
         const commandClasses = [
             AnimalInfoCommand,
             ApprovePendingSpeciesCommand,
+            BeastiaryCommand,
             ChangeAnimalNicknameCommand,
             ChangeGuildPrefixCommand,
             EditSpeciesCommand,
