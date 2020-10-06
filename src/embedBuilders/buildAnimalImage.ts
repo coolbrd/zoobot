@@ -11,5 +11,5 @@ export default function buildAnimalImage(embed: MessageEmbed, animalObject: Anim
 
     embed.setImage(image.getUrl());
     embed.setTitle(animalDisplayName);
-    embed.setDescription(`Card #${image.getIndex() + 1} of ${species.getImages().length}`);
+    embed.setDescription(`Card #${image.getIndex() + 1} of ${species.getImageCount()}`);
 }
