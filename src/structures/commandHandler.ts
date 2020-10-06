@@ -21,9 +21,10 @@ import AnimalInfoCommand from '../commands/animalInfoCommand';
 import EditSpeciesCommand from '../commands/editSpeciesCommand';
 import { errorHandler } from './errorHandler';
 import BeastiaryCommand from '../commands/beastiaryCommand';
+import config from '../config/botConfig';
 
 // The class responsible for executing commands
-export default class CommandHandler {
+class CommandHandler {
     // The bot's prefix that it will respond to
     private readonly prefix: string;
 
@@ -33,10 +34,7 @@ export default class CommandHandler {
     // The map of guilds and their custom prefixes
     private readonly guildPrefixes: Map<string, string> = new Map();
 
-    constructor(prefix: string) {
-        // The prefix that the bot will respond to
-        this.prefix = prefix;
-
+    constructor() {
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
             AnimalInfoCommand,
@@ -56,6 +54,8 @@ export default class CommandHandler {
 
         // Assign the array of commands to a new instance of each command class
         this.commands = commandClasses.map(commandClass => new commandClass());
+
+        this.prefix = config.prefix;
     }
 
     // Gets a command by one of its names
@@ -179,3 +179,4 @@ export default class CommandHandler {
         this.guildPrefixes.set(guildId, newPrefix);
     }
 }
+export const commandHandler = new CommandHandler();

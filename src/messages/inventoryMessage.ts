@@ -6,11 +6,11 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { PlayerObject } from "../models/player";
 import SmartEmbed from "../discordUtility/smartEmbed";
 import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
-import { commandHandler } from "..";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalImage from "../embedBuilders/buildAnimalImage";
 import { errorHandler } from "../structures/errorHandler";
 import PagedMessage from "./pagedMessage";
+import { commandHandler } from "../structures/commandHandler";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {

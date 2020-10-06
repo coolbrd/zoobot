@@ -2,9 +2,9 @@ import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/commandInterface";
 import { getGuildObject } from "../zoo/userManagement";
-import { commandHandler } from '..';
 import { GuildObject } from "../models/guild";
 import { errorHandler } from "../structures/errorHandler";
+import { commandHandler } from "../structures/commandHandler";
 
 // Changes the command prefix for a given guild
 export default class ChangeGuildPrefixCommand implements Command {

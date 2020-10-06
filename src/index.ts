@@ -2,17 +2,13 @@ import Discord, { Message } from 'discord.js';
 import mongoose from 'mongoose';
 
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
-import config from './config/botConfig';
-import CommandHandler from './structures/commandHandler';
 import { errorHandler } from './structures/errorHandler';
 import { interactiveMessageHandler } from './interactiveMessage/interactiveMessageHandler';
 import { encounterHandler } from './zoo/encounterHandler';
+import { commandHandler } from './structures/commandHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
-
-// Create a new commandhandler instance to parse incoming commands
-export const commandHandler = new CommandHandler(config.prefix);
 
 // Flags for the bot's current initialization state
 let discordLoaded = false;
