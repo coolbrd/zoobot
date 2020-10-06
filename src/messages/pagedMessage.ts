@@ -14,7 +14,7 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
     // The number of elements displayed on one page
     private elementsPerPage = 10;
 
-    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel) {
+    constructor(handler: InteractiveMessageHandler, channel: TextChannel | DMChannel, elementsPerPage?: number) {
         super(handler, channel, { buttons: [
             {
                 name: 'leftArrow',
@@ -27,6 +27,10 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
                 helpMessage: 'Page right'
             }
         ]});
+
+        if (elementsPerPage) {
+            this.elementsPerPage = elementsPerPage;
+        }
     }
 
     protected getElements(): PointedArray<ElementType> {
