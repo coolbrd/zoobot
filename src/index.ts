@@ -6,9 +6,13 @@ import config from './config/botConfig';
 import CommandHandler from './structures/commandHandler';
 import EncounterHandler from './zoo/encounterHandler';
 import InteractiveMessageHandler from './interactiveMessage/interactiveMessageHandler';
+import { errorHandler } from './structures/errorHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
+
+// Initialize the centralized error handler
+errorHandler.init(client);
 
 // Create the handler object for all interactive messages
 export const interactiveMessageHandler = new InteractiveMessageHandler(client);
