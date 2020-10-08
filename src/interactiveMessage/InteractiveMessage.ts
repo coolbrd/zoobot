@@ -200,7 +200,7 @@ export default class InteractiveMessage extends EventEmitter {
                 await this.message.react(button.emoji);
             }
             catch (error) {
-                throw new Error('Error trying to add reactions to an interactive message.');
+                throw new Error(`Error trying to add reactions to an interactive message: ${error}`);
             }
         }
 
