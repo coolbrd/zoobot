@@ -6,7 +6,6 @@ import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
-import { getAnimalByInventoryPosition } from "../beastiary/userManagement";
 
 // Changes a user's animal's nickname
 export default class ChangeAnimalNicknameCommand implements Command {
@@ -50,15 +49,8 @@ export default class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
-        let animalObject: AnimalObject | undefined;
         // Get the animal at the player's given inventory position
-        try {
-            animalObject = await getAnimalByInventoryPosition(playerObject, animalNumber - 1);
-        }
-        catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to get an animal object by a player\'s inventory position.');
-            return;
-        }
+        const animalObject = playerObject.getAnimalPositional(animalNumber - 1);
 
         if (!animalObject) {
             betterSend(parsedUserCommand.channel, 'No animal in your inventory with that number exists.');

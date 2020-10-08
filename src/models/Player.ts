@@ -45,6 +45,16 @@ export class PlayerObject extends DocumentWrapper {
         return this.animals;
     }
 
+    public getAnimalPositional(position: number): AnimalObject | undefined {
+        const animals = this.getAnimals();
+
+        if (position < 0 || position >= animals.length) {
+            return undefined;
+        }
+
+        return animals[position];
+    }
+
     // Adds an animal id to the user's inventory
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
         try {
