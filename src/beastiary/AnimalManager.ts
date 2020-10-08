@@ -64,6 +64,68 @@ export default class AnimalManager {
         return animal;
     }
 
+    // Fetch an animal object by its nickname and guild
+    public async fetchByNickName(nickname: string, guildId?: string): Promise<AnimalObject | undefined> {
+        // First search the cache for the appropriate animal
+        for (const cachedAnimal of this.cache.values()) {
+            if (cachedAnimal.value.getNickname() === nickname) {
+                if (guildId && cachedAnimal.value.getGuildId() !== guildId) {
+                    continue;
+                }
+
+                await cachedAnimal.value.refresh();
+
+                cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
+
+                return cachedAnimal.value;
+            }
+        }
+        // If the animal wasn't found in the cache
+
+        // The base search query to add options to as needed
+        const searchQuery = {
+            $text: {
+                $search: nickname
+            }
+        };
+
+        // If a guild id was provided to narrow down the search
+        if (guildId) {
+            // Add the appropriate property to the search query options
+            Object.defineProperty(searchQuery, 'guildId', {
+                value: guildId,
+                writable: false,
+                enumerable: true
+            });
+        }
+
+        let animalDocument: Document | null;
+        // Attempt to find the animal by the given search options
+        try {
+            animalDocument = await Animal.findOne(searchQuery);
+        }
+        catch (error) {
+            throw new Error('There was an error finding an animal by its nickname.');
+        }
+
+        // If no animal was found by the given information, don't return anything
+        if (!animalDocument) {
+            return undefined;
+        }
+
+        // If an animal was found, convert it into an object
+        const animal = new AnimalObject({ document: animalDocument });
+
+        // Load the animal
+        await animal.load();
+
+        // Add the animal to the cache
+        this.cache.set(animal.getId(), new CachedValue(animal, this.createNewTimer(animal)));
+
+        // Return the animal
+        return animal;
+    }
+
     public async createAnimal(owner: GuildMember, species: SpeciesObject, imageIndex: number): Promise<void> {
         // Get the player object of the guild member
         let ownerObject: PlayerObject;

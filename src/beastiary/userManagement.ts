@@ -41,41 +41,6 @@ export async function getGuildObject(guild: Guild): Promise<GuildObject> {
     return new GuildObject({document: guildDocument});
 }
 
-export async function getAnimalByNickname(nickname: string, guildId?: string): Promise<AnimalObject | undefined> {
-    // The base search query to add options to as needed
-    const searchQuery = {
-        $text: {
-            $search: nickname
-        }
-    };
-
-    // If a guild id was provided to narrow down the search
-    if (guildId) {
-        // Add the appropriate property to the search query options
-        Object.defineProperty(searchQuery, 'guildId', {
-            value: guildId,
-            writable: false,
-            enumerable: true
-        });
-    }
-
-    let animalDocument: Document | null;
-    // Attempt to find the animal by the given search options
-    try {
-        animalDocument = await Animal.findOne(searchQuery);
-    }
-    catch (error) {
-        throw new Error('There was an error finding an animal by its nickname.');
-    }
-
-    // Return the document as an object if one was found
-    if (!animalDocument) {
-        return undefined;
-    }
-
-    return new AnimalObject({ document: animalDocument });
-}
-
 // Searches for an animal in
 export async function searchAnimal(
     searchTerm: string,
@@ -94,7 +59,7 @@ export async function searchAnimal(
     // If the search is only to be done by nickname
     if (!searchByPosition) {
         try {
-            return await getAnimalByNickname(searchTerm, guildId);
+            return await beastiary.animals.fetchByNickName(searchTerm, guildId);
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding an animal by a given nickname.');
@@ -111,7 +76,7 @@ export async function searchAnimal(
         let animalObject: AnimalObject | undefined;
         // Attempt to get an animal by the nickname provided
         try {
-            animalObject = await getAnimalByNickname(searchTerm, guildId);
+            animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
@@ -153,7 +118,7 @@ export async function searchAnimal(
     if (!isNaN(searchNumber)) {
         // Search the number as a nickname (last resort)
         try {
-            return await getAnimalByNickname(searchTerm, guildId);
+            return await beastiary.animals.fetchByNickName(searchTerm, guildId);
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
