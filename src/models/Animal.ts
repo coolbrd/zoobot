@@ -240,15 +240,4 @@ export class AnimalObject extends DocumentWrapper {
         this.species = undefined;
         this.image = undefined;
     }
-
-    // Delete's the animal's document from the database (only to be called by the animal manager object)
-    public async delete(): Promise<void> {
-        try {
-            await this.getDocument().deleteOne();
-        }
-        catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to delete an animal object.');
-            return;
-        }
-    }
 }
