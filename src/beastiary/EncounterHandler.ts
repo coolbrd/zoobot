@@ -1,5 +1,5 @@
 import { TextChannel } from 'discord.js';
-import { Document, Schema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 import { Species, SpeciesObject } from '../models/Species';
 import EncounterMessage from '../messages/Encountermessage';
@@ -9,7 +9,7 @@ import { errorHandler } from '../structures/ErrorHandler';
 // A handler class that deals with creating encounters with species from the total set
 class EncounterHandler {
     // The map of ID and rarity pairs that will determine how common each species is
-    private rarityMap: Map<Schema.Types.ObjectId, number> = new Map();
+    private rarityMap: Map<Types.ObjectId, number> = new Map();
 
     // Loads/reloads the rarity table from the database
     public async loadRarityTable(): Promise<void> {
