@@ -5,7 +5,8 @@ import { PlayerObject } from "../models/player";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { errorHandler } from "../structures/errorHandler";
-import { getAnimalByInventoryPosition, getPlayerObject } from "../zoo/userManagement";
+import { beastiary } from "../beastiary/beastiary";
+import { getAnimalByInventoryPosition } from "../beastiary/userManagement";
 
 // Changes a user's animal's nickname
 export default class ChangeAnimalNicknameCommand implements Command {
@@ -42,7 +43,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
         let playerObject: PlayerObject;
         // Get the player object that represents the player changing the nickname
         try {
-            playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error attempting to get a player object representation of a user in the animal nickname command.');

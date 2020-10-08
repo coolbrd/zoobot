@@ -5,12 +5,13 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { PlayerObject } from "../models/player";
 import SmartEmbed from "../discordUtility/smartEmbed";
-import { deleteAnimal, getPlayerObject } from "../zoo/userManagement";
+import { deleteAnimal } from "../beastiary/userManagement";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalImage from "../embedBuilders/buildAnimalImage";
 import { errorHandler } from "../structures/errorHandler";
 import PagedMessage from "./pagedMessage";
 import { commandHandler } from "../structures/commandHandler";
+import { beastiary } from "../beastiary/beastiary";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -67,7 +68,7 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
         // Attempt to get the user's player object
         let playerObject: PlayerObject;
         try {
-            playerObject = await getPlayerObject(getGuildMember(this.user, this.channel.guild));
+            playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
             await playerObject.load();
         }
         catch (error) {

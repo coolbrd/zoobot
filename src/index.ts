@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
 import { errorHandler } from './structures/errorHandler';
 import { interactiveMessageHandler } from './interactiveMessage/interactiveMessageHandler';
-import { encounterHandler } from './zoo/encounterHandler';
+import { encounterHandler } from './beastiary/encounterHandler';
 import { commandHandler } from './structures/commandHandler';
 
 // Create a new client for the bot to use

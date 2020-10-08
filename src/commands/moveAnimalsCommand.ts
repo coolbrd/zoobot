@@ -3,10 +3,10 @@ import { Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/commandParser";
-import { getPlayerObject } from "../zoo/userManagement";
 import Command from "../structures/commandInterface";
 import { PlayerObject } from "../models/player";
 import { errorHandler } from "../structures/errorHandler";
+import { beastiary } from "../beastiary/beastiary";
 
 export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ['moveanimals', 'ma'];
@@ -34,7 +34,7 @@ export default class MoveAnimalsCommand implements Command {
         let playerObject: PlayerObject;
         // Get the player game object
         try {
-            playerObject = await getPlayerObject(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error getting a player object in the move animals command.');

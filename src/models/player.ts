@@ -165,7 +165,7 @@ export class PlayerObject extends DocumentWrapper {
                     }
                 });
             }
-        })
+        });
 
         // Assign the array of animal objects to this player's inventory
         this.animals = animalObjects;

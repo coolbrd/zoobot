@@ -4,9 +4,10 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal, AnimalObject } from "../models/animal";
 
 import { GuildModel, GuildObject } from "../models/guild";
-import { Player, PlayerObject } from "../models/player";
+import { PlayerObject } from "../models/player";
 import { SpeciesObject } from "../models/species";
 import { errorHandler } from "../structures/errorHandler";
+import { beastiary } from "./beastiary";
 
 // Gets a guild document from the database that corresponds to a given guild object and returns it as an object
 export async function getGuildObject(guild: Guild): Promise<GuildObject> {
@@ -41,38 +42,6 @@ export async function getGuildObject(guild: Guild): Promise<GuildObject> {
     return new GuildObject({document: guildDocument});
 }
 
-// Gets the wrapper object representing a guild player in the database
-export async function getPlayerObject(guildMember: GuildMember): Promise<PlayerObject> {
-    // Attempt to find a player document with the given information
-    let playerDocument: Document | null;
-    try {
-        playerDocument = await Player.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
-    }
-    catch (error) {
-        throw new Error('There was an error finding an existing player document.');
-    }
-
-    // If no player document exists for the given guild member
-    if (!playerDocument) {
-        // Create one
-        playerDocument = new Player({
-            userId: guildMember.user.id,
-            guildId: guildMember.guild.id
-        });
-
-        // Save it
-        try {
-            await playerDocument.save();
-        }
-        catch (error) {
-            throw new Error('There was an error trying to save a new player document.');
-        }
-    }
-
-    // Return the player document within a wrapper object
-    return new PlayerObject({ document: playerDocument });
-}
-
 // Takes a species and an owner, and creates a new animal assigned to that owner in the database
 export async function createAnimal(owner: GuildMember, species: SpeciesObject, options?: { imageIndex: number }): Promise<void> {
     let imageIndex: number;
@@ -90,7 +59,7 @@ export async function createAnimal(owner: GuildMember, species: SpeciesObject, o
     // Get the player object of the guild member
     let ownerObject: PlayerObject;
     try {
-        ownerObject = await getPlayerObject(owner);
+        ownerObject = await beastiary.players.fetch(owner);
     }
     catch (error) {
         errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
@@ -170,7 +139,7 @@ export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, ani
 
     // Only query for a player object if one hasn't already been assigned
     try {
-        playerObject = playerObject || await getPlayerObject(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
+        playerObject = playerObject || await beastiary.players.fetch(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
     }
     catch (error) {
         errorHandler.handleError(error, 'There was an error getting a player object from a guild member.');
@@ -311,7 +280,7 @@ export async function searchAnimal(
 
             // Get the player object corresponding to the user provided for the search
             try {
-                playerObject = await getPlayerObject(getGuildMember(userId, guildId));
+                playerObject = await beastiary.players.fetch(getGuildMember(userId, guildId));
             }
             catch (error) {
                 errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');

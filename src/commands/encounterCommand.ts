@@ -3,7 +3,7 @@ import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { DMChannel } from "discord.js";
 import { errorHandler } from "../structures/errorHandler";
-import { encounterHandler } from "../zoo/encounterHandler";
+import { encounterHandler } from "../beastiary/encounterHandler";
 
 export default class EncounterCommand implements Command {
     public readonly commandNames = ['encounter', 'e'];

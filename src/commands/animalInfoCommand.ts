@@ -4,7 +4,7 @@ import { AnimalObject } from "../models/animal";
 import Command from "../structures/commandInterface";
 import CommandParser from "../structures/commandParser";
 import { errorHandler } from "../structures/errorHandler";
-import { searchAnimal } from "../zoo/userManagement";
+import { searchAnimal } from "../beastiary/userManagement";
 
 export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ['animalinfo', 'ai', 'stats'];

@@ -1,7 +1,7 @@
 import CommandParser from "../structures/commandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/commandInterface";
-import { getGuildObject } from "../zoo/userManagement";
+import { getGuildObject } from "../beastiary/userManagement";
 import { GuildObject } from "../models/guild";
 import { errorHandler } from "../structures/errorHandler";
 import { commandHandler } from "../structures/commandHandler";

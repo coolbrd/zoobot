@@ -6,7 +6,7 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from '..';
 import { SpeciesObject } from '../models/species';
-import { createAnimal } from '../zoo/userManagement';
+import { createAnimal } from '../beastiary/userManagement';
 import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
 import SmartEmbed from '../discordUtility/smartEmbed';
 import { errorHandler } from '../structures/errorHandler';
