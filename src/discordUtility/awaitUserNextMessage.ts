@@ -1,5 +1,5 @@
 import { TextChannel, Message, User, DMChannel } from 'discord.js';
-import { errorHandler } from '../structures/errorHandler';
+import { errorHandler } from '../structures/ErrorHandler';
 
 // Waits for a given user's next message and returns it
 export default async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {

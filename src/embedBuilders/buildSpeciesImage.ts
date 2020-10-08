@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { ImageSubObject, SpeciesObject } from "../models/species";
+import { ImageSubObject, SpeciesObject } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildSpeciesImage(embed: MessageEmbed, species: SpeciesObject, image: ImageSubObject): void {

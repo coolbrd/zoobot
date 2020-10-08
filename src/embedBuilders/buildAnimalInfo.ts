@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { AnimalObject } from "../models/animal";
+import { AnimalObject } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // Takes an embed and an animal object, and builds out that embed's fields to display the animal's information

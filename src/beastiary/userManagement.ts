@@ -1,13 +1,13 @@
 import { Guild, GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { Animal, AnimalObject } from "../models/animal";
+import { Animal, AnimalObject } from "../models/Animal";
 
-import { GuildModel, GuildObject } from "../models/guild";
-import { PlayerObject } from "../models/player";
-import { SpeciesObject } from "../models/species";
-import { errorHandler } from "../structures/errorHandler";
-import { beastiary } from "./beastiary";
+import { GuildModel, GuildObject } from "../models/Guild";
+import { PlayerObject } from "../models/Player";
+import { SpeciesObject } from "../models/Species";
+import { errorHandler } from "../structures/ErrorHandler";
+import { beastiary } from "./Beastiary";
 
 // Gets a guild document from the database that corresponds to a given guild object and returns it as an object
 export async function getGuildObject(guild: Guild): Promise<GuildObject> {

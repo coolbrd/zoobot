@@ -2,10 +2,10 @@ import Discord, { Message } from 'discord.js';
 import mongoose from 'mongoose';
 
 import { DISCORD_TOKEN, MONGODB_PATH } from './config/secrets';
-import { errorHandler } from './structures/errorHandler';
-import { interactiveMessageHandler } from './interactiveMessage/interactiveMessageHandler';
-import { encounterHandler } from './beastiary/encounterHandler';
-import { commandHandler } from './structures/commandHandler';
+import { errorHandler } from './structures/ErrorHandler';
+import { interactiveMessageHandler } from './interactiveMessage/InteractiveMessageHandler';
+import { encounterHandler } from './beastiary/EncounterHandler';
+import { commandHandler } from './structures/CommandHandler';
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();

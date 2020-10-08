@@ -1,5 +1,5 @@
 import { TextChannel, Message, DMChannel, APIMessage, NewsChannel } from 'discord.js';
-import { errorHandler } from '../structures/errorHandler';
+import { errorHandler } from '../structures/ErrorHandler';
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code.
 export async function betterSend(channel: TextChannel | DMChannel | NewsChannel, content: string | APIMessage, lifetime?: number): Promise<Message | undefined> {

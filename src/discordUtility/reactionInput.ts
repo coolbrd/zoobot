@@ -1,5 +1,5 @@
 import { Message, MessageReaction, User } from 'discord.js';
-import { errorHandler } from '../structures/errorHandler';
+import { errorHandler } from '../structures/ErrorHandler';
 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
