@@ -3,11 +3,11 @@ import { Document, Types } from "mongoose";
 import { Player, PlayerObject } from "../models/Player";
 import CachedValue from "../structures/CachedItem";
 
-// The cache of player objects within The Beastiary
+// The player manager within The Beastiary
 // The easiest and most efficient way to access player objects
-export default class PlayerCache {
+export default class PlayerManager {
     // The current map of cached player objects
-    private readonly cachedPlayers = new Map<Types.ObjectId, CachedValue<PlayerObject>>();
+    private readonly cache = new Map<Types.ObjectId, CachedValue<PlayerObject>>();
 
     // The inactivity time it takes for a player to get removed from the cache
     private readonly cacheTimeout = 60000;
@@ -16,14 +16,14 @@ export default class PlayerCache {
     private createNewTimer(player: PlayerObject): NodeJS.Timeout {
         return setTimeout(() => {
             // Remove the cached player from the player cache after the given amount of time
-            this.cachedPlayers.delete(player.getId());
+            this.cache.delete(player.getId());
         }, this.cacheTimeout);
     }
 
     // Gets a player object by a given guild member
     public async fetch(guildMember: GuildMember): Promise<PlayerObject> {
         // First check the cache to see if the player's object already exists in it
-        for (const cachedPlayer of this.cachedPlayers.values()) {
+        for (const cachedPlayer of this.cache.values()) {
             // If the current player's information matches the guild member
             if (cachedPlayer.value.getUserId() === guildMember.user.id && cachedPlayer.value.getGuildId() === guildMember.guild.id) {
                 // Force the player object to get the most up to date data
@@ -63,7 +63,7 @@ export default class PlayerCache {
         await player.load();
 
         // Add the player to the cache by its document's id
-        this.cachedPlayers.set(player.getId(), new CachedValue<PlayerObject>(player, this.createNewTimer(player)));
+        this.cache.set(player.getId(), new CachedValue<PlayerObject>(player, this.createNewTimer(player)));
 
         // Return the player
         return player;

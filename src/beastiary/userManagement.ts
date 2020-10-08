@@ -1,11 +1,10 @@
-import { Guild, GuildMember } from "discord.js";
-import { Document, Types } from "mongoose";
+import { Guild } from "discord.js";
+import { Document } from "mongoose";
+
 import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal, AnimalObject } from "../models/Animal";
-
 import { GuildModel, GuildObject } from "../models/Guild";
 import { PlayerObject } from "../models/Player";
-import { SpeciesObject } from "../models/Species";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "./Beastiary";
 
@@ -40,129 +39,6 @@ export async function getGuildObject(guild: Guild): Promise<GuildObject> {
 
     // Return the pre-existing or newly created guild document within a wrapper object
     return new GuildObject({document: guildDocument});
-}
-
-// Takes a species and an owner, and creates a new animal assigned to that owner in the database
-export async function createAnimal(owner: GuildMember, species: SpeciesObject, options?: { imageIndex: number }): Promise<void> {
-    let imageIndex: number;
-    // If an image index was provided
-    if (options && options.imageIndex !== undefined) {
-        // Use the provided image
-        imageIndex = options.imageIndex;
-    }
-    // If no image index was provided
-    else {
-        // Pick a random image
-        imageIndex = Math.floor(Math.random() * species.getImages().length);
-    }
-
-    // Get the player object of the guild member
-    let ownerObject: PlayerObject;
-    try {
-        ownerObject = await beastiary.players.fetch(owner);
-    }
-    catch (error) {
-        errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
-        return;
-    }
-
-    try {
-        await ownerObject.load();
-    }
-    catch (error) {
-        errorHandler.handleError(error, 'There was an error loading a new animal\'s owner object.');
-    }
-
-    // Create the new animal
-    const animal = new Animal({
-        ownerId: ownerObject.getUserId(),
-        guildId: ownerObject.getGuildId(),
-        species: species.getId(),
-        image: species.getImages()[imageIndex].getId(),
-        experience: 0
-    });
-
-    // Save the new animal
-    try {
-        await animal.save();
-    }
-    catch (error) {
-        throw new Error('There was an error saving a new animal.');
-    }
-
-    // Add the animal's id to the owner's inventory
-    try {
-        await ownerObject.addAnimal(animal._id);
-    }
-    catch (error) {
-        throw new Error('There was an error adding a new animal to a player\'s inventory.');
-    }
-}
-
-// Deletes an animal from existence
-export async function deleteAnimal(animalInfo: {animalObject?: AnimalObject, animalId?: Types.ObjectId, playerObject?: PlayerObject}): Promise<void> {
-    let playerObject: PlayerObject | undefined;
-    let animalObject: AnimalObject;
-
-    // If a player object was provided already
-    if (animalInfo.playerObject) {
-        // Don't waste any time trying to find it again
-        playerObject = animalInfo.playerObject;
-    }
-
-    // If an animal object was provided already
-    if (animalInfo.animalObject) {
-        // Again, don't query for it again
-        animalObject = animalInfo.animalObject;
-    }
-    // If just an animal id was provided
-    else if (animalInfo.animalId) {
-        let animalDocument: Document | null;
-        // Try to find the given animal
-        try {
-            animalDocument = await Animal.findById(animalInfo.animalId);
-        }
-        catch (error) {
-            throw new Error('There was an error finding an animal by an id.');
-        }
-        
-        if (!animalDocument) {
-            throw new Error('Couldn\'t find an animal with a given id for deletion.');
-        }
-        // Create a new animal object from the found document. It doesn't need to be loaded because a document was provided.
-        animalObject = new AnimalObject({document: animalDocument});
-    }
-    // If not enough fields were provided
-    else {
-        throw new Error('Not enough information provided for deleteAnimal.');
-    }
-
-    // Only query for a player object if one hasn't already been assigned
-    try {
-        playerObject = playerObject || await beastiary.players.fetch(getGuildMember(animalObject.getOwnerId(), animalObject.getGuildId()));
-    }
-    catch (error) {
-        errorHandler.handleError(error, 'There was an error getting a player object from a guild member.');
-        return;
-    }
-
-    // Remove the animal's id from the player's inventory
-    try {
-        await playerObject.removeAnimal(animalObject.getId());
-    }
-    catch (error) {
-        errorHandler.handleError(error, 'There as an error removing an animal from a player\'s inventory.');
-        return;
-    }
-
-    // Delete the animal from the animal collection
-    try {
-        await animalObject.delete();
-    }
-    catch (error) {
-        errorHandler.handleError(error, 'There was an error deleting an animal document.');
-        return;
-    }
 }
 
 // Gets an animal object by a given inventory position from a player's inventory

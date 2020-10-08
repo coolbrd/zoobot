@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+import { beastiary } from '../beastiary/Beastiary';
+import getGuildMember from '../discordUtility/getGuildMember';
 
 import DocumentWrapper from '../structures/DocumentWrapper';
 import { errorHandler } from '../structures/ErrorHandler';
@@ -239,13 +241,14 @@ export class AnimalObject extends DocumentWrapper {
         this.image = undefined;
     }
 
-    // Delete's the animal's document from the database
+    // Delete's the animal's document from the database (only to be called by the animal manager object)
     public async delete(): Promise<void> {
         try {
             await this.getDocument().deleteOne();
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error trying to delete an animal object.');
+            return;
         }
     }
 }

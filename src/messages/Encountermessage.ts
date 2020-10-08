@@ -6,10 +6,10 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from '..';
 import { SpeciesObject } from '../models/Species';
-import { createAnimal } from '../beastiary/userManagement';
 import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
 import SmartEmbed from '../discordUtility/SmartEmbed';
 import { errorHandler } from '../structures/ErrorHandler';
+import { beastiary } from '../beastiary/Beastiary';
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -83,7 +83,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Create the new animal
         try {
-            await createAnimal(getGuildMember(user, this.channel.guild), this.species, { imageIndex: this.imageIndex as number });
+            await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.imageIndex as number);
         }
         catch (error) {
             errorHandler.handleError(error, 'Thre was an error creating a new animal in an encounter message.');

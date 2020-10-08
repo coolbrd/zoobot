@@ -5,7 +5,6 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { PlayerObject } from "../models/Player";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { deleteAnimal } from "../beastiary/userManagement";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalImage from "../embedBuilders/buildAnimalImage";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -275,7 +274,7 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
 
                 // Release the user's animal
                 try {
-                    await deleteAnimal({animalObject: selectedAnimal});
+                    await beastiary.animals.deleteAnimal(selectedAnimal.getId());
                 }
                 catch (error) {
                     errorHandler.handleError(error, 'There was an error trying to release a user\'s animal from an inventory message.');
