@@ -1,30 +1,13 @@
 import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
 import { Player, PlayerObject } from "../models/Player";
-
-// A single player object within the player cache
-// Holds a resetable timer that determines when the player will be removed from the cache
-class CachedPlayer {
-    public readonly player: PlayerObject;
-    private timer: NodeJS.Timeout;
-
-    constructor(player: PlayerObject, timer: NodeJS.Timeout) {
-        this.player = player;
-        this.timer = timer;
-    }
-
-    // Clears this cached player's current timer, preventing it from firing, and sets it to a new one
-    public setTimer(timer: NodeJS.Timeout): void {
-        clearTimeout(this.timer);
-        this.timer = timer;
-    }
-}
+import CachedValue from "../structures/CachedItem";
 
 // The cache of player objects within The Beastiary
 // The easiest and most efficient way to access player objects
 export default class PlayerCache {
     // The current map of cached player objects
-    private readonly cachedPlayers = new Map<Types.ObjectId, CachedPlayer>();
+    private readonly cachedPlayers = new Map<Types.ObjectId, CachedValue<PlayerObject>>();
 
     // The inactivity time it takes for a player to get removed from the cache
     private readonly cacheTimeout = 60000;
@@ -42,15 +25,15 @@ export default class PlayerCache {
         // First check the cache to see if the player's object already exists in it
         for (const cachedPlayer of this.cachedPlayers.values()) {
             // If the current player's information matches the guild member
-            if (cachedPlayer.player.getUserId() === guildMember.user.id && cachedPlayer.player.getGuildId() === guildMember.guild.id) {
+            if (cachedPlayer.value.getUserId() === guildMember.user.id && cachedPlayer.value.getGuildId() === guildMember.guild.id) {
                 // Force the player object to get the most up to date data
-                await cachedPlayer.player.refresh();
+                await cachedPlayer.value.refresh();
 
                 // Reset the cached player's deletion timer
-                cachedPlayer.setTimer(this.createNewTimer(cachedPlayer.player));
+                cachedPlayer.setTimer(this.createNewTimer(cachedPlayer.value));
 
                 // Return the existing player from the cache
-                return cachedPlayer.player;
+                return cachedPlayer.value;
             }
         }
         // No matching player exists in the cache
@@ -80,7 +63,7 @@ export default class PlayerCache {
         await player.load();
 
         // Add the player to the cache by its document's id
-        this.cachedPlayers.set(player.getId(), new CachedPlayer(player, this.createNewTimer(player)));
+        this.cachedPlayers.set(player.getId(), new CachedValue<PlayerObject>(player, this.createNewTimer(player)));
 
         // Return the player
         return player;
