@@ -19,15 +19,15 @@ const playerSchema = new Schema({
     }
 });
 
-export const Player = mongoose.model("Player", playerSchema);
+export const PlayerModel = mongoose.model("Player", playerSchema);
 
 // A wrapper object for a Mongoose player document
-export class PlayerObject extends DocumentWrapper {
+export class Player extends DocumentWrapper {
     // This player's inventory of animal objects
     private animals: Animal[] | undefined;
 
     constructor(documentId: Types.ObjectId) {
-        super(Player, documentId);
+        super(PlayerModel, documentId);
     }
 
     public getUserId(): string {

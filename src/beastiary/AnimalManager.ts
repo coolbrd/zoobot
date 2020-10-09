@@ -2,7 +2,7 @@ import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
-import { PlayerObject } from "../models/Player";
+import { Player } from "../models/Player";
 import { Species } from "../models/Species";
 import CachedValue from "../structures/CachedItem";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -140,7 +140,7 @@ export default class AnimalManager {
 
     public async createAnimal(owner: GuildMember, species: Species, cardIndex: number): Promise<void> {
         // Get the player object of the guild member
-        let ownerObject: PlayerObject;
+        let ownerObject: Player;
         try {
             ownerObject = await beastiary.players.fetch(owner);
         }
@@ -185,7 +185,7 @@ export default class AnimalManager {
         const animal = await this.fetchById(animalId);
 
         // Get the owner's player object
-        let owner: PlayerObject;
+        let owner: Player;
         try {
             owner = await beastiary.players.fetch(getGuildMember(animal.getOwnerId(), animal.getGuildId()));
         }
@@ -221,7 +221,7 @@ export default class AnimalManager {
         searchOptions?: {
             guildId?: string,
             userId?: string,
-            playerObject?: PlayerObject,
+            playerObject?: Player,
             searchByPosition?: boolean
         }): Promise<Animal | undefined> {
         // Pull the potential guild id and player object from the search options (undefined if none)

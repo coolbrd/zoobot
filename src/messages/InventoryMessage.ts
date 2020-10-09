@@ -3,7 +3,7 @@ import { TextChannel, MessageEmbed, User } from "discord.js";
 import { Animal } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { PlayerObject } from "../models/Player";
+import { Player } from "../models/Player";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
@@ -27,7 +27,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
     private readonly user: User;
     protected readonly channel: TextChannel;
 
-    private playerObject: PlayerObject | undefined;
+    private playerObject: Player | undefined;
 
     constructor(channel: TextChannel, user: User) {
         super(channel);
@@ -65,7 +65,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         super.build();
 
         // Attempt to get the user's player object
-        let playerObject: PlayerObject;
+        let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
             await playerObject.load();

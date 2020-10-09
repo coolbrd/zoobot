@@ -1,7 +1,7 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Animal } from "../models/Animal";
-import { PlayerObject } from "../models/Player";
+import { Player } from "../models/Player";
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -39,7 +39,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
-        let playerObject: PlayerObject;
+        let playerObject: Player;
         // Get the player object that represents the player changing the nickname
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));

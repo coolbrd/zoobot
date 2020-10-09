@@ -4,7 +4,7 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/CommandParser";
 import Command from "../structures/CommandInterface";
-import { PlayerObject } from "../models/Player";
+import { Player } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
@@ -31,7 +31,7 @@ export default class MoveAnimalsCommand implements Command {
             return;
         }
 
-        let playerObject: PlayerObject;
+        let playerObject: Player;
         // Get the player game object
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
