@@ -1,7 +1,8 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 import DocumentWrapper from '../structures/DocumentWrapper';
-import { AnimalObject } from "./Animal";
+import { errorHandler } from "../structures/ErrorHandler";
+import { Animal } from "./Animal";
 
 const playerSchema = new Schema({
     userId: {
@@ -23,7 +24,11 @@ export const Player = mongoose.model('Player', playerSchema);
 // A wrapper object for a Mongoose player document
 export class PlayerObject extends DocumentWrapper {
     // This player's inventory of animal objects
-    private animals: AnimalObject[] | undefined;
+    private animals: Animal[] | undefined;
+
+    constructor(documentId: Types.ObjectId) {
+        super(Player, documentId);
+    }
 
     public getUserId(): string {
         return this.getDocument().get('userId');
@@ -37,7 +42,7 @@ export class PlayerObject extends DocumentWrapper {
         return this.getDocument().get('animals');
     }
 
-    public getAnimals(): AnimalObject[] {
+    public getAnimals(): Animal[] {
         if (!this.animals) {
             throw new Error('A player\'s animals were attempted to be retrieved before they were loaded.');
         }
@@ -45,7 +50,7 @@ export class PlayerObject extends DocumentWrapper {
         return this.animals;
     }
 
-    public getAnimalPositional(position: number): AnimalObject | undefined {
+    public getAnimalPositional(position: number): Animal | undefined {
         const animals = this.getAnimals();
 
         if (position < 0 || position >= animals.length) {
@@ -65,8 +70,10 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error('There was an error adding an animal to a player\'s inventory.');
+            errorHandler.handleError(error, 'There was an error adding an animal to a player\'s inventory.');
         }
+
+        await this.refresh();
     }
 
     // Adds a set of animals at a given base position
@@ -82,8 +89,11 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error('There was an error adding animals to a player\'s animal inventory.');
+            errorHandler.handleError(error, 'There was an error adding animals to a player\'s animal inventory.');
+            return;
         }
+
+        await this.refresh();
     }
 
     // Removes an animal from the player's inventory by a given id
@@ -96,8 +106,11 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error('There was an error removing an animal from a player\'s animal inventory.');
+            errorHandler.handleError(error, 'There was an error removing an animal from a player\'s animal inventory.');
+            return;
         }
+
+        await this.refresh();
     }
 
     // Removes a set of animals by an array of positions
@@ -120,29 +133,9 @@ export class PlayerObject extends DocumentWrapper {
             throw new Error('There was an error removing animals from a player\'s animal inventory.');
         }
 
+        await this.refresh();
+
         return animalIds;
-    }
-
-    public async loadDocument(): Promise<void> {
-        // If this player's document is already known, do nothing
-        if (this.documentLoaded()) {
-            return;
-        }
-
-        let playerDocument: Document | null;
-        // Find and set this player's document
-        try {
-            playerDocument = await Player.findById(this.getId());
-        }
-        catch (error) {
-            throw new Error('There was an error finding a player document by an id.');
-        }
-
-        if (!playerDocument) {
-            throw new Error('A player object couldn\'t find a corresponding document with its given id.');
-        }
-
-        this.setDocument(playerDocument);
     }
 
     public async loadAnimals(): Promise<void> {
@@ -160,17 +153,17 @@ export class PlayerObject extends DocumentWrapper {
         const animalIds = this.getDocument().get('animals');
 
         // For every animal id, add a new animal object of that id to this player's inventory
-        const animalObjects: AnimalObject[] = [];
+        const animals: Animal[] = [];
         animalIds.forEach((animalId: Types.ObjectId) => {
-            animalObjects.push(new AnimalObject({documentId: animalId}));
+            animals.push(new Animal(animalId));
         });
 
         // Load all animal objects
-        animalObjects.length && await new Promise(resolve => {
+        animals.length && await new Promise(resolve => {
             let completed = 0;
-            for (const animalObject of animalObjects) {
+            for (const animalObject of animals) {
                 animalObject.load().then(() => {
-                    if (++completed >= animalObjects.length) {
+                    if (++completed >= animals.length) {
                         resolve();
                     }
                 });
@@ -178,7 +171,7 @@ export class PlayerObject extends DocumentWrapper {
         });
 
         // Assign the array of animal objects to this player's inventory
-        this.animals = animalObjects;
+        this.animals = animals;
     }
 
     public animalsLoaded(): boolean {
@@ -195,8 +188,21 @@ export class PlayerObject extends DocumentWrapper {
             return;
         }
 
-        await this.loadDocument();
-        await this.loadAnimals();
+        try {
+            await this.loadDocument();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading a player\'s document.');
+            return;
+        }
+
+        try {
+            await this.loadAnimals();
+        }
+        catch (error) {
+            errorHandler.handleError(error, 'There was an error loading a player\'s animals.');
+            return;
+        }
     }
 
     public unload(): void {

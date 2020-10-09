@@ -1,12 +1,12 @@
 import { TextChannel, MessageEmbed, User } from "discord.js";
 
-import { AnimalObject } from "../models/Animal";
+import { Animal } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { PlayerObject } from "../models/Player";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
-import buildAnimalImage from "../embedBuilders/buildAnimalImage";
+import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import { errorHandler } from "../structures/ErrorHandler";
 import PagedMessage from "./PagedMessage";
 import { commandHandler } from "../structures/CommandHandler";
@@ -16,11 +16,11 @@ import { beastiary } from "../beastiary/Beastiary";
 enum InventoryMessageState {
     page,
     info,
-    image,
+    card,
     release
 }
 
-export default class InventoryMessage extends PagedMessage<AnimalObject> {
+export default class InventoryMessage extends PagedMessage<Animal> {
     // The current display state of the message
     private state: InventoryMessageState;
     
@@ -108,7 +108,7 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
         }
 
         // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
-        const unloadedAnimals = this.getVisibleElements().filter((animalObject: AnimalObject) => {
+        const unloadedAnimals = this.getVisibleElements().filter((animalObject: Animal) => {
             return !animalObject.fullyLoaded();
         });
         
@@ -131,25 +131,25 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
 
         // Get the animal that's selected by the pointer
         const selectedAnimal = inventory.selection();
-        const image = selectedAnimal.getImage();
+        const card = selectedAnimal.getCard();
 
         // Display state behavior
         switch (this.state) {
             // When the message is in paged view mode
             case InventoryMessageState.page: {
-                // Show the selected animal's image in the thumbnail
-                embed.setThumbnail(image.getUrl());
+                // Show the selected animal's card in the thumbnail
+                embed.setThumbnail(card.getUrl());
 
                 // The string that will hold the formatted inventory string
                 let inventoryString = '';
                 let inventoryIndex = this.getFirstVisibleIndex();
                 // Iterate over every element on the current page
                 this.getVisibleElements().forEach(currentAnimal => {
-                    const image = currentAnimal.getImage();
+                    const card = currentAnimal.getCard();
 
                     const animalName = currentAnimal.getNickname() || capitalizeFirstLetter(currentAnimal.getName());
 
-                    const breed = image.getBreed();
+                    const breed = card.getBreed();
                     // Write breed information only if it's present (and the animal doesn't have a nickname)
                     const breedText = !currentAnimal.getNickname() && breed ? `(${breed})` : '';
 
@@ -175,9 +175,9 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
                 
                 break;
             }
-            // When the message is in image mode
-            case InventoryMessageState.image: {
-                buildAnimalImage(embed, selectedAnimal);
+            // When the message is in card mode
+            case InventoryMessageState.card: {
+                buildAnimalCard(embed, selectedAnimal);
 
                 embed.setTitle(`\`${inventory.getPointerPosition() + 1})\` ${embed.title}`);
 
@@ -189,7 +189,7 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
 
                 embed.setDescription(`Press the left arrow (${this.getButtonByName('leftArrow').emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
 
-                embed.setThumbnail(image.getUrl());
+                embed.setThumbnail(card.getUrl());
 
                 break;
             }
@@ -252,7 +252,7 @@ export default class InventoryMessage extends PagedMessage<AnimalObject> {
                         this.state = InventoryMessageState.info;
                     }
                     else if (this.state === InventoryMessageState.info) {
-                        this.state = InventoryMessageState.image;
+                        this.state = InventoryMessageState.card;
                     }
                     else {
                         this.state = InventoryMessageState.page;

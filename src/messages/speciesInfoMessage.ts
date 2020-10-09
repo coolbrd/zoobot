@@ -2,22 +2,22 @@ import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { client } from "..";
-import { SpeciesObject } from "../models/Species";
+import { Species } from "../models/Species";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { errorHandler } from "../structures/ErrorHandler";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
-import buildSpeciesImage from "../embedBuilders/buildSpeciesImage";
+import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
-    private readonly species: SpeciesObject;
-    // The current image of the species that's being displayed by the info message
-    private currentImage = 0;
-    // Whether the info message is displaying a large image, or the species' details
-    private pictureMode = true;
+    private readonly species: Species;
+    // The current card of the species that's being displayed by the info message
+    private cardIndex = 0;
+    // Whether the info message is displaying a large card, or the species' details
+    private cardMode = true;
 
-    constructor(channel: TextChannel | DMChannel, species: SpeciesObject) {
+    constructor(channel: TextChannel | DMChannel, species: Species) {
         super(channel, { buttons: [
             {
                 name: 'leftArrow',
@@ -56,19 +56,19 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     private buildEmbed(): MessageEmbed {
         const embed = new SmartEmbed();
 
-        // Determine the image to display
-        const image = this.species.getImages()[this.currentImage];
+        // Determine the card to display
+        const card = this.species.getCards()[this.cardIndex];
 
         // Set the embed's color
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel));
 
         // When the info message is showing a large picture of the species (not details)
-        if (this.pictureMode) {
-            buildSpeciesImage(embed, this.species, image);
+        if (this.cardMode) {
+            buildSpeciesCard(embed, this.species, card);
         }
         // When the info message is displaying the species' details
         else {
-            buildSpeciesInfo(embed, this.species, image);
+            buildSpeciesInfo(embed, this.species, card);
         }
 
         embed.appendToFooter('\n' + this.getButtonHelpString());
@@ -81,15 +81,15 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         switch (buttonName) {
             case 'rightArrow': {
-                this.currentImage = loopValue(this.currentImage + 1, 0, this.species.getImages().length);
+                this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.getCards().length);
                 break;
             }
             case 'leftArrow': {
-                this.currentImage = loopValue(this.currentImage - 1, 0, this.species.getImages().length);
+                this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.getCards().length);
                 break;
             }
             case 'info': {
-                this.pictureMode = !this.pictureMode;
+                this.cardMode = !this.cardMode;
                 break;
             }
         }

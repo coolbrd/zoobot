@@ -4,7 +4,7 @@ import { MessageEmbed, APIMessage } from 'discord.js';
 import Command from '../structures/CommandInterface';
 import CommandParser from '../structures/CommandParser';
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
-import { PendingSpecies } from '../models/PendingSpecies';
+import { PendingSpeciesModel } from '../models/PendingSpecies';
 import reactionInput from '../discordUtility/reactionInput';
 import { arrayToLowerCase } from '../utility/arraysAndSuch';
 import { EDoc, SimpleEDoc } from '../structures/EDoc';
@@ -146,7 +146,7 @@ export default class SubmitSpeciesCommand implements Command {
 
         // When the user presses the submit button
         submissionMessage.once('submit', (finalDocument: SimpleEDoc) => {
-            const pendingSpecies = new PendingSpecies();
+            const pendingSpecies = new PendingSpeciesModel();
 
             // Assign fields
             pendingSpecies.set('commonNames', finalDocument['commonNames']);

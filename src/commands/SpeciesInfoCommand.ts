@@ -1,6 +1,6 @@
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
-import { Species, SpeciesObject } from "../models/Species";
+import { SpeciesModel, Species } from "../models/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -10,7 +10,7 @@ export default class SpeciesInfoCommand implements Command {
     public readonly commandNames = ['info', 'i', 'search'];
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}info\` \`<species>\` to view a species' traits and images.`;
+        return `Use \`${commandPrefix}info\` \`<species>\` to view a species' traits and cards.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
@@ -26,7 +26,7 @@ export default class SpeciesInfoCommand implements Command {
         let speciesDocument: Document | null;
         // Find a species by either its common name, or its scientific name if no common name matches were made
         try {
-            speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm }) || await Species.findOne({ scientificName: fullSearchTerm });
+            speciesDocument = await SpeciesModel.findOne({ commonNamesLower: fullSearchTerm }) || await SpeciesModel.findOne({ scientificName: fullSearchTerm });
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding a species by its common name and scientific name.');
@@ -40,7 +40,7 @@ export default class SpeciesInfoCommand implements Command {
         }
 
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(channel, new SpeciesObject({document: speciesDocument}));
+        const infoMessage = new SpeciesInfoMessage(channel, new Species(speciesDocument._id));
         try {
             await infoMessage.send();
         }

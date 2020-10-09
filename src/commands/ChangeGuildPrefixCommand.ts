@@ -2,7 +2,7 @@ import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/CommandInterface";
 import { getGuildObject } from "../beastiary/userManagement";
-import { GuildObject } from "../models/Guild";
+import { PlayerGuild } from "../models/Guild";
 import { errorHandler } from "../structures/ErrorHandler";
 import { commandHandler } from "../structures/CommandHandler";
 
@@ -30,7 +30,7 @@ export default class ChangeGuildPrefixCommand implements Command {
             return;
         }
 
-        let guildObject: GuildObject;
+        let guildObject: PlayerGuild;
         // Get the target guild's document
         try {
             guildObject = await getGuildObject(parsedUserCommand.channel.guild);

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 import DocumentWrapper from '../structures/DocumentWrapper';
 
 // The schema for a pending species submission
@@ -37,9 +37,14 @@ export const pendingSpeciesSchema = new Schema({
     }
 });
 
-export const PendingSpecies = mongoose.model('PendingSpecies', pendingSpeciesSchema);
+export const PendingSpeciesModel = mongoose.model('PendingSpecies', pendingSpeciesSchema);
 
-export class PendingSpeciesObject extends DocumentWrapper {
+// The object representation of a species submission pending approval
+export class PendingSpecies extends DocumentWrapper {
+    constructor(documentId: Types.ObjectId) {
+        super(PendingSpeciesModel, documentId);
+    }
+
     public getCommonNames(): string[] {
         return this.getDocument().get('commonNames');
     }

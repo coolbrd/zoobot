@@ -1,11 +1,7 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
-import { beastiary } from '../beastiary/Beastiary';
-import getGuildMember from '../discordUtility/getGuildMember';
+import mongoose, { Schema, Types } from 'mongoose';
 
 import DocumentWrapper from '../structures/DocumentWrapper';
-import { errorHandler } from '../structures/ErrorHandler';
-import { Player, PlayerObject } from './Player';
-import { ImageSubObject, SpeciesObject } from './Species';
+import { SpeciesCard, Species } from './Species';
 
 export const animalSchema = new Schema({
     ownerId: {
@@ -21,7 +17,7 @@ export const animalSchema = new Schema({
         ref: 'Species',
         required: true
     },
-    image: {
+    card: {
         type: Schema.Types.ObjectId,
         required: true
     },
@@ -35,31 +31,20 @@ export const animalSchema = new Schema({
     }
 });
 
-export const Animal = mongoose.model('Animal', animalSchema);
+export const AnimalModel = mongoose.model('Animal', animalSchema);
 
-Animal.collection.createIndex({ nickname: 'text' });
+// Index animals by their nickname so they can be easily searched by that
+AnimalModel.collection.createIndex({ nickname: 'text' });
 
 // An animal's version of a Mongoose document wrapper
 // Allows for animal information to be loaded, reloaded, and set more easily
-export class AnimalObject extends DocumentWrapper {
+export class Animal extends DocumentWrapper {
     // The object representations of this animal object's fields
-    private species: SpeciesObject | undefined;
-    private image: ImageSubObject | undefined;
+    private species: Species | undefined;
+    private card: SpeciesCard | undefined;
 
-    // Take required information for a DocumentWrapper, along with optional fields for pre-loaded species and image objects
-    // This could have optional fields for just the species and image documents, but it's easier to just convert those to their object forms before passing them in
-    constructor(documentInfo: {documentId?: Types.ObjectId, document?: Document, speciesObject?: SpeciesObject, imageSubObject?: ImageSubObject}) {
-        super({documentId: documentInfo.documentId, document: documentInfo.document});
-
-        // If a species object was provided, use it
-        if (documentInfo.speciesObject) {
-            this.species = documentInfo.speciesObject;
-        }
-
-        // If an image object was provided, use it
-        if (documentInfo.imageSubObject) {
-            this.image = documentInfo.imageSubObject;
-        }
+    constructor(documentId: Types.ObjectId) {
+        super(AnimalModel, documentId);
     }
 
     public getOwnerId(): string {
@@ -74,8 +59,8 @@ export class AnimalObject extends DocumentWrapper {
         return this.getDocument().get('species');
     }
 
-    public getImageId(): Types.ObjectId {
-        return this.getDocument().get('image');
+    public getCardId(): Types.ObjectId {
+        return this.getDocument().get('card');
     }
 
     public getNickname(): string {
@@ -87,15 +72,22 @@ export class AnimalObject extends DocumentWrapper {
     }
 
     public async setNickname(newNickname: string | null): Promise<void> {
-        await this.getDocument().updateOne({
-            $set: {
-                nickname: newNickname
-            }
-        });
+        try {
+            await this.getDocument().updateOne({
+                $set: {
+                    nickname: newNickname
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error trying to change the nickname of an animal document: ${error}`);
+        }
+
+        await this.refresh();
     }
 
     // Gets the species object representing this animal's species
-    public getSpecies(): SpeciesObject {
+    public getSpecies(): Species {
         if (!this.species) {
             throw new Error('Tried to get an AnimalObject\'s species before it was loaded.');
         }
@@ -103,68 +95,31 @@ export class AnimalObject extends DocumentWrapper {
         return this.species;
     }
 
-    // Gets the image object representing this animal's image
-    public getImage(): ImageSubObject {
-        if (!this.image) {
-            throw new Error('Tried to get an AnimalObject\'s image before it was loaded.');
+    // Gets the object representing this animal's card
+    public getCard(): SpeciesCard {
+        if (!this.card) {
+            throw new Error('Tried to get an AnimalObject\'s card before it was loaded.');
         }
 
-        return this.image;
+        return this.card;
     }
 
+    // Returns this animal's display name, prefers nickname over common name
     public getName(): string {
         return this.getNickname() || this.getSpecies().getCommonNames()[0];
-    }
-
-    // Gets this animal's position within its owner's inventory
-    public async getInventoryIndex(): Promise<number> {
-        let ownerDocument: Document | null;
-        // Get the animal's owner object
-        try {
-            ownerDocument = await Player.findOne({
-                userId: this.getOwnerId()
-            });
-        }
-        catch (error) {
-            throw new Error('There was an error finding an animal\'s owner\'s player object.');
-        }
-
-        if (!ownerDocument) {
-            throw new Error('An animal with an invalid owner id tried to get its owner object.');
-        }
-
-        const ownerObject = new PlayerObject({ document: ownerDocument });
-
-        // Return this animal's place in its owner's inventory
-        return ownerObject.getAnimalIds().indexOf(this.getId());
     }
 
     public speciesLoaded(): boolean {
         return Boolean(this.species);
     }
 
-    public imageLoaded(): boolean {
-        return Boolean(this.image);
+    public cardLoaded(): boolean {
+        return Boolean(this.card);
     }
 
     // Whether or not every one of this animal's fields are loaded and ready to go
     public fullyLoaded(): boolean {
-        return super.fullyLoaded() && this.speciesLoaded() && this.imageLoaded();
-    }
-
-    // Loads this animal's document from its id
-    private async loadDocument(): Promise<void> {
-        // If the document is already known/loaded, do nothing
-        if (this.documentLoaded()) {
-            return;
-        }
-
-        // Find the animal's document and set it
-        const animalDocument = await Animal.findById(this.getId());
-        if (!animalDocument) {
-            throw new Error('No animal document by an animal object\'s id was found during load.');
-        }
-        this.setDocument(animalDocument);
+        return super.fullyLoaded() && this.speciesLoaded() && this.cardLoaded();
     }
 
     // Loads this animal's species object
@@ -179,65 +134,60 @@ export class AnimalObject extends DocumentWrapper {
         }
 
         // Create a new species object from this animal's known species id
-        this.species = new SpeciesObject({documentId: this.getSpeciesId()});
+        this.species = new Species(this.getSpeciesId());
         // Load the species object's information
         await this.species.load();
     }
 
-    // Loads this animal's image object
-    private loadImage(): void {
-        // If this animal's image object is known/loaded, do nothing
-        if (this.imageLoaded()) {
+    // Loads this animal's card object
+    private loadCard(): void {
+        // If this animal's card object is known/loaded, do nothing
+        if (this.cardLoaded()) {
             return;
         }
 
-        // Get the array of all images of the animal's species
-        const speciesImages = this.getSpecies().getImages();
+        // Get the array of all cards of the animal's species
+        const speciesCards = this.getSpecies().getCards();
 
-        // Set the animal's image to the one that corresponds to this animal's image id
-        this.image = speciesImages.find(speciesImage => {
-            return this.getImageId().equals(speciesImage.getId());
+        // Set the animal's card to the one that corresponds to this animal's card id
+        this.card = speciesCards.find(speciesCard => {
+            return this.getCardId().equals(speciesCard.getId());
         });
 
-        // Make sure that an image was found from that search
-        if (!this.image) {
-            throw new Error('An animal\'s image couldn\'t be found in the images of its species.');
+        // Make sure that an card was found from that search
+        if (!this.card) {
+            throw new Error('An animal\'s card couldn\'t be found in the card of its species.');
         }
     }
 
     // Load all the animal's fields
     public async load(): Promise<void> {
-        // If all fields are already loaded, do nothing
-        if (this.fullyLoaded()) {
-            return;
-        }
-
-        // Load the animal's document
         try {
-            await this.loadDocument();
+            await super.load();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading an animal\'s document.');
-            return;
+            throw new Error(`There was an error loading an animal's inherited information: ${error}`);
         }
 
-        // Then its species
         try {
             await this.loadSpecies();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading an animal\'s species.');
-            return;
+            throw new Error(`There was an error loading an animal's species: ${error}`);
         }
 
-        // Then its image
-        this.loadImage();
+        try {
+            this.loadCard();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading an animal's card: ${error}`);
+        }
     }
 
     // Unloads all the animal's fields
     public unload(): void {
         super.unload();
         this.species = undefined;
-        this.image = undefined;
+        this.card = undefined;
     }
 }

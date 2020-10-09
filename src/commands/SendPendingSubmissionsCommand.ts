@@ -4,7 +4,7 @@ import Command from '../structures/CommandInterface';
 import CommandParser from '../structures/CommandParser';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import { betterSend } from "../discordUtility/messageMan";
-import { PendingSpecies } from '../models/PendingSpecies';
+import { PendingSpeciesModel } from '../models/PendingSpecies';
 import EmbedBookMessage from '../messages/EmbedBookMessage';
 import { Document } from 'mongoose';
 import { errorHandler } from '../structures/ErrorHandler';
@@ -25,7 +25,7 @@ export default class SendPendingSubmissionsCommand implements Command {
         let pendingSpecies: Document[];
         // Get all pending species documents
         try {
-            pendingSpecies = await PendingSpecies.find({}, { commonNames: 1, author: 1, _id: 0 });
+            pendingSpecies = await PendingSpeciesModel.find({}, { commonNames: 1, author: 1, _id: 0 });
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding all species pending approval.');

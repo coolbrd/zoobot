@@ -1,15 +1,15 @@
 import { DMChannel, TextChannel, User } from 'discord.js';
 import { client } from '..';
 
-import { PendingSpeciesObject } from '../models/PendingSpecies';
+import { PendingSpecies } from '../models/PendingSpecies';
 import { EDoc } from '../structures/EDoc';
 import { errorHandler } from '../structures/ErrorHandler';
 import EDocMessage from './EDocMessage';
 
 export default class SpeciesApprovalMessage extends EDocMessage {
-    private pendingSpeciesObject: PendingSpeciesObject;
+    private pendingSpeciesObject: PendingSpecies;
 
-    constructor(channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpeciesObject) {
+    constructor(channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpecies) {
         const eDoc = new EDoc({
             commonNames: {
                 type: [{
@@ -44,29 +44,29 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 alias: 'scientific name',
                 prompt: 'Enter this animal\'s scientific (taxonomical) name:'
             },
-            images: {
+            cards: {
                 type: [{
                     type: {
                         url: {
                             type: String,
                             required: true,
                             alias: 'url',
-                            prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):'
+                            prompt: 'Enter a valid imgur link to this species\' card. Must be a direct link to the card\'s image (e.g. "i.imgur.com/fake-image"):'
                         },
                         breed: {
                             type: String,
                             required: false,
                             alias: 'breed',
-                            prompt: 'Enter the breed of the animal depicted in this image, if one is apparent:'
+                            prompt: 'Enter the breed of the animal depicted in this card, if one is apparent:'
                         }
                     },
-                    alias: 'image',
+                    alias: 'card',
                     documentOptions: {
                         displayField: 'url'
                     }
                 }],
                 required: true,
-                alias: 'images',
+                alias: 'cards',
                 arrayOptions: {
                     viewportSize: 10
                 }
@@ -105,12 +105,12 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             });
         }
         
-        // Get image url array and add is as an eDoc array
-        const imagesField = eDoc.getField('images');
-        const imageUrls = pendingSpeciesObject.getImages();
-        if (imageUrls) {
-            for (const url of imageUrls) {
-                imagesField.push({
+        // Get card url array and add is as an eDoc array
+        const cardsField = eDoc.getField('cards');
+        const cardUrls = pendingSpeciesObject.getImages();
+        if (cardUrls) {
+            for (const url of cardUrls) {
+                cardsField.push({
                     url: url
                 });
             }

@@ -1,27 +1,19 @@
-import { Document, Types } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 
+// An object abstraction of a Mongoose document. Meant to be extended so documents can be easily treated as game objects.
 export default class DocumentWrapper {
+    // The model in which this wrapper's document can be found
+    private readonly model: Model<Document>;
+
     // The id of the wrapper's document. Unchangeable and always set.
     private readonly id: Types.ObjectId;
 
-    // The document object that corresponds to this object's id. Loaded by request or on creation (if supplied)
+    // The document object that corresponds to this object's id
     private document: Document | undefined;
 
-    // At least one of these two fields is required. If the document is supplied, there's no need to supply the id.
-    constructor(documentInfo: { documentId?: Types.ObjectId, document?: Document }) {
-        // If the pre-loaded document has been supplied
-        if (documentInfo.document) {
-            this.id = documentInfo.document._id;
-            this.document = documentInfo.document;
-        }
-        // If just the document's id is supplied
-        else if (documentInfo.documentId) {
-            this.id = documentInfo.documentId;
-        }
-        // If not enough information was provided (neither document nor id)
-        else {
-            throw new Error('Insufficient information provided for the creation of a DocumentWrapper.');
-        }
+    constructor(model: Model<Document>, documentId: Types.ObjectId) {
+        this.model = model;
+        this.id = documentId;
     }
 
     public getId(): Types.ObjectId {
@@ -38,16 +30,6 @@ export default class DocumentWrapper {
         return this.document;
     }
 
-    // Sets the wrapper's document to a given document. Only to be used in the loading process when no document is assigned. 
-    protected setDocument(document: Document): void {
-        // Don't set anything if there's already a document
-        if (this.document) {
-            throw new Error('A DocumentWrapper\'s document was attempted to be overridden before it was set to undefined.');
-        }
-
-        this.document = document;
-    }
-
     // Whether or not this wrapper's document has been loaded
     public documentLoaded(): boolean {
         return Boolean(this.document);
@@ -58,10 +40,38 @@ export default class DocumentWrapper {
         return this.documentLoaded();
     }
 
+    // Loads this wrapper object's document by its id
+    public async loadDocument(): Promise<void> {
+        // Save time and don't do anything if it's already loaded
+        if (this.documentLoaded()) {
+            return;
+        }
+
+        // Get the wrapper's document by its id
+        let document: Document | null;
+        try {
+            document = await this.model.findById(this.id);
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a DocumentWrapper's document: ${error}`);
+        }
+
+        // If the id is invalid
+        if (!document) {
+            throw new Error('Nothing was found when a DocumentWrapper tried to load it\'s document.');
+        }
+
+        // Assign the new document
+        this.document = document;
+    }
+
     // Loads all unloaded fields of the wrapper. Meant to be extended.
     public async load(): Promise<void> {
-        if (this.fullyLoaded()) {
-            return;
+        try {
+            await this.loadDocument();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a DocumentWrapper's document: ${error}`);
         }
     }
 
@@ -83,7 +93,7 @@ export default class DocumentWrapper {
             await this.getDocument().deleteOne();
         }
         catch (error) {
-            throw new Error('There was an error deleting a document wrapper\'s document.');
+            throw new Error(`There was an error deleting a document wrapper's document: ${error}`);
         }
 
         this.unload();

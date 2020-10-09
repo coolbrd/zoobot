@@ -5,7 +5,7 @@ import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from '..';
-import { SpeciesObject } from '../models/Species';
+import { Species } from '../models/Species';
 import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
 import SmartEmbed from '../discordUtility/SmartEmbed';
 import { errorHandler } from '../structures/ErrorHandler';
@@ -17,11 +17,11 @@ export default class EncounterMessage extends InteractiveMessage {
     protected readonly channel: TextChannel;
 
     // The species of the animal contained within this encounter
-    private readonly species: SpeciesObject;
-    // The image chosen to be displayed for this animal encounter
-    private imageIndex: number | undefined;
+    private readonly species: Species;
+    // The card chosen for this animal encounter
+    private cardIndex: number | undefined;
 
-    constructor(channel: TextChannel, species: SpeciesObject) {
+    constructor(channel: TextChannel, species: Species) {
         super(channel, { buttons: {
                 name: 'capture',
                 emoji: '🔘',
@@ -56,13 +56,13 @@ export default class EncounterMessage extends InteractiveMessage {
 
         embed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
 
-        // Pick a random image from the animal's set of images
-        this.imageIndex = Math.floor(Math.random() * this.species.getImages().length);
-        // Get the image of the determined index
-        const image = this.species.getImages()[this.imageIndex];
-        embed.setImage(image.getUrl());
+        // Pick a random card from the animal's set of card
+        this.cardIndex = Math.floor(Math.random() * this.species.getCards().length);
+        // Get the card of the determined index
+        const card = this.species.getCards()[this.cardIndex];
+        embed.setImage(card.getUrl());
 
-        const breed = image.getBreed();
+        const breed = card.getBreed();
         // Add the breed field if it's there
         if (breed) {
             embed.addField('Breed', capitalizeFirstLetter(breed), true);
@@ -83,7 +83,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Create the new animal
         try {
-            await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.imageIndex as number);
+            await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.cardIndex as number);
         }
         catch (error) {
             errorHandler.handleError(error, 'Thre was an error creating a new animal in an encounter message.');

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import DocumentWrapper from '../structures/DocumentWrapper';
 
-export const imageSubSchema = new Schema({
+export const cardSubSchema = new Schema({
     url: {
         type: String,
         required: true
@@ -31,8 +31,8 @@ export const speciesSchema = new Schema({
         type: String,
         required: true
     },
-    images: {
-        type: [imageSubSchema],
+    cards: {
+        type: [cardSubSchema],
         required: true
     },
     description: {
@@ -53,26 +53,26 @@ export const speciesSchema = new Schema({
     }
 });
 
-export const Species = mongoose.model('Species', speciesSchema);
+export const SpeciesModel = mongoose.model('Species', speciesSchema);
 
-export interface ImageTemplate {
+export interface SpeciesCardTemplate {
     _id?: Types.ObjectId,
     url: string,
     breed?: string
 }
 
-export interface ImageField extends ImageTemplate {
+export interface SpeciesCardField extends SpeciesCardTemplate {
     _id: Types.ObjectId;
 }
 
-// An object representing the subschema that's found within the array of images in a species document
-export class ImageSubObject {
+// An object representing a card within a species
+export class SpeciesCard {
     private document: Document;
-    private speciesObject: SpeciesObject;
+    private species: Species;
 
-    constructor(imageDocument: Document, speciesObject: SpeciesObject) {
-        this.document = imageDocument;
-        this.speciesObject = speciesObject;
+    constructor(cardDocument: Document, speciesObject: Species) {
+        this.document = cardDocument;
+        this.species = speciesObject;
     }
 
     public getId(): Types.ObjectId {
@@ -87,14 +87,14 @@ export class ImageSubObject {
         return this.document.get('breed');
     }
 
-    // Gets this image's index in its parent species' list of images
+    // Gets this card's index in its parent species' list of cards
     public getIndex(): number {
-        const index = this.speciesObject.getImageObjects().findIndex(image => {
-            return this.getId().equals(image._id)
+        const index = this.species.getCardObjects().findIndex(card => {
+            return this.getId().equals(card._id)
         });
         
         if (index === undefined) {
-            throw new Error('A species image with no place in its species was found.');
+            throw new Error('A species card with no place in its species was found.');
         }
         return index;
     }
@@ -113,7 +113,7 @@ export interface CommonNameField extends CommonNameTemplate {
 export interface SpeciesFieldsTemplate {
     commonNames?: CommonNameTemplate[],
     scientificName?: string,
-    images?: ImageTemplate[],
+    cards?: SpeciesCardTemplate[],
     description?: string,
     naturalHabitat?: string,
     wikiPage?: string,
@@ -131,9 +131,14 @@ export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] 
     return commonNamesLower;
 }
 
-// A simple, stripped-down object used for easier interfacing with species documents returned from Mongoose queries
-export class SpeciesObject extends DocumentWrapper {
-    private images: ImageSubObject[] | undefined;
+// The object representation of a species
+export class Species extends DocumentWrapper {
+    // The species' list of cards
+    private cards: SpeciesCard[] | undefined;
+
+    constructor(documentId: Types.ObjectId) {
+        super(SpeciesModel, documentId);
+    }
 
     public getCommonNameObjects(): CommonNameField[] {
         return this.getDocument().get('commonNames');
@@ -143,8 +148,8 @@ export class SpeciesObject extends DocumentWrapper {
         return this.getDocument().get('scientificName');
     }
 
-    public getImageObjects(): ImageField[] {
-        return this.getDocument().get('images');
+    public getCardObjects(): SpeciesCardField[] {
+        return this.getDocument().get('cards');
     }
 
     public getDescription(): string {
@@ -175,7 +180,7 @@ export class SpeciesObject extends DocumentWrapper {
                     commonNames: fields.commonNames || this.getCommonNameObjects(),
                     commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
                     scientificName: fields.scientificName || this.getScientificName(),
-                    images: fields.images || this.getImageObjects(),
+                    cards: fields.cards || this.getCardObjects(),
                     description: fields.description || this.getDescription(),
                     naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
                     wikiPage: fields.wikiPage || this.getWikiPage(),
@@ -184,8 +189,11 @@ export class SpeciesObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error('There was an error updating a species\' fields.');
+            throw new Error(`There was an error updating a species' fields: ${error}`);
         }
+
+        // Refresh information again to reflect the changes that were just made
+        await this.refresh();
     }
 
     // Gets a simple array of this species' common names
@@ -198,83 +206,50 @@ export class SpeciesObject extends DocumentWrapper {
         return commonNames;
     }
 
-    public getImages(): ImageSubObject[] {
-        if (!this.images) {
-            throw new Error('Tried to get a species\'s images before they were loaded.');
+    public getCards(): SpeciesCard[] {
+        if (!this.cards) {
+            throw new Error('Tried to get a species\'s cards before they were loaded.');
         }
 
-        return this.images;
+        return this.cards;
     }
 
-    public getImageCount(): number {
-        return this.getImages().length;
+    public getCardCount(): number {
+        return this.getCards().length;
     }
 
-    public imagesLoaded(): boolean {
-        return Boolean(this.images);
+    public cardsLoaded(): boolean {
+        return Boolean(this.cards);
     }
 
-    public fullyLoaded(): boolean {
-        return super.fullyLoaded() && this.imagesLoaded();
-    }
-
-    // Loads this species' document
-    public async loadDocument(): Promise<void> {
-        // If the species' document is already known/loaded, do nothing
-        if (this.documentLoaded()) {
-            return;
-        }
-
-        let speciesDocument: Document | null;
-        // Find the species document and set it
-        try {
-            speciesDocument = await Species.findById(this.getId());
-        }
-        catch (error) {
-            throw new Error('There was an error finding a species by an id.');
-        }
-
-        if (!speciesDocument) {
-            throw new Error('No species document was found for an id given to a species object.');
-        }
-        
-        this.setDocument(speciesDocument);
-    }
-
-    // Loads this species' image objects
-    public loadImages(): void {
+    // Loads this species' card objects
+    public loadCards(): void {
         if (!this.documentLoaded()) {
-            throw new Error('A species\' images were attempted to be loaded before its document was.');
+            throw new Error('A species\' cards were attempted to be loaded before its document was.');
         }
 
-        // If this species' images are already known/loaded, do nothing
-        if (this.imagesLoaded()) {
+        // If this species' cards are already known/loaded, do nothing
+        if (this.cardsLoaded()) {
             return;
         }
 
-        // Get this species' images and add each of them as an object
-        const imageSubObjects: ImageSubObject[] = [];
-        this.getDocument().get('images').forEach((imageDocument: Document) => {
-            imageSubObjects.push(new ImageSubObject(imageDocument, this));
+        // Get this species' cards and add each of them as an object
+        const cards: SpeciesCard[] = [];
+        this.getDocument().get('cards').forEach((cardDocument: Document) => {
+            cards.push(new SpeciesCard(cardDocument, this));
         });
-        this.images = imageSubObjects;
+        this.cards = cards;
     }
 
     // Loads this species' data from the database
     public async load(): Promise<void> {
-        // Don't load again if it's already loaded
-        if (this.fullyLoaded()) {
-            return;
-        }
-
-        // Don't finish/resolve this function until the document and images are loaded
-        await this.loadDocument();
-        this.loadImages();
+        await super.load();
+        this.loadCards();
     }
 
     // Unloads this species' data
     public unload(): void {
         super.unload();
-        this.images = undefined;
+        this.cards = undefined;
     }
 }

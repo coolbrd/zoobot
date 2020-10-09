@@ -1,6 +1,6 @@
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
-import { AnimalObject } from "../models/Animal";
+import { Animal } from "../models/Animal";
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -29,7 +29,7 @@ export default class AnimalInfoCommand implements Command {
         // The string representing the animal to get the info of
         const animalIdentifier = parsedUserCommand.fullArguments;
 
-        let animalObject: AnimalObject | undefined;
+        let animalObject: Animal | undefined;
         try {
             animalObject = await searchAnimal(animalIdentifier, {
                 guildId: parsedUserCommand.channel.guild.id,

@@ -2,11 +2,11 @@ import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
 import { Document } from 'mongoose';
 
 import SmartEmbed from '../discordUtility/SmartEmbed';
-import { Species, SpeciesObject } from '../models/Species';
+import { SpeciesModel, Species } from '../models/Species';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import PagedMessage from './PagedMessage';
 
-export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
+export default class BeastiaryMessage extends PagedMessage<Species> {
     private readonly user: User;
 
     constructor(channel: TextChannel | DMChannel, user: User) {
@@ -18,18 +18,18 @@ export default class BeastiaryMessage extends PagedMessage<SpeciesObject> {
     public async build(): Promise<void> {
         let speciesDocuments: Document[];
         try {
-            speciesDocuments = await Species.find({});
+            speciesDocuments = await SpeciesModel.find({});
         }
         catch (error) {
             throw new Error('There was an error getting a list of all species from the database.');
         }
 
         speciesDocuments.forEach(speciesDocument => {
-            const currentSpecies = new SpeciesObject({ document: speciesDocument });
+            const currentSpecies = new Species(speciesDocument._id);
             this.getElements().push(currentSpecies);
         });
 
-        this.getElements().sort((a: SpeciesObject, b: SpeciesObject) => {
+        this.getElements().sort((a: Species, b: Species) => {
             return a.getCommonNames()[0].toUpperCase() > b.getCommonNames()[0].toUpperCase() ? 1 : -1;
         });
 

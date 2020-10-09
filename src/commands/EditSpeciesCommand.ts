@@ -1,7 +1,7 @@
 import Command from '../structures/CommandInterface';
 import CommandParser from '../structures/CommandParser';
 import { betterSend } from "../discordUtility/messageMan";
-import { CommonNameTemplate, ImageTemplate, Species, SpeciesObject } from '../models/Species';
+import { CommonNameTemplate, SpeciesCardTemplate, SpeciesModel, Species } from '../models/Species';
 import SpeciesEditMessage from '../messages/SpeciesEditMessage';
 import { SimpleEDoc } from '../structures/EDoc';
 import { Document } from 'mongoose';
@@ -30,7 +30,7 @@ export default class EditSpeciesCommand implements Command {
         let speciesDocument: Document | null;
         // Get a species whose first common name is the search term
         try {
-            speciesDocument = await Species.findOne({ commonNamesLower: fullSearchTerm });
+            speciesDocument = await SpeciesModel.findOne({ commonNamesLower: fullSearchTerm });
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error finding a species document in the edit species command.');
@@ -44,7 +44,7 @@ export default class EditSpeciesCommand implements Command {
         }
 
         // Create and load a species object representing the target species
-        const speciesObject = new SpeciesObject({ document: speciesDocument });
+        const speciesObject = new Species(speciesDocument._id);
         try {
             await speciesObject.load();
         }
@@ -79,7 +79,7 @@ export default class EditSpeciesCommand implements Command {
             speciesObject.setFields({
                 commonNames: finalDocument['commonNames'] as unknown as CommonNameTemplate[],
                 scientificName: finalDocument['scientificName'] as string,
-                images: finalDocument['images'] as unknown as ImageTemplate[],
+                cards: finalDocument['cards'] as unknown as SpeciesCardTemplate[],
                 description: finalDocument['description'] as string,
                 naturalHabitat: finalDocument['naturalHabitat'] as string,
                 wikiPage: finalDocument['wikiPage'] as string,

@@ -4,6 +4,7 @@ import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 
 
 import { betterSend } from "../discordUtility/messageMan";
 import { interactiveMessageHandler } from './InteractiveMessageHandler';
+import { errorHandler } from '../structures/ErrorHandler';
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance
 interface EmojiButton {
@@ -226,8 +227,14 @@ export default class InteractiveMessage extends EventEmitter {
 
         // If the message is already prepared for sending
         if (this.readyToSend()) {
-            // Send the message and build it
-            this.sendAndAddButtons();
+            try {
+                // Send the message and build it
+                await this.sendAndAddButtons();
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error sending and adding buttons to an interactive message.');
+                return;
+            }
         }
         // If the message isn't yet prepared to send
         else {

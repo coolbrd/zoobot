@@ -2,9 +2,9 @@ import { Document } from 'mongoose';
 
 import Command from '../structures/CommandInterface';
 import CommandParser from '../structures/CommandParser';
-import { PendingSpecies, PendingSpeciesObject } from '../models/PendingSpecies';
+import { PendingSpeciesModel, PendingSpecies } from '../models/PendingSpecies';
 import { betterSend } from "../discordUtility/messageMan";
-import { commonNamesToLower, CommonNameTemplate, Species } from '../models/Species';
+import { commonNamesToLower, CommonNameTemplate, SpeciesModel } from '../models/Species';
 import SpeciesApprovalMessage from '../messages/SpeciesApprovalMessage';
 import { SimpleEDoc } from '../structures/EDoc';
 import { errorHandler } from '../structures/ErrorHandler';
@@ -33,7 +33,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         let pendingSpeciesDocument: Document | null;
         // Get a pending species whose first common name is the search term
         try {
-            pendingSpeciesDocument = await PendingSpecies.findOne({ commonNamesLower: fullSearchTerm });
+            pendingSpeciesDocument = await PendingSpeciesModel.findOne({ commonNamesLower: fullSearchTerm });
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error trying to find a pending species document in the database.');
@@ -47,7 +47,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         }
 
         // Create a new pending species object from the found document
-        const pendingSpeciesObject = new PendingSpeciesObject({ document: pendingSpeciesDocument });
+        const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument._id);
 
         // Create a new approval message from the object and send it
         const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpeciesObject);
@@ -78,7 +78,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         // If the submission gets approved (submitted)
         approvalMessage.once('submit', (finalDocument: SimpleEDoc) => {
             // Create a new species from the final document
-            const speciesDocument = new Species(finalDocument);
+            const speciesDocument = new SpeciesModel(finalDocument);
 
             // Get common names and their lowercase array form
             const commonNames = finalDocument['commonNames'] as unknown as CommonNameTemplate[];

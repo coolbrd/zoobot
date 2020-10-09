@@ -1,12 +1,12 @@
 import { DMChannel, TextChannel } from 'discord.js';
 
-import { SpeciesObject } from '../models/Species';
+import { Species } from '../models/Species';
 import EDocMessage from './EDocMessage';
 import { EDoc, } from '../structures/EDoc';
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 
 export default class SpeciesEditMessage extends EDocMessage {
-    constructor(channel: TextChannel | DMChannel, speciesObject: SpeciesObject) {
+    constructor(channel: TextChannel | DMChannel, speciesObject: Species) {
         // The eDoc that will represent the edited state of the species object
         const eDoc = new EDoc({
             commonNames: {
@@ -47,7 +47,7 @@ export default class SpeciesEditMessage extends EDocMessage {
                 alias: 'scientific name',
                 prompt: 'Enter this animal\'s scientific (taxonomical) name:'
             },
-            images: {
+            cards: {
                 type: [{
                     type: {
                         _id: {
@@ -59,22 +59,22 @@ export default class SpeciesEditMessage extends EDocMessage {
                             type: String,
                             required: true,
                             alias: 'url',
-                            prompt: 'Enter a valid imgur link to a clear picture of the animal. Must be a direct link to the image (e.g. "i.imgur.com/fake-image"):'
+                            prompt: 'Enter a valid imgur link to this species\' card. Must be a direct link to the card\'s image (e.g. "i.imgur.com/fake-image"):'
                         },
                         breed: {
                             type: String,
                             required: false,
                             alias: 'breed',
-                            prompt: 'Enter the breed of the animal depicted in this image, if one is apparent:'
+                            prompt: 'Enter the breed of the animal depicted in this card, if one is apparent:'
                         }
                     },
-                    alias: 'image',
+                    alias: 'card',
                     documentOptions: {
                         displayField: 'url'
                     }
                 }],
                 required: true,
-                alias: 'images',
+                alias: 'cards',
                 arrayOptions: {
                     viewportSize: 10
                 }
@@ -116,14 +116,14 @@ export default class SpeciesEditMessage extends EDocMessage {
             })
         });
 
-        // Same deal with images
-        const imagesField = eDoc.getField('images');
-        const images = speciesObject.getImageObjects();
-        images.forEach(image => {
-            imagesField.push({
-                _id: image._id ? String(image._id) : undefined,
-                url: image.url,
-                breed: image.breed
+        // Same deal with cards
+        const cardsField = eDoc.getField('cards');
+        const cards = speciesObject.getCardObjects();
+        cards.forEach(card => {
+            cardsField.push({
+                _id: card._id ? String(card._id) : undefined,
+                url: card.url,
+                breed: card.breed
             });
         });
 

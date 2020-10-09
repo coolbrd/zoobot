@@ -1,28 +1,28 @@
 import { MessageEmbed, TextChannel, User } from "discord.js";
 import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import buildAnimalImage from "../embedBuilders/buildAnimalImage";
+import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { AnimalObject } from "../models/Animal";
+import { Animal } from "../models/Animal";
 import { errorHandler } from "../structures/ErrorHandler";
 
-// Displays a single animal's basic info and image
+// Displays a single animal's basic info and card
 export default class AnimalInfoMessage extends InteractiveMessage {
-    private readonly animalObject: AnimalObject;
+    private readonly animalObject: Animal;
 
     // The user instance associated with the player that owns the displayed animal
     private ownerUser: User | undefined;
 
-    // Whether or not this message is showing the animal's image
-    private imageMode = false;
+    // Whether or not this message is showing the animal's card
+    private cardMode = false;
 
-    constructor(channel: TextChannel, animalObject: AnimalObject) {
+    constructor(channel: TextChannel, animalObject: Animal) {
         super(channel, { buttons: [
             {
                 name: 'mode',
                 emoji: '🖼️',
-                helpMessage: 'toggle image view'
+                helpMessage: 'toggle card view'
             }
         ]});
 
@@ -60,11 +60,11 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         embed.setAuthor(`Belongs to ${this.getOwnerUser().username}`, userAvatar);
 
         // Build the message according to what mode it's in
-        if (!this.imageMode) {
+        if (!this.cardMode) {
             buildAnimalInfo(embed, this.animalObject);
         }
         else {
-            buildAnimalImage(embed, this.animalObject);
+            buildAnimalCard(embed, this.animalObject);
         }
 
         embed.setFooter(this.getButtonHelpString());
@@ -74,7 +74,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
 
     // Toggle mode on button press
     public async buttonPress(_buttonName: string, _user: User): Promise<void> {
-        this.imageMode = !this.imageMode;
+        this.cardMode = !this.cardMode;
 
         this.setEmbed(this.buildEmbed());
     }

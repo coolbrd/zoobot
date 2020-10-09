@@ -1,7 +1,7 @@
 import { TextChannel } from 'discord.js';
 import { Document, Types } from 'mongoose';
 
-import { Species, SpeciesObject } from '../models/Species';
+import { SpeciesModel, Species } from '../models/Species';
 import EncounterMessage from '../messages/Encountermessage';
 import getWeightedRandom from "../utility/getWeightedRandom";
 import { errorHandler } from '../structures/ErrorHandler';
@@ -16,7 +16,7 @@ class EncounterHandler {
         let rarityList: Document[];
         // Get all species and their associated rarity values
         try {
-            rarityList = await Species.find({}, { rarity: 1 });
+            rarityList = await SpeciesModel.find({}, { rarity: 1 });
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error getting all species rarities from the database.');
@@ -42,7 +42,7 @@ class EncounterHandler {
         let speciesDocument: Document | null;
         // Get a weighted random species from the rarity map, and convert it to a species document
         try {
-            speciesDocument = await Species.findById(getWeightedRandom(this.rarityMap));
+            speciesDocument = await SpeciesModel.findById(getWeightedRandom(this.rarityMap));
         }
         catch (error) {
             throw new Error('There was an error getting a species by an id.');
@@ -53,7 +53,7 @@ class EncounterHandler {
             throw new Error('No species was found by a given ID from the encounter rarity table.');
         }
 
-        const encounterMessage = new EncounterMessage(channel, new SpeciesObject({document: speciesDocument}));
+        const encounterMessage = new EncounterMessage(channel, new Species(speciesDocument._id));
         // Send an encounter message to the channel
         try {
             await encounterMessage.send();

@@ -1,6 +1,6 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { AnimalObject } from "../models/Animal";
+import { Animal } from "../models/Animal";
 import { PlayerObject } from "../models/Player";
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";

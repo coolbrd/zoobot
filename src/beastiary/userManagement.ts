@@ -2,14 +2,14 @@ import { Guild } from "discord.js";
 import { Document } from "mongoose";
 
 import getGuildMember from "../discordUtility/getGuildMember";
-import { Animal, AnimalObject } from "../models/Animal";
-import { GuildModel, GuildObject } from "../models/Guild";
+import { AnimalModel, Animal } from "../models/Animal";
+import { GuildModel, PlayerGuild } from "../models/Guild";
 import { PlayerObject } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "./Beastiary";
 
 // Gets a guild document from the database that corresponds to a given guild object and returns it as an object
-export async function getGuildObject(guild: Guild): Promise<GuildObject> {
+export async function getGuildObject(guild: Guild): Promise<PlayerGuild> {
     // Attempt to find an existing document that represents this guild
     let guildDocument: Document | null;
     try {
@@ -38,7 +38,7 @@ export async function getGuildObject(guild: Guild): Promise<GuildObject> {
     }
 
     // Return the pre-existing or newly created guild document within a wrapper object
-    return new GuildObject({document: guildDocument});
+    return new PlayerGuild(guildDocument._id);
 }
 
 // Searches for an animal in
@@ -49,7 +49,7 @@ export async function searchAnimal(
         userId?: string,
         playerObject?: PlayerObject,
         searchByPosition?: boolean
-    }): Promise<AnimalObject | undefined> {
+    }): Promise<Animal | undefined> {
     // Pull the potential guild id and player object from the search options (undefined if none)
     const guildId = searchOptions && searchOptions.guildId;
     const userId = searchOptions && searchOptions.userId;
@@ -73,7 +73,7 @@ export async function searchAnimal(
 
     // If the search term isn't a number (it's a nickname)
     if (isNaN(searchNumber)) {
-        let animalObject: AnimalObject | undefined;
+        let animalObject: Animal | undefined;
         // Attempt to get an animal by the nickname provided
         try {
             animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);

@@ -26,9 +26,6 @@ export default class PlayerManager {
         for (const cachedPlayer of this.cache.values()) {
             // If the current player's information matches the guild member
             if (cachedPlayer.value.getUserId() === guildMember.user.id && cachedPlayer.value.getGuildId() === guildMember.guild.id) {
-                // Force the player object to get the most up to date data
-                await cachedPlayer.value.refresh();
-
                 // Reset the cached player's deletion timer
                 cachedPlayer.setTimer(this.createNewTimer(cachedPlayer.value));
 
@@ -52,11 +49,10 @@ export default class PlayerManager {
             // Create a new player object
             player = await this.createNewPlayer(guildMember);
         }
-
         // If an existing player document was found
         else {
             // Create an object from the document
-            player = new PlayerObject({ document: playerDocument });
+            player = new PlayerObject(playerDocument._id);
         }
 
         // Load the player's information
@@ -86,6 +82,6 @@ export default class PlayerManager {
         }
 
         // Return the new player as an object
-        return new PlayerObject({ document: playerDocument });
+        return new PlayerObject(playerDocument._id);
     }
 }
