@@ -5,6 +5,7 @@ import { SpeciesModel, Species } from "../models/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import getWeightedRandom from "../utility/getWeightedRandom";
 import { errorHandler } from "../structures/ErrorHandler";
+import { beastiary } from "./Beastiary";
 
 // A handler class that deals with creating encounters with species from the total set
 class EncounterHandler {
@@ -39,21 +40,16 @@ class EncounterHandler {
             throw new Error("Tried to spawn an animal before the encounter rarity map was formed.");
         }
 
-        let speciesDocument: Document | null;
-        // Get a weighted random species from the rarity map, and convert it to a species document
+        // Get a weighted random species object
+        let species: Species;
         try {
-            speciesDocument = await SpeciesModel.findById(getWeightedRandom(this.rarityMap));
+            species = await beastiary.species.fetchById(getWeightedRandom(this.rarityMap));
         }
         catch (error) {
             throw new Error("There was an error getting a species by an id.");
         }
 
-        // If somehow no species by that ID was found
-        if (!speciesDocument) {
-            throw new Error("No species was found by a given ID from the encounter rarity table.");
-        }
-
-        const encounterMessage = new EncounterMessage(channel, new Species(speciesDocument._id));
+        const encounterMessage = new EncounterMessage(channel, species);
         // Send an encounter message to the channel
         try {
             await encounterMessage.send();
