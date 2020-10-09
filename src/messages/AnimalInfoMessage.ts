@@ -1,4 +1,5 @@
 import { MessageEmbed, TextChannel, User } from "discord.js";
+
 import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";

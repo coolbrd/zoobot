@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
+
 import DocumentWrapper from "../structures/DocumentWrapper";
 import { guildConfigSchema } from "./guildConfig";
 

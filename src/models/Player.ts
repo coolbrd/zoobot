@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 import { errorHandler } from "../structures/ErrorHandler";

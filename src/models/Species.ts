@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+
 import DocumentWrapper from "../structures/DocumentWrapper";
 
 export const cardSubSchema = new Schema({

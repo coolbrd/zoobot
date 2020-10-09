@@ -1,6 +1,6 @@
 import { DMChannel, TextChannel, User } from "discord.js";
-import { client } from "..";
 
+import { client } from "..";
 import { PendingSpecies } from "../models/PendingSpecies";
 import { EDoc } from "../structures/EDoc";
 import { errorHandler } from "../structures/ErrorHandler";

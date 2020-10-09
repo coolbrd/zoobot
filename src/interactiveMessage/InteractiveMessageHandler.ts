@@ -1,6 +1,6 @@
 import { Client, MessageReaction, User, PartialUser, RateLimitData } from "discord.js";
-import { errorHandler } from "../structures/ErrorHandler";
 
+import { errorHandler } from "../structures/ErrorHandler";
 import InteractiveMessage from "./InteractiveMessage";
 
 // A handler class for managing groups of InteractiveMessages
