@@ -48,6 +48,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
         // Create a new pending species object from the found document
         const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument._id);
+        await pendingSpeciesObject.load();
 
         // Create a new approval message from the object and send it
         const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpeciesObject);

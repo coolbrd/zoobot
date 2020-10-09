@@ -24,25 +24,38 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             throw new Error('There was an error getting a list of all species from the database.');
         }
 
+        speciesDocuments.sort((a: Document, b: Document) => {
+            return a.get('commonNamesLower')[0] > b.get('commonNamesLower')[0] ? 1 : -1;
+        });
+
         speciesDocuments.forEach(speciesDocument => {
             const currentSpecies = new Species(speciesDocument._id);
             this.getElements().push(currentSpecies);
         });
 
-        this.getElements().sort((a: Species, b: Species) => {
-            return a.getCommonNames()[0].toUpperCase() > b.getCommonNames()[0].toUpperCase() ? 1 : -1;
-        });
-
-        this.setEmbed(this.buildEmbed());
+        this.setEmbed(await this.buildEmbed());
     }
     
-    private buildEmbed(): MessageEmbed {
+    private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
 
+        const speciesOnPage = this.getVisibleElements();
+
+        await new Promise(resolve => {
+            let complete = 0;
+            speciesOnPage.forEach(species => {
+                species.load().then(() => {
+                    if (++complete >= speciesOnPage.length) {
+                        resolve();
+                    }
+                });
+            });
+        });
+
         let pageString = '';
-        this.getVisibleElements().forEach(speciesObject => {
+        speciesOnPage.forEach(speciesObject => {
             pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]) + '\n';
         });
 
@@ -53,7 +66,7 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
         return embed;
     }
 
-    public buttonPress(buttonName: string, user: User): void {
+    public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
@@ -67,6 +80,6 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             }
         }
 
-        this.setEmbed(this.buildEmbed());
+        this.setEmbed(await this.buildEmbed());
     }
 }
