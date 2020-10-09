@@ -20,9 +20,9 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     constructor(channel: TextChannel, animalObject: Animal) {
         super(channel, { buttons: [
             {
-                name: 'mode',
-                emoji: '🖼️',
-                helpMessage: 'toggle card view'
+                name: "mode",
+                emoji: "🖼️",
+                helpMessage: "toggle card view"
             }
         ]});
 
@@ -31,7 +31,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
 
     private getOwnerUser(): User {
         if (!this.ownerUser) {
-            throw new Error('An animal info message attempted to access the animal\'s owner\'s user before it was found.');
+            throw new Error("An animal info message attempted to access the animal's owner's user before it was found.");
         }
 
         return this.ownerUser;
@@ -43,7 +43,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             await this.animalObject.load();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading an animal object\'s data.');
+            errorHandler.handleError(error, "There was an error loading an animal object's data.");
             return;
         }
 

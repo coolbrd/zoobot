@@ -1,10 +1,10 @@
-import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
-import { Document } from 'mongoose';
+import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
+import { Document } from "mongoose";
 
-import SmartEmbed from '../discordUtility/SmartEmbed';
-import { SpeciesModel, Species } from '../models/Species';
-import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
-import PagedMessage from './PagedMessage';
+import SmartEmbed from "../discordUtility/SmartEmbed";
+import { SpeciesModel, Species } from "../models/Species";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import PagedMessage from "./PagedMessage";
 
 export default class BeastiaryMessage extends PagedMessage<Species> {
     private readonly user: User;
@@ -21,11 +21,11 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             speciesDocuments = await SpeciesModel.find({});
         }
         catch (error) {
-            throw new Error('There was an error getting a list of all species from the database.');
+            throw new Error("There was an error getting a list of all species from the database.");
         }
 
         speciesDocuments.sort((a: Document, b: Document) => {
-            return a.get('commonNamesLower')[0] > b.get('commonNamesLower')[0] ? 1 : -1;
+            return a.get("commonNamesLower")[0] > b.get("commonNamesLower")[0] ? 1 : -1;
         });
 
         speciesDocuments.forEach(speciesDocument => {
@@ -54,9 +54,9 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             });
         });
 
-        let pageString = '';
+        let pageString = "";
         speciesOnPage.forEach(speciesObject => {
-            pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]) + '\n';
+            pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]) + "\n";
         });
 
         embed.setDescription(pageString);
@@ -70,11 +70,11 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
-            case 'leftArrow': {
+            case "leftArrow": {
                 this.movePages(-1);
                 break;
             }
-            case 'rightArrow': {
+            case "rightArrow": {
                 this.movePages(1);
                 break;
             }

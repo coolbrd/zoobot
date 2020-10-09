@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
-import DocumentWrapper from '../structures/DocumentWrapper';
+import DocumentWrapper from "../structures/DocumentWrapper";
 import { errorHandler } from "../structures/ErrorHandler";
 import { Animal } from "./Animal";
 
@@ -19,7 +19,7 @@ const playerSchema = new Schema({
     }
 });
 
-export const Player = mongoose.model('Player', playerSchema);
+export const Player = mongoose.model("Player", playerSchema);
 
 // A wrapper object for a Mongoose player document
 export class PlayerObject extends DocumentWrapper {
@@ -31,20 +31,20 @@ export class PlayerObject extends DocumentWrapper {
     }
 
     public getUserId(): string {
-        return this.getDocument().get('userId');
+        return this.getDocument().get("userId");
     }
 
     public getGuildId(): string {
-        return this.getDocument().get('guildId');
+        return this.getDocument().get("guildId");
     }
 
     public getAnimalIds(): Types.ObjectId[] {
-        return this.getDocument().get('animals');
+        return this.getDocument().get("animals");
     }
 
     public getAnimals(): Animal[] {
         if (!this.animals) {
-            throw new Error('A player\'s animals were attempted to be retrieved before they were loaded.');
+            throw new Error("A player's animals were attempted to be retrieved before they were loaded.");
         }
 
         return this.animals;
@@ -70,7 +70,7 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error adding an animal to a player\'s inventory.');
+            errorHandler.handleError(error, "There was an error adding an animal to a player's inventory.");
         }
 
         await this.refresh();
@@ -89,7 +89,7 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error adding animals to a player\'s animal inventory.');
+            errorHandler.handleError(error, "There was an error adding animals to a player's animal inventory.");
             return;
         }
 
@@ -106,7 +106,7 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error removing an animal from a player\'s animal inventory.');
+            errorHandler.handleError(error, "There was an error removing an animal from a player's animal inventory.");
             return;
         }
 
@@ -130,7 +130,7 @@ export class PlayerObject extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error('There was an error removing animals from a player\'s animal inventory.');
+            throw new Error("There was an error removing animals from a player's animal inventory.");
         }
 
         await this.refresh();
@@ -141,7 +141,7 @@ export class PlayerObject extends DocumentWrapper {
     public async loadAnimals(): Promise<void> {
         // Don't attempt to load any animals before this player's document is loaded
         if (!this.documentLoaded()) {
-            throw new Error('A player object\'s animals were attempted to be loaded before the document was loaded.');
+            throw new Error("A player object's animals were attempted to be loaded before the document was loaded.");
         }
 
         // If this player's animals are already known/loaded, do nothing
@@ -150,7 +150,7 @@ export class PlayerObject extends DocumentWrapper {
         }
 
         // Get this player's list of animal ids
-        const animalIds = this.getDocument().get('animals');
+        const animalIds = this.getDocument().get("animals");
 
         // For every animal id, add a new animal object of that id to this player's inventory
         const animals: Animal[] = [];
@@ -192,7 +192,7 @@ export class PlayerObject extends DocumentWrapper {
             await this.loadDocument();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading a player\'s document.');
+            errorHandler.handleError(error, "There was an error loading a player's document.");
             return;
         }
 
@@ -200,7 +200,7 @@ export class PlayerObject extends DocumentWrapper {
             await this.loadAnimals();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading a player\'s animals.');
+            errorHandler.handleError(error, "There was an error loading a player's animals.");
             return;
         }
     }

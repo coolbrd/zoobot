@@ -5,7 +5,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { errorHandler } from "../structures/ErrorHandler";
 
 export default class ViewInventoryCommand implements Command {
-    commandNames = ['inventory', 'inv', 'vi'];
+    commandNames = ["inventory", "inv", "vi"];
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}inv\` to see a list of all your captured animals.`;
@@ -13,8 +13,8 @@ export default class ViewInventoryCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Don't run the command if it's in DMs
-        if (parsedUserCommand.channel.type === 'dm') {
-            betterSend(parsedUserCommand.channel, 'The inventory command can only be used in servers.');
+        if (parsedUserCommand.channel.type === "dm") {
+            betterSend(parsedUserCommand.channel, "The inventory command can only be used in servers.");
             return;
         }
 
@@ -23,7 +23,7 @@ export default class ViewInventoryCommand implements Command {
             await inventoryMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error sending a user inventory message.');
+            errorHandler.handleError(error, "There was an error sending a user inventory message.");
         }
     }
 }

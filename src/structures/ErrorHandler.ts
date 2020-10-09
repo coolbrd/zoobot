@@ -8,7 +8,7 @@ class ErrorHandler {
         const developer = await client.users.fetch(DEVELOPER_ID);
 
         if (!developer) {
-            throw new Error('Developer user could not be found for error handler.');
+            throw new Error("Developer user could not be found for error handler.");
         }
 
         this.developer = developer;
@@ -16,14 +16,14 @@ class ErrorHandler {
 
     private getDeveloper(): User {
         if (!this.developer) {
-            throw new Error('Developer user in error handler is undefined.');
+            throw new Error("Developer user in error handler is undefined.");
         }
 
         return this.developer;
     }
 
     public handleError(error: Error, message?: string): void {
-        console.error(message || 'Error message from the centralized error-handling component', error);
+        console.error(message || "Error message from the centralized error-handling component", error);
 
         this.getDeveloper().send(error);
     }

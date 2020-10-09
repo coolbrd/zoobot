@@ -1,4 +1,4 @@
-import { Document, Model, Types } from 'mongoose';
+import { Document, Model, Types } from "mongoose";
 
 // An object abstraction of a Mongoose document. Meant to be extended so documents can be easily treated as game objects.
 export default class DocumentWrapper {
@@ -24,7 +24,7 @@ export default class DocumentWrapper {
     protected getDocument(): Document {
         // Don't try to do anything if the document isn't loaded yet
         if (!this.document) {
-            throw new Error('A DocumentWrapper\'s document was attempted to be accessed before it was loaded.');
+            throw new Error("A DocumentWrapper's document was attempted to be accessed before it was loaded.");
         }
 
         return this.document;
@@ -58,7 +58,7 @@ export default class DocumentWrapper {
 
         // If the id is invalid
         if (!document) {
-            throw new Error('Nothing was found when a DocumentWrapper tried to load it\'s document.');
+            throw new Error("Nothing was found when a DocumentWrapper tried to load it's document.");
         }
 
         // Assign the new document

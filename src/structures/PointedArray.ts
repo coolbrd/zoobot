@@ -11,7 +11,7 @@ export default class PointedArray<T> extends Array {
     // If its left at 0, its default, the viewport will extend to the end of the array
     private viewSize = 0;
 
-    private readonly defaultDelimiter = ', ';
+    private readonly defaultDelimiter = ", ";
 
     constructor(array?: T[], options?: { viewSize?: number }) {
         super();
@@ -40,7 +40,7 @@ export default class PointedArray<T> extends Array {
         // Get the visible array of elements from this array (all elements within the viewport)
         const returnArray = this.getViewableSlice();
 
-        let returnString = '';
+        let returnString = "";
         // Start tracking the index at the first displayed element
         let arrayIndex = this.viewPosition;
 
@@ -83,7 +83,7 @@ export default class PointedArray<T> extends Array {
             // Append the current value 
             returnString += currentValueString;
             // Append the pointer if one was provided and the current element is the selection
-            returnString += options && options.pointer ? (arrayIndex === this.getPointerPosition() ? ` ${options.pointer}` : '') : '';
+            returnString += options && options.pointer ? (arrayIndex === this.getPointerPosition() ? ` ${options.pointer}` : "") : "";
             // Append a delimiter
             returnString += options && options.delimiter ? options.delimiter : this.defaultDelimiter;
 
@@ -93,7 +93,7 @@ export default class PointedArray<T> extends Array {
         // If there are elements beyond the viewport (afterwards)
         if (this.viewSize > 0 && this.viewPosition + this.viewSize < this.length) {
             // Indicate that such elements exist below what's currently seen
-            returnString += '...'
+            returnString += "..."
         }
 
         return returnString;

@@ -1,5 +1,5 @@
-import { TextChannel, Message, User, DMChannel } from 'discord.js';
-import { errorHandler } from '../structures/ErrorHandler';
+import { TextChannel, Message, User, DMChannel } from "discord.js";
+import { errorHandler } from "../structures/ErrorHandler";
 
 // Waits for a given user's next message and returns it
 export default async function awaitUserNextMessage(channel: TextChannel | DMChannel, user: User, timeout: number): Promise<Message | undefined> {
@@ -9,7 +9,7 @@ export default async function awaitUserNextMessage(channel: TextChannel | DMChan
         return response.author === user;
     };
     // Options that force the collector to finish after one message, or after timeout
-    const messageCollectorOptions = { max: 1, time: timeout, errors: ['time'] };
+    const messageCollectorOptions = { max: 1, time: timeout, errors: ["time"] };
 
     // Initialize the user's response up here because I have to
     let userResponse;

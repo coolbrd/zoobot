@@ -9,7 +9,7 @@ import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
 export default class MoveAnimalsCommand implements Command {
-    public readonly commandNames = ['moveanimals', 'ma'];
+    public readonly commandNames = ["moveanimals", "ma"];
 
     public help(prefix: string): string {
         return stripIndents`
@@ -20,8 +20,8 @@ export default class MoveAnimalsCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // If the message was sent in a dm chat, don't let things continue (naughty user!)
-        if (parsedUserCommand.channel.type === 'dm') {
-            betterSend(parsedUserCommand.channel, 'This command can only be used in servers.');
+        if (parsedUserCommand.channel.type === "dm") {
+            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
             return
         }
 
@@ -37,7 +37,7 @@ export default class MoveAnimalsCommand implements Command {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error getting a player object in the move animals command.');
+            errorHandler.handleError(error, "There was an error getting a player object in the move animals command.");
             return;
         }
 
@@ -72,7 +72,7 @@ export default class MoveAnimalsCommand implements Command {
 
         // If there are any errors at all
         if (errors.length > 0) {
-            betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your inventory. Errors: ${errors.join(', ')}`);
+            betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your inventory. Errors: ${errors.join(", ")}`);
             // Don't run the command with errors
             return;
         }
@@ -94,7 +94,7 @@ export default class MoveAnimalsCommand implements Command {
             animalIds = await playerObject.removeAnimalsPositional(positions);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to bulk remove animals from a player\'s inventory for movement.');
+            errorHandler.handleError(error, "There was an error trying to bulk remove animals from a player's inventory for movement.");
             return;
         }
 
@@ -106,12 +106,12 @@ export default class MoveAnimalsCommand implements Command {
             await playerObject.addAnimalsPositional(animalIds, basePosition + 1);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to add animals back to a player\'s inventory for movement.');
+            errorHandler.handleError(error, "There was an error trying to add animals back to a player's inventory for movement.");
             return;
         }
 
-        parsedUserCommand.originalMessage.react('✅').catch(error => {
-            errorHandler.handleError(error, 'There was an error reacting to a message in the move animals command.');
+        parsedUserCommand.originalMessage.react("✅").catch(error => {
+            errorHandler.handleError(error, "There was an error reacting to a message in the move animals command.");
         });
     }
 }

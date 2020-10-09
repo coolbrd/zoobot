@@ -19,7 +19,7 @@ export class EDocField<ValueType extends EDocValue> {
         this.info = info;
 
         switch(getEDocTypeString(info.type)) {
-            case 'array': {
+            case "array": {
                 let viewportSize = 0;
                 if (this.info.arrayOptions && this.info.arrayOptions.viewportSize) {
                     viewportSize = this.info.arrayOptions.viewportSize;
@@ -28,7 +28,7 @@ export class EDocField<ValueType extends EDocValue> {
                 this.value = new PointedArray<EDocField<EDocValue>>([], { viewSize: viewportSize }) as ValueType;
                 break;
             }
-            case 'edoc': {
+            case "edoc": {
                 info.type = info.type as EDocSkeleton;
                 this.value = new EDoc(info.type) as ValueType;
                 break;
@@ -60,11 +60,11 @@ export class EDocField<ValueType extends EDocValue> {
         return Boolean(this.info.hidden);
     }
 
-    public getTypeString(): 'string' | 'number' | 'array' | 'edoc' {
+    public getTypeString(): "string" | "number" | "array" | "edoc" {
         return getEDocTypeString(this.info.type);
     }
 
-    public getNestedTypeString(): 'string' | 'number' | 'array' | 'edoc' | undefined {
+    public getNestedTypeString(): "string" | "number" | "array" | "edoc" | undefined {
         if (!Array.isArray(this.info.type)) {
             return undefined;
         }
@@ -74,18 +74,18 @@ export class EDocField<ValueType extends EDocValue> {
 
     public setValue(input: SimpleEDocValue | EDoc): void {
         // Get a human-friendly name for this field, even if it doesn't have one by default
-        const fieldAlias = this.info.alias || 'field';
+        const fieldAlias = this.info.alias || "field";
 
         // Set behavior depending on the type contained within this field
         switch (this.getTypeString()) {
-            case 'string': {
+            case "string": {
                 if (input === undefined) {
                     this.value = input as ValueType;
                     return;
                 }
 
-                if (typeof input !== 'string') {
-                    throw new TypeError('Non-string input given to an eDoc string field.')
+                if (typeof input !== "string") {
+                    throw new TypeError("Non-string input given to an eDoc string field.")
                 }
 
                 // Handle string options if they were specified
@@ -100,16 +100,16 @@ export class EDocField<ValueType extends EDocValue> {
                     // Normalize case if necessary
                     if (this.info.stringOptions.forceCase) {
                         switch (this.info.stringOptions.forceCase) {
-                            case 'lower': {
+                            case "lower": {
                                 input = input.toLowerCase();
                                 break;
                             }
-                            case 'upper': {
+                            case "upper": {
                                 input = input.toUpperCase();
                                 break;
                             }
                             default: {
-                                throw new RangeError('Invalid value for eDoc stringOptions forceCase.');
+                                throw new RangeError("Invalid value for eDoc stringOptions forceCase.");
                             }
                         }
                     }
@@ -119,7 +119,7 @@ export class EDocField<ValueType extends EDocValue> {
                 this.value = input as ValueType;
                 return;
             }
-            case 'number': {
+            case "number": {
                 if (input === undefined) {
                     this.value = input as ValueType;
                     return;
@@ -152,9 +152,9 @@ export class EDocField<ValueType extends EDocValue> {
                 this.value = inputNumber as ValueType;
                 return;
             }
-            case 'array': {
+            case "array": {
                 if (!Array.isArray(input)) {
-                    throw new Error('Non-array type given to eDoc array field.');
+                    throw new Error("Non-array type given to eDoc array field.");
                 }
 
                 // Clear the current array of all values
@@ -167,15 +167,15 @@ export class EDocField<ValueType extends EDocValue> {
                         this.push(element);
                     }
                     catch (error) {
-                        console.error('There was an error trying to push a value from a set of values to an eDoc array field.');
+                        console.error("There was an error trying to push a value from a set of values to an eDoc array field.");
                         throw error;
                     }
                 }
                 break;
             }
-            case 'edoc': {
-                if (typeof input !== 'object') {
-                    throw new Error('Non-Object value given to the set function of an eDoc field.');
+            case "edoc": {
+                if (typeof input !== "object") {
+                    throw new Error("Non-Object value given to the set function of an eDoc field.");
                 }
 
                 // If this field was just given a pre-created eDoc
@@ -195,7 +195,7 @@ export class EDocField<ValueType extends EDocValue> {
                             newEDoc.setField(fieldName, fieldValue);
                         }
                         catch (error) {
-                            console.error('There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.');
+                            console.error("There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.");
                             throw error;
                         }
                     }
@@ -210,19 +210,19 @@ export class EDocField<ValueType extends EDocValue> {
     // Resets the field to a valid empty value
     public clearValue(): void {
         switch (this.getTypeString()) {
-            case 'string': {
+            case "string": {
                 this.value = undefined as ValueType;
                 break;
             }
-            case 'number': {
+            case "number": {
                 this.value = undefined as ValueType;
                 break;
             }
-            case 'array': {
+            case "array": {
                 this.value = new PointedArray<EDocField<EDocValue>>() as ValueType;
                 break;
             }
-            case 'edoc': {
+            case "edoc": {
                 this.value = new EDoc(this.info.type as EDocSkeleton) as ValueType;
                 break;
             }
@@ -230,8 +230,8 @@ export class EDocField<ValueType extends EDocValue> {
     }
 
     public push(input?: SimpleEDocValue): void {
-        if (this.getTypeString() !== 'array') {
-            throw new Error('A non-array eDoc field was attempted to be used like an array field with the push method.');
+        if (this.getTypeString() !== "array") {
+            throw new Error("A non-array eDoc field was attempted to be used like an array field with the push method.");
         }
 
         // Clone the array's info so its element type can be extracted
@@ -242,7 +242,7 @@ export class EDocField<ValueType extends EDocValue> {
 
         // If the type in either the info or value of this field isn't an array
         if (!Array.isArray(arrayType) || !Array.isArray(this.value)) {
-            throw new Error('A non-array type was found in an eDoc array field.');
+            throw new Error("A non-array type was found in an eDoc array field.");
         }
 
         // Extract the element type from the array's type
@@ -268,21 +268,21 @@ export class EDocField<ValueType extends EDocValue> {
         
         // What marks a requirement as met depends on the type of the requirement
         switch (this.getTypeString()) {
-            case 'string': {
+            case "string": {
                 // Don't allow undefined or empty strings
                 if (!this.getValue()) {
                     return false;
                 }
                 break;
             }
-            case 'number': {
+            case "number": {
                 // Don't allow undefind
                 if (this.getValue() === undefined) {
                     return false;
                 }
                 break;
             }
-            case 'array': {
+            case "array": {
                 const value = this.getValue() as PointedArray<EDocField<EDocValue>>;
                 
                 // Default minimum length
@@ -294,7 +294,7 @@ export class EDocField<ValueType extends EDocValue> {
 
                     // Don't allow negative minimum lengths (not that it would break anything, it's just not right)
                     if (minimumLength < 0) {
-                        throw new Error('Negative length given to an eDoc field\'s arrayOptions.minimumLength');
+                        throw new Error("Negative length given to an eDoc field's arrayOptions.minimumLength");
                     }
                 }
 
@@ -314,7 +314,7 @@ export class EDocField<ValueType extends EDocValue> {
                 }
                 break;
             }
-            case 'edoc': {
+            case "edoc": {
                 const value = this.getValue() as EDoc;
 
                 // Don't allow nested eDocs whose requirements aren't met
@@ -339,14 +339,14 @@ export class EDocField<ValueType extends EDocValue> {
         // Process return info depending on this field's type
         switch (this.getTypeString()) {
             // Return strings and numbers plainly
-            case 'string': {
+            case "string": {
                 return this.value as string;
             }
-            case 'number': {
+            case "number": {
                 return this.value as number;
             }
             // Return a simple array of simple values
-            case 'array': {
+            case "array": {
                 const value = this.value as PointedArray<EDocField<EDocValue>>;
 
                 const returnArray: SimpleEDocValue[] = [];
@@ -358,7 +358,7 @@ export class EDocField<ValueType extends EDocValue> {
                 return returnArray;
             }
             // Return a simple object of simple values
-            case 'edoc': {
+            case "edoc": {
                 const value = this.value as EDoc;
 
                 const returnObject: SimpleEDocValue = {};
@@ -380,29 +380,29 @@ export class EDocField<ValueType extends EDocValue> {
     public toString(options?: { arrayPointer?: string }): string {
         // Display behavior depends on data type
         switch (this.getTypeString()) {
-            case 'string': {
+            case "string": {
                 const value = this.getValue() as string;
-                return value || '*Empty*';
+                return value || "*Empty*";
             }
-            case 'number': {
+            case "number": {
                 const value = this.getValue() as number;
-                return value === undefined ? '*NaN*' : value.toString();
+                return value === undefined ? "*NaN*" : value.toString();
             }
-            case 'array': {
+            case "array": {
                 const value = this.getValue() as PointedArray<EDocField<EDocValue>>;
 
                 // Convert the array to a string, but use the eDoc element's value fields instead of just displaying them as [Object]
                 return value.toString({
-                    delimiter: '\n',
+                    delimiter: "\n",
                     numbered: true,
                     pointer: options && options.arrayPointer,
                     filter: (field: EDocField<EDocValue>) => {
-                        return `${field.requirementsMet() ? '' : '✗'}${field.toString()}`},
+                        return `${field.requirementsMet() ? "" : "✗"}${field.toString()}`},
                     numberFilter: (number: string) => {
                         return `\`${number}\` `;
-                    }}) || '*Empty list*';
+                    }}) || "*Empty list*";
             }
-            case 'edoc': {
+            case "edoc": {
                 const value = this.getValue() as EDoc;
 
                 // If a field to override this document's display was provided
@@ -411,7 +411,7 @@ export class EDocField<ValueType extends EDocValue> {
 
                     // Make sure the eDoc has a field with the given name
                     if (!value.hasField(displayFieldName)) {
-                        throw new Error('Invalid field name found in eDocField.info.documentOptions.displayField');
+                        throw new Error("Invalid field name found in eDocField.info.documentOptions.displayField");
                     }
 
                     // Get the field specified
@@ -422,7 +422,7 @@ export class EDocField<ValueType extends EDocValue> {
                 }
 
                 // If no display field was provided, just label the document as its alias
-                return `__${capitalizeFirstLetter(`${this.info.alias || 'anonymous'} document`)}__`;
+                return `__${capitalizeFirstLetter(`${this.info.alias || "anonymous"} document`)}__`;
             }
         }
     }

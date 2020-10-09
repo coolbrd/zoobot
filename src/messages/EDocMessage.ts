@@ -18,44 +18,44 @@ export default class EDocMessage extends InteractiveMessage {
     constructor(channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
         super(channel, { lifetime: 300000, buttons: [
             {
-                name: 'pointerUp',
-                emoji: '⬆️',
-                helpMessage: 'Pointer up'
+                name: "pointerUp",
+                emoji: "⬆️",
+                helpMessage: "Pointer up"
             },
             {
-                name: 'pointerDown',
-                emoji: '⬇️',
-                helpMessage: 'Pointer down'
+                name: "pointerDown",
+                emoji: "⬇️",
+                helpMessage: "Pointer down"
             },
             {
-                name: 'edit',
-                emoji: '✏️',
-                helpMessage: 'Edit'
+                name: "edit",
+                emoji: "✏️",
+                helpMessage: "Edit"
             },
             {
-                name: 'back',
-                emoji: '⬅️',
-                helpMessage: 'Back'
+                name: "back",
+                emoji: "⬅️",
+                helpMessage: "Back"
             },
             {
-                name: 'new',
-                emoji: '🆕',
-                helpMessage: 'New item'
+                name: "new",
+                emoji: "🆕",
+                helpMessage: "New item"
             },
             {
-                name: 'delete',
-                emoji: '🗑️',
-                helpMessage: 'Delete item'
+                name: "delete",
+                emoji: "🗑️",
+                helpMessage: "Delete item"
             },
             {
-                name: 'submit',
-                emoji: '✅',
-                helpMessage: 'Submit'
+                name: "submit",
+                emoji: "✅",
+                helpMessage: "Submit"
             },
             {
-                name: 'exit',
-                emoji: '❌',
-                helpMessage: 'Exit'
+                name: "exit",
+                emoji: "❌",
+                helpMessage: "Exit"
             }
         ]});
 
@@ -63,7 +63,7 @@ export default class EDocMessage extends InteractiveMessage {
         // This is done in here so declarations of top-level eDocs don't need to explicitly declare their type, as it's implicit
         const topFieldInfo: EDocFieldInfo = {
             type: eDoc.getSkeleton(),
-            alias: docName || 'top document',
+            alias: docName || "top document",
             required: true
         }
 
@@ -89,44 +89,44 @@ export default class EDocMessage extends InteractiveMessage {
         const selectedFieldValue = selectedField.getValue();
 
         if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
-            throw new Error('Unexpected value type selected in eDoc.');
+            throw new Error("Unexpected value type selected in eDoc.");
         }
 
         const embed = new SmartEmbed();
 
         // The label for the currently selected field
-        let fieldTitle = '';
+        let fieldTitle = "";
 
         // Add the field's name
         fieldTitle += selectedField.getAlias();
 
         if (!fieldTitle) {
-            if (selectedField.getTypeString() === 'edoc') {
-                fieldTitle = 'anonymous document';
+            if (selectedField.getTypeString() === "edoc") {
+                fieldTitle = "anonymous document";
             }
             else {
-                fieldTitle = 'anonymous list';
+                fieldTitle = "anonymous list";
             }
         }
 
         fieldTitle = capitalizeFirstLetter(fieldTitle);
 
-        if (selectedField.getTypeString() === 'edoc') {
+        if (selectedField.getTypeString() === "edoc") {
             fieldTitle = `__${fieldTitle}__`;
         }
 
         // Indicate whether or not this field is satisfied
         if (!selectedField.requirementsMet()) {
-            fieldTitle += ' (incomplete)'
+            fieldTitle += " (incomplete)"
         }
 
         embed.setTitle(`Now editing: ${fieldTitle}`);
 
         if (selectedFieldValue instanceof EDoc) {
             // Hide array buttons
-            this.disableButton('new');
+            this.disableButton("new");
 
-            this.setButtonHelpMessage('delete', 'Clear field');
+            this.setButtonHelpMessage("delete", "Clear field");
 
             // Iterate over every field in the eDoc
             for (const [fieldName, field] of selectedFieldValue.getFields()) {
@@ -135,19 +135,19 @@ export default class EDocMessage extends InteractiveMessage {
                 }
 
                 // The string that will represent the current field
-                let fieldLabel = '';
+                let fieldLabel = "";
 
                 // Indicate if a field's requirements aren't met
                 if (!field.requirementsMet()) {
-                    fieldLabel += '✗ '
+                    fieldLabel += "✗ "
                 }
 
                 // Add field name
-                fieldLabel += capitalizeFirstLetter(field.getAlias() || 'anonymous field') + ': ';
+                fieldLabel += capitalizeFirstLetter(field.getAlias() || "anonymous field") + ": ";
 
                 // Draw the edit icon if the current field is the selected field
                 if (fieldName === selectedFieldValue.getSelectedFieldName()) {
-                    fieldLabel += '✏️';
+                    fieldLabel += "✏️";
                 }
 
                 // Get the current field's string representation
@@ -159,11 +159,11 @@ export default class EDocMessage extends InteractiveMessage {
         }
         else {
             // Show array buttons
-            this.enableButton('new');
+            this.enableButton("new");
 
-            this.setButtonHelpMessage('delete', 'Delete entry');
+            this.setButtonHelpMessage("delete", "Delete entry");
 
-            const arrayString = selectedField.toString({ arrayPointer: '✏️' });
+            const arrayString = selectedField.toString({ arrayPointer: "✏️" });
 
             embed.setDescription(arrayString);
         }
@@ -171,21 +171,21 @@ export default class EDocMessage extends InteractiveMessage {
         // If the top level is selected and the top document's requirements are met
         if (this.selectionStack.length === 1 && this.selectionStack[0].requirementsMet()) {
             // Allow the document to be submitted
-            this.enableButton('submit');
+            this.enableButton("submit");
         }
         // Otherwise, hide and disable the submit button
         else {
-            this.disableButton('submit');
+            this.disableButton("submit");
         }
 
         // If anything but the top document is selected
         if (this.selectionStack.length > 1) {
             // Show the back button
-            this.enableButton('back');
+            this.enableButton("back");
         }
         // Otherwise, hide it
         else {
-            this.disableButton('back');
+            this.disableButton("back");
         }
 
         embed.setFooter(this.getButtonHelpString());
@@ -204,7 +204,7 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Make sure the selected field's value is either a document or an array
         if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
-            throw new Error('Unexpected value type selected in eDoc.');
+            throw new Error("Unexpected value type selected in eDoc.");
         }
 
         // Document controls
@@ -216,24 +216,24 @@ export default class EDocMessage extends InteractiveMessage {
             const fieldType = selectedNestedField.getTypeString();
 
             switch (buttonName) {
-                case 'pointerUp': {
+                case "pointerUp": {
                     selectedFieldValue.decrementPointer();
                     break;
                 }
-                case 'pointerDown': {
+                case "pointerDown": {
                     selectedFieldValue.incrementPointer();
                     break;
                 }
-                case 'edit': {
+                case "edit": {
                     switch (fieldType) {
-                        case 'string': 
-                        case 'number': {
+                        case "string": 
+                        case "number": {
                             let promptString: string;
-                            if (fieldType === 'string') {
-                                promptString = selectedNestedField.getPrompt() || 'Enter your input for this field:';
+                            if (fieldType === "string") {
+                                promptString = selectedNestedField.getPrompt() || "Enter your input for this field:";
                             }
                             else {
-                                promptString = selectedNestedField.getPrompt() || 'Enter your numeric input for this field:'
+                                promptString = selectedNestedField.getPrompt() || "Enter your numeric input for this field:"
                             }
 
                             const promptMessage = await betterSend(this.channel, promptString);
@@ -253,20 +253,20 @@ export default class EDocMessage extends InteractiveMessage {
                             safeDeleteMessage(promptMessage);
                             break;
                         }
-                        case 'array': {
+                        case "array": {
                             this.selectionStack.push(selectedNestedField);
                             break;
                         }
-                        case 'edoc': {
+                        case "edoc": {
                             this.selectionStack.push(selectedNestedField);
                             break;
                         }
                     }
                     break;
                 }
-                case 'delete': {
+                case "delete": {
                     // Allow all fields other than nested documents to be cleared
-                    if (selectedNestedField.getTypeString() !== 'edoc') {
+                    if (selectedNestedField.getTypeString() !== "edoc") {
                         selectedNestedField.clearValue();
                     }
                     break;
@@ -276,16 +276,16 @@ export default class EDocMessage extends InteractiveMessage {
         // Array controls
         else {
             switch (buttonName) {
-                case 'pointerUp': {
+                case "pointerUp": {
                     selectedFieldValue.decrementPointer();
                     break;
                 }
-                case 'pointerDown': {
+                case "pointerDown": {
                     selectedFieldValue.incrementPointer();
                     break;
                 }
                 // Edit a single item within an array
-                case 'edit': {
+                case "edit": {
                     const selectedElement = selectedFieldValue.selection();
 
                     // Don't do anything if the array is empty
@@ -296,9 +296,9 @@ export default class EDocMessage extends InteractiveMessage {
                     // Edit behavior depends on the type of array
                     switch (selectedElement.getTypeString()) {
                         // For simple types, ask the user for input to replace the selected element
-                        case 'string':
-                        case 'number': {
-                            const promptString = selectedField.getPrompt() || 'Enter your input to replace this list entry:';
+                        case "string":
+                        case "number": {
+                            const promptString = selectedField.getPrompt() || "Enter your input to replace this list entry:";
 
                             const promptMessage = await betterSend(this.channel, promptString);
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
@@ -318,8 +318,8 @@ export default class EDocMessage extends InteractiveMessage {
                             break;
                         }
                         // For array and document arrays, select the selected element as the new field to display
-                        case 'array':
-                        case 'edoc': {
+                        case "array":
+                        case "edoc": {
                             this.selectionStack.push(selectedElement);
                             break;
                         }
@@ -327,13 +327,13 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 // New array element behavior
-                case 'new': {
+                case "new": {
                     // Behavior depends on the type of element contained within the array
                     switch (selectedField.getNestedTypeString()) {
                         // For strings and numbers, get user input and push it
-                        case 'string':
-                        case 'number': {
-                            const promptString = selectedField.getPrompt() || 'Enter your input for a new list entry:';
+                        case "string":
+                        case "number": {
+                            const promptString = selectedField.getPrompt() || "Enter your input for a new list entry:";
 
                             const promptMessage = await betterSend(this.channel, promptString);
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
@@ -353,15 +353,15 @@ export default class EDocMessage extends InteractiveMessage {
                             break;
                         }
                         // For arrays and eDocs, just add a new one to the array
-                        case 'array':
-                        case 'edoc': {
+                        case "array":
+                        case "edoc": {
                             selectedField.push();
                             break;
                         }
                     }
                     break;
                 }
-                case 'delete': {
+                case "delete": {
                     selectedFieldValue.deleteAtPointer();
                     break;
                 }
@@ -370,23 +370,23 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Universal button behavior
         switch (buttonName) {
-            case 'back': {
+            case "back": {
                 // Only go back if there's something to go back to
                 if (this.selectionStack.length > 1) {
                     this.selectionStack.pop();
                 }
                 break;
             }
-            case 'submit': {
+            case "submit": {
                 // Only submit if the top level is selected
                 if (this.selectionStack.length === 1) {
-                    this.emit('submit', this.selectionStack[0].getSimpleValue() as SimpleEDoc);
+                    this.emit("submit", this.selectionStack[0].getSimpleValue() as SimpleEDoc);
                     this.deactivate();
                 }
                 break;
             }
-            case 'exit': {
-                this.emit('exit');
+            case "exit": {
+                this.emit("exit");
                 this.deactivate();
                 break;
             }

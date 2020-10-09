@@ -1,10 +1,10 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
-import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 'discord.js';
+import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
 
 import { betterSend } from "../discordUtility/messageMan";
-import { interactiveMessageHandler } from './InteractiveMessageHandler';
-import { errorHandler } from '../structures/ErrorHandler';
+import { interactiveMessageHandler } from "./InteractiveMessageHandler";
+import { errorHandler } from "../structures/ErrorHandler";
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance
 interface EmojiButton {
@@ -50,7 +50,7 @@ export default class InteractiveMessage extends EventEmitter {
     // Whether or not this message is deactivated
     protected deactivated = false;
     // The text to append to the footer of the message once it has been deactivated
-    protected deactivationText = '(message deactivated)';
+    protected deactivationText = "(message deactivated)";
 
     constructor(
         channel: TextChannel | DMChannel,
@@ -109,7 +109,7 @@ export default class InteractiveMessage extends EventEmitter {
         }
 
         // Update deactivation flag once the deactivate event is emitted
-        this.once('deactivate', () => {
+        this.once("deactivate", () => {
             this.deactivated = true;
         });
     }
@@ -118,7 +118,7 @@ export default class InteractiveMessage extends EventEmitter {
     // Only meant to be called when the message is known to be sent. Use isSent to verify this.
     public getMessage(): Message {
         if (!this.message) {
-            throw new Error('Attempted to get the message of an interactive message that hasn\'t been sent yet');
+            throw new Error("Attempted to get the message of an interactive message that hasn't been sent yet");
         }
 
         return this.message;
@@ -144,7 +144,7 @@ export default class InteractiveMessage extends EventEmitter {
         const targetEmoji = this.buttonNames.get(buttonName);
 
         if (!targetEmoji) {
-            throw new Error('Couldn\'t find an emoji in a map of button names by a given name.');
+            throw new Error("Couldn't find an emoji in a map of button names by a given name.");
         }
 
         return targetEmoji;
@@ -155,7 +155,7 @@ export default class InteractiveMessage extends EventEmitter {
         const targetButton = this.buttons.get(emoji);
 
         if (!targetButton) {
-            throw new Error('Couldn\'t find a button in a map of buttons by a given emoji.');
+            throw new Error("Couldn't find a button in a map of buttons by a given emoji.");
         }
 
         return targetButton;
@@ -177,7 +177,7 @@ export default class InteractiveMessage extends EventEmitter {
     private async sendAndAddButtons(): Promise<void> {
         // If the message hasn't had its content initialized
         if (!this.content) {
-            throw new Error('Tried to send an interactive message with no content');
+            throw new Error("Tried to send an interactive message with no content");
         }
 
         // Send the interactive message's base message
@@ -185,7 +185,7 @@ export default class InteractiveMessage extends EventEmitter {
 
         // If nothing came back
         if (!this.message) {
-            throw new Error('Error sending the base message for an interactive message.');
+            throw new Error("Error sending the base message for an interactive message.");
         }
 
         // If we're here it means that the message was successfully sent
@@ -232,17 +232,17 @@ export default class InteractiveMessage extends EventEmitter {
                 await this.sendAndAddButtons();
             }
             catch (error) {
-                errorHandler.handleError(error, 'There was an error sending and adding buttons to an interactive message.');
+                errorHandler.handleError(error, "There was an error sending and adding buttons to an interactive message.");
                 return;
             }
         }
         // If the message isn't yet prepared to send
         else {
             // Assign a one-time listener that will send the message once it's been indicated as ready
-            this.once('readyToSend', async () => {
+            this.once("readyToSend", async () => {
                 // Make sure this event hasn't been emitted prematurely
                 if (!this.readyToSend()) {
-                    throw new Error('readyToSend event emitted before message is actually ready to send.');
+                    throw new Error("readyToSend event emitted before message is actually ready to send.");
                 }
                 // Send and build the message now that it's actually ready for that
                 this.sendAndAddButtons();
@@ -281,7 +281,7 @@ export default class InteractiveMessage extends EventEmitter {
         // If the message was previously unsent and not ready to send, but is ready now
         if (!readyToSend && this.readyToSend) {
             // Emit the ready event, so messages initialized with async build actions in their constructors get sent now
-            this.emit('readyToSend');
+            this.emit("readyToSend");
         }
     }
 
@@ -314,7 +314,7 @@ export default class InteractiveMessage extends EventEmitter {
     protected addButton(button: EmojiButton): void {
         // If the button is already on the message
         if (this.hasSimilarButton(button)) {
-            throw new Error('Attempted to add a button to an interactive message that already existed.');
+            throw new Error("Attempted to add a button to an interactive message that already existed.");
         }
 
         // Add the button to the map
@@ -360,10 +360,10 @@ export default class InteractiveMessage extends EventEmitter {
 
     // Gets a formatted string of all available help information for every button currently active on the message
     protected getButtonHelpString(): string {
-        let helpString = '';
+        let helpString = "";
         for (const button of this.buttons.values()) {
             // If the button is active, add the current button's help information if there is one
-            helpString += (!button.disabled && button.helpMessage) ? `${button.emoji}: ${button.helpMessage} ` : '';
+            helpString += (!button.disabled && button.helpMessage) ? `${button.emoji}: ${button.helpMessage} ` : "";
         }
         return helpString;
     }
@@ -394,7 +394,7 @@ export default class InteractiveMessage extends EventEmitter {
     // When the message's timer expires
     private timeExpired(): void {
         // Indicate that the timer has expired
-        this.emit('timeExpired');
+        this.emit("timeExpired");
         // Deactivate the message
         this.deactivate();
     }
@@ -430,7 +430,7 @@ export default class InteractiveMessage extends EventEmitter {
         }
 
         // Indicate that this message has been deactivated
-        this.emit('deactivate');
+        this.emit("deactivate");
 
         // If the timer was running, cancel it for good (preventing this method from being called again accidentally)
         this.timer && clearTimeout(this.timer);

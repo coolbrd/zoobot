@@ -1,10 +1,10 @@
-import { betterSend } from '../discordUtility/messageMan';
-import CommandParser from '../structures/CommandParser';
-import Command from '../structures/CommandInterface';
-import { commandHandler } from '../structures/CommandHandler';
+import { betterSend } from "../discordUtility/messageMan";
+import CommandParser from "../structures/CommandParser";
+import Command from "../structures/CommandInterface";
+import { commandHandler } from "../structures/CommandHandler";
 
 export default class HelpCommand implements Command {
-    public readonly commandNames = ['help', 'h'];
+    public readonly commandNames = ["help", "h"];
 
     public help(prefix: string): string {
         return `Use \`${prefix}help\` \`<command>\` to see more information about the usage of a particular command.`;
@@ -24,7 +24,7 @@ export default class HelpCommand implements Command {
 
         // If no command by that name exists
         if (!command) {
-            betterSend(parsedUserCommand.channel, `No command by the name '${commandName}' exists.`);
+            betterSend(parsedUserCommand.channel, `No command by the name "${commandName}" exists.`);
             return;
         }
 

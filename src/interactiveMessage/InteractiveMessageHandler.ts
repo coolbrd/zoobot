@@ -13,19 +13,19 @@ class InteractiveMessageHandler {
 
     public init(client: Client): void {
         // When the client observes a user adding a reaction to a message
-        client.on('messageReactionAdd', (messageReaction, user) => {
+        client.on("messageReactionAdd", (messageReaction, user) => {
             // Handle the user's reaction
             this.handleReaction(messageReaction, user);
         });
 
         // When the client observes a user removing a reaction from a message
-        client.on('messageReactionRemove', (messageReaction, user) => {
+        client.on("messageReactionRemove", (messageReaction, user) => {
             // Handle the user's reaction (same as a reaction being added)
             this.handleReaction(messageReaction, user);
         });
 
         // When the client gets rate limited because something is happening too fast
-        client.on('rateLimit', info => {
+        client.on("rateLimit", info => {
             // Handle the rate limit info (in the context of interactive messages)
             this.handleRateLimit(info);
         });
@@ -70,14 +70,14 @@ class InteractiveMessageHandler {
             interactiveMessage.emojiPress(emojiString, user);
         }
         catch (error) {
-            errorHandler.handleError(error, 'Error activating an interactive message\'s button.');
+            errorHandler.handleError(error, "Error activating an interactive message's button.");
         }
     }
 
     // Takes rate limit info, and applies a rate limit to an interactive message if necessary
     public handleRateLimit(info: RateLimitData): void {
         // If the rate limit is not for an edit operation on a message
-        if (info.method !== 'patch' || !info.path.includes('messages')) {
+        if (info.method !== "patch" || !info.path.includes("messages")) {
             return;
         }
     

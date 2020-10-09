@@ -40,7 +40,7 @@ export default class PlayerManager {
             playerDocument = await Player.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
         }
         catch (error) {
-            throw new Error('There was an error finding an existing player document.');
+            throw new Error("There was an error finding an existing player document.");
         }
 
         let player: PlayerObject;
@@ -78,7 +78,7 @@ export default class PlayerManager {
             await playerDocument.save();
         }
         catch (error) {
-            throw new Error('There was an error trying to save a new player document.');
+            throw new Error("There was an error trying to save a new player document.");
         }
 
         // Return the new player as an object

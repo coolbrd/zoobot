@@ -8,7 +8,7 @@ import { commandHandler } from "../structures/CommandHandler";
 
 // Changes the command prefix for a given guild
 export default class ChangeGuildPrefixCommand implements Command {
-    public readonly commandNames = ['prefix', 'changeprefix'];
+    public readonly commandNames = ["prefix", "changeprefix"];
 
     public help(prefix: string): string {
         return `Use \`${prefix}prefix\` \`<new command prefix>\` to change the prefix that I respond to.`;
@@ -16,8 +16,8 @@ export default class ChangeGuildPrefixCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Make sure this command is only used in guilds
-        if (parsedUserCommand.channel.type === 'dm') {
-            betterSend(parsedUserCommand.channel, 'This command can only be used in servers.');
+        if (parsedUserCommand.channel.type === "dm") {
+            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
             return;
         }
 
@@ -36,7 +36,7 @@ export default class ChangeGuildPrefixCommand implements Command {
             guildObject = await getGuildObject(parsedUserCommand.channel.guild);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to get a guild object from a guild id.');
+            errorHandler.handleError(error, "There was an error attempting to get a guild object from a guild id.");
             return;
         }
 
@@ -45,7 +45,7 @@ export default class ChangeGuildPrefixCommand implements Command {
             await guildObject.setPrefix(fullPrefix);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to change the prefix of a guild object.');
+            errorHandler.handleError(error, "There was an error trying to change the prefix of a guild object.");
             return;
         }
 

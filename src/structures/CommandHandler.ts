@@ -1,27 +1,27 @@
-import { Guild, Message, User } from 'discord.js';
-import { Document } from 'mongoose';
+import { Guild, Message, User } from "discord.js";
+import { Document } from "mongoose";
 
-import Command from './CommandInterface';
-import CommandParser from './CommandParser';
-import SubmitSpeciesCommand from '../commands/SubmitSpeciesCommand';
+import Command from "./CommandInterface";
+import CommandParser from "./CommandParser";
+import SubmitSpeciesCommand from "../commands/SubmitSpeciesCommand";
 import { betterSend } from "../discordUtility/messageMan";
-import SendPendingSubmissionsCommand from '../commands/SendPendingSubmissionsCommand';
-import ApprovePendingSpeciesCommand from '../commands/ApprovePendingSpeciesCommand';
-import SpeciesInfoCommand from '../commands/SpeciesInfoCommand';
-import EncounterCommand from '../commands/EncounterCommand';
-import ViewInventoryCommand from '../commands/ViewInventoryCommand';
-import ChangeGuildPrefixCommand from '../commands/ChangeGuildPrefixCommand';
-import { GuildModel } from '../models/Guild';
-import { client } from '..';
-import HelpCommand from '../commands/HelpCommand';
-import MoveAnimalsCommand from '../commands/MoveAnimalsCommand';
-import { ADMIN_SERVER_ID } from '../config/secrets';
-import ChangeAnimalNicknameCommand from '../commands/ChangeAnimalNicknameCommand';
-import AnimalInfoCommand from '../commands/AnimalInfoCommand';
-import EditSpeciesCommand from '../commands/EditSpeciesCommand';
-import { errorHandler } from './ErrorHandler';
-import BeastiaryCommand from '../commands/BeastiaryCommand';
-import config from '../config/BotConfig';
+import SendPendingSubmissionsCommand from "../commands/SendPendingSubmissionsCommand";
+import ApprovePendingSpeciesCommand from "../commands/ApprovePendingSpeciesCommand";
+import SpeciesInfoCommand from "../commands/SpeciesInfoCommand";
+import EncounterCommand from "../commands/EncounterCommand";
+import ViewInventoryCommand from "../commands/ViewInventoryCommand";
+import ChangeGuildPrefixCommand from "../commands/ChangeGuildPrefixCommand";
+import { GuildModel } from "../models/Guild";
+import { client } from "..";
+import HelpCommand from "../commands/HelpCommand";
+import MoveAnimalsCommand from "../commands/MoveAnimalsCommand";
+import { ADMIN_SERVER_ID } from "../config/secrets";
+import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
+import AnimalInfoCommand from "../commands/AnimalInfoCommand";
+import EditSpeciesCommand from "../commands/EditSpeciesCommand";
+import { errorHandler } from "./ErrorHandler";
+import BeastiaryCommand from "../commands/BeastiaryCommand";
+import config from "../config/BotConfig";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -83,7 +83,7 @@ class CommandHandler {
     // Executes user commands contained in a message if appropriate
     public async handleMessage(message: Message): Promise<void> {
         // If the message was sent by a bot, or was sent in a news channel
-        if (message.author.bot || message.channel.type === 'news') {
+        if (message.author.bot || message.channel.type === "news") {
             // Ignore the message
             return;
         }
@@ -110,9 +110,9 @@ class CommandHandler {
                     await matchedCommand.run(commandParser);
                 }
                 catch (error) {
-                    errorHandler.handleError(error, 'Command execution failed.');
+                    errorHandler.handleError(error, "Command execution failed.");
 
-                    betterSend(commandParser.channel, 'Something went wrong while performing that command. Please report this to the developer.');
+                    betterSend(commandParser.channel, "Something went wrong while performing that command. Please report this to the developer.");
                     return;
                 }
             }
@@ -121,7 +121,7 @@ class CommandHandler {
 
     // Tells whether or not a given message is in the admin server
     private inAdminServer(message: Message): boolean {
-        if (message.channel.type === 'dm') {
+        if (message.channel.type === "dm") {
             return false;
         }
         return message.channel.guild.id === ADMIN_SERVER_ID;
@@ -162,7 +162,7 @@ class CommandHandler {
             guildDocuments = await GuildModel.find({}, { _id: 0, id: 1, config: 1 });
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to load guild prefixes from the database.');
+            errorHandler.handleError(error, "There was an error attempting to load guild prefixes from the database.");
             return;
         }
 
@@ -171,7 +171,7 @@ class CommandHandler {
         // Iterate over every document returned
         for (const guildDocument of guildDocuments) {
             // Add each guild and its prefix to the map
-            this.guildPrefixes.set(guildDocument.get('id'), guildDocument.get('config').prefix);
+            this.guildPrefixes.set(guildDocument.get("id"), guildDocument.get("config").prefix);
         }
     }
 

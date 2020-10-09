@@ -1,5 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
-import DocumentWrapper from '../structures/DocumentWrapper';
+import DocumentWrapper from "../structures/DocumentWrapper";
 import { guildConfigSchema } from "./guildConfig";
 
 const guildScema = new Schema({
@@ -13,7 +13,7 @@ const guildScema = new Schema({
     }
 });
 
-export const GuildModel = mongoose.model('Guild', guildScema);
+export const GuildModel = mongoose.model("Guild", guildScema);
 
 export class PlayerGuild extends DocumentWrapper {
     constructor(documentId: Types.ObjectId) {
@@ -21,23 +21,23 @@ export class PlayerGuild extends DocumentWrapper {
     }
 
     public getGuildId(): string {
-        return this.getDocument().get('id');
+        return this.getDocument().get("id");
     }
 
     public getPrefix(): string {
-        return this.getDocument().get('config.prefix');
+        return this.getDocument().get("config.prefix");
     }
 
     public async setPrefix(newPrefix: string): Promise<void> {
         if (!this.documentLoaded()) {
-            throw new Error('Tried to change a guild document\'s prefix before it was loaded.');
+            throw new Error("Tried to change a guild document's prefix before it was loaded.");
         }
 
         // Attempt to update the guild's prefix
         try {
             await this.getDocument().updateOne({
                 $set: {
-                    'config.prefix': newPrefix
+                    "config.prefix": newPrefix
                 }
             });
         }

@@ -20,19 +20,19 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     constructor(channel: TextChannel | DMChannel, species: Species) {
         super(channel, { buttons: [
             {
-                name: 'leftArrow',
-                emoji: '⬅️',
-                helpMessage: 'Previous card'
+                name: "leftArrow",
+                emoji: "⬅️",
+                helpMessage: "Previous card"
             },
             {
-                name: 'rightArrow',
-                emoji: '➡️',
-                helpMessage: 'Next card'
+                name: "rightArrow",
+                emoji: "➡️",
+                helpMessage: "Next card"
             },
             {
-                name: 'info',
-                emoji: '❔',
-                helpMessage: 'Info'
+                name: "info",
+                emoji: "❔",
+                helpMessage: "Info"
             }
         ]});
 
@@ -46,7 +46,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             await this.species.load();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error loading a species in a species info message.');
+            errorHandler.handleError(error, "There was an error loading a species in a species info message.");
             return;
         }
 
@@ -71,7 +71,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             buildSpeciesInfo(embed, this.species, card);
         }
 
-        embed.appendToFooter('\n' + this.getButtonHelpString());
+        embed.appendToFooter("\n" + this.getButtonHelpString());
 
         return embed;
     }
@@ -80,15 +80,15 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
-            case 'rightArrow': {
+            case "rightArrow": {
                 this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.getCards().length);
                 break;
             }
-            case 'leftArrow': {
+            case "leftArrow": {
                 this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.getCards().length);
                 break;
             }
-            case 'info': {
+            case "info": {
                 this.cardMode = !this.cardMode;
                 break;
             }

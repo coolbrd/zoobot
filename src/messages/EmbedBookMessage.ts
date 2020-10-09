@@ -1,7 +1,7 @@
-import { DMChannel, MessageEmbed, TextChannel, User } from 'discord.js';
+import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 
-import InteractiveMessage from '../interactiveMessage/InteractiveMessage';
-import { errorHandler } from '../structures/ErrorHandler';
+import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
+import { errorHandler } from "../structures/ErrorHandler";
 import loopValue from "../utility/loopValue";
 
 // A message that allows an array of embeds to be linearly browsed
@@ -14,14 +14,14 @@ export default class EmbedBookMessage extends InteractiveMessage {
     constructor(channel: TextChannel | DMChannel, book: MessageEmbed[]) {
         super(channel, { buttons: [
             {
-                name: 'pageLeft',
-                emoji: '⬅️',
-                helpMessage: 'Go back one page'
+                name: "pageLeft",
+                emoji: "⬅️",
+                helpMessage: "Go back one page"
             },
             {
-                name: 'pageRight',
-                emoji: '➡️',
-                helpMessage: 'Go forward one page'
+                name: "pageRight",
+                emoji: "➡️",
+                helpMessage: "Go forward one page"
             }
         ]});
         this.book = book;
@@ -35,11 +35,11 @@ export default class EmbedBookMessage extends InteractiveMessage {
         super.buttonPress(buttonName, user);
 
         switch(buttonName) {
-            case 'pageLeft': {
+            case "pageLeft": {
                 this.goToPage(this.page - 1);
                 break;
             }
-            case 'pageRight': {
+            case "pageRight": {
                 this.goToPage(this.page + 1);
                 break;
             }

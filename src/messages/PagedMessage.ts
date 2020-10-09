@@ -16,14 +16,14 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
     constructor(channel: TextChannel | DMChannel, elementsPerPage?: number) {
         super(channel, { buttons: [
             {
-                name: 'leftArrow',
-                emoji: '⬅️',
-                helpMessage: 'Page left'
+                name: "leftArrow",
+                emoji: "⬅️",
+                helpMessage: "Page left"
             },
             {
-                name: 'rightArrow',
-                emoji: '➡️',
-                helpMessage: 'Page right'
+                name: "rightArrow",
+                emoji: "➡️",
+                helpMessage: "Page right"
             }
         ]});
 

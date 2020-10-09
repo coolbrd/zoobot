@@ -1,5 +1,5 @@
-import mongoose, { Schema, Types } from 'mongoose';
-import DocumentWrapper from '../structures/DocumentWrapper';
+import mongoose, { Schema, Types } from "mongoose";
+import DocumentWrapper from "../structures/DocumentWrapper";
 
 // The schema for a pending species submission
 export const pendingSpeciesSchema = new Schema({
@@ -37,7 +37,7 @@ export const pendingSpeciesSchema = new Schema({
     }
 });
 
-export const PendingSpeciesModel = mongoose.model('PendingSpecies', pendingSpeciesSchema);
+export const PendingSpeciesModel = mongoose.model("PendingSpecies", pendingSpeciesSchema);
 
 // The object representation of a species submission pending approval
 export class PendingSpecies extends DocumentWrapper {
@@ -46,30 +46,30 @@ export class PendingSpecies extends DocumentWrapper {
     }
 
     public getCommonNames(): string[] {
-        return this.getDocument().get('commonNames');
+        return this.getDocument().get("commonNames");
     }
 
     public getScientificName(): string {
-        return this.getDocument().get('scientificName');
+        return this.getDocument().get("scientificName");
     }
 
     public getImages(): string[] | undefined {
-        return this.getDocument().get('images');
+        return this.getDocument().get("images");
     }
 
     public getDescription(): string | undefined {
-        return this.getDocument().get('description');
+        return this.getDocument().get("description");
     }
 
     public getNaturalHabitat(): string | undefined {
-        return this.getDocument().get('naturalHabitat');
+        return this.getDocument().get("naturalHabitat");
     }
 
     public getWikiPage(): string | undefined {
-        return this.getDocument().get('wikiPage');
+        return this.getDocument().get("wikiPage");
     }
 
     public getAuthorId(): string {
-        return this.getDocument().get('author');
+        return this.getDocument().get("author");
     }
 }

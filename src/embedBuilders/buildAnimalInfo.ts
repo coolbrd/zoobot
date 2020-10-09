@@ -15,11 +15,11 @@ export default function buildAnimalInfo(embed: MessageEmbed, animalObject: Anima
     // Set fields
     embed.setThumbnail(card.getUrl());
     embed.setTitle(`${animalDisplayName}`);
-    embed.addField('Species', capitalizeFirstLetter(species.getScientificName()), true);
-    embed.addField('Card', `${card.getIndex() + 1}/${species.getCards().length}`, true);
+    embed.addField("Species", capitalizeFirstLetter(species.getScientificName()), true);
+    embed.addField("Card", `${card.getIndex() + 1}/${species.getCards().length}`, true);
 
     // Only show the animal's common name if its nickname is displayed
     animalObject.getNickname() && embed.setDescription(capitalizeFirstLetter(animalObject.getSpecies().getCommonNames()[0]));
     // Only add a breed field if the animal has one
-    breed && embed.addField('Breed', capitalizeFirstLetter(breed));
+    breed && embed.addField("Breed", capitalizeFirstLetter(breed));
 }

@@ -39,7 +39,7 @@ export default class AnimalManager {
 
         // Make sure it exists
         if (!cachedAnimal) {
-            throw new Error('Attempted to delete an animal that isn\'t in the animal cache.');
+            throw new Error("Attempted to delete an animal that isn't in the animal cache.");
         }
 
         // Stop the cached animal's removal timer
@@ -68,11 +68,11 @@ export default class AnimalManager {
             animalDocument = await AnimalModel.findById(id);
         }
         catch (error) {
-            throw new Error('There was an error finding an existing animal document.');
+            throw new Error("There was an error finding an existing animal document.");
         }
 
         if (!animalDocument) {
-            throw new Error('An animal id whose document could\'nt be found was attempted to be fetched from the animal cache.');
+            throw new Error("An animal id whose document could'nt be found was attempted to be fetched from the animal cache.");
         }
 
         // Turn the document into an object and add it to the cache
@@ -109,7 +109,7 @@ export default class AnimalManager {
         // If a guild id was provided to narrow down the search
         if (guildId) {
             // Add the appropriate property to the search query options
-            Object.defineProperty(searchQuery, 'guildId', {
+            Object.defineProperty(searchQuery, "guildId", {
                 value: guildId,
                 writable: false,
                 enumerable: true
@@ -122,7 +122,7 @@ export default class AnimalManager {
             animalDocument = await AnimalModel.findOne(searchQuery);
         }
         catch (error) {
-            throw new Error('There was an error finding an animal by its nickname.');
+            throw new Error("There was an error finding an animal by its nickname.");
         }
 
         // If no animal was found by the given information, don't return anything
@@ -145,7 +145,7 @@ export default class AnimalManager {
             ownerObject = await beastiary.players.fetch(owner);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
+            errorHandler.handleError(error, "There was an error getting a player object by a guild member.");
             return;
         }
 
@@ -163,7 +163,7 @@ export default class AnimalManager {
             await animalDocument.save();
         }
         catch (error) {
-            throw new Error('There was an error saving a new animal.');
+            throw new Error("There was an error saving a new animal.");
         }
 
         // Add the animal's id to the owner's inventory
@@ -171,7 +171,7 @@ export default class AnimalManager {
             await ownerObject.addAnimal(animalDocument._id);
         }
         catch (error) {
-            throw new Error('There was an error adding a new animal to a player\'s inventory.');
+            throw new Error("There was an error adding a new animal to a player's inventory.");
         }
 
         // Turn the animal into a game object and add it to the cache
@@ -190,7 +190,7 @@ export default class AnimalManager {
             owner = await beastiary.players.fetch(getGuildMember(animal.getOwnerId(), animal.getGuildId()));
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error fetching a player from the player manager.');
+            errorHandler.handleError(error, "There was an error fetching a player from the player manager.");
             return;
         }
 
@@ -199,7 +199,7 @@ export default class AnimalManager {
             await owner.removeAnimal(animal.getId());
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error removing an animal\'s id from it\'s owner\'s inventory.');
+            errorHandler.handleError(error, "There was an error removing an animal's id from it's owner's inventory.");
             return;
         }
 
@@ -211,7 +211,7 @@ export default class AnimalManager {
             await animal.delete();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to delete an animal object.');
+            errorHandler.handleError(error, "There was an error trying to delete an animal object.");
             return;
         }
     }
@@ -237,7 +237,7 @@ export default class AnimalManager {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, 'There was an error finding an animal by a given nickname.');
+                errorHandler.handleError(error, "There was an error finding an animal by a given nickname.");
                 return;
             }
         }
@@ -254,7 +254,7 @@ export default class AnimalManager {
                 animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+                errorHandler.handleError(error, "There was an error finding an animal by its nickname.");
             }
 
             // Only return something if an animal was found, if not continue for more checks
@@ -268,7 +268,7 @@ export default class AnimalManager {
             if (!playerObject) {
                 // Make sure there's enough info provided to determine the player object
                 if (!guildId || !userId) {
-                    throw new Error('Insufficient information was provided to searchAnimal for the purpose of searching by animal position.');
+                    throw new Error("Insufficient information was provided to searchAnimal for the purpose of searching by animal position.");
                 }
 
                 // Get the player object corresponding to the user provided for the search
@@ -276,7 +276,7 @@ export default class AnimalManager {
                     playerObject = await beastiary.players.fetch(getGuildMember(userId, guildId));
                 }
                 catch (error) {
-                    errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
+                    errorHandler.handleError(error, "There was an error getting a player object by a guild member.");
                     return;
                 }
             }
@@ -299,7 +299,7 @@ export default class AnimalManager {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+                errorHandler.handleError(error, "There was an error finding an animal by its nickname.");
                 return;
             }
         }

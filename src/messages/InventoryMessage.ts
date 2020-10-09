@@ -33,24 +33,24 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         super(channel);
 
         this.addButtons([{
-            name: 'upArrow',
-            emoji: '⬆️',
-            helpMessage: 'Pointer up'
+            name: "upArrow",
+            emoji: "⬆️",
+            helpMessage: "Pointer up"
         },
         {
-            name: 'downArrow',
-            emoji: '⬇️',
-            helpMessage: 'Pointer down'
+            name: "downArrow",
+            emoji: "⬇️",
+            helpMessage: "Pointer down"
         },
         {
-            name: 'mode',
-            emoji: 'Ⓜ️',
-            helpMessage: 'View mode'
+            name: "mode",
+            emoji: "Ⓜ️",
+            helpMessage: "View mode"
         },
         {
-            name: 'release',
-            emoji: '🗑️',
-            helpMessage: 'Release'
+            name: "release",
+            emoji: "🗑️",
+            helpMessage: "Release"
         }]);
 
         this.user = user;
@@ -71,7 +71,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             await playerObject.load();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to get and load a player object in an inventory message.');
+            errorHandler.handleError(error, "There was an error trying to get and load a player object in an inventory message.");
             return;
         }
 
@@ -85,7 +85,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error building the embed of an inventory message.');
+            errorHandler.handleError(error, "There was an error building the embed of an inventory message.");
             return;
         }
     }
@@ -123,7 +123,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                         resolve();
                     }
                 }).catch(error => {
-                    errorHandler.handleError(error, 'There was an error loading an unloaded animal in an inventory message.');
+                    errorHandler.handleError(error, "There was an error loading an unloaded animal in an inventory message.");
                     return;
                 });
             });
@@ -141,7 +141,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                 embed.setThumbnail(card.getUrl());
 
                 // The string that will hold the formatted inventory string
-                let inventoryString = '';
+                let inventoryString = "";
                 let inventoryIndex = this.getFirstVisibleIndex();
                 // Iterate over every element on the current page
                 this.getVisibleElements().forEach(currentAnimal => {
@@ -151,10 +151,10 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
                     const breed = card.getBreed();
                     // Write breed information only if it's present (and the animal doesn't have a nickname)
-                    const breedText = !currentAnimal.getNickname() && breed ? `(${breed})` : '';
+                    const breedText = !currentAnimal.getNickname() && breed ? `(${breed})` : "";
 
                     // The pointer text to draw on the current animal entry (if any)
-                    const pointerText = inventoryIndex === inventory.getPointerPosition() ? ' 🔹' : '';
+                    const pointerText = inventoryIndex === inventory.getPointerPosition() ? " 🔹" : "";
 
                     inventoryString += `\`${inventoryIndex + 1})\` ${animalName} ${breedText}`;
 
@@ -187,7 +187,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             case InventoryMessageState.release: {
                 embed.setTitle(`Release ${selectedAnimal.getName()}?`);
 
-                embed.setDescription(`Press the left arrow (${this.getButtonByName('leftArrow').emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
+                embed.setDescription(`Press the left arrow (${this.getButtonByName("leftArrow").emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
 
                 embed.setThumbnail(card.getUrl());
 
@@ -198,11 +198,11 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         // Update button messages according to behavior
         switch (this.state) {
             case InventoryMessageState.release: {
-                this.setButtonHelpMessage('leftArrow', 'Confirm release');
+                this.setButtonHelpMessage("leftArrow", "Confirm release");
                 break;
             }
             default: {
-                this.setButtonHelpMessage('leftArrow', 'Page left');
+                this.setButtonHelpMessage("leftArrow", "Page left");
                 break;
             }
         }
@@ -219,15 +219,15 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         if (this.state !== InventoryMessageState.release) {
             // Button behavior
             switch (buttonName) {
-                case 'upArrow': {
+                case "upArrow": {
                     this.movePointer(-1);
                     break;
                 }
-                case 'downArrow': {
+                case "downArrow": {
                     this.movePointer(1);
                     break;
                 }
-                case 'leftArrow': {
+                case "leftArrow": {
                     // Change pages if the message is in page mode, otherwise move the pointer
                     if (this.state === InventoryMessageState.page) {
                         this.movePages(-1);
@@ -237,7 +237,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                     }
                     break;
                 }
-                case 'rightArrow': {
+                case "rightArrow": {
                     // Change pages if the message is in page mode, otherwise move the pointer
                     if (this.state === InventoryMessageState.page) {
                         this.movePages(1);
@@ -247,7 +247,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                     }
                     break;
                 }
-                case 'mode': {
+                case "mode": {
                     if (this.state === InventoryMessageState.page) {
                         this.state = InventoryMessageState.info;
                     }
@@ -259,7 +259,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                     }
                     break;
                 }
-                case 'release': {
+                case "release": {
                     // Initiate relese mode
                     this.state = InventoryMessageState.release;
                 }
@@ -268,7 +268,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         // If the message is currently confirming the release of an animal
         else {
             // If the confirmation button is pressed
-            if (buttonName === 'leftArrow') {
+            if (buttonName === "leftArrow") {
                 // Get the selected animal that will be released
                 const selectedAnimal = inventory.selection();
 
@@ -277,7 +277,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                     await beastiary.animals.deleteAnimal(selectedAnimal.getId());
                 }
                 catch (error) {
-                    errorHandler.handleError(error, 'There was an error trying to release a user\'s animal from an inventory message.');
+                    errorHandler.handleError(error, "There was an error trying to release a user's animal from an inventory message.");
                     return;
                 }
 
@@ -298,7 +298,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error building the embed of an inventory message.');
+            errorHandler.handleError(error, "There was an error building the embed of an inventory message.");
             return;
         }
     }

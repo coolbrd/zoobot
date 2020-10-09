@@ -1,7 +1,7 @@
-import mongoose, { Schema, Types } from 'mongoose';
+import mongoose, { Schema, Types } from "mongoose";
 
-import DocumentWrapper from '../structures/DocumentWrapper';
-import { SpeciesCard, Species } from './Species';
+import DocumentWrapper from "../structures/DocumentWrapper";
+import { SpeciesCard, Species } from "./Species";
 
 export const animalSchema = new Schema({
     ownerId: {
@@ -14,7 +14,7 @@ export const animalSchema = new Schema({
     },
     species: {
         type: Schema.Types.ObjectId,
-        ref: 'Species',
+        ref: "Species",
         required: true
     },
     card: {
@@ -31,10 +31,10 @@ export const animalSchema = new Schema({
     }
 });
 
-export const AnimalModel = mongoose.model('Animal', animalSchema);
+export const AnimalModel = mongoose.model("Animal", animalSchema);
 
 // Index animals by their nickname so they can be easily searched by that
-AnimalModel.collection.createIndex({ nickname: 'text' });
+AnimalModel.collection.createIndex({ nickname: "text" });
 
 // An animal's version of a Mongoose document wrapper
 // Allows for animal information to be loaded, reloaded, and set more easily
@@ -48,27 +48,27 @@ export class Animal extends DocumentWrapper {
     }
 
     public getOwnerId(): string {
-        return this.getDocument().get('ownerId');
+        return this.getDocument().get("ownerId");
     }
 
     public getGuildId(): string {
-        return this.getDocument().get('guildId');
+        return this.getDocument().get("guildId");
     }
 
     public getSpeciesId(): Types.ObjectId {
-        return this.getDocument().get('species');
+        return this.getDocument().get("species");
     }
 
     public getCardId(): Types.ObjectId {
-        return this.getDocument().get('card');
+        return this.getDocument().get("card");
     }
 
     public getNickname(): string {
-        return this.getDocument().get('nickname');
+        return this.getDocument().get("nickname");
     }
 
     public getExperience(): number {
-        return this.getDocument().get('experience');
+        return this.getDocument().get("experience");
     }
 
     public async setNickname(newNickname: string | null): Promise<void> {
@@ -89,7 +89,7 @@ export class Animal extends DocumentWrapper {
     // Gets the species object representing this animal's species
     public getSpecies(): Species {
         if (!this.species) {
-            throw new Error('Tried to get an AnimalObject\'s species before it was loaded.');
+            throw new Error("Tried to get an AnimalObject's species before it was loaded.");
         }
 
         return this.species;
@@ -98,7 +98,7 @@ export class Animal extends DocumentWrapper {
     // Gets the object representing this animal's card
     public getCard(): SpeciesCard {
         if (!this.card) {
-            throw new Error('Tried to get an AnimalObject\'s card before it was loaded.');
+            throw new Error("Tried to get an AnimalObject's card before it was loaded.");
         }
 
         return this.card;
@@ -125,7 +125,7 @@ export class Animal extends DocumentWrapper {
     // Loads this animal's species object
     private async loadSpecies(): Promise<void> {
         if (!this.documentLoaded()) {
-            throw new Error('An animal\'s species was attempted to be loaded before its document was loaded.');
+            throw new Error("An animal's species was attempted to be loaded before its document was loaded.");
         }
 
         // If this animal's species is already known/loaded, do nothing
@@ -156,7 +156,7 @@ export class Animal extends DocumentWrapper {
 
         // Make sure that an card was found from that search
         if (!this.card) {
-            throw new Error('An animal\'s card couldn\'t be found in the card of its species.');
+            throw new Error("An animal's card couldn't be found in the card of its species.");
         }
     }
 

@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
-import DocumentWrapper from '../structures/DocumentWrapper';
+import mongoose, { Schema, Document, Types } from "mongoose";
+import DocumentWrapper from "../structures/DocumentWrapper";
 
 export const cardSubSchema = new Schema({
     url: {
@@ -53,7 +53,7 @@ export const speciesSchema = new Schema({
     }
 });
 
-export const SpeciesModel = mongoose.model('Species', speciesSchema);
+export const SpeciesModel = mongoose.model("Species", speciesSchema);
 
 export interface SpeciesCardTemplate {
     _id?: Types.ObjectId,
@@ -80,11 +80,11 @@ export class SpeciesCard {
     }
 
     public getUrl(): string {
-        return this.document.get('url');
+        return this.document.get("url");
     }
 
     public getBreed(): string | undefined {
-        return this.document.get('breed');
+        return this.document.get("breed");
     }
 
     // Gets this card's index in its parent species' list of cards
@@ -94,7 +94,7 @@ export class SpeciesCard {
         });
         
         if (index === undefined) {
-            throw new Error('A species card with no place in its species was found.');
+            throw new Error("A species card with no place in its species was found.");
         }
         return index;
     }
@@ -125,7 +125,7 @@ export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] 
     const commonNamesLower: string[] = [];
     // Add each name's lowercase form to the list
     commonNames.forEach(commonName => {
-        commonNamesLower.push((commonName['name'] as string).toLowerCase());
+        commonNamesLower.push((commonName["name"] as string).toLowerCase());
     });
 
     return commonNamesLower;
@@ -141,31 +141,31 @@ export class Species extends DocumentWrapper {
     }
 
     public getCommonNameObjects(): CommonNameField[] {
-        return this.getDocument().get('commonNames');
+        return this.getDocument().get("commonNames");
     }
 
     public getScientificName(): string {
-        return this.getDocument().get('scientificName');
+        return this.getDocument().get("scientificName");
     }
 
     public getCardObjects(): SpeciesCardField[] {
-        return this.getDocument().get('cards');
+        return this.getDocument().get("cards");
     }
 
     public getDescription(): string {
-        return this.getDocument().get('description');
+        return this.getDocument().get("description");
     }
 
     public getNaturalHabitat(): string {
-        return this.getDocument().get('naturalHabitat');
+        return this.getDocument().get("naturalHabitat");
     }
 
     public getWikiPage(): string {
-        return this.getDocument().get('wikiPage');
+        return this.getDocument().get("wikiPage");
     }
 
     public getRarity(): number {
-        return this.getDocument().get('rarity');
+        return this.getDocument().get("rarity");
     }
 
     // Changes the fields of the species document and commits them to the database
@@ -208,7 +208,7 @@ export class Species extends DocumentWrapper {
 
     public getCards(): SpeciesCard[] {
         if (!this.cards) {
-            throw new Error('Tried to get a species\'s cards before they were loaded.');
+            throw new Error("Tried to get a species's cards before they were loaded.");
         }
 
         return this.cards;
@@ -225,7 +225,7 @@ export class Species extends DocumentWrapper {
     // Loads this species' card objects
     public loadCards(): void {
         if (!this.documentLoaded()) {
-            throw new Error('A species\' cards were attempted to be loaded before its document was.');
+            throw new Error("A species' cards were attempted to be loaded before its document was.");
         }
 
         // If this species' cards are already known/loaded, do nothing
@@ -235,7 +235,7 @@ export class Species extends DocumentWrapper {
 
         // Get this species' cards and add each of them as an object
         const cards: SpeciesCard[] = [];
-        this.getDocument().get('cards').forEach((cardDocument: Document) => {
+        this.getDocument().get("cards").forEach((cardDocument: Document) => {
             cards.push(new SpeciesCard(cardDocument, this));
         });
         this.cards = cards;

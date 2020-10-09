@@ -25,5 +25,5 @@ export default function getWeightedRandom<T>(items: Map<T, number>): T {
     }
 
     // This should never happen
-    throw new Error('No item selected from weighted random function. This shouldn\'t happen');
+    throw new Error("No item selected from weighted random function. This shouldn't happen");
 }

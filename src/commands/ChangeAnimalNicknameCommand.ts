@@ -9,7 +9,7 @@ import { beastiary } from "../beastiary/Beastiary";
 
 // Changes a user's animal's nickname
 export default class ChangeAnimalNicknameCommand implements Command {
-    public readonly commandNames = ['nickname', 'nick', 'nn'];
+    public readonly commandNames = ["nickname", "nick", "nn"];
 
     public help(prefix: string): string {
         return `Use \`${prefix}nickname\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
@@ -17,8 +17,8 @@ export default class ChangeAnimalNicknameCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Don't let this command be used in dms
-        if (parsedUserCommand.channel.type === 'dm') {
-            betterSend(parsedUserCommand.channel, 'This command can only be used in servers.');
+        if (parsedUserCommand.channel.type === "dm") {
+            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
             return;
         }
 
@@ -35,7 +35,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
 
         // If the user provided a non-number identifier
         if (isNaN(animalNumber)) {
-            betterSend(parsedUserCommand.channel, 'You need to specify the animal\'s numeric identifier (the number next to the animal\'s place in your inventory).');
+            betterSend(parsedUserCommand.channel, "You need to specify the animal's numeric identifier (the number next to the animal's place in your inventory).");
             return;
         }
 
@@ -45,7 +45,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to get a player object representation of a user in the animal nickname command.');
+            errorHandler.handleError(error, "There was an error attempting to get a player object representation of a user in the animal nickname command.");
             return;
         }
 
@@ -53,7 +53,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
         const animalObject = playerObject.getAnimalPositional(animalNumber - 1);
 
         if (!animalObject) {
-            betterSend(parsedUserCommand.channel, 'No animal in your inventory with that number exists.');
+            betterSend(parsedUserCommand.channel, "No animal in your inventory with that number exists.");
             return;
         }
 
@@ -76,13 +76,13 @@ export default class ChangeAnimalNicknameCommand implements Command {
             await animalObject.setNickname(newNickname);
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to change the nickname of an animal object.');
+            errorHandler.handleError(error, "There was an error attempting to change the nickname of an animal object.");
             return;
         }
 
         // Indicate that the command was performed successfully
-        parsedUserCommand.originalMessage.react('✅').catch(error => {
-            errorHandler.handleError(error, 'There was an error attempting to react to a message in the animal nickname command.');
+        parsedUserCommand.originalMessage.react("✅").catch(error => {
+            errorHandler.handleError(error, "There was an error attempting to react to a message in the animal nickname command.");
         });
     }
 }

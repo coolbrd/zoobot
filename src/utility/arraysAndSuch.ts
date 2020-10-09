@@ -14,7 +14,7 @@ export function arrayToLowerCase(array: string[]): string[] {
 
 // Joins an array by a given string, and uses comma separation by default if no delimiter is provided
 export function safeArrayJoin(array: unknown[], delimiter?: string): string {
-    return array.join(delimiter ? delimiter : ', ');
+    return array.join(delimiter ? delimiter : ", ");
 }
 
 // Takes either a string value or an array of strings and converts it to a single string

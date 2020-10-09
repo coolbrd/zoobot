@@ -1,4 +1,4 @@
-import { Message, TextChannel, DMChannel } from 'discord.js';
+import { Message, TextChannel, DMChannel } from "discord.js";
 
 // The parsed version of a command given by a user's message
 export default class CommandParser {
@@ -29,11 +29,11 @@ export default class CommandParser {
         const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
 
         // Get the position of the beginning of the message arguments
-        const startOfArgs = messageWithoutPrefix.indexOf(' ');
+        const startOfArgs = messageWithoutPrefix.indexOf(" ");
         // If there are no spaces in the message, so no arguments provided
         if (startOfArgs === -1) {
             // Manually assign the full set of arguments as nothing
-            this.fullArguments = '';
+            this.fullArguments = "";
         }
         // If there are arguments
         else {
@@ -42,11 +42,11 @@ export default class CommandParser {
         }
 
         // Split the message by spaces to get the indiviual command and arguments
-        const splitMessage = messageWithoutPrefix.split(' ');
+        const splitMessage = messageWithoutPrefix.split(" ");
 
         // Get the command used and remove it from the list of arguments
         // Short-circuit to ensure that even if undefined is returned from the shift method, an empty string will be used
-        const commandName = splitMessage.shift() || '';
+        const commandName = splitMessage.shift() || "";
         
         // Tranform the command name used to lowercase and assign it to this instance
         this.parsedCommandName = commandName.toLowerCase();

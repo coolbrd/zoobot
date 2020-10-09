@@ -1,15 +1,15 @@
-import { TextChannel, User, MessageEmbed } from 'discord.js';
+import { TextChannel, User, MessageEmbed } from "discord.js";
 
-import InteractiveMessage from '../interactiveMessage/InteractiveMessage';
-import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
+import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { client } from '..';
-import { Species } from '../models/Species';
-import getGuildUserDisplayColor from '../discordUtility/getGuildUserDisplayColor';
-import SmartEmbed from '../discordUtility/SmartEmbed';
-import { errorHandler } from '../structures/ErrorHandler';
-import { beastiary } from '../beastiary/Beastiary';
+import { client } from "..";
+import { Species } from "../models/Species";
+import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
+import SmartEmbed from "../discordUtility/SmartEmbed";
+import { errorHandler } from "../structures/ErrorHandler";
+import { beastiary } from "../beastiary/Beastiary";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -23,11 +23,11 @@ export default class EncounterMessage extends InteractiveMessage {
 
     constructor(channel: TextChannel, species: Species) {
         super(channel, { buttons: {
-                name: 'capture',
-                emoji: '🔘',
-                helpMessage: 'Capture'
+                name: "capture",
+                emoji: "🔘",
+                helpMessage: "Capture"
             },
-            deactivationText: '(fled)'
+            deactivationText: "(fled)"
         });
         this.channel = channel;
         this.species = species;
@@ -43,7 +43,7 @@ export default class EncounterMessage extends InteractiveMessage {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error trying to build an encounter message\'s embed.');
+            errorHandler.handleError(error, "There was an error trying to build an encounter message's embed.");
         }
     }
 
@@ -54,7 +54,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         embed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
 
-        embed.addField('――――――――', capitalizeFirstLetter(this.species.getScientificName()), true);
+        embed.addField("――――――――", capitalizeFirstLetter(this.species.getScientificName()), true);
 
         // Pick a random card from the animal's set of card
         this.cardIndex = Math.floor(Math.random() * this.species.getCards().length);
@@ -65,10 +65,10 @@ export default class EncounterMessage extends InteractiveMessage {
         const breed = card.getBreed();
         // Add the breed field if it's there
         if (breed) {
-            embed.addField('Breed', capitalizeFirstLetter(breed), true);
+            embed.addField("Breed", capitalizeFirstLetter(breed), true);
         }
 
-        embed.setFooter('Wild encounter');
+        embed.setFooter("Wild encounter");
         return embed;
     }
 
@@ -79,14 +79,14 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Indicate that the user has caught the animal
         betterSend(this.getMessage().channel as TextChannel, `${user}, you caught ${commonName.article} ${commonName.name}!`);
-        this.setDeactivationText('(caught)');
+        this.setDeactivationText("(caught)");
 
         // Create the new animal
         try {
             await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.cardIndex as number);
         }
         catch (error) {
-            errorHandler.handleError(error, 'Thre was an error creating a new animal in an encounter message.');
+            errorHandler.handleError(error, "Thre was an error creating a new animal in an encounter message.");
             return;
         }
 

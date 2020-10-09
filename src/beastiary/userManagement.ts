@@ -20,7 +20,7 @@ export async function getGuildObject(guild: Guild): Promise<PlayerGuild> {
         guildDocument = new GuildModel({
             id: guild.id,
             config: {
-                prefix: '>'
+                prefix: ">"
             }
         });
 
@@ -28,7 +28,7 @@ export async function getGuildObject(guild: Guild): Promise<PlayerGuild> {
             await guildDocument.save();
         }
         catch (error) {
-            throw new Error('There was an error saving a new guild document to the database.');
+            throw new Error("There was an error saving a new guild document to the database.");
         }
     }
 

@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 // Instruct dotenv to load variables from the .env file into the environment
-dotenv.config({ path: '.env' });
+dotenv.config({ path: ".env" });
 
 // The bot's client token
 export const DISCORD_TOKEN = process.env.token as string;

@@ -4,7 +4,7 @@ import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
 export default class BeastiaryCommand implements Command {
-    public readonly commandNames = ['beastiary', 'bestiary', 'b'];
+    public readonly commandNames = ["beastiary", "bestiary", "b"];
 
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}beastiary\` to view a list of every collectible species.`;
@@ -16,7 +16,7 @@ export default class BeastiaryCommand implements Command {
             await beastiaryMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error sending a beastiary message.');
+            errorHandler.handleError(error, "There was an error sending a beastiary message.");
             return;
         }
     }

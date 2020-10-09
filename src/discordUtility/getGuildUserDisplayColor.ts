@@ -1,6 +1,6 @@
-import { UserResolvable, GuildResolvable, Channel, Guild } from 'discord.js';
+import { UserResolvable, GuildResolvable, Channel, Guild } from "discord.js";
 
-import { client } from '..';
+import { client } from "..";
 
 // Gets a user's display color in a given guild
 export default function getGuildUserDisplayColor(userResolvable: UserResolvable | null, guildResolvable: GuildResolvable | Channel | null): number {
@@ -19,7 +19,7 @@ export default function getGuildUserDisplayColor(userResolvable: UserResolvable 
     if (guildResolvable instanceof Channel) {
         // Get the channel's guild property if it has one
         // The only case in which it wouldn't is with DM channels
-        if (!('guild' in guildResolvable)) {
+        if (!("guild" in guildResolvable)) {
             return defaultColor;
         }
         guild = guildResolvable.guild;

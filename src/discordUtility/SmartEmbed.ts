@@ -4,7 +4,7 @@ import { MessageEmbed } from "discord.js";
 // Designed to make embeds always sendable, even if an oversight allowed their fields to be invalid
 // All methods have the same functionality as their parents, with the addition of length validation
 export default class SmartEmbed extends MessageEmbed {
-    private readonly overFlowString = ' . . .';
+    private readonly overFlowString = " . . .";
 
     public setTitle(title: string): this {
         const maxLength = 256;
@@ -45,7 +45,7 @@ export default class SmartEmbed extends MessageEmbed {
     }
 
     public appendToFooter(value: string): this {
-        const footerText = this.footer && this.footer.text || '';
+        const footerText = this.footer && this.footer.text || "";
         this.setFooter(footerText + value)
         return this;
     }

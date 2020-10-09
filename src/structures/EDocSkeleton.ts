@@ -20,7 +20,7 @@ export interface EDocFieldInfo {
         // The string value's max length, in characters
         maxLength?: number,
         // The case to normalize any string input to
-        forceCase?: 'lower' | 'upper'
+        forceCase?: "lower" | "upper"
     },
     // Options for what constitutes valid number input, and what to do with number input
     numberOptions?: {
@@ -48,20 +48,20 @@ export default interface EDocSkeleton {
 }
 
 // Reduces an eDoc type hint to a simple string
-export function getEDocTypeString(fieldType: EDocTypeHint): 'string' | 'number' | 'array' | 'edoc' {
+export function getEDocTypeString(fieldType: EDocTypeHint): "string" | "number" | "array" | "edoc" {
     switch (fieldType) {
         case String: {
-            return 'string';
+            return "string";
         }
         case Number: {
-            return 'number';
+            return "number";
         }
         default: {
             if (Array.isArray(fieldType)) {
-                return 'array';
+                return "array";
             }
             else {
-                return 'edoc';
+                return "edoc";
             }
         }
     }

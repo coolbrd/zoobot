@@ -7,7 +7,7 @@ import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
 export default class AnimalInfoCommand implements Command {
-    public readonly commandNames = ['animalinfo', 'ai', 'stats'];
+    public readonly commandNames = ["animalinfo", "ai", "stats"];
 
     public help(prefix: string): string {
         return `Use \`${prefix}animalinfo\` \`<animal number or nickname>\` to view information about that animal.`;
@@ -15,8 +15,8 @@ export default class AnimalInfoCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         // Don't let this command be used in dms
-        if (parsedUserCommand.channel.type === 'dm') {
-            betterSend(parsedUserCommand.channel, 'This command can only be used in servers.');
+        if (parsedUserCommand.channel.type === "dm") {
+            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
             return;
         }
 
@@ -38,12 +38,12 @@ export default class AnimalInfoCommand implements Command {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, 'There was an error attempting to search an animal for the info command.');
+            errorHandler.handleError(error, "There was an error attempting to search an animal for the info command.");
             return;
         }
 
         if (!animalObject) {
-            betterSend(parsedUserCommand.channel, 'No animal by that nickname/number could be found in this server.');
+            betterSend(parsedUserCommand.channel, "No animal by that nickname/number could be found in this server.");
             return;
         }
 
