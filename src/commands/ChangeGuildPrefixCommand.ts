@@ -1,10 +1,10 @@
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/CommandInterface";
-import { getGuildObject } from "../beastiary/userManagement";
 import { PlayerGuild } from "../models/Guild";
 import { errorHandler } from "../structures/ErrorHandler";
 import { commandHandler } from "../structures/CommandHandler";
+import { beastiary } from "../beastiary/Beastiary";
 
 // Changes the command prefix for a given guild
 export default class ChangeGuildPrefixCommand implements Command {
@@ -33,7 +33,7 @@ export default class ChangeGuildPrefixCommand implements Command {
         let guildObject: PlayerGuild;
         // Get the target guild's document
         try {
-            guildObject = await getGuildObject(parsedUserCommand.channel.guild);
+            guildObject = await beastiary.playerGuilds.fetch(parsedUserCommand.channel.guild.id);
         }
         catch (error) {
             errorHandler.handleError(error, "There was an error attempting to get a guild object from a guild id.");

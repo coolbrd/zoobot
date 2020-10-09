@@ -1,23 +1,13 @@
 import { GuildMember } from "discord.js";
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { PlayerModel, Player } from "../models/Player";
-import CachedValue from "../structures/CachedItem";
+import WrapperCache from "../structures/GameObjectCache";
 
 // The player manager within The Beastiary
 // The easiest and most efficient way to access player objects
-export default class PlayerManager {
-    // The current map of cached player objects
-    private readonly cache = new Map<Types.ObjectId, CachedValue<Player>>();
-
-    // The inactivity time it takes for a player to get removed from the cache
-    private readonly cacheTimeout = 60000;
-
-    // Creates and returns a timeout object used for delaying the deletion of cached players from the cache
-    private createNewTimer(player: Player): NodeJS.Timeout {
-        return setTimeout(() => {
-            // Remove the cached player from the player cache after the given amount of time
-            this.cache.delete(player.getId());
-        }, this.cacheTimeout);
+export default class PlayerManager extends WrapperCache<Player> {
+    constructor() {
+        super(120000);
     }
 
     // Gets a player object by a given guild member
@@ -55,11 +45,20 @@ export default class PlayerManager {
             player = new Player(playerDocument._id);
         }
 
-        // Load the player's information
-        await player.load();
-
-        // Add the player to the cache by its document's id
-        this.cache.set(player.getId(), new CachedValue<Player>(player, this.createNewTimer(player)));
+        // Load the player's information and save it to the cache
+        try {
+            await player.load();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a player's data for use in the cache: ${error}`);
+        }
+        
+        try {
+            await this.addToCache(player);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding a player to the cache: ${error}`);
+        }
 
         // Return the player
         return player;
@@ -81,7 +80,15 @@ export default class PlayerManager {
             throw new Error("There was an error trying to save a new player document.");
         }
 
-        // Return the new player as an object
-        return new Player(playerDocument._id);
+        const player = new Player(playerDocument._id);
+
+        try {
+            await this.addToCache(player);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding a player to the cache: ${error}`);
+        }
+
+        return player;
     }
 }

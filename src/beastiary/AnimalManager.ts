@@ -4,49 +4,13 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
 import { Player } from "../models/Player";
 import { Species } from "../models/Species";
-import CachedValue from "../structures/CachedItem";
 import { errorHandler } from "../structures/ErrorHandler";
+import WrapperCache from "../structures/GameObjectCache";
 import { beastiary } from "./Beastiary";
 
-export default class AnimalManager {
-    // The current map of cached animal objects
-    private readonly cache = new Map<Types.ObjectId, CachedValue<Animal>>();
-
-    // The inactivity time it takes for a animal to get removed from the cache
-    private readonly cacheTimeout = 30000;
-
-    // Creates and returns a timeout object used for delaying the deletion of cached animals from the cache
-    private createNewTimer(animal: Animal): NodeJS.Timeout {
-        return setTimeout(() => {
-            // Remove the cached animal from the cache after the given amount of time
-            this.cache.delete(animal.getId());
-        }, this.cacheTimeout);
-    }
-
-    // Adds an animal object to the cache
-    private async addToCache(animal: Animal): Promise<void> {
-        // Load the animal's information
-        await animal.load();
-
-        // Add the animal to the cache by its document's id
-        this.cache.set(animal.getId(), new CachedValue<Animal>(animal, this.createNewTimer(animal)));
-    }
-
-    // Removes an animal by a given id from the cache
-    private removeFromCache(animalId: Types.ObjectId): void {
-        // Get the cached animal
-        const cachedAnimal = this.cache.get(animalId);
-
-        // Make sure it exists
-        if (!cachedAnimal) {
-            throw new Error("Attempted to delete an animal that isn't in the animal cache.");
-        }
-
-        // Stop the cached animal's removal timer
-        cachedAnimal.stopTimer();
-
-        // Remove the animal from the cache
-        this.cache.delete(animalId);
+export default class AnimalManager extends WrapperCache<Animal> {
+    constructor() {
+        super(60000);
     }
 
     // Gets an animal object by its id
