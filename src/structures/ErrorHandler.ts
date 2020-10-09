@@ -25,7 +25,7 @@ class ErrorHandler {
     public handleError(error: Error, message?: string): void {
         console.error(message || 'Error message from the centralized error-handling component', error);
 
-        this.getDeveloper().send(error.message);
+        this.getDeveloper().send(error);
     }
 
     public isTrustedError(_error: Error) {
