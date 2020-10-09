@@ -36,7 +36,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
 
         if (!animalDocument) {
-            throw new Error("An animal id whose document could'nt be found was attempted to be fetched from the animal cache.");
+            throw new Error("An animal id whose document couldn't be found was attempted to be fetched from the animal cache.");
         }
 
         // Turn the document into an object and add it to the cache
