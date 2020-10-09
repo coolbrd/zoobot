@@ -10,7 +10,11 @@ export default class CachedValue<T> {
 
     // Clears this cached item's current timer, preventing it from firing, and sets it to a new one
     public setTimer(timer: NodeJS.Timeout): void {
-        clearTimeout(this.timer);
+        this.stopTimer();
         this.timer = timer;
+    }
+
+    public stopTimer(): void {
+        clearTimeout(this.timer);
     }
 }
