@@ -23,6 +23,32 @@ export default class AnimalManager {
         }, this.cacheTimeout);
     }
 
+    // Adds an animal object to the cache
+    private async addToCache(animal: Animal): Promise<void> {
+        // Load the animal's information
+        await animal.load();
+
+        // Add the animal to the cache by its document's id
+        this.cache.set(animal.getId(), new CachedValue<Animal>(animal, this.createNewTimer(animal)));
+    }
+
+    // Removes an animal by a given id from the cache
+    private removeFromCache(animalId: Types.ObjectId): void {
+        // Get the cached animal
+        const cachedAnimal = this.cache.get(animalId);
+
+        // Make sure it exists
+        if (!cachedAnimal) {
+            throw new Error('Attempted to delete an animal that isn\'t in the animal cache.');
+        }
+
+        // Stop the cached animal's removal timer
+        cachedAnimal.stopTimer();
+
+        // Remove the animal from the cache
+        this.cache.delete(animalId);
+    }
+
     // Gets an animal object by its id
     public async fetchById(id: Types.ObjectId): Promise<Animal> {
         // First check the cache to see if the animal's object already exists in it
@@ -49,13 +75,9 @@ export default class AnimalManager {
             throw new Error('An animal id whose document could\'nt be found was attempted to be fetched from the animal cache.');
         }
 
+        // Turn the document into an object and add it to the cache
         const animal = new Animal(animalDocument._id);
-
-        // Load the animal's information
-        await animal.load();
-
-        // Add the animal to the cache by its document's id
-        this.cache.set(animal.getId(), new CachedValue<Animal>(animal, this.createNewTimer(animal)));
+        await this.addToCache(animal);
 
         // Return the animal
         return animal;
@@ -69,8 +91,6 @@ export default class AnimalManager {
                 if (guildId && cachedAnimal.value.getGuildId() !== guildId) {
                     continue;
                 }
-
-                await cachedAnimal.value.refresh();
 
                 cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
 
@@ -110,14 +130,9 @@ export default class AnimalManager {
             return undefined;
         }
 
-        // If an animal was found, convert it into an object
+        // If an animal was found, convert it into an object and add it to the cache
         const animal = new Animal(animalDocument._id);
-
-        // Load the animal
-        await animal.load();
-
-        // Add the animal to the cache
-        this.cache.set(animal.getId(), new CachedValue(animal, this.createNewTimer(animal)));
+        await this.addToCache(animal);
 
         // Return the animal
         return animal;
@@ -158,6 +173,10 @@ export default class AnimalManager {
         catch (error) {
             throw new Error('There was an error adding a new animal to a player\'s inventory.');
         }
+
+        // Turn the animal into a game object and add it to the cache
+        const animal = new Animal(animalDocument._id);
+        await this.addToCache(animal);
     }
 
     // Deletes an animal by a given id
@@ -165,13 +184,10 @@ export default class AnimalManager {
         // Get the specified animal
         const animal = await this.fetchById(animalId);
 
-        // Get the animal's owner
-        const ownerGuildMember = getGuildMember(animal.getOwnerId(), animal.getGuildId());
-
         // Get the owner's player object
         let owner: PlayerObject;
         try {
-            owner = await beastiary.players.fetch(ownerGuildMember);
+            owner = await beastiary.players.fetch(getGuildMember(animal.getOwnerId(), animal.getGuildId()));
         }
         catch (error) {
             errorHandler.handleError(error, 'There was an error fetching a player from the player manager.');
@@ -187,6 +203,9 @@ export default class AnimalManager {
             return;
         }
 
+        // Remove the animal from the cache
+        this.removeFromCache(animal.getId());
+
         // Delete the animal's document
         try {
             await animal.delete();
@@ -195,5 +214,97 @@ export default class AnimalManager {
             errorHandler.handleError(error, 'There was an error trying to delete an animal object.');
             return;
         }
+    }
+
+    public async searchAnimal(
+        searchTerm: string,
+        searchOptions?: {
+            guildId?: string,
+            userId?: string,
+            playerObject?: PlayerObject,
+            searchByPosition?: boolean
+        }): Promise<Animal | undefined> {
+        // Pull the potential guild id and player object from the search options (undefined if none)
+        const guildId = searchOptions && searchOptions.guildId;
+        const userId = searchOptions && searchOptions.userId;
+        let playerObject = searchOptions && searchOptions.playerObject;
+        const searchByPosition = searchOptions && searchOptions.searchByPosition;
+
+        // If the search is only to be done by nickname
+        if (!searchByPosition) {
+            // Try to get the animal by its nickname from the cache
+            try {
+                return await beastiary.animals.fetchByNickName(searchTerm, guildId);
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error finding an animal by a given nickname.');
+                return;
+            }
+        }
+        // If we're out here, it means that animal indexes need to be considered
+
+        // First make sure the search term isn't a numeric index in a player's inventory to search
+        const searchNumber = Number(searchTerm);
+
+        // If the search term isn't a number (it's a nickname)
+        if (isNaN(searchNumber)) {
+            let animalObject: Animal | undefined;
+            // Attempt to get an animal by the nickname provided
+            try {
+                animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+            }
+
+            // Only return something if an animal was found, if not continue for more checks
+            if (animalObject) {
+                return animalObject;
+            }
+        }
+        // If the search term is a number
+        else {
+            // If no player object wasn't provided
+            if (!playerObject) {
+                // Make sure there's enough info provided to determine the player object
+                if (!guildId || !userId) {
+                    throw new Error('Insufficient information was provided to searchAnimal for the purpose of searching by animal position.');
+                }
+
+                // Get the player object corresponding to the user provided for the search
+                try {
+                    playerObject = await beastiary.players.fetch(getGuildMember(userId, guildId));
+                }
+                catch (error) {
+                    errorHandler.handleError(error, 'There was an error getting a player object by a guild member.');
+                    return;
+                }
+            }
+
+            // Get the animal by its position in the player's inventory
+            const animalObject = playerObject.getAnimalPositional(searchNumber - 1);
+
+            // If an animal at the given position was found
+            if (animalObject) {
+                // Add it to the cache and return it
+                await this.addToCache(animalObject);
+                return animalObject;
+            }
+        }
+
+        // If the search term is a number, but none of the other search options have returned anything so far
+        if (!isNaN(searchNumber)) {
+            // Search the number as a nickname (last resort)
+            try {
+                return await beastiary.animals.fetchByNickName(searchTerm, guildId);
+            }
+            catch (error) {
+                errorHandler.handleError(error, 'There was an error finding an animal by its nickname.');
+                return;
+            }
+        }
+
+        // If we're down here, all searches returned nothing
+        return undefined;
     }
 }
