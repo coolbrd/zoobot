@@ -4,7 +4,6 @@ import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../models/Animal";
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
-import { errorHandler } from "../structures/ErrorHandler";
 
 export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
@@ -38,8 +37,7 @@ export default class AnimalInfoCommand implements Command {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error attempting to search an animal for the info command.");
-            return;
+            throw new Error(`There was an error attempting to search an animal for the info command: ${error}`);
         }
 
         if (!animalObject) {
@@ -49,6 +47,12 @@ export default class AnimalInfoCommand implements Command {
 
         // Create and send an info message with the found animal object
         const infoMessage = new AnimalInfoMessage(parsedUserCommand.channel, animalObject);
-        infoMessage.send();
+
+        try {
+            await infoMessage.send();
+        }
+        catch (error) {
+            throw new Error(`There was an error sending an animal information message: ${error}`);
+        }
     }
 }

@@ -2,7 +2,6 @@ import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import InventoryMessage from "../messages/InventoryMessage";
 import { betterSend } from "../discordUtility/messageMan";
-import { errorHandler } from "../structures/ErrorHandler";
 
 export default class ViewInventoryCommand implements Command {
     commandNames = ["inventory", "inv", "vi"];
@@ -23,7 +22,7 @@ export default class ViewInventoryCommand implements Command {
             await inventoryMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a user inventory message.");
+            throw new Error(`There was an error sending a user inventory message: ${error}`);
         }
     }
 }

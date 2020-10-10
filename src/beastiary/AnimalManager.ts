@@ -1,10 +1,10 @@
 import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
+
 import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
 import { Player } from "../models/Player";
 import { Species } from "../models/Species";
-import { errorHandler } from "../structures/ErrorHandler";
 import WrapperCache from "../structures/GameObjectCache";
 import { beastiary } from "./Beastiary";
 
@@ -109,8 +109,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             ownerObject = await beastiary.players.fetch(owner);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error getting a player object by a guild member.");
-            return;
+            throw new Error(`There was an error fetching a player object by a guild member while creating an animal: ${error}`);
         }
 
         // Create the new animal
@@ -127,7 +126,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             await animalDocument.save();
         }
         catch (error) {
-            throw new Error("There was an error saving a new animal.");
+            throw new Error(`There was an error saving a new animal: ${error}`);
         }
 
         // Add the animal's id to the owner's inventory
@@ -135,18 +134,30 @@ export default class AnimalManager extends WrapperCache<Animal> {
             await ownerObject.addAnimal(animalDocument._id);
         }
         catch (error) {
-            throw new Error("There was an error adding a new animal to a player's inventory.");
+            throw new Error(`There was an error adding a new animal to a player's inventory: ${error}`);
         }
 
         // Turn the animal into a game object and add it to the cache
         const animal = new Animal(animalDocument._id);
-        await this.addToCache(animal);
+
+        try {
+            await this.addToCache(animal);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding an animal to the animal cache: ${error}`);
+        }
     }
 
     // Deletes an animal by a given id
     public async deleteAnimal(animalId: Types.ObjectId): Promise<void> {
         // Get the specified animal
-        const animal = await this.fetchById(animalId);
+        let animal: Animal;
+        try {
+            animal = await this.fetchById(animalId);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching an animal by its id in the animal mananger: ${error}`);
+        }
 
         // Get the owner's player object
         let owner: Player;
@@ -154,8 +165,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             owner = await beastiary.players.fetch(getGuildMember(animal.getOwnerId(), animal.getGuildId()));
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error fetching a player from the player manager.");
-            return;
+            throw new Error(`There was an error fetching a player from the player manager: ${error}`);
         }
 
         // Remove the animal from the player's inventory
@@ -163,8 +173,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             await owner.removeAnimal(animal.getId());
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error removing an animal's id from it's owner's inventory.");
-            return;
+            throw new Error(`There was an error removing an animal's id from it's owner's inventory: ${error}`);
         }
 
         // Remove the animal from the cache
@@ -175,8 +184,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             await animal.delete();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to delete an animal object.");
-            return;
+            throw new Error(`There was an error trying to delete an animal object: ${error}`);
         }
     }
 
@@ -201,8 +209,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, "There was an error finding an animal by a given nickname.");
-                return;
+                throw new Error(`There was an error finding an animal by a given nickname: ${error}`);
             }
         }
         // If we're out here, it means that animal indexes need to be considered
@@ -218,7 +225,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
                 animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, "There was an error finding an animal by its nickname.");
+                throw new Error(`There was an error finding an animal by its nickname: ${error}`);
             }
 
             // Only return something if an animal was found, if not continue for more checks
@@ -240,8 +247,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
                     playerObject = await beastiary.players.fetch(getGuildMember(userId, guildId));
                 }
                 catch (error) {
-                    errorHandler.handleError(error, "There was an error getting a player object by a guild member.");
-                    return;
+                    throw new Error(`There was an error fetching a player object by a guild member while searching an animal: ${error}`);
                 }
             }
 
@@ -250,8 +256,14 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
             // If an animal at the given position was found
             if (animalObject) {
-                // Add it to the cache and return it
-                await this.addToCache(animalObject);
+                // Add it to the cache
+                try {
+                    await this.addToCache(animalObject);
+                }
+                catch (error) {
+                    throw new Error(`There was an error adding a searched animal to the cache: ${error}`);
+                }
+                
                 return animalObject;
             }
         }
@@ -263,8 +275,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                errorHandler.handleError(error, "There was an error finding an animal by its nickname.");
-                return;
+                throw new Error(`There was an error finding an animal by its nickname: ${error}`);
             }
         }
 

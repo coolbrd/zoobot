@@ -9,7 +9,6 @@ import reactionInput from "../discordUtility/reactionInput";
 import { arrayToLowerCase } from "../utility/arraysAndSuch";
 import { EDoc, SimpleEDoc } from "../structures/EDoc";
 import EDocMessage from "../messages/EDocMessage";
-import { errorHandler } from "../structures/ErrorHandler";
 
 // Initiates the species submission process. Only to be used in DMs.
 export default class SubmitSpeciesCommand implements Command {
@@ -130,8 +129,7 @@ export default class SubmitSpeciesCommand implements Command {
             await submissionMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a new species submission message.");
-            return;
+            throw new Error(`There was an error sending a new species submission message: ${error}`);
         }
 
         // When the message reaches its time limit
@@ -165,7 +163,7 @@ export default class SubmitSpeciesCommand implements Command {
             pendingSpecies.save().then(() => {
                 betterSend(channel, "Submission accepted. Thanks for contributing to The Beastiary!");
             }).catch(error => {
-                errorHandler.handleError(error, "There was an error saving a new pending species document.");
+                throw new Error(`There was an error saving a new pending species document: ${error}`);
             });
         });
     }

@@ -37,8 +37,7 @@ export default class MoveAnimalsCommand implements Command {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error getting a player object in the move animals command.");
-            return;
+            throw new Error(`There was an error getting a player object in the move animals command: ${error}`);
         }
 
         const positions: number[] = [];
@@ -94,8 +93,7 @@ export default class MoveAnimalsCommand implements Command {
             animalIds = await playerObject.removeAnimalsPositional(positions);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to bulk remove animals from a player's inventory for movement.");
-            return;
+            throw new Error(`There was an error trying to bulk remove animals from a player's inventory for movement: ${error}`);
         }
 
         // After the animals have been removed, get the new position of the base animal to sort under
@@ -106,8 +104,7 @@ export default class MoveAnimalsCommand implements Command {
             await playerObject.addAnimalsPositional(animalIds, basePosition + 1);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to add animals back to a player's inventory for movement.");
-            return;
+            throw new Error(`There was an error trying to add animals back to a player's inventory for movement: ${error}`);
         }
 
         parsedUserCommand.originalMessage.react("✅").catch(error => {

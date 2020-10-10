@@ -244,7 +244,9 @@ export default class EDocMessage extends InteractiveMessage {
                                     selectedNestedField.setValue(responseMessage.content);
                                 }
                                 catch (error) {
-                                    handleUserError(responseMessage.channel, error);
+                                    if (handleUserError(responseMessage.channel, error)) {
+                                        throw new Error(`There was a non-user error setting a simple value in an eDoc message: ${error}`);
+                                    }
                                 }
 
                                 safeDeleteMessage(responseMessage);
@@ -308,7 +310,9 @@ export default class EDocMessage extends InteractiveMessage {
                                     selectedElement.setValue(responseMessage.content);
                                 }
                                 catch (error) {
-                                    handleUserError(responseMessage.channel, error);
+                                    if (handleUserError(responseMessage.channel, error)) {
+                                        throw new Error(`There was a non-user error setting an eDoc array element in an eDoc message: ${error}`);
+                                    }
                                 }
 
                                 safeDeleteMessage(responseMessage);
@@ -343,7 +347,9 @@ export default class EDocMessage extends InteractiveMessage {
                                     selectedField.push(responseMessage.content);
                                 }
                                 catch (error) {
-                                    handleUserError(responseMessage.channel, error);
+                                    if (handleUserError(responseMessage.channel, error)) {
+                                        throw new Error(`There was an error pushing a new element to an eDoc array field in an eDoc message: ${error}`);
+                                    }
                                 }
 
                                 safeDeleteMessage(responseMessage);

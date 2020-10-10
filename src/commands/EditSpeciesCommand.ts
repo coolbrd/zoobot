@@ -4,7 +4,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommonNameTemplate, SpeciesCardTemplate, Species } from "../models/Species";
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/EDoc";
-import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
 // The command used to review, edit, and approve a pending species into a real species
@@ -33,8 +32,7 @@ export default class EditSpeciesCommand implements Command {
             species = await beastiary.species.fetchByCommonName(fullSearchTerm);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error fetching a species in the edit species command.");
-            return;
+            throw new Error(`There was an error fetching a species in the edit species command: ${error}`);
         }
 
         // If nothing was found by that name
@@ -49,8 +47,7 @@ export default class EditSpeciesCommand implements Command {
             await editMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a species edit message.");
-            return;
+            throw new Error(`There was an error sending a species edit message: ${error}`);
         }
 
         // When the message's time limit is reached
@@ -81,9 +78,7 @@ export default class EditSpeciesCommand implements Command {
             }).then(() => {
                 betterSend(channel, "Edit successful.");
             }).catch(error => {
-                betterSend(channel, "Edit unsuccessful, inform the developer.");
-
-                errorHandler.handleError(error, "There was an error editing a species.");
+                throw new Error(`There was an error editing a species: ${error}`);
             });
         });
     }

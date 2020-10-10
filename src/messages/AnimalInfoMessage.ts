@@ -6,7 +6,6 @@ import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { Animal } from "../models/Animal";
-import { errorHandler } from "../structures/ErrorHandler";
 
 // Displays a single animal's basic info and card
 export default class AnimalInfoMessage extends InteractiveMessage {
@@ -44,8 +43,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             await this.animalObject.load();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error loading an animal object's data.");
-            return;
+            throw new Error(`There was an error loading an animal object's data: ${error}`);
         }
 
         // Get the owner's user instance

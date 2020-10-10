@@ -11,6 +11,7 @@ import { errorHandler } from "../structures/ErrorHandler";
 import PagedMessage from "./PagedMessage";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
+import { betterSend } from "../discordUtility/messageMan";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -25,7 +26,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
     private state: InventoryMessageState;
     
     private readonly user: User;
-    protected readonly channel: TextChannel;
+    public readonly channel: TextChannel;
 
     private playerObject: Player | undefined;
 
@@ -68,11 +69,9 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
-            await playerObject.load();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to get and load a player object in an inventory message.");
-            return;
+            throw new Error(`There was an error fetching a player in an inventory message: ${error}`);
         }
 
         // Assign the new player object
@@ -85,8 +84,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error building the embed of an inventory message.");
-            return;
+            throw new Error(`There was an error building the initial embed of an inventory message: ${error}`);
         }
     }
 
@@ -123,8 +121,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                         resolve();
                     }
                 }).catch(error => {
-                    errorHandler.handleError(error, "There was an error loading an unloaded animal in an inventory message.");
-                    return;
+                    throw new Error(`There was an error loading an unloaded animal in an inventory message: ${error}`);
                 });
             });
         });
@@ -277,7 +274,10 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                     await beastiary.animals.deleteAnimal(selectedAnimal.getId());
                 }
                 catch (error) {
-                    errorHandler.handleError(error, "There was an error trying to release a user's animal from an inventory message.");
+                    errorHandler.handleError(error, "There was an error trying to delete an animal in an inventory message.");
+
+                    betterSend(this.channel, "A problem was encountered while trying to release this animal. Please report this to the developer.");
+
                     return;
                 }
 
@@ -298,8 +298,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error building the embed of an inventory message.");
-            return;
+            throw new Error(`There was an error building the embed of an inventory message: ${error}`);
         }
     }
 }

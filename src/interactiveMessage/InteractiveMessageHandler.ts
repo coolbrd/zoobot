@@ -1,4 +1,5 @@
 import { Client, MessageReaction, User, PartialUser, RateLimitData } from "discord.js";
+import { betterSend } from "../discordUtility/messageMan";
 
 import { errorHandler } from "../structures/ErrorHandler";
 import InteractiveMessage from "./InteractiveMessage";
@@ -71,6 +72,8 @@ class InteractiveMessageHandler {
         }
         catch (error) {
             errorHandler.handleError(error, "Error activating an interactive message's button.");
+
+            betterSend(interactiveMessage.channel, "There was a problem processing input for an interactive message. Please report this to the developer.");
         }
     }
 

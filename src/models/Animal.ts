@@ -83,7 +83,12 @@ export class Animal extends DocumentWrapper {
             throw new Error(`There was an error trying to change the nickname of an animal document: ${error}`);
         }
 
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing an animal after changing its nickname: ${error}`);
+        }
     }
 
     // Gets the species object representing this animal's species
@@ -135,8 +140,14 @@ export class Animal extends DocumentWrapper {
 
         // Create a new species object from this animal's known species id
         this.species = new Species(this.getSpeciesId());
+
         // Load the species object's information
-        await this.species.load();
+        try {
+            await this.species.load();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading an animal's species' information: ${error}`);
+        }
     }
 
     // Loads this animal's card object

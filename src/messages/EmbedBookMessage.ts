@@ -1,7 +1,6 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { errorHandler } from "../structures/ErrorHandler";
 import loopValue from "../utility/loopValue";
 
 // A message that allows an array of embeds to be linearly browsed
@@ -64,8 +63,7 @@ export default class EmbedBookMessage extends InteractiveMessage {
             await this.setEmbed(nextPage);
         }
         catch (error) {
-            errorHandler.handleError(error, `Unable to edit embed book message.`);
-            return;
+            throw new Error(`Unable to edit embed book message: ${error}`);
         }
 
         // The page turn was successful, so assign the new page

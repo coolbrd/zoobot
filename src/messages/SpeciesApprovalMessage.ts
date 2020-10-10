@@ -3,7 +3,6 @@ import { DMChannel, TextChannel, User } from "discord.js";
 import { client } from "..";
 import { PendingSpecies } from "../models/PendingSpecies";
 import { EDoc } from "../structures/EDoc";
-import { errorHandler } from "../structures/ErrorHandler";
 import EDocMessage from "./EDocMessage";
 
 export default class SpeciesApprovalMessage extends EDocMessage {
@@ -149,13 +148,13 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 await this.pendingSpeciesObject.delete();
             }
             catch (error) {
-                errorHandler.handleError(error, "There was an error deleting a denied pending species.");
-                return;
+                throw new Error(`There was an error deleting a denied pending species: ${error}`);
+            }
+            finally {
+                this.deactivate();
             }
 
             this.emit("deny");
-
-            this.deactivate();
         }
     }
 }

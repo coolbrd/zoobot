@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+
 import CachedValue from "./CachedValue";
 import DocumentWrapper from "./DocumentWrapper";
 
@@ -24,7 +25,12 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     // Adds a value to the cache
     protected async addToCache(value: ValueType): Promise<void> {
         // Load the value's information
-        await value.load();
+        try {
+            await value.load();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
+        }
 
         // Add the value to the cache by its document's id
         this.cache.set(value.getId(), new CachedValue<ValueType>(value, this.createNewTimer(value)));

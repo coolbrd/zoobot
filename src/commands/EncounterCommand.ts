@@ -1,8 +1,8 @@
+import { DMChannel } from "discord.js";
+
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import { DMChannel } from "discord.js";
-import { errorHandler } from "../structures/ErrorHandler";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 
 export default class EncounterCommand implements Command {
@@ -22,7 +22,7 @@ export default class EncounterCommand implements Command {
             await encounterHandler.spawnAnimal(parsedUserCommand.channel);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an rror creating a new animal encounter.");
+            throw new Error(`There was an rror creating a new animal encounter: ${error}`);
         }
     }
 }

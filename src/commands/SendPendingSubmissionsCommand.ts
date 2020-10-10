@@ -1,4 +1,5 @@
 import { MessageEmbed } from "discord.js";
+import { Document } from "mongoose";
 
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
@@ -6,8 +7,6 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import { betterSend } from "../discordUtility/messageMan";
 import { PendingSpeciesModel } from "../models/PendingSpecies";
 import EmbedBookMessage from "../messages/EmbedBookMessage";
-import { Document } from "mongoose";
-import { errorHandler } from "../structures/ErrorHandler";
 import { client } from "..";
 
 export default class SendPendingSubmissionsCommand implements Command {
@@ -22,14 +21,13 @@ export default class SendPendingSubmissionsCommand implements Command {
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
 
-        let pendingSpecies: Document[];
         // Get all pending species documents
+        let pendingSpecies: Document[];
         try {
             pendingSpecies = await PendingSpeciesModel.find({}, { commonNames: 1, author: 1, _id: 0 });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error finding all species pending approval.");
-            return;
+            throw new Error(`There was an error finding all species pending approval: ${error}`);
         }
 
         // Don't send an empty embed if there are no pending species
@@ -80,7 +78,7 @@ export default class SendPendingSubmissionsCommand implements Command {
             await embedBookMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a new embed book message.");
+            throw new Error(`There was an error sending a new embed book message: ${error}`);
         }
     }
 }

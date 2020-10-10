@@ -1,4 +1,5 @@
 import { DMChannel, TextChannel } from "discord.js";
+
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import PointedArray from "../structures/PointedArray";
 import loopValue from "../utility/loopValue";

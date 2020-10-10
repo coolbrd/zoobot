@@ -1,5 +1,4 @@
 import { Message, MessageReaction, User } from "discord.js";
-import { errorHandler } from "../structures/ErrorHandler";
 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
@@ -11,8 +10,7 @@ export default async function reactionInput(message: Message, timeOut: number, e
         }
     }
     catch (error) {
-        errorHandler.handleError(error, "There was an error reacting to a message in reactionInput.");
-        return;
+        throw new Error(`There was an error reacting to a message in reactionInput: ${error}`);
     }
 
     // The filter used to determine a valid button press

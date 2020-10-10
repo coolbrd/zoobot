@@ -18,7 +18,7 @@ interface EmojiButton {
 export default class InteractiveMessage extends EventEmitter {
     // The text channel that the message will be sent in
     // No news channels allowed, I hardly understand how those work
-    protected readonly channel: TextChannel | DMChannel;
+    public readonly channel: TextChannel | DMChannel;
     // The content of the message (usually just has an embed)
     private content: APIMessage | undefined;
 
@@ -232,8 +232,7 @@ export default class InteractiveMessage extends EventEmitter {
                 await this.sendAndAddButtons();
             }
             catch (error) {
-                errorHandler.handleError(error, "There was an error sending and adding buttons to an interactive message.");
-                return;
+                throw new Error(`There was an error sending and adding buttons to an interactive message: ${error}`);
             }
         }
         // If the message isn't yet prepared to send
@@ -314,7 +313,7 @@ export default class InteractiveMessage extends EventEmitter {
     protected addButton(button: EmojiButton): void {
         // If the button is already on the message
         if (this.hasSimilarButton(button)) {
-            throw new Error("Attempted to add a button to an interactive message that already existed.");
+            throw new Error("Attempted to add a button to an interactive message that already exists.");
         }
 
         // Add the button to the map

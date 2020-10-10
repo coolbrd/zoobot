@@ -1,7 +1,6 @@
 import BeastiaryMessage from "../messages/BeastiaryMessage";
 import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
-import { errorHandler } from "../structures/ErrorHandler";
 
 export default class BeastiaryCommand implements Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];
@@ -16,8 +15,7 @@ export default class BeastiaryCommand implements Command {
             await beastiaryMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a beastiary message.");
-            return;
+            throw new Error(`There was an error sending a beastiary message: ${error}`);
         }
     }
 }

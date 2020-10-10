@@ -1,5 +1,6 @@
 import { GuildMember } from "discord.js";
 import { Document } from "mongoose";
+
 import { PlayerModel, Player } from "../models/Player";
 import WrapperCache from "../structures/GameObjectCache";
 
@@ -30,29 +31,27 @@ export default class PlayerManager extends WrapperCache<Player> {
             playerDocument = await PlayerModel.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
         }
         catch (error) {
-            throw new Error("There was an error finding an existing player document.");
+            throw new Error(`There was an error finding an existing player document: ${error}`);
         }
 
         let player: Player;
         // If no player document exists for the given guild member
         if (!playerDocument) {
             // Create a new player object
-            player = await this.createNewPlayer(guildMember);
+            try {
+                player = await this.createNewPlayer(guildMember);
+            }
+            catch (error) {
+                throw new Error(`There was an error creating a new player object: ${error}`);
+            }
         }
         // If an existing player document was found
         else {
             // Create an object from the document
             player = new Player(playerDocument._id);
         }
-
-        // Load the player's information and save it to the cache
-        try {
-            await player.load();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a player's data for use in the cache: ${error}`);
-        }
         
+        // Add the player to the cache
         try {
             await this.addToCache(player);
         }
@@ -60,7 +59,6 @@ export default class PlayerManager extends WrapperCache<Player> {
             throw new Error(`There was an error adding a player to the cache: ${error}`);
         }
 
-        // Return the player
         return player;
     }
 
@@ -77,7 +75,7 @@ export default class PlayerManager extends WrapperCache<Player> {
             await playerDocument.save();
         }
         catch (error) {
-            throw new Error("There was an error trying to save a new player document.");
+            throw new Error(`There was an error trying to save a new player document: ${error}`);
         }
 
         const player = new Player(playerDocument._id);

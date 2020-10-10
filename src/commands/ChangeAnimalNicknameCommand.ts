@@ -44,8 +44,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error attempting to get a player object representation of a user in the animal nickname command.");
-            return;
+            throw new Error(`There was an error attempting to get a player in the animal nickname command: ${error}`);
         }
 
         // Get the animal at the player's given inventory position
@@ -75,8 +74,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
             await animalObject.setNickname(newNickname);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error attempting to change the nickname of an animal object.");
-            return;
+            throw new Error(`There was an error attempting to change the nickname of an animal object: ${error}`);
         }
 
         // Indicate that the command was performed successfully

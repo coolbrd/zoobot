@@ -14,7 +14,7 @@ import { beastiary } from "../beastiary/Beastiary";
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
     // Override base channel field, because EncounterMessage can only be sent in TextChannels
-    protected readonly channel: TextChannel;
+    public readonly channel: TextChannel;
 
     // The species of the animal contained within this encounter
     private readonly species: Species;
@@ -36,14 +36,11 @@ export default class EncounterMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        // Load the species' information
-        await this.species.load();
-
         try {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to build an encounter message's embed.");
+            throw new Error(`There was an error trying to build an encounter message's initial embed: ${error}`);
         }
     }
 
@@ -86,11 +83,13 @@ export default class EncounterMessage extends InteractiveMessage {
             await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.cardIndex as number);
         }
         catch (error) {
-            errorHandler.handleError(error, "Thre was an error creating a new animal in an encounter message.");
-            return;
-        }
+            errorHandler.handleError(error, "There was an error creating a new animal in an encounter message.");
 
-        // Stop this message from receiving any more input
-        this.deactivate();
+            betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
+        }
+        finally {
+            // Stop this message from receiving any more input
+            this.deactivate();
+        }
     }
 }

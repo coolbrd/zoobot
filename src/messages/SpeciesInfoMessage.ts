@@ -42,14 +42,6 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         super.build();
 
-        try {
-            await this.species.load();
-        }
-        catch (error) {
-            errorHandler.handleError(error, "There was an error loading a species in a species info message.");
-            return;
-        }
-
         this.setEmbed(this.buildEmbed());
     }
 

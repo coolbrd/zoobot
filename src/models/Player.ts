@@ -1,7 +1,6 @@
 import mongoose, { Schema, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
-import { errorHandler } from "../structures/ErrorHandler";
 import { Animal } from "./Animal";
 
 const playerSchema = new Schema({
@@ -70,10 +69,15 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error adding an animal to a player's inventory.");
+            throw new Error(`There was an error adding an animal to a player's inventory: ${error}`);
         }
 
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's information after adding an animal to its inventory: ${error}`);
+        }
     }
 
     // Adds a set of animals at a given base position
@@ -89,11 +93,15 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error adding animals to a player's animal inventory.");
-            return;
+            throw new Error(`There was an error adding animals to a player's animal inventory: ${error}`);
         }
 
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's information after adding animals to its inventory: ${error}`);
+        }
     }
 
     // Removes an animal from the player's inventory by a given id
@@ -106,11 +114,15 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error removing an animal from a player's animal inventory.");
-            return;
+            throw new Error(`There was an error removing an animal from a player's animal inventory: ${error}`);
         }
 
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's information after removing an animal from its inventory: ${error}`);
+        }
     }
 
     // Removes a set of animals by an array of positions
@@ -130,10 +142,15 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error("There was an error removing animals from a player's animal inventory.");
+            throw new Error(`There was an error removing animals from a player's animal inventory: ${error}`);
         }
 
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's information after removing animals from its inventory: ${error}`);
+        }
 
         return animalIds;
     }
@@ -166,6 +183,8 @@ export class Player extends DocumentWrapper {
                     if (++completed >= animals.length) {
                         resolve();
                     }
+                }).catch(error => {
+                    throw new Error(`There was an error loading an animal's information within a player's inventory: ${error}`);
                 });
             }
         });
@@ -192,16 +211,14 @@ export class Player extends DocumentWrapper {
             await this.loadDocument();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error loading a player's document.");
-            return;
+            throw new Error(`There was an error loading a player's document: ${error}`);
         }
 
         try {
             await this.loadAnimals();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error loading a player's animals.");
-            return;
+            throw new Error(`There was an error loading a player's animals: ${error}`);
         }
     }
 

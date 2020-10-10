@@ -84,7 +84,13 @@ export default class DocumentWrapper {
     // Used if something was likely to have changed about the document in the database, and the most current data is desired
     public async refresh(): Promise<void> {
         this.unload();
-        await this.load();
+
+        try {
+            await this.load();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a document wrapper's information during a refresh: ${error}`);
+        }
     }
 
     // Deletes the wrapped document from the database

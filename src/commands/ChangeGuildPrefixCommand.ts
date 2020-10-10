@@ -2,7 +2,6 @@ import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/CommandInterface";
 import { PlayerGuild } from "../models/Guild";
-import { errorHandler } from "../structures/ErrorHandler";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
@@ -36,8 +35,7 @@ export default class ChangeGuildPrefixCommand implements Command {
             guildObject = await beastiary.playerGuilds.fetch(parsedUserCommand.channel.guild.id);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error attempting to get a guild object from a guild id.");
-            return;
+            throw new Error(`There was an error attempting to get a guild object from a guild id: ${error}`);
         }
 
         // Attempt to change the guild's prefix
@@ -45,8 +43,7 @@ export default class ChangeGuildPrefixCommand implements Command {
             await guildObject.setPrefix(fullPrefix);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error trying to change the prefix of a guild object.");
-            return;
+            throw new Error(`There was an error trying to change the prefix of a guild object: ${error}`);
         }
 
         // Update the guild's prefix in the command handler

@@ -194,7 +194,12 @@ export class Species extends DocumentWrapper {
         }
 
         // Refresh information again to reflect the changes that were just made
-        await this.refresh();
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a species' information after changing its fields: ${error}`);
+        }
     }
 
     // Gets a simple array of this species' common names
@@ -244,7 +249,13 @@ export class Species extends DocumentWrapper {
 
     // Loads this species' data from the database
     public async load(): Promise<void> {
-        await super.load();
+        try {
+            await super.load();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a species: ${error}`);
+        }
+        
         this.loadCards();
     }
 

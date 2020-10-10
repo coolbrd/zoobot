@@ -1,4 +1,5 @@
 import { MessageEmbed } from "discord.js";
+
 import { SpeciesCard, Species } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 

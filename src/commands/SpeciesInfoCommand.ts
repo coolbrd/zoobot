@@ -3,7 +3,6 @@ import CommandParser from "../structures/CommandParser";
 import { Species } from "../models/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
-import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
 export default class SpeciesInfoCommand implements Command {
@@ -29,8 +28,7 @@ export default class SpeciesInfoCommand implements Command {
             species = await beastiary.species.fetchByCommonName(fullSearchTerm);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error fetching a species by its common name in the species info comman.");
-            return;
+            throw new Error(`There was an error fetching a species by its common name in the species info comman: ${error}`);
         }
 
         // If no species with the given name was found
@@ -45,7 +43,7 @@ export default class SpeciesInfoCommand implements Command {
             await infoMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a new species info message.");
+            throw new Error(`There was an error sending a new species info message: ${error}`);
         }
     }
 }

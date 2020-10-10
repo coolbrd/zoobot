@@ -4,7 +4,6 @@ import { Document, Types } from "mongoose";
 import { SpeciesModel, Species } from "../models/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import getWeightedRandom from "../utility/getWeightedRandom";
-import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "./Beastiary";
 
 // A handler class that deals with creating encounters with species from the total set
@@ -20,8 +19,7 @@ class EncounterHandler {
             rarityList = await SpeciesModel.find({}, { rarity: 1 });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error getting all species rarities from the database.");
-            return;
+            throw new Error(`There was an error getting all species rarities from the database: ${error}`);
         }
 
         // Reset the rarity map (useful for reloading the values after already being initialized)
@@ -46,7 +44,7 @@ class EncounterHandler {
             species = await beastiary.species.fetchById(getWeightedRandom(this.rarityMap));
         }
         catch (error) {
-            throw new Error("There was an error getting a species by an id.");
+            throw new Error(`There was an error getting a species by an id: ${error}`);
         }
 
         const encounterMessage = new EncounterMessage(channel, species);
@@ -55,8 +53,7 @@ class EncounterHandler {
             await encounterMessage.send();
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error sending a new encounter message.");
-            return;
+            throw new Error(`There was an error sending a new encounter message: ${error}`);
         }
     }
 }

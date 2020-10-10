@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+
 import { Species, SpeciesModel } from "../models/Species";
 import WrapperCache from "../structures/GameObjectCache";
 
@@ -26,7 +27,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
             speciesDocument = await SpeciesModel.findById(id);
         }
         catch (error) {
-            throw new Error("There was an error finding an existing species document.");
+            throw new Error(`There was an error finding an existing species document: ${error}`);
         }
 
         if (!speciesDocument) {
@@ -35,7 +36,13 @@ export default class SpeciesManager extends WrapperCache<Species> {
 
         // Turn the document into an object and add it to the cache
         const species = new Species(speciesDocument._id);
-        await this.addToCache(species);
+
+        try {
+            await this.addToCache(species);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding a species to the cache: ${error}`);
+        }
 
         // Return the species
         return species;
@@ -69,7 +76,13 @@ export default class SpeciesManager extends WrapperCache<Species> {
 
         // Convert the document into an object and add it to the cache
         const species = new Species(speciesDocument._id);
-        await this.addToCache(species);
+        
+        try {
+            await this.addToCache(species);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding a species to the cache: ${error}`);
+        }
 
         return species;
     }

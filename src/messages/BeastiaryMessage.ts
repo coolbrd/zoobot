@@ -21,7 +21,7 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             speciesDocuments = await SpeciesModel.find({});
         }
         catch (error) {
-            throw new Error("There was an error getting a list of all species from the database.");
+            throw new Error(`There was an error getting a list of all species from the database: ${error}`);
         }
 
         speciesDocuments.sort((a: Document, b: Document) => {
@@ -33,7 +33,12 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             this.getElements().push(currentSpecies);
         });
 
-        this.setEmbed(await this.buildEmbed());
+        try {
+            this.setEmbed(await this.buildEmbed());
+        }
+        catch (error) {
+            throw new Error(`There was an error building a beastiary message's initial embed: ${error}`);
+        }
     }
     
     private async buildEmbed(): Promise<MessageEmbed> {
@@ -43,16 +48,23 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
 
         const speciesOnPage = this.getVisibleElements();
 
-        await new Promise(resolve => {
-            let complete = 0;
-            speciesOnPage.forEach(species => {
-                species.load().then(() => {
-                    if (++complete >= speciesOnPage.length) {
-                        resolve();
-                    }
+        try {
+            await new Promise(resolve => {
+                let complete = 0;
+                speciesOnPage.forEach(species => {
+                    species.load().then(() => {
+                        if (++complete >= speciesOnPage.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error loading a species in a beastiary message: ${error}`);
+                    });
                 });
             });
-        });
+        }
+        catch (error) {
+            throw new Error(`There was an error bulk loading a set of species in a beastiary message: ${error}`);
+        }
 
         let pageString = "";
         speciesOnPage.forEach(speciesObject => {
@@ -80,6 +92,11 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
             }
         }
 
-        this.setEmbed(await this.buildEmbed());
+        try {
+            this.setEmbed(await this.buildEmbed());
+        }
+        catch (error) {
+            throw new Error(`There was an error building a beastiary message's embed after a button press: ${error}`);
+        }
     }
 }
