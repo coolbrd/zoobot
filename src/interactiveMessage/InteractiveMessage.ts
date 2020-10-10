@@ -4,7 +4,6 @@ import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from 
 
 import { betterSend } from "../discordUtility/messageMan";
 import { interactiveMessageHandler } from "./InteractiveMessageHandler";
-import { errorHandler } from "../structures/ErrorHandler";
 
 // The structure of an emoji reaction button that will be added to InteracticeMessage instance
 interface EmojiButton {

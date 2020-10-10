@@ -5,7 +5,6 @@ import { client } from "..";
 import { Species } from "../models/Species";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { errorHandler } from "../structures/ErrorHandler";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
