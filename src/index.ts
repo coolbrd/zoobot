@@ -74,7 +74,7 @@ client.on("ready", () => {
         preLoad.handlersInitialized = true;
         complete();
     }).catch(error => {
-        throw new Error("There was an error intiailizing the error handler (uh oh!): " + error);
+        throw new Error(`There was an error intiailizing the error handler (uh oh!): ${error}`);
     });
 });
 

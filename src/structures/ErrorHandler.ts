@@ -5,7 +5,13 @@ class ErrorHandler {
     private developer: User | undefined;
 
     public async init(client: Client): Promise<void> {
-        const developer = await client.users.fetch(DEVELOPER_ID);
+        let developer: User;
+        try {
+            developer = await client.users.fetch(DEVELOPER_ID);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching the developer user in the error handler: ${error}`);
+        }
 
         if (!developer) {
             throw new Error("Developer user could not be found for error handler.");
