@@ -7,12 +7,12 @@ import loopValue from "../utility/loopValue";
 // A message that's meant to be extended, keeps track of a paged set of elements and provides utility methods for doing so
 export default class PagedMessage<ElementType> extends InteractiveMessage {
     // The array of elements to show in this message
-    private elements = new PointedArray<ElementType>();
+    private _elements = new PointedArray<ElementType>();
 
     // The current page to display
-    private page = 0;
+    private _page = 0;
     // The number of elements displayed on one page
-    private elementsPerPage = 10;
+    protected readonly elementsPerPage: number;
 
     constructor(channel: TextChannel | DMChannel, elementsPerPage?: number) {
         super(channel, { buttons: [
@@ -28,53 +28,54 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
             }
         ]});
 
-        if (elementsPerPage) {
-            this.elementsPerPage = elementsPerPage;
+        this.elementsPerPage = elementsPerPage || 10;
+    }
+
+    protected get elements(): PointedArray<ElementType> {
+        return this._elements;
+    }
+
+    protected setElements(elements: ElementType[]): void {
+        this._elements = new PointedArray<ElementType>(elements);
+    }
+
+    protected get page(): number {
+        return this._page;
+    }
+
+    protected set page(page: number) {
+        if (page < 0 || page > this.pageCount) {
+            throw new Error("A paged message attempted to go out of its page boundaries.");
         }
+
+        this._page = page;
     }
 
-    protected getElements(): PointedArray<ElementType> {
-        return this.elements;
-    }
-
-    protected getPage(): number {
-        return this.page;
-    }
-
-    protected getElementsPerPage(): number {
-        return this.elementsPerPage;
-    }
-
-    // Gets the current slice of this message's elements represented by the current page
-    protected getVisibleElements(): ElementType[] {
-        const elementsPerPage = this.getElementsPerPage();
-        const startIndex = this.getPage() * elementsPerPage;
-        return this.getElements().slice(startIndex, startIndex + elementsPerPage);
-    }
-
-    // Gets the number of pages currently in this message
-    protected getPageCount(): number {
+    protected get pageCount(): number {
         return Math.ceil(this.elements.length / this.elementsPerPage);
     }
 
+    // Gets the current slice of this message's elements represented by the current page
+    protected get visibleElements(): ElementType[] {
+        const elementsPerPage = this.elementsPerPage;
+        const startIndex = this.page * elementsPerPage;
+        return this.elements.slice(startIndex, startIndex + elementsPerPage);
+    }
+
     // Gets the index of the first element on the current page
-    protected getFirstVisibleIndex(): number {
-        return this.getPage() * this.getElementsPerPage();
+    protected get firstVisibleIndex(): number {
+        return this.page * this.elementsPerPage;
     }
 
     // Gets the page that the pointer is currently on
-    protected getPointerPage(): number {
+    protected get pointerPage(): number {
         return Math.floor(this.elements.getPointerPosition() / this.elementsPerPage);
-    }
-
-    protected setElements(newElements: ElementType[]): void {
-        this.elements = new PointedArray<ElementType>(newElements);
     }
 
     // Move a number of pages
     protected movePages(count: number): void {
         // Moves the desired number of pages, looping if necessary
-        this.page = loopValue(this.page + count, 0, this.getPageCount() - 1);
+        this.page = loopValue(this.page + count, 0, this.pageCount - 1);
         // If the page move caused the pointer to be off the page
         if (!this.pointerIsOnPage()) {
             // Move the pointer to the first entry on the page
@@ -84,12 +85,12 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
 
     // Checks if the pointer is on the message's currently displayed page
     protected pointerIsOnPage(): boolean {
-        return this.page === this.getPointerPage();
+        return this.page === this.pointerPage;
     }
 
     // Moves to the page that the pointer is on
     protected goToPointerPage(): void {
-        this.page = this.getPointerPage();
+        this.page = this.pointerPage;
     }
 
     // Moves the pointer a number of positions

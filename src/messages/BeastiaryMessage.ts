@@ -30,7 +30,7 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
 
         speciesDocuments.forEach(speciesDocument => {
             const currentSpecies = new Species(speciesDocument._id);
-            this.getElements().push(currentSpecies);
+            this.elements.push(currentSpecies);
         });
 
         try {
@@ -46,7 +46,7 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
 
         embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
 
-        const speciesOnPage = this.getVisibleElements();
+        const speciesOnPage = this.visibleElements;
 
         try {
             await new Promise(resolve => {

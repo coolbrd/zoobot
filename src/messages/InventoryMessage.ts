@@ -93,7 +93,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
     private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        const inventory = this.getElements();
+        const inventory = this.elements;
 
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
@@ -106,7 +106,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         }
 
         // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
-        const unloadedAnimals = this.getVisibleElements().filter((animalObject: Animal) => {
+        const unloadedAnimals = this.visibleElements.filter((animalObject: Animal) => {
             return !animalObject.fullyLoaded();
         });
         
@@ -139,9 +139,9 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
                 // The string that will hold the formatted inventory string
                 let inventoryString = "";
-                let inventoryIndex = this.getFirstVisibleIndex();
+                let inventoryIndex = this.firstVisibleIndex;
                 // Iterate over every element on the current page
-                this.getVisibleElements().forEach(currentAnimal => {
+                this.visibleElements.forEach(currentAnimal => {
                     const card = currentAnimal.getCard();
 
                     const animalName = currentAnimal.getNickname() || capitalizeFirstLetter(currentAnimal.getName());
@@ -210,7 +210,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        const inventory = this.getElements();
+        const inventory = this.elements;
 
         // If the message in any state other than releasing an animal
         if (this.state !== InventoryMessageState.release) {

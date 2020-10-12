@@ -12,7 +12,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     private readonly animalObject: Animal;
 
     // The user instance associated with the player that owns the displayed animal
-    private ownerUser: User | undefined;
+    private _ownerUser: User | undefined;
 
     // Whether or not this message is showing the animal's card
     private cardMode = false;
@@ -29,12 +29,16 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         this.animalObject = animalObject;
     }
 
-    private getOwnerUser(): User {
-        if (!this.ownerUser) {
+    private get ownerUser(): User {
+        if (!this._ownerUser) {
             throw new Error("An animal info message attempted to access the animal's owner's user before it was found.");
         }
 
-        return this.ownerUser;
+        return this._ownerUser;
+    }
+
+    private set ownerUser(ownerUser: User) {
+        this._ownerUser = ownerUser;
     }
 
     public async build(): Promise<void> {
@@ -55,8 +59,8 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     private buildEmbed(): MessageEmbed {
         const embed = new SmartEmbed();
     
-        const userAvatar = this.getOwnerUser().avatarURL() || undefined;
-        embed.setAuthor(`Belongs to ${this.getOwnerUser().username}`, userAvatar);
+        const userAvatar = this.ownerUser.avatarURL() || undefined;
+        embed.setAuthor(`Belongs to ${this.ownerUser.username}`, userAvatar);
 
         // Build the message according to what mode it's in
         if (!this.cardMode) {
