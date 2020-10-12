@@ -22,7 +22,7 @@ export default class EncounterCommand implements Command {
             await encounterHandler.spawnAnimal(parsedUserCommand.channel);
         }
         catch (error) {
-            throw new Error(`There was an rror creating a new animal encounter: ${error}`);
+            throw new Error(`There was an error creating a new animal encounter: ${error}`);
         }
     }
 }
