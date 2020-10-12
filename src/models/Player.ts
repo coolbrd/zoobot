@@ -23,46 +23,44 @@ export const PlayerModel = mongoose.model("Player", playerSchema);
 // A wrapper object for a Mongoose player document
 export class Player extends DocumentWrapper {
     // This player's inventory of animal objects
-    private animals: Animal[] | undefined;
+    private _animals: Animal[] | undefined;
 
     constructor(documentId: Types.ObjectId) {
         super(PlayerModel, documentId);
     }
 
-    public getUserId(): string {
-        return this.getDocument().get("userId");
+    public get userId(): string {
+        return this.document.get("userId");
     }
 
-    public getGuildId(): string {
-        return this.getDocument().get("guildId");
+    public get guildId(): string {
+        return this.document.get("guildId");
     }
 
-    public getAnimalIds(): Types.ObjectId[] {
-        return this.getDocument().get("animals");
+    public get animalIds(): Types.ObjectId[] {
+        return this.document.get("animals");
     }
 
-    public getAnimals(): Animal[] {
-        if (!this.animals) {
+    public get animals(): Animal[] {
+        if (!this._animals) {
             throw new Error("A player's animals were attempted to be retrieved before they were loaded.");
         }
 
-        return this.animals;
+        return this._animals;
     }
 
     public getAnimalPositional(position: number): Animal | undefined {
-        const animals = this.getAnimals();
-
-        if (position < 0 || position >= animals.length) {
+        if (position < 0 || position >= this.animals.length) {
             return undefined;
         }
 
-        return animals[position];
+        return this.animals[position];
     }
 
     // Adds an animal id to the user's inventory
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $push: {
                     animals: animalId
                 }
@@ -83,7 +81,7 @@ export class Player extends DocumentWrapper {
     // Adds a set of animals at a given base position
     public async addAnimalsPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $push: {
                     animals: {
                         $each: animalIds,
@@ -107,7 +105,7 @@ export class Player extends DocumentWrapper {
     // Removes an animal from the player's inventory by a given id
     public async removeAnimal(animalId: Types.ObjectId): Promise<void> {
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $pull: {
                     animals: animalId
                 }
@@ -129,11 +127,11 @@ export class Player extends DocumentWrapper {
     public async removeAnimalsPositional(animalPositions: number[]): Promise<Types.ObjectId[]> {
         const animalIds: Types.ObjectId[] = [];
         for (const position of animalPositions) {
-            animalIds.push(this.getAnimalIds()[position]);
+            animalIds.push(this.animalIds[position]);
         }
         
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $pull: {
                     animals: {
                         $in: animalIds
@@ -157,17 +155,17 @@ export class Player extends DocumentWrapper {
 
     public async loadAnimals(): Promise<void> {
         // Don't attempt to load any animals before this player's document is loaded
-        if (!this.documentLoaded()) {
+        if (!this.documentLoaded) {
             throw new Error("A player object's animals were attempted to be loaded before the document was loaded.");
         }
 
         // If this player's animals are already known/loaded, do nothing
-        if (this.animalsLoaded()) {
+        if (this.animalsLoaded) {
             return;
         }
 
         // Get this player's list of animal ids
-        const animalIds = this.getDocument().get("animals");
+        const animalIds = this.document.get("animals");
 
         // For every animal id, add a new animal object of that id to this player's inventory
         const animals: Animal[] = [];
@@ -187,23 +185,25 @@ export class Player extends DocumentWrapper {
                     throw new Error(`There was an error loading an animal's information within a player's inventory: ${error}`);
                 });
             }
+        }).catch(error => {
+            throw new Error(`There was an error bulk loading the animals within a player's inventory: ${error}`);
         });
 
         // Assign the array of animal objects to this player's inventory
-        this.animals = animals;
+        this._animals = animals;
     }
 
-    public animalsLoaded(): boolean {
-        return Boolean(this.animals);
+    public get animalsLoaded(): boolean {
+        return Boolean(this._animals);
     }
 
-    public fullyLoaded(): boolean {
-        return super.fullyLoaded() && this.animalsLoaded();
+    public get fullyLoaded(): boolean {
+        return super.fullyLoaded && this.animalsLoaded;
     }
 
     public async load(): Promise<void> {
         // If all player information is already loaded, do nothing
-        if (this.fullyLoaded()) {
+        if (this.fullyLoaded) {
             return;
         }
 
@@ -224,6 +224,6 @@ export class Player extends DocumentWrapper {
 
     public unload(): void {
         super.unload();
-        this.animals = undefined;
+        this._animals = undefined;
     }
 }

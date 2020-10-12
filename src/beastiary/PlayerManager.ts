@@ -16,7 +16,7 @@ export default class PlayerManager extends WrapperCache<Player> {
         // First check the cache to see if the player's object already exists in it
         for (const cachedPlayer of this.cache.values()) {
             // If the current player's information matches the guild member
-            if (cachedPlayer.value.getUserId() === guildMember.user.id && cachedPlayer.value.getGuildId() === guildMember.guild.id) {
+            if (cachedPlayer.value.userId === guildMember.user.id && cachedPlayer.value.guildId === guildMember.guild.id) {
                 // Reset the cached player's deletion timer
                 cachedPlayer.setTimer(this.createNewTimer(cachedPlayer.value));
 

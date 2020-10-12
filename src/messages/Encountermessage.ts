@@ -49,20 +49,19 @@ export default class EncounterMessage extends InteractiveMessage {
         // Color the encounter's embed properly
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel.guild));
 
-        embed.setTitle(capitalizeFirstLetter(this.species.getCommonNames()[0]));
+        embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
 
-        embed.addField("――――――――", capitalizeFirstLetter(this.species.getScientificName()), true);
+        embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
 
         // Pick a random card from the animal's set of card
-        this.cardIndex = Math.floor(Math.random() * this.species.getCards().length);
+        this.cardIndex = Math.floor(Math.random() * this.species.cards.length);
         // Get the card of the determined index
-        const card = this.species.getCards()[this.cardIndex];
-        embed.setImage(card.getUrl());
+        const card = this.species.cards[this.cardIndex];
+        embed.setImage(card.url);
 
-        const breed = card.getBreed();
         // Add the breed field if it's there
-        if (breed) {
-            embed.addField("Breed", capitalizeFirstLetter(breed), true);
+        if (card.breed) {
+            embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
         }
 
         embed.setFooter("Wild encounter");
@@ -72,7 +71,7 @@ export default class EncounterMessage extends InteractiveMessage {
     // Whenever the encounter's button is pressed
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
         // Get the species' primary common name object
-        const commonName = this.species.getCommonNameObjects()[0];
+        const commonName = this.species.commonNameObjects[0];
 
         // Indicate that the user has caught the animal
         betterSend(this.message.channel, `${user}, you caught ${commonName.article} ${commonName.name}!`);

@@ -46,31 +46,31 @@ export class PendingSpecies extends DocumentWrapper {
         super(PendingSpeciesModel, documentId);
     }
 
-    public getCommonNames(): string[] {
-        return this.getDocument().get("commonNames");
+    public get commonNames(): string[] {
+        return this.document.get("commonNames");
     }
 
-    public getScientificName(): string {
-        return this.getDocument().get("scientificName");
+    public get scientificName(): string {
+        return this.document.get("scientificName");
     }
 
-    public getImages(): string[] | undefined {
-        return this.getDocument().get("images");
+    public get images(): string[] | undefined {
+        return this.document.get("images");
     }
 
-    public getDescription(): string | undefined {
-        return this.getDocument().get("description");
+    public get description(): string | undefined {
+        return this.document.get("description");
     }
 
-    public getNaturalHabitat(): string | undefined {
-        return this.getDocument().get("naturalHabitat");
+    public get naturalHabitat(): string | undefined {
+        return this.document.get("naturalHabitat");
     }
 
-    public getWikiPage(): string | undefined {
-        return this.getDocument().get("wikiPage");
+    public get wikiPage(): string | undefined {
+        return this.document.get("wikiPage");
     }
 
-    public getAuthorId(): string {
-        return this.getDocument().get("author");
+    public get authorId(): string {
+        return this.document.get("author");
     }
 }

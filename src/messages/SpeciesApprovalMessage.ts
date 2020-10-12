@@ -98,7 +98,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
 
         // Get common names array and add it as an eDoc array
         const commonNamesField = eDoc.getField("commonNames");
-        for (const commonName of pendingSpeciesObject.getCommonNames()) {
+        for (const commonName of pendingSpeciesObject.commonNames) {
             commonNamesField.push({
                 name: commonName
             });
@@ -106,7 +106,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         
         // Get card url array and add is as an eDoc array
         const cardsField = eDoc.getField("cards");
-        const cardUrls = pendingSpeciesObject.getImages();
+        const cardUrls = pendingSpeciesObject.images;
         if (cardUrls) {
             for (const url of cardUrls) {
                 cardsField.push({
@@ -116,13 +116,13 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         }
 
         // Assign simple fields
-        eDoc.setField("scientificName", pendingSpeciesObject.getScientificName());
-        eDoc.setField("description", pendingSpeciesObject.getDescription());
-        eDoc.setField("naturalHabitat", pendingSpeciesObject.getNaturalHabitat());
-        eDoc.setField("wikiPage", pendingSpeciesObject.getWikiPage());
+        eDoc.setField("scientificName", pendingSpeciesObject.scientificName);
+        eDoc.setField("description", pendingSpeciesObject.description);
+        eDoc.setField("naturalHabitat", pendingSpeciesObject.naturalHabitat);
+        eDoc.setField("wikiPage", pendingSpeciesObject.wikiPage);
 
         // Get the user that made this submission
-        const authorUser = client.users.resolve(pendingSpeciesObject.getAuthorId());
+        const authorUser = client.users.resolve(pendingSpeciesObject.authorId);
         // Name the top document accordingly
         let docName = "Submission";
         if (authorUser) {
@@ -150,11 +150,9 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             catch (error) {
                 throw new Error(`There was an error deleting a denied pending species: ${error}`);
             }
-            finally {
-                this.deactivate();
-            }
-
+            
             this.emit("deny");
+            this.deactivate();
         }
     }
 }

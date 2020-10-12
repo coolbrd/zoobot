@@ -14,7 +14,7 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
         // First check the cache to see if the guild's object already exists in it
         for (const cachedGuild of this.cache.values()) {
             // If the current guild's information matches
-            if (cachedGuild.value.getGuildId() === guildId) {
+            if (cachedGuild.value.guildId === guildId) {
                 // Reset the cached guild's deletion timer
                 cachedGuild.setTimer(this.createNewTimer(cachedGuild.value));
 

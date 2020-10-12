@@ -47,7 +47,7 @@ export default class ChangeGuildPrefixCommand implements Command {
         }
 
         // Update the guild's prefix in the command handler
-        commandHandler.changeGuildPrefix(guildObject.getGuildId(), fullPrefix);
+        commandHandler.changeGuildPrefix(guildObject.guildId, fullPrefix);
 
         betterSend(parsedUserCommand.channel, `Success. My prefix is now \`${fullPrefix}\`.`);
     }

@@ -18,7 +18,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         // First check the cache to see if the animal's object already exists in it
         for (const cachedAnimal of this.cache.values()) {
             // If the current animal's id matches
-            if (cachedAnimal.value.getId().equals(id)) {
+            if (cachedAnimal.value.id.equals(id)) {
                 // Reset the cached animal's deletion timer
                 cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
 
@@ -51,8 +51,8 @@ export default class AnimalManager extends WrapperCache<Animal> {
     public async fetchByNickName(nickname: string, guildId?: string): Promise<Animal | undefined> {
         // First search the cache for the appropriate animal
         for (const cachedAnimal of this.cache.values()) {
-            if (cachedAnimal.value.getNickname() === nickname) {
-                if (guildId && cachedAnimal.value.getGuildId() !== guildId) {
+            if (cachedAnimal.value.nickname === nickname) {
+                if (guildId && cachedAnimal.value.guildId !== guildId) {
                     continue;
                 }
 
@@ -114,10 +114,10 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
         // Create the new animal
         const animalDocument = new AnimalModel({
-            ownerId: ownerObject.getUserId(),
-            guildId: ownerObject.getGuildId(),
-            species: species.getId(),
-            card: species.getCards()[cardIndex].getId(),
+            ownerId: ownerObject.userId,
+            guildId: ownerObject.guildId,
+            species: species.id,
+            card: species.cards[cardIndex].id,
             experience: 0
         });
 
@@ -162,7 +162,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         // Get the owner's player object
         let owner: Player;
         try {
-            owner = await beastiary.players.fetch(getGuildMember(animal.getOwnerId(), animal.getGuildId()));
+            owner = await beastiary.players.fetch(getGuildMember(animal.ownerId, animal.guildId));
         }
         catch (error) {
             throw new Error(`There was an error fetching a player from the player manager: ${error}`);
@@ -170,14 +170,14 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
         // Remove the animal from the player's inventory
         try {
-            await owner.removeAnimal(animal.getId());
+            await owner.removeAnimal(animal.id);
         }
         catch (error) {
             throw new Error(`There was an error removing an animal's id from it's owner's inventory: ${error}`);
         }
 
         // Remove the animal from the cache
-        this.removeFromCache(animal.getId());
+        this.removeFromCache(animal.id);
 
         // Delete the animal's document
         try {

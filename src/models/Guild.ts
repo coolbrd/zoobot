@@ -21,22 +21,22 @@ export class PlayerGuild extends DocumentWrapper {
         super(GuildModel, documentId);
     }
 
-    public getGuildId(): string {
-        return this.getDocument().get("id");
+    public get guildId(): string {
+        return this.document.get("id");
     }
 
-    public getPrefix(): string {
-        return this.getDocument().get("config.prefix");
+    public get prefix(): string {
+        return this.document.get("config.prefix");
     }
 
     public async setPrefix(newPrefix: string): Promise<void> {
-        if (!this.documentLoaded()) {
+        if (!this.documentLoaded) {
             throw new Error("Tried to change a guild document's prefix before it was loaded.");
         }
 
         // Attempt to update the guild's prefix
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $set: {
                     "config.prefix": newPrefix
                 }

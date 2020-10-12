@@ -40,40 +40,36 @@ AnimalModel.collection.createIndex({ nickname: "text" });
 // Allows for animal information to be loaded, reloaded, and set more easily
 export class Animal extends DocumentWrapper {
     // The object representations of this animal object's fields
-    private species: Species | undefined;
-    private card: SpeciesCard | undefined;
+    private _species: Species | undefined;
+    private _card: SpeciesCard | undefined;
 
     constructor(documentId: Types.ObjectId) {
         super(AnimalModel, documentId);
     }
 
-    public getOwnerId(): string {
-        return this.getDocument().get("ownerId");
+    public get ownerId(): string {
+        return this.document.get("ownerId");
     }
 
-    public getGuildId(): string {
-        return this.getDocument().get("guildId");
+    public get guildId(): string {
+        return this.document.get("guildId");
     }
 
-    public getSpeciesId(): Types.ObjectId {
-        return this.getDocument().get("species");
+    public get speciesId(): Types.ObjectId {
+        return this.document.get("species");
     }
 
-    public getCardId(): Types.ObjectId {
-        return this.getDocument().get("card");
+    public get cardId(): Types.ObjectId {
+        return this.document.get("card");
     }
 
-    public getNickname(): string {
-        return this.getDocument().get("nickname");
-    }
-
-    public getExperience(): number {
-        return this.getDocument().get("experience");
+    public get nickname(): string {
+        return this.document.get("nickname");
     }
 
     public async setNickname(newNickname: string | null): Promise<void> {
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $set: {
                     nickname: newNickname
                 }
@@ -91,55 +87,59 @@ export class Animal extends DocumentWrapper {
         }
     }
 
+    public get experience(): number {
+        return this.document.get("experience");
+    }
+
     // Gets the species object representing this animal's species
-    public getSpecies(): Species {
-        if (!this.species) {
+    public get species(): Species {
+        if (!this._species) {
             throw new Error("Tried to get an AnimalObject's species before it was loaded.");
         }
 
-        return this.species;
+        return this._species;
     }
 
     // Gets the object representing this animal's card
-    public getCard(): SpeciesCard {
-        if (!this.card) {
+    public get card(): SpeciesCard {
+        if (!this._card) {
             throw new Error("Tried to get an AnimalObject's card before it was loaded.");
         }
 
-        return this.card;
+        return this._card;
     }
 
     // Returns this animal's display name, prefers nickname over common name
-    public getName(): string {
-        return this.getNickname() || this.getSpecies().getCommonNames()[0];
+    public get name(): string {
+        return this.nickname || this.species.commonNames[0];
     }
 
-    public speciesLoaded(): boolean {
-        return Boolean(this.species);
+    public get speciesLoaded(): boolean {
+        return Boolean(this._species);
     }
 
-    public cardLoaded(): boolean {
-        return Boolean(this.card);
+    public get cardLoaded(): boolean {
+        return Boolean(this._card);
     }
 
     // Whether or not every one of this animal's fields are loaded and ready to go
-    public fullyLoaded(): boolean {
-        return super.fullyLoaded() && this.speciesLoaded() && this.cardLoaded();
+    public get fullyLoaded(): boolean {
+        return super.fullyLoaded && this.speciesLoaded && this.cardLoaded;
     }
 
     // Loads this animal's species object
     private async loadSpecies(): Promise<void> {
-        if (!this.documentLoaded()) {
+        if (!this.documentLoaded) {
             throw new Error("An animal's species was attempted to be loaded before its document was loaded.");
         }
 
         // If this animal's species is already known/loaded, do nothing
-        if (this.speciesLoaded()) {
+        if (this.speciesLoaded) {
             return;
         }
 
         // Create a new species object from this animal's known species id
-        this.species = new Species(this.getSpeciesId());
+        this._species = new Species(this.speciesId);
 
         // Load the species object's information
         try {
@@ -153,16 +153,16 @@ export class Animal extends DocumentWrapper {
     // Loads this animal's card object
     private loadCard(): void {
         // If this animal's card object is known/loaded, do nothing
-        if (this.cardLoaded()) {
+        if (this.cardLoaded) {
             return;
         }
 
         // Get the array of all cards of the animal's species
-        const speciesCards = this.getSpecies().getCards();
+        const speciesCards = this.species.cards;
 
         // Set the animal's card to the one that corresponds to this animal's card id
-        this.card = speciesCards.find(speciesCard => {
-            return this.getCardId().equals(speciesCard.getId());
+        this._card = speciesCards.find(speciesCard => {
+            return this.cardId.equals(speciesCard.id);
         });
 
         // Make sure that an card was found from that search
@@ -198,7 +198,7 @@ export class Animal extends DocumentWrapper {
     // Unloads all the animal's fields
     public unload(): void {
         super.unload();
-        this.species = undefined;
-        this.card = undefined;
+        this._species = undefined;
+        this._card = undefined;
     }
 }

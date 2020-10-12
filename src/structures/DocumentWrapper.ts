@@ -6,44 +6,44 @@ export default class DocumentWrapper {
     private readonly model: Model<Document>;
 
     // The id of the wrapper's document. Unchangeable and always set.
-    private readonly id: Types.ObjectId;
+    private readonly _id: Types.ObjectId;
 
     // The document object that corresponds to this object's id
-    private document: Document | undefined;
+    private _document: Document | undefined;
 
     constructor(model: Model<Document>, documentId: Types.ObjectId) {
         this.model = model;
-        this.id = documentId;
+        this._id = documentId;
     }
 
-    public getId(): Types.ObjectId {
-        return this.id;
+    public get id(): Types.ObjectId {
+        return this._id;
     }
 
     // Gets this wrapper's document. Only to be used after it's been loaded.
-    protected getDocument(): Document {
+    protected get document(): Document {
         // Don't try to do anything if the document isn't loaded yet
-        if (!this.document) {
+        if (!this._document) {
             throw new Error("A DocumentWrapper's document was attempted to be accessed before it was loaded.");
         }
 
-        return this.document;
+        return this._document;
     }
 
     // Whether or not this wrapper's document has been loaded
-    public documentLoaded(): boolean {
-        return Boolean(this.document);
+    public get documentLoaded(): boolean {
+        return Boolean(this._document);
     }
 
     // Whether or not all fields of this wrapper are loaded. Meant to be extended.
-    public fullyLoaded(): boolean {
-        return this.documentLoaded();
+    public get fullyLoaded(): boolean {
+        return this.documentLoaded;
     }
 
     // Loads this wrapper object's document by its id
     public async loadDocument(): Promise<void> {
         // Save time and don't do anything if it's already loaded
-        if (this.documentLoaded()) {
+        if (this.documentLoaded) {
             return;
         }
 
@@ -62,7 +62,7 @@ export default class DocumentWrapper {
         }
 
         // Assign the new document
-        this.document = document;
+        this._document = document;
     }
 
     // Loads all unloaded fields of the wrapper. Meant to be extended.
@@ -77,7 +77,7 @@ export default class DocumentWrapper {
 
     // Unloads all of this wrapper's information. Meant to be extended.
     protected unload(): void {
-        this.document = undefined;
+        this._document = undefined;
     }
 
     // Reloads all the document's fields
@@ -96,7 +96,7 @@ export default class DocumentWrapper {
     // Deletes the wrapped document from the database
     public async delete(): Promise<void> {
         try {
-            await this.getDocument().deleteOne();
+            await this.document.deleteOne();
         }
         catch (error) {
             throw new Error(`There was an error deleting a document wrapper's document: ${error}`);

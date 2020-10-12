@@ -68,7 +68,7 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
 
         let pageString = "";
         speciesOnPage.forEach(speciesObject => {
-            pageString += capitalizeFirstLetter(speciesObject.getCommonNames()[0]) + "\n";
+            pageString += capitalizeFirstLetter(speciesObject.commonNames[0]) + "\n";
         });
 
         embed.setDescription(pageString);

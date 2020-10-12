@@ -51,7 +51,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         }
 
         // Get the owner's user instance
-        this.ownerUser = getGuildMember(this.animalObject.getOwnerId(), this.animalObject.getGuildId()).user;
+        this.ownerUser = getGuildMember(this.animalObject.ownerId, this.animalObject.guildId).user;
 
         this.setEmbed(this.buildEmbed());
     }

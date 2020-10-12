@@ -77,7 +77,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         // Assign the new player object
         this.playerObject = playerObject;
         // Assign the elements that will be displayed in this message
-        this.setElements(this.playerObject.getAnimals());
+        this.setElements(this.playerObject.animals);
 
         // Build the initial embed
         try {
@@ -107,7 +107,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
         // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
         const unloadedAnimals = this.visibleElements.filter((animalObject: Animal) => {
-            return !animalObject.fullyLoaded();
+            return !animalObject.fullyLoaded;
         });
         
         // If there are animals that need to be loaded, initiate a promise to load them all at once
@@ -128,27 +128,26 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
         // Get the animal that's selected by the pointer
         const selectedAnimal = inventory.selection();
-        const card = selectedAnimal.getCard();
+        const card = selectedAnimal.card;
 
         // Display state behavior
         switch (this.state) {
             // When the message is in paged view mode
             case InventoryMessageState.page: {
                 // Show the selected animal's card in the thumbnail
-                embed.setThumbnail(card.getUrl());
+                embed.setThumbnail(card.url);
 
                 // The string that will hold the formatted inventory string
                 let inventoryString = "";
                 let inventoryIndex = this.firstVisibleIndex;
                 // Iterate over every element on the current page
                 this.visibleElements.forEach(currentAnimal => {
-                    const card = currentAnimal.getCard();
+                    const card = currentAnimal.card;
 
-                    const animalName = currentAnimal.getNickname() || capitalizeFirstLetter(currentAnimal.getName());
+                    const animalName = currentAnimal.nickname || capitalizeFirstLetter(currentAnimal.name);
 
-                    const breed = card.getBreed();
                     // Write breed information only if it's present (and the animal doesn't have a nickname)
-                    const breedText = !currentAnimal.getNickname() && breed ? `(${breed})` : "";
+                    const breedText = !currentAnimal.nickname && card.breed ? `(${card.breed})` : "";
 
                     // The pointer text to draw on the current animal entry (if any)
                     const pointerText = inventoryIndex === inventory.getPointerPosition() ? " 🔹" : "";
@@ -182,11 +181,11 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             }
             // When the message is confirming the release of an animal
             case InventoryMessageState.release: {
-                embed.setTitle(`Release ${selectedAnimal.getName()}?`);
+                embed.setTitle(`Release ${selectedAnimal.name}?`);
 
                 embed.setDescription(`Press the left arrow (${this.getButtonByName("leftArrow").emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
 
-                embed.setThumbnail(card.getUrl());
+                embed.setThumbnail(card.url);
 
                 break;
             }
@@ -271,7 +270,7 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
                 // Release the user's animal
                 try {
-                    await beastiary.animals.deleteAnimal(selectedAnimal.getId());
+                    await beastiary.animals.deleteAnimal(selectedAnimal.id);
                 }
                 catch (error) {
                     errorHandler.handleError(error, "There was an error trying to delete an animal in an inventory message.");

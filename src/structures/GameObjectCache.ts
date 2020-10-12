@@ -18,7 +18,7 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     protected createNewTimer(value: ValueType): NodeJS.Timeout {
         return setTimeout(() => {
             // Remove the cached value from the cache after the given amount of time
-            this.cache.delete(value.getId());
+            this.cache.delete(value.id);
         }, this.cacheTimeout);
     }
 
@@ -33,7 +33,7 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
         }
 
         // Add the value to the cache by its document's id
-        this.cache.set(value.getId(), new CachedValue<ValueType>(value, this.createNewTimer(value)));
+        this.cache.set(value.id, new CachedValue<ValueType>(value, this.createNewTimer(value)));
     }
 
     // Removes a value by a given id from the cache

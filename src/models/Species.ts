@@ -68,30 +68,38 @@ export interface SpeciesCardField extends SpeciesCardTemplate {
 
 // An object representing a card within a species
 export class SpeciesCard {
-    private document: Document;
-    private species: Species;
+    private _document: Document;
+    private _species: Species;
 
     constructor(cardDocument: Document, speciesObject: Species) {
-        this.document = cardDocument;
-        this.species = speciesObject;
+        this._document = cardDocument;
+        this._species = speciesObject;
     }
 
-    public getId(): Types.ObjectId {
+    public get document(): Document {
+        return this._document;
+    }
+
+    private get species(): Species {
+        return this._species;
+    }
+
+    public get id(): Types.ObjectId {
         return this.document._id;
     }
 
-    public getUrl(): string {
+    public get url(): string {
         return this.document.get("url");
     }
 
-    public getBreed(): string | undefined {
+    public get breed(): string | undefined {
         return this.document.get("breed");
     }
 
     // Gets this card's index in its parent species' list of cards
-    public getIndex(): number {
-        const index = this.species.getCardObjects().findIndex(card => {
-            return this.getId().equals(card._id)
+    public get index(): number {
+        const index = this.species.cardObjects.findIndex(card => {
+            return this.id.equals(card._id)
         });
         
         if (index === undefined) {
@@ -135,38 +143,38 @@ export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] 
 // The object representation of a species
 export class Species extends DocumentWrapper {
     // The species' list of cards
-    private cards: SpeciesCard[] | undefined;
+    private _cards: SpeciesCard[] | undefined;
 
     constructor(documentId: Types.ObjectId) {
         super(SpeciesModel, documentId);
     }
 
-    public getCommonNameObjects(): CommonNameField[] {
-        return this.getDocument().get("commonNames");
+    public get commonNameObjects(): CommonNameField[] {
+        return this.document.get("commonNames");
     }
 
-    public getScientificName(): string {
-        return this.getDocument().get("scientificName");
+    public get scientificName(): string {
+        return this.document.get("scientificName");
     }
 
-    public getCardObjects(): SpeciesCardField[] {
-        return this.getDocument().get("cards");
+    public get cardObjects(): SpeciesCardField[] {
+        return this.document.get("cards");
     }
 
-    public getDescription(): string {
-        return this.getDocument().get("description");
+    public get description(): string {
+        return this.document.get("description");
     }
 
-    public getNaturalHabitat(): string {
-        return this.getDocument().get("naturalHabitat");
+    public get naturalHabitat(): string {
+        return this.document.get("naturalHabitat");
     }
 
-    public getWikiPage(): string {
-        return this.getDocument().get("wikiPage");
+    public get wikiPage(): string {
+        return this.document.get("wikiPage");
     }
 
-    public getRarity(): number {
-        return this.getDocument().get("rarity");
+    public get rarity(): number {
+        return this.document.get("rarity");
     }
 
     // Changes the fields of the species document and commits them to the database
@@ -176,16 +184,16 @@ export class Species extends DocumentWrapper {
 
         // Change the species' simple fields, using this object's default known value for unchanged fields
         try {
-            await this.getDocument().updateOne({
+            await this.document.updateOne({
                 $set: {
-                    commonNames: fields.commonNames || this.getCommonNameObjects(),
-                    commonNamesLower: commonNamesToLower(fields.commonNames || this.getCommonNameObjects()),
-                    scientificName: fields.scientificName || this.getScientificName(),
-                    cards: fields.cards || this.getCardObjects(),
-                    description: fields.description || this.getDescription(),
-                    naturalHabitat: fields.naturalHabitat || this.getNaturalHabitat(),
-                    wikiPage: fields.wikiPage || this.getWikiPage(),
-                    rarity: fields.rarity || this.getRarity()
+                    commonNames: fields.commonNames || this.commonNameObjects,
+                    commonNamesLower: commonNamesToLower(fields.commonNames || this.commonNameObjects),
+                    scientificName: fields.scientificName || this.scientificName,
+                    cards: fields.cards || this.cardObjects,
+                    description: fields.description || this.description,
+                    naturalHabitat: fields.naturalHabitat || this.naturalHabitat,
+                    wikiPage: fields.wikiPage || this.wikiPage,
+                    rarity: fields.rarity || this.rarity
                 }
             });
         }
@@ -203,8 +211,8 @@ export class Species extends DocumentWrapper {
     }
 
     // Gets a simple array of this species' common names
-    public getCommonNames(): string[] {
-        const commonNameObjects = this.getCommonNameObjects();
+    public get commonNames(): string[] {
+        const commonNameObjects = this.commonNameObjects;
         const commonNames: string[] = [];
         commonNameObjects.forEach(commonNameObject => {
             commonNames.push(commonNameObject.name);
@@ -212,25 +220,25 @@ export class Species extends DocumentWrapper {
         return commonNames;
     }
 
-    public getCards(): SpeciesCard[] {
-        if (!this.cards) {
+    public get cards(): SpeciesCard[] {
+        if (!this._cards) {
             throw new Error("Tried to get a species's cards before they were loaded.");
         }
 
-        return this.cards;
+        return this._cards;
     }
 
-    public getCardCount(): number {
-        return this.getCards().length;
+    public get cardCount(): number {
+        return this.cards.length;
     }
 
     public cardsLoaded(): boolean {
-        return Boolean(this.cards);
+        return Boolean(this._cards);
     }
 
     // Loads this species' card objects
     public loadCards(): void {
-        if (!this.documentLoaded()) {
+        if (!this.documentLoaded) {
             throw new Error("A species' cards were attempted to be loaded before its document was.");
         }
 
@@ -241,10 +249,10 @@ export class Species extends DocumentWrapper {
 
         // Get this species' cards and add each of them as an object
         const cards: SpeciesCard[] = [];
-        this.getDocument().get("cards").forEach((cardDocument: Document) => {
+        this.document.get("cards").forEach((cardDocument: Document) => {
             cards.push(new SpeciesCard(cardDocument, this));
         });
-        this.cards = cards;
+        this._cards = cards;
     }
 
     // Loads this species' data from the database
@@ -262,6 +270,6 @@ export class Species extends DocumentWrapper {
     // Unloads this species' data
     public unload(): void {
         super.unload();
-        this.cards = undefined;
+        this._cards = undefined;
     }
 }

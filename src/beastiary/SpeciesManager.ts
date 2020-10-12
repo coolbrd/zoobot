@@ -13,7 +13,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         // First check the cache to see if the species' object already exists in it
         for (const cachedSpecies of this.cache.values()) {
             // If the current species' id matches
-            if (cachedSpecies.value.getId().equals(id)) {
+            if (cachedSpecies.value.id.equals(id)) {
                 // Reset the cached species' deletion timer
                 cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
 
@@ -54,7 +54,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
 
         // Check the cache first
         for (const cachedSpecies of this.cache.values()) {
-            if (cachedSpecies.value.getCommonNames().includes(name)) {
+            if (cachedSpecies.value.commonNames.includes(name)) {
                 cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
 
                 return cachedSpecies.value;

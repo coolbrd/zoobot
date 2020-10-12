@@ -107,7 +107,7 @@ export default class SpeciesEditMessage extends EDocMessage {
 
         // Assign common names (with id being converted to a string)
         const commonNamesField = eDoc.getField("commonNames");
-        const commonNames = speciesObject.getCommonNameObjects();
+        const commonNames = speciesObject.commonNameObjects;
         commonNames.forEach(commonName => {
             commonNamesField.push({
                 _id: commonName._id ? String(commonName._id) : undefined,
@@ -118,8 +118,7 @@ export default class SpeciesEditMessage extends EDocMessage {
 
         // Same deal with cards
         const cardsField = eDoc.getField("cards");
-        const cards = speciesObject.getCardObjects();
-        cards.forEach(card => {
+        speciesObject.cardObjects.forEach(card => {
             cardsField.push({
                 _id: card._id ? String(card._id) : undefined,
                 url: card.url,
@@ -128,12 +127,12 @@ export default class SpeciesEditMessage extends EDocMessage {
         });
 
         // Assign simple fields
-        eDoc.setField("scientificName", speciesObject.getScientificName());
-        eDoc.setField("description", speciesObject.getDescription());
-        eDoc.setField("naturalHabitat", speciesObject.getNaturalHabitat());
-        eDoc.setField("wikiPage", speciesObject.getWikiPage());
-        eDoc.setField("rarity", speciesObject.getRarity());
+        eDoc.setField("scientificName", speciesObject.scientificName);
+        eDoc.setField("description", speciesObject.description);
+        eDoc.setField("naturalHabitat", speciesObject.naturalHabitat);
+        eDoc.setField("wikiPage", speciesObject.wikiPage);
+        eDoc.setField("rarity", speciesObject.rarity);
 
-        super(channel, eDoc, capitalizeFirstLetter(speciesObject.getCommonNames()[0]));
+        super(channel, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));
     }
 }

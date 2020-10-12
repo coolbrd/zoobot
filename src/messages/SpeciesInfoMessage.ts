@@ -48,7 +48,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         const embed = new SmartEmbed();
 
         // Determine the card to display
-        const card = this.species.getCards()[this.cardIndex];
+        const card = this.species.cards[this.cardIndex];
 
         // Set the embed's color
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel));
@@ -72,11 +72,11 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         switch (buttonName) {
             case "rightArrow": {
-                this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.getCards().length);
+                this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.cards.length);
                 break;
             }
             case "leftArrow": {
-                this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.getCards().length);
+                this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.cards.length);
                 break;
             }
             case "info": {

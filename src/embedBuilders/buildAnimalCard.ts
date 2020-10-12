@@ -5,12 +5,12 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // Takes an embed and builds it to display an animal object's card
 export default function buildAnimalCard(embed: MessageEmbed, animalObject: Animal): void {
-    const species = animalObject.getSpecies();
-    const card = animalObject.getCard();
+    const species = animalObject.species;
+    const card = animalObject.card;
 
-    const animalDisplayName = animalObject.getNickname() || capitalizeFirstLetter(animalObject.getName());
+    const animalDisplayName = animalObject.nickname || capitalizeFirstLetter(animalObject.name);
 
-    embed.setImage(card.getUrl());
+    embed.setImage(card.url);
     embed.setTitle(animalDisplayName);
-    embed.setDescription(`Card #${card.getIndex() + 1} of ${species.getCardCount()}`);
+    embed.setDescription(`Card #${card.index + 1} of ${species.cardCount}`);
 }
