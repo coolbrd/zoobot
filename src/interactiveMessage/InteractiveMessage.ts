@@ -18,8 +18,6 @@ export default class InteractiveMessage extends EventEmitter {
     // The text channel that the message will be sent in
     // No news channels allowed, I hardly understand how those work
     public readonly channel: TextChannel | DMChannel;
-    // The content of the message (usually just has an embed)
-    private content: APIMessage | undefined;
 
     // The set of emojis that will serve as buttons on this message
     // The emoji property of each button ends up getting repeated in the key and I'm not sorry about it
@@ -29,14 +27,14 @@ export default class InteractiveMessage extends EventEmitter {
 
     // This interactive message's underlying Discord message
     // Will only be undefined before this message is sent
-    private message: Message | undefined;
-    // Whether or not the message has been sent
-    private sent = false;
+    private _message: Message | undefined;
+    // The content of the message (usually just has an embed)
+    private _content: APIMessage | undefined;
     // Whether or not the message has been initially built
-    private built = false;
+    private _built = false;
     // Whether or not the message can be edited (due to Discord rate limits)
     // This is mostly handled automatically by Discord.js, but I wanted to limit the control over messages that are rate limited
-    private rateLimited = false;
+    private _rateLimited = false;
     
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
@@ -44,12 +42,12 @@ export default class InteractiveMessage extends EventEmitter {
     // Whether or not pressing a button will reset this message's deactivation timer
     private readonly resetTimerOnButtonPress: boolean;
     // The timer instance that will keep track of when this message should deactivate
-    private timer: NodeJS.Timeout | undefined;
+    private _timer: NodeJS.Timeout | undefined;
 
     // Whether or not this message is deactivated
-    protected deactivated = false;
+    protected _deactivated = false;
     // The text to append to the footer of the message once it has been deactivated
-    protected deactivationText = "(message deactivated)";
+    protected _deactivationText = "(message deactivated)";
 
     constructor(
         channel: TextChannel | DMChannel,
@@ -60,7 +58,7 @@ export default class InteractiveMessage extends EventEmitter {
             resetTimerOnButtonPress?: boolean,
             deactivationText?: string
         }
-    ){
+    ) {
         // Do EventEmitter stuff
         super();
 
@@ -106,36 +104,92 @@ export default class InteractiveMessage extends EventEmitter {
                 this.deactivationText = options.deactivationText;
             }
         }
+    }
 
-        // Update deactivation flag once the deactivate event is emitted
-        this.once("deactivate", () => {
-            this.deactivated = true;
-        });
+    private get content(): APIMessage | undefined {
+        return this._content;
+    }
+
+    private set content(content: APIMessage | undefined) {
+        if (this.sent && !content) {
+            throw new Error("Attempted to set the content of a sent interactive message to nothing.");
+        }
+
+        this._content = content;
     }
 
     // Gets the Discord message from this interactive message
     // Only meant to be called when the message is known to be sent. Use isSent to verify this.
-    public getMessage(): Message {
-        if (!this.message) {
+    public get message(): Message {
+        if (!this._message) {
             throw new Error("Attempted to get the message of an interactive message that hasn't been sent yet");
         }
 
-        return this.message;
+        return this._message;
     }
 
-    // Whether or not the message has been sent
-    public isSent(): boolean {
-        return this.sent;
+    private setMessage(message: Message): void {
+        if (this._message) {
+            throw new Error("Tried to set an interactive message to a message after it had already been sent.");
+        }
+
+        this._message = message;
     }
 
-    // Whether or not the message has been initially built (only used for pre-send behavior)
-    public isBuilt(): boolean {
-        return this.built;
+    private get sent(): boolean {
+        return Boolean(this._message);
     }
 
-    // Whether or not the message is currently rate limited
-    public isRateLimited(): boolean {
-        return this.rateLimited;
+    private get built(): boolean {
+        return this._built;
+    }
+
+    private set built(built: boolean) {
+        if (this.built === built) {
+            throw new Error("Attempted to set an interactive message's status of being built redundantly.");
+        }
+
+        this._built = built;
+    }
+
+    public get rateLimited(): boolean {
+        return this._rateLimited;
+    }
+
+    private setRateLimited(rateLimited: boolean): void {
+        this._rateLimited = rateLimited;
+    }
+
+    private get timer(): NodeJS.Timeout | undefined {
+        return this._timer;
+    }
+
+    private set timer(timer: NodeJS.Timeout | undefined) {
+        if (this.deactivated) {
+            throw new Error("Tried to set an interactive message's timer after it was deactivated.");
+        }
+
+        this._timer = timer;
+    }
+
+    public get deactivated(): boolean {
+        return this._deactivated;
+    }
+
+    private setDeactivated(): void {
+        if (this._deactivated) {
+            throw new Error("Tried to redundantly set an interactive message's deactivation status.");
+        }
+
+        this._deactivated = true;
+    }
+
+    private get deactivationText(): string {
+        return this._deactivationText;
+    }
+
+    private set deactivationText(deactivationText: string) {
+        this._deactivationText = deactivationText;
     }
 
     // Gets a button's emoji by its name
@@ -179,16 +233,19 @@ export default class InteractiveMessage extends EventEmitter {
             throw new Error("Tried to send an interactive message with no content");
         }
 
-        // Send the interactive message's base message
-        this.message = await betterSend(this.channel, this.content);
+        // Send the base message
+        const message = await betterSend(this.channel, this.content);
+
+        if (!message) {
+            throw new Error("An interactive message's messgae was unable to be sent.");
+        }
+
+        this.setMessage(message);
 
         // If nothing came back
         if (!this.message) {
             throw new Error("Error sending the base message for an interactive message.");
         }
-
-        // If we're here it means that the message was successfully sent
-        this.sent = true;
 
         // Add this message to the map of other interactive messages
         interactiveMessageHandler.addMessage(this);
@@ -257,24 +314,18 @@ export default class InteractiveMessage extends EventEmitter {
     // Sets the embed of the message and edits it (if possible)
     protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
         // Whether or not (before this message is edited) the message is already ready to send (or already sent)
-        const readyToSend = this.isSent() || this.readyToSend();
+        const readyToSend = this.sent || this.readyToSend();
 
-        // Don't allow changes to the message if it's deactivated
-        if (this.deactivated) {
+        // Don't allow changes to the message if it's deactivated or rate limited
+        if (this.deactivated || this.rateLimited) {
             return;
         }
 
         // Assign the message's new embed
-        const newContent = new APIMessage(this.channel, { embed: newEmbed });
+        this.content = new APIMessage(this.channel, { embed: newEmbed });
 
-        // Don't edit the message if the rate limit has been hit
-        if (this.rateLimited) {
-            return;
-        }
-
-        this.content = newContent
         // If this instance's message has been sent, edit it to reflect the changes
-        this.isSent() && this.getMessage().edit(this.content);
+        this.sent && this.message.edit(this.content);
 
         // If the message was previously unsent and not ready to send, but is ready now
         if (!readyToSend && this.readyToSend) {
@@ -320,7 +371,7 @@ export default class InteractiveMessage extends EventEmitter {
         this.buttonNames.set(button.name, button.emoji);
 
         // Only react to the message if it exists (otherwise the new button will be added upon the message being sent)
-        this.message && this.message.react(button.emoji);
+        this.sent && this.message.react(button.emoji);
     }
 
     // Adds an array of buttons instead of multiple explicit addButton calls
@@ -399,13 +450,10 @@ export default class InteractiveMessage extends EventEmitter {
 
     // Deactivates the interactive message, removing it from the handler's map and disabling this message's buttons
     protected deactivate(): void {
-        // Get the underlying message for use in deactivation logic
-        const message = this.getMessage();
-
         // If the message is sent, it has an embed, and it has deactivation text to add
-        if (this.isSent() && message.embeds.length > 0 && this.deactivationText) {
+        if (this.sent && this.message.embeds.length > 0 && this.deactivationText) {
             // Get the displayed embed of the message
-            const embed = message.embeds[0];
+            const embed = this.message.embeds[0];
             // Get the embed's footer as it currently is
             const currentFooter = embed.footer;
 
@@ -427,6 +475,8 @@ export default class InteractiveMessage extends EventEmitter {
             this.setEmbed(embed);
         }
 
+        this.setDeactivated();
+
         // Indicate that this message has been deactivated
         this.emit("deactivate");
 
@@ -443,11 +493,11 @@ export default class InteractiveMessage extends EventEmitter {
     // Applies a rate limit to the message, preventing it from being edited until the limit expires
     public applyRateLimit(timeout: number): void {
         // Indicate that this message is rate limited
-        this.rateLimited = true;
+        this.setRateLimited(true);
 
         // Reverse the flag after the given timeout
         setTimeout(() => {
-           this.rateLimited = false; 
+           this.setRateLimited(false); 
         }, timeout);
     }
 }

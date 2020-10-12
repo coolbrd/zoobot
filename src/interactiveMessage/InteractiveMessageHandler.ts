@@ -62,7 +62,7 @@ class InteractiveMessageHandler {
 
         // If the message is rate limited, don't apply the button press
         // This is to prevent bottlenecked messages from accepting input but not processing it until the limit is over
-        if (interactiveMessage.isRateLimited()) {
+        if (interactiveMessage.rateLimited) {
             return;
         }
 
@@ -101,12 +101,12 @@ class InteractiveMessageHandler {
 
     // Adds an existing interactive message to the global collection of them
     public addMessage(interactiveMessage: InteractiveMessage): void {
-        this.messages.set(interactiveMessage.getMessage().id, interactiveMessage);
+        this.messages.set(interactiveMessage.message.id, interactiveMessage);
     }
 
     // Removes an interactive message from the global collection
     public removeMessage(interactiveMessage: InteractiveMessage): void {
-        this.messages.delete(interactiveMessage.getMessage().id);
+        this.messages.delete(interactiveMessage.message.id);
     }
 }
 export const interactiveMessageHandler = new InteractiveMessageHandler();
