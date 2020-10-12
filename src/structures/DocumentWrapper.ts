@@ -6,18 +6,14 @@ export default class DocumentWrapper {
     private readonly model: Model<Document>;
 
     // The id of the wrapper's document. Unchangeable and always set.
-    private readonly _id: Types.ObjectId;
+    public readonly id: Types.ObjectId;
 
     // The document object that corresponds to this object's id
     private _document: Document | undefined;
 
     constructor(model: Model<Document>, documentId: Types.ObjectId) {
         this.model = model;
-        this._id = documentId;
-    }
-
-    public get id(): Types.ObjectId {
-        return this._id;
+        this.id = documentId;
     }
 
     // Gets this wrapper's document. Only to be used after it's been loaded.
