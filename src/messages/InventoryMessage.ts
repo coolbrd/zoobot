@@ -12,6 +12,7 @@ import PagedMessage from "./PagedMessage";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
+import { Types } from "mongoose";
 
 // The set of states that an inventory message can be in
 enum InventoryMessageState {
@@ -21,7 +22,12 @@ enum InventoryMessageState {
     release
 }
 
-export default class InventoryMessage extends PagedMessage<Animal> {
+interface LoadableAnimal {
+    id: Types.ObjectId,
+    animal?: Animal
+}
+
+export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
     // The current display state of the message
     private state: InventoryMessageState;
     
@@ -76,8 +82,19 @@ export default class InventoryMessage extends PagedMessage<Animal> {
 
         // Assign the new player object
         this.playerObject = playerObject;
-        // Assign the elements that will be displayed in this message
-        this.setElements(this.playerObject.animals);
+
+        // The list of animals that will need to be loaded by their ids
+        const loadableAnimals: LoadableAnimal[] = [];
+
+        // Add the all the player's animal ids to the list of loadable animals
+        for (const animalId of playerObject.animalIds) {
+            loadableAnimals.push({
+                id: animalId
+            });
+        }
+
+        // Set paged elements
+        this.setElements(loadableAnimals);
 
         // Build the initial embed
         try {
@@ -88,11 +105,12 @@ export default class InventoryMessage extends PagedMessage<Animal> {
         }
     }
 
-    // Build's the current page of the inventory's embed
-    // Is async because queries for each animal's species data are being made as requested, rather than initially
+    // Builds the current page of the inventory's embed
+    // Is async because fetches for each animal are made as-needed
     private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
+        // Make it more clear what we're working with here
         const inventory = this.elements;
 
         const userAvatar = this.user.avatarURL() || undefined;
@@ -104,30 +122,34 @@ export default class InventoryMessage extends PagedMessage<Animal> {
             embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getGuildPrefix(this.channel.guild)}encounter\`!`);
             return embed;
         }
-
-        // Filter the currently displayed slice of the inventory array for animals that haven't been loaded yet
-        const unloadedAnimals = this.visibleElements.filter((animalObject: Animal) => {
-            return !animalObject.fullyLoaded;
-        });
         
-        // If there are animals that need to be loaded, initiate a promise to load them all at once
-        unloadedAnimals.length && await new Promise(resolve => {
-            let count = 0;
-            unloadedAnimals.forEach(unloadedAnimal => {
-                // Load every animal in the necessary array
-                unloadedAnimal.load().then(() => {
-                    // When the last animal is loaded, resolve the promise and continue on
-                    if (++count >= unloadedAnimals.length) {
-                        resolve();
-                    }
-                }).catch(error => {
-                    throw new Error(`There was an error loading an unloaded animal in an inventory message: ${error}`);
+        // Bulk load all animals on the current page
+        try {
+            await new Promise(resolve => {
+                let count = 0;
+                // Iterate over every loadable animal on the page
+                this.visibleElements.forEach(loadableAnimal => {
+                    // Get each animal's object by their id
+                    beastiary.animals.fetchById(loadableAnimal.id).then(animal => {
+                        // Assign the loaded animal
+                        loadableAnimal.animal = animal;
+
+                        // Resolve once all animals on the page are loaded
+                        if (++count >= this.visibleElements.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error fetching an animal in an inventory message: ${error}`);
+                    });
                 });
             });
-        });
+        }
+        catch (error) {
+            throw new Error(`There was an error bulk fetching an inventory page of animals: ${error}`);
+        }
 
         // Get the animal that's selected by the pointer
-        const selectedAnimal = inventory.selection();
+        const selectedAnimal = inventory.selection().animal as Animal;
         const card = selectedAnimal.card;
 
         // Display state behavior
@@ -140,8 +162,11 @@ export default class InventoryMessage extends PagedMessage<Animal> {
                 // The string that will hold the formatted inventory string
                 let inventoryString = "";
                 let inventoryIndex = this.firstVisibleIndex;
-                // Iterate over every element on the current page
-                this.visibleElements.forEach(currentAnimal => {
+                // Iterate over every animal on the current page
+                this.visibleElements.forEach(loadableAnimal => {
+                    // Get the animal object (and assume it's an animal because we fetched it)
+                    const currentAnimal = loadableAnimal.animal as Animal;
+
                     const card = currentAnimal.card;
 
                     const animalName = currentAnimal.nickname || capitalizeFirstLetter(currentAnimal.name);

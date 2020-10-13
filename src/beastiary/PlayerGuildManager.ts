@@ -51,7 +51,7 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
             }
         }
 
-        const playerGuild = new PlayerGuild(guildDocument._id);
+        const playerGuild = new PlayerGuild(guildDocument);
 
         try {
             await this.addToCache(playerGuild);

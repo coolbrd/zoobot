@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 
@@ -42,8 +42,8 @@ export const PendingSpeciesModel = mongoose.model("PendingSpecies", pendingSpeci
 
 // The object representation of a species submission pending approval
 export class PendingSpecies extends DocumentWrapper {
-    constructor(documentId: Types.ObjectId) {
-        super(PendingSpeciesModel, documentId);
+    constructor(document: Document) {
+        super(document, PendingSpeciesModel);
     }
 
     public get commonNames(): string[] {

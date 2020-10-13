@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
@@ -44,8 +44,8 @@ export class Animal extends DocumentWrapper {
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
 
-    constructor(documentId: Types.ObjectId) {
-        super(AnimalModel, documentId);
+    constructor(document: Document) {
+        super(document, AnimalModel);
     }
 
     public get ownerId(): string {
@@ -69,6 +69,7 @@ export class Animal extends DocumentWrapper {
     }
 
     public async setNickname(newNickname: string | null): Promise<void> {
+        // Update the animal's document via an atomic operation (does not affect document in memory)
         try {
             await this.document.updateOne({
                 $set: {
@@ -80,12 +81,8 @@ export class Animal extends DocumentWrapper {
             throw new Error(`There was an error trying to change the nickname of an animal document: ${error}`);
         }
 
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing an animal after changing its nickname: ${error}`);
-        }
+        // Reflect the changes in memory
+        this.document.set("nickname", newNickname);
     }
 
     public get experience(): number {

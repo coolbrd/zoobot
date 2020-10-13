@@ -48,7 +48,7 @@ export default class PlayerManager extends WrapperCache<Player> {
         // If an existing player document was found
         else {
             // Create an object from the document
-            player = new Player(playerDocument._id);
+            player = new Player(playerDocument);
         }
         
         // Add the player to the cache
@@ -78,7 +78,7 @@ export default class PlayerManager extends WrapperCache<Player> {
             throw new Error(`There was an error trying to save a new player document: ${error}`);
         }
 
-        const player = new Player(playerDocument._id);
+        const player = new Player(playerDocument);
 
         try {
             await this.addToCache(player);

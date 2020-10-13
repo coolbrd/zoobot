@@ -11,9 +11,10 @@ export default class DocumentWrapper {
     // The document object that corresponds to this object's id
     private _document: Document | undefined;
 
-    constructor(model: Model<Document>, documentId: Types.ObjectId) {
+    constructor(document: Document, model: Model<Document>) {
         this.model = model;
-        this.id = documentId;
+        this._document = document;
+        this.id = document._id;
     }
 
     // Gets this wrapper's document. Only to be used after it's been loaded.
@@ -24,6 +25,10 @@ export default class DocumentWrapper {
         }
 
         return this._document;
+    }
+
+    private setDocument(document: Document | undefined): void {
+        this._document = document;
     }
 
     // Whether or not this wrapper's document has been loaded
@@ -58,7 +63,7 @@ export default class DocumentWrapper {
         }
 
         // Assign the new document
-        this._document = document;
+        this.setDocument(document);
     }
 
     // Loads all unloaded fields of the wrapper. Meant to be extended.
@@ -73,7 +78,7 @@ export default class DocumentWrapper {
 
     // Unloads all of this wrapper's information. Meant to be extended.
     protected unload(): void {
-        this._document = undefined;
+        this.setDocument(undefined);
     }
 
     // Reloads all the document's fields
@@ -86,6 +91,17 @@ export default class DocumentWrapper {
         }
         catch (error) {
             throw new Error(`There was an error loading a document wrapper's information during a refresh: ${error}`);
+        }
+    }
+
+    protected async refreshDocument(): Promise<void> {
+        this.setDocument(undefined);
+
+        try {
+            await this.loadDocument();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading a DocumentWrapper's document in the refresh document method: ${error}`);
         }
     }
 

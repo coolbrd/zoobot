@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 import { guildConfigSchema } from "./guildConfig";
@@ -17,8 +17,8 @@ const guildScema = new Schema({
 export const GuildModel = mongoose.model("Guild", guildScema);
 
 export class PlayerGuild extends DocumentWrapper {
-    constructor(documentId: Types.ObjectId) {
-        super(GuildModel, documentId);
+    constructor(document: Document) {
+        super(document, GuildModel);
     }
 
     public get guildId(): string {
@@ -45,5 +45,8 @@ export class PlayerGuild extends DocumentWrapper {
         catch (error) {
             throw new Error(`There was an error updating a guild model in the change prefix command: ${error}`);
         }
+
+        // Reflect the changes in memory
+        this.document.set("config.prefix", newPrefix);
     }
 }

@@ -166,8 +166,8 @@ export class Species extends DocumentWrapper {
 
     private cardRarity = new Map<SpeciesCard, number>();
 
-    constructor(documentId: Types.ObjectId) {
-        super(SpeciesModel, documentId);
+    constructor(document: Document) {
+        super(document, SpeciesModel);
     }
 
     public get commonNameObjects(): CommonNameField[] {
@@ -199,6 +199,10 @@ export class Species extends DocumentWrapper {
     }
 
     public getRandomCard(): SpeciesCard {
+        if (this.cardRarity.size < 1) {
+            throw new Error("Tried to get a species' random card before its cards were loaded.");
+        }
+
         return getWeightedRandom(this.cardRarity);
     }
 

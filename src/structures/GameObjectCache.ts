@@ -23,13 +23,15 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     }
 
     // Adds a value to the cache
-    protected async addToCache(value: ValueType): Promise<void> {
-        // Load the value's information
-        try {
-            await value.load();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
+    protected async addToCache(value: ValueType, load?: boolean): Promise<void> {
+        // Load the value's information by default
+        if (load || load === undefined) {
+            try {
+                await value.load();
+            }
+            catch (error) {
+                throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
+            }
         }
 
         // Add the value to the cache by its document's id
@@ -53,7 +55,15 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
         this.cache.delete(valueId.toHexString());
     }
 
-    protected getFromCache(id: Types.ObjectId): CachedValue<ValueType> | undefined {
+    protected getCachedValue(id: Types.ObjectId): CachedValue<ValueType> | undefined {
         return this.cache.get(id.toHexString());
+    }
+
+    public getFromCache(id: Types.ObjectId): ValueType | undefined {
+        const cachedValue = this.getCachedValue(id);
+        if (cachedValue) {
+            return cachedValue.value;
+        }
+        return undefined;
     }
 }

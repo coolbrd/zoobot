@@ -16,7 +16,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
     // Gets an animal object by its id
     public async fetchById(id: Types.ObjectId): Promise<Animal> {
         // Check the cache first
-        const cachedAnimal = this.getFromCache(id);
+        const cachedAnimal = this.getCachedValue(id);
 
         // If the animal is in the cache
         if (cachedAnimal) {
@@ -41,7 +41,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
 
         // Turn the document into an object and add it to the cache
-        const animal = new Animal(animalDocument._id);
+        const animal = new Animal(animalDocument);
         await this.addToCache(animal);
 
         // Return the animal
@@ -96,7 +96,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
 
         // If an animal was found, convert it into an object and add it to the cache
-        const animal = new Animal(animalDocument._id);
+        const animal = new Animal(animalDocument);
         await this.addToCache(animal);
 
         // Return the animal
@@ -139,7 +139,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
 
         // Turn the animal into a game object and add it to the cache
-        const animal = new Animal(animalDocument._id);
+        const animal = new Animal(animalDocument);
 
         try {
             await this.addToCache(animal);
@@ -252,17 +252,18 @@ export default class AnimalManager extends WrapperCache<Animal> {
                 }
             }
 
-            // Get the animal by its position in the player's inventory
-            const animalObject = playerObject.getAnimalPositional(searchNumber - 1);
+            // Get an animal id by the position in the player's inventory
+            const animalId = playerObject.getAnimalIdPositional(searchNumber - 1);
 
             // If an animal at the given position was found
-            if (animalObject) {
+            if (animalId) {
                 // Add it to the cache
+                let animalObject: Animal;
                 try {
-                    await this.addToCache(animalObject);
+                    animalObject = await this.fetchById(animalId);
                 }
                 catch (error) {
-                    throw new Error(`There was an error adding a searched animal to the cache: ${error}`);
+                    throw new Error(`There was an error adding a searched animal to the cache by its id: ${error}`);
                 }
                 
                 return animalObject;

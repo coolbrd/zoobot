@@ -45,7 +45,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         }
 
         // Create a new pending species object from the found document
-        const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument._id);
+        const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument);
 
         try {
             await pendingSpeciesObject.load();

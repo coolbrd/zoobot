@@ -11,7 +11,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
     // Gets a species object by its id
     public async fetchById(id: Types.ObjectId): Promise<Species> {
         // Try to find an already cached species by its id
-        const cachedSpecies = this.getFromCache(id);
+        const cachedSpecies = this.getCachedValue(id);
 
         // If that species is already in the cache
         if (cachedSpecies) {
@@ -37,7 +37,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         }
 
         // Turn the document into an object and add it to the cache
-        const species = new Species(speciesDocument._id);
+        const species = new Species(speciesDocument);
 
         try {
             await this.addToCache(species);
@@ -77,7 +77,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         }
 
         // Convert the document into an object and add it to the cache
-        const species = new Species(speciesDocument._id);
+        const species = new Species(speciesDocument);
         
         try {
             await this.addToCache(species);

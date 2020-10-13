@@ -5,6 +5,7 @@ import Command from "../structures/CommandInterface";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
+import { Animal } from "../models/Animal";
 
 // Changes a user's animal's nickname
 export default class ChangeAnimalNicknameCommand implements Command {
@@ -47,12 +48,20 @@ export default class ChangeAnimalNicknameCommand implements Command {
             throw new Error(`There was an error attempting to get a player in the animal nickname command: ${error}`);
         }
 
-        // Get the animal at the player's given inventory position
-        const animalObject = playerObject.getAnimalPositional(animalNumber - 1);
+        // Get the animal id at the player's given inventory position
+        const animalId = playerObject.getAnimalIdPositional(animalNumber - 1);
 
-        if (!animalObject) {
+        if (!animalId) {
             betterSend(parsedUserCommand.channel, "No animal in your inventory with that number exists.");
             return;
+        }
+
+        let animalObject: Animal;
+        try {
+            animalObject = await beastiary.animals.fetchById(animalId);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching an animal by its id in the nickname change command: ${error}`);
         }
 
         // The nickname string that will be used

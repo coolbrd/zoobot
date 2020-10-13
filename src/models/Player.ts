@@ -1,8 +1,6 @@
-import mongoose, { Schema, Types } from "mongoose";
-import { beastiary } from "../beastiary/Beastiary";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
-import { Animal } from "./Animal";
 
 const playerSchema = new Schema({
     userId: {
@@ -23,11 +21,8 @@ export const PlayerModel = mongoose.model("Player", playerSchema);
 
 // A wrapper object for a Mongoose player document
 export class Player extends DocumentWrapper {
-    // This player's inventory of animal objects
-    private _animals: Animal[] | undefined;
-
-    constructor(documentId: Types.ObjectId) {
-        super(PlayerModel, documentId);
+    constructor(document: Document) {
+        super(document, PlayerModel);
     }
 
     public get userId(): string {
@@ -42,20 +37,12 @@ export class Player extends DocumentWrapper {
         return this.document.get("animals");
     }
 
-    public get animals(): Animal[] {
-        if (!this._animals) {
-            throw new Error("A player's animals were attempted to be retrieved before they were loaded.");
-        }
-
-        return this._animals;
-    }
-
-    public getAnimalPositional(position: number): Animal | undefined {
-        if (position < 0 || position >= this.animals.length) {
+    public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
+        if (position < 0 || position >= this.animalIds.length) {
             return undefined;
         }
 
-        return this.animals[position];
+        return this.animalIds[position];
     }
 
     // Adds an animal id to the user's inventory
@@ -152,77 +139,5 @@ export class Player extends DocumentWrapper {
         }
 
         return animalIds;
-    }
-
-    public async loadAnimals(): Promise<void> {
-        // Don't attempt to load any animals before this player's document is loaded
-        if (!this.documentLoaded) {
-            throw new Error("A player object's animals were attempted to be loaded before the document was loaded.");
-        }
-
-        // If this player's animals are already known/loaded, do nothing
-        if (this.animalsLoaded) {
-            return;
-        }
-
-        // Get this player's list of animal ids
-        const animalIds = this.document.get("animals");
-
-        const animals: Animal[] = [];
-
-        // Fetch all animal objects
-        await new Promise(resolve => {
-            let completed = 0;
-            for (const animalId of animalIds) {
-                beastiary.animals.fetchById(animalId).then(animal => {
-                    animals.push(animal);
-
-                    if (++completed >= animalIds.length) {
-                        resolve();
-                    }
-                }).catch(error => {
-                    throw new Error(`There was an error fetching an animal within a player's inventory: ${error}`);
-                });
-            }
-        }).catch(error => {
-            throw new Error(`There was an error bulk fetching the animals within a player's inventory: ${error}`);
-        });
-
-        // Assign the array of animal objects to this player's inventory
-        this._animals = animals;
-    }
-
-    public get animalsLoaded(): boolean {
-        return Boolean(this._animals);
-    }
-
-    public get fullyLoaded(): boolean {
-        return super.fullyLoaded && this.animalsLoaded;
-    }
-
-    public async load(): Promise<void> {
-        // If all player information is already loaded, do nothing
-        if (this.fullyLoaded) {
-            return;
-        }
-
-        try {
-            await this.loadDocument();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a player's document: ${error}`);
-        }
-
-        try {
-            await this.loadAnimals();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a player's animals: ${error}`);
-        }
-    }
-
-    public unload(): void {
-        super.unload();
-        this._animals = undefined;
     }
 }
