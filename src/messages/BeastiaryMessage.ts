@@ -1,12 +1,18 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+import { beastiary } from "../beastiary/Beastiary";
 
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { SpeciesModel, Species } from "../models/Species";
+import { Species, SpeciesModel } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from "./PagedMessage";
 
-export default class BeastiaryMessage extends PagedMessage<Species> {
+interface LoadableSpecies {
+    id: Types.ObjectId,
+    species?: Species
+}
+
+export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
     private readonly user: User;
 
     constructor(channel: TextChannel | DMChannel, user: User) {
@@ -29,8 +35,9 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
         });
 
         speciesDocuments.forEach(speciesDocument => {
-            const currentSpecies = new Species(speciesDocument._id);
-            this.elements.push(currentSpecies);
+            this.elements.push({
+                id: speciesDocument._id
+            });
         });
 
         try {
@@ -46,14 +53,18 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
 
         embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
 
-        const speciesOnPage = this.visibleElements;
-
+        // Fetch all the species on the current page
         try {
             await new Promise(resolve => {
                 let complete = 0;
-                speciesOnPage.forEach(species => {
-                    species.load().then(() => {
-                        if (++complete >= speciesOnPage.length) {
+                // Iterate over every potentially unloaded species on the page
+                this.visibleElements.forEach(loadableSpecies => {
+                    // Fetch the species object of the current species
+                    beastiary.species.fetchById(loadableSpecies.id).then(species => {
+                        // Assign the potentially loaded species the newly fetched species
+                        loadableSpecies.species = species;
+
+                        if (++complete >= this.visibleElements.length) {
                             resolve();
                         }
                     }).catch(error => {
@@ -67,8 +78,9 @@ export default class BeastiaryMessage extends PagedMessage<Species> {
         }
 
         let pageString = "";
-        speciesOnPage.forEach(speciesObject => {
-            pageString += capitalizeFirstLetter(speciesObject.commonNames[0]) + "\n";
+        this.visibleElements.forEach(loadableSpecies => {
+            loadableSpecies.species = loadableSpecies.species as Species;
+            pageString += capitalizeFirstLetter(loadableSpecies.species.commonNames[0]) + "\n";
         });
 
         embed.setDescription(pageString);

@@ -5,23 +5,25 @@ import WrapperCache from "../structures/GameObjectCache";
 
 export default class SpeciesManager extends WrapperCache<Species> {
     constructor() {
-        super(300000);
+        super(3000);
     }
 
     // Gets a species object by its id
     public async fetchById(id: Types.ObjectId): Promise<Species> {
-        // First check the cache to see if the species' object already exists in it
-        for (const cachedSpecies of this.cache.values()) {
-            // If the current species' id matches
-            if (cachedSpecies.value.id.equals(id)) {
-                // Reset the cached species' deletion timer
-                cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
+        // Try to find an already cached species by its id
+        const cachedSpecies = this.getFromCache(id);
 
-                // Return the existing species from the cache
-                return cachedSpecies.value;
-            }
+        // If that species is already in the cache
+        if (cachedSpecies) {
+            // Reset the cached species' deletion timer
+            cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
+
+            // Return the existing species from the cache
+            return cachedSpecies.value;
         }
+        // The species wasn't found in the cache
 
+        // Find the species in the database
         let speciesDocument: Document | null;
         try {
             speciesDocument = await SpeciesModel.findById(id);

@@ -5,7 +5,7 @@ import DocumentWrapper from "./DocumentWrapper";
 
 export default class WrapperCache<ValueType extends DocumentWrapper> {
     // The current map of cached objects
-    protected readonly cache = new Map<Types.ObjectId, CachedValue<ValueType>>();
+    protected readonly cache = new Map<string, CachedValue<ValueType>>();
 
     // The inactivity time it takes for a value to get removed from the cache
     protected readonly cacheTimeout: number;
@@ -18,7 +18,7 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     protected createNewTimer(value: ValueType): NodeJS.Timeout {
         return setTimeout(() => {
             // Remove the cached value from the cache after the given amount of time
-            this.cache.delete(value.id);
+            this.cache.delete(value.id.toHexString());
         }, this.cacheTimeout);
     }
 
@@ -33,13 +33,13 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
         }
 
         // Add the value to the cache by its document's id
-        this.cache.set(value.id, new CachedValue<ValueType>(value, this.createNewTimer(value)));
+        this.cache.set(value.id.toHexString(), new CachedValue<ValueType>(value, this.createNewTimer(value)));
     }
 
     // Removes a value by a given id from the cache
     protected removeFromCache(valueId: Types.ObjectId): void {
         // Get the cached value
-        const cachedValue = this.cache.get(valueId);
+        const cachedValue = this.cache.get(valueId.toHexString());
 
         // Make sure it exists
         if (!cachedValue) {
@@ -50,6 +50,10 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
         cachedValue.stopTimer();
 
         // Remove the value from the cache
-        this.cache.delete(valueId);
+        this.cache.delete(valueId.toHexString());
+    }
+
+    protected getFromCache(id: Types.ObjectId): CachedValue<ValueType> | undefined {
+        return this.cache.get(id.toHexString());
     }
 }

@@ -1,13 +1,22 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
+import getWeightedRandom from "../utility/getWeightedRandom";
 
 export const cardSubSchema = new Schema({
     url: {
         type: String,
         required: true
     },
+    rarity: {
+        type: Number,
+        required: true
+    },
     breed: {
+        type: String,
+        required: false
+    },
+    special: {
         type: String,
         required: false
     }
@@ -59,7 +68,9 @@ export const SpeciesModel = mongoose.model("Species", speciesSchema);
 export interface SpeciesCardTemplate {
     _id?: Types.ObjectId,
     url: string,
-    breed?: string
+    rarity: number,
+    breed?: string,
+    special?: string
 }
 
 export interface SpeciesCardField extends SpeciesCardTemplate {
@@ -92,8 +103,16 @@ export class SpeciesCard {
         return this.document.get("url");
     }
 
+    public get rarity(): number {
+        return this.document.get("rarity");
+    }
+
     public get breed(): string | undefined {
         return this.document.get("breed");
+    }
+
+    public get special(): string | undefined {
+        return this.document.get("special");
     }
 
     // Gets this card's index in its parent species' list of cards
@@ -145,6 +164,8 @@ export class Species extends DocumentWrapper {
     // The species' list of cards
     private _cards: SpeciesCard[] | undefined;
 
+    private cardRarity = new Map<SpeciesCard, number>();
+
     constructor(documentId: Types.ObjectId) {
         super(SpeciesModel, documentId);
     }
@@ -175,6 +196,10 @@ export class Species extends DocumentWrapper {
 
     public get rarity(): number {
         return this.document.get("rarity");
+    }
+
+    public getRandomCard(): SpeciesCard {
+        return getWeightedRandom(this.cardRarity);
     }
 
     // Changes the fields of the species document and commits them to the database
@@ -253,6 +278,11 @@ export class Species extends DocumentWrapper {
             cards.push(new SpeciesCard(cardDocument, this));
         });
         this._cards = cards;
+        
+        // Build this species' rarity table
+        for (const card of this.cards) {
+            this.cardRarity.set(card, card.rarity);
+        }
     }
 
     // Loads this species' data from the database

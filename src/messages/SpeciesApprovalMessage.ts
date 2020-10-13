@@ -52,11 +52,23 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                             alias: "url",
                             prompt: "Enter a valid imgur link to this species' card. Must be a direct link to the card's image (e.g. \"i.imgur.com/fake-image\"):"
                         },
+                        rarity: {
+                            type: Number,
+                            required: true,
+                            alias: "rarity",
+                            prompt: "Enter the weighted rarity for this card:"
+                        },
                         breed: {
                             type: String,
                             required: false,
                             alias: "breed",
                             prompt: "Enter the breed of the animal depicted in this card, if one is apparent:"
+                        },
+                        special: {
+                            type: String,
+                            required: false,
+                            alias: "special",
+                            prompt: "Enter any special information associated with this card:"
                         }
                     },
                     alias: "card",
@@ -110,7 +122,8 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         if (cardUrls) {
             for (const url of cardUrls) {
                 cardsField.push({
-                    url: url
+                    url: url,
+                    rarity: 1
                 });
             }
         }

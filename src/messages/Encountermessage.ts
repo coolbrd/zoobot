@@ -1,11 +1,11 @@
-import { TextChannel, User, MessageEmbed } from "discord.js";
+import { TextChannel, User } from "discord.js";
 
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { client } from "..";
-import { Species } from "../models/Species";
+import { Species, SpeciesCard } from "../models/Species";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -18,8 +18,8 @@ export default class EncounterMessage extends InteractiveMessage {
 
     // The species of the animal contained within this encounter
     private readonly species: Species;
-    // The card chosen for this animal encounter
-    private cardIndex: number | undefined;
+
+    private readonly card: SpeciesCard;
 
     constructor(channel: TextChannel, species: Species) {
         super(channel, { buttons: {
@@ -31,20 +31,7 @@ export default class EncounterMessage extends InteractiveMessage {
         });
         this.channel = channel;
         this.species = species;
-    }
 
-    public async build(): Promise<void> {
-        super.build();
-
-        try {
-            this.setEmbed(await this.buildEmbed());
-        }
-        catch (error) {
-            throw new Error(`There was an error trying to build an encounter message's initial embed: ${error}`);
-        }
-    }
-
-    private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
         // Color the encounter's embed properly
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel.guild));
@@ -53,19 +40,18 @@ export default class EncounterMessage extends InteractiveMessage {
 
         embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
 
-        // Pick a random card from the animal's set of card
-        this.cardIndex = Math.floor(Math.random() * this.species.cards.length);
-        // Get the card of the determined index
-        const card = this.species.cards[this.cardIndex];
-        embed.setImage(card.url);
+        // Determine the animal's card
+        this.card = this.species.getRandomCard();
+        embed.setImage(this.card.url);
 
         // Add the breed field if it's there
-        if (card.breed) {
-            embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
+        if (this.card.breed) {
+            embed.addField("Breed", capitalizeFirstLetter(this.card.breed), true);
         }
 
         embed.setFooter("Wild encounter");
-        return embed;
+
+        this.setEmbed(embed);
     }
 
     // Whenever the encounter's button is pressed
@@ -79,7 +65,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         // Create the new animal
         try {
-            await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.cardIndex as number);
+            await beastiary.animals.createAnimal(getGuildMember(user, this.channel.guild), this.species, this.card);
         }
         catch (error) {
             errorHandler.handleError(error, "There was an error creating a new animal in an encounter message.");

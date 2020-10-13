@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
+import { beastiary } from "../beastiary/Beastiary";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 import { Animal } from "./Animal";
@@ -167,26 +168,24 @@ export class Player extends DocumentWrapper {
         // Get this player's list of animal ids
         const animalIds = this.document.get("animals");
 
-        // For every animal id, add a new animal object of that id to this player's inventory
         const animals: Animal[] = [];
-        animalIds.forEach((animalId: Types.ObjectId) => {
-            animals.push(new Animal(animalId));
-        });
 
-        // Load all animal objects
-        animals.length && await new Promise(resolve => {
+        // Fetch all animal objects
+        await new Promise(resolve => {
             let completed = 0;
-            for (const animalObject of animals) {
-                animalObject.load().then(() => {
-                    if (++completed >= animals.length) {
+            for (const animalId of animalIds) {
+                beastiary.animals.fetchById(animalId).then(animal => {
+                    animals.push(animal);
+
+                    if (++completed >= animalIds.length) {
                         resolve();
                     }
                 }).catch(error => {
-                    throw new Error(`There was an error loading an animal's information within a player's inventory: ${error}`);
+                    throw new Error(`There was an error fetching an animal within a player's inventory: ${error}`);
                 });
             }
         }).catch(error => {
-            throw new Error(`There was an error bulk loading the animals within a player's inventory: ${error}`);
+            throw new Error(`There was an error bulk fetching the animals within a player's inventory: ${error}`);
         });
 
         // Assign the array of animal objects to this player's inventory

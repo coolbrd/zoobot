@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
+import { beastiary } from "../beastiary/Beastiary";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 import { SpeciesCard, Species } from "./Species";
@@ -139,7 +140,7 @@ export class Animal extends DocumentWrapper {
         }
 
         // Create a new species object from this animal's known species id
-        this._species = new Species(this.speciesId);
+        this._species = await beastiary.species.fetchById(this.speciesId);
 
         // Load the species object's information
         try {

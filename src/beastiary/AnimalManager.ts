@@ -4,7 +4,7 @@ import { Document, Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
 import { Player } from "../models/Player";
-import { Species } from "../models/Species";
+import { Species, SpeciesCard } from "../models/Species";
 import WrapperCache from "../structures/GameObjectCache";
 import { beastiary } from "./Beastiary";
 
@@ -15,18 +15,19 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
     // Gets an animal object by its id
     public async fetchById(id: Types.ObjectId): Promise<Animal> {
-        // First check the cache to see if the animal's object already exists in it
-        for (const cachedAnimal of this.cache.values()) {
-            // If the current animal's id matches
-            if (cachedAnimal.value.id.equals(id)) {
-                // Reset the cached animal's deletion timer
-                cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
+        // Check the cache first
+        const cachedAnimal = this.getFromCache(id);
 
-                // Return the existing animal from the cache
-                return cachedAnimal.value;
-            }
+        // If the animal is in the cache
+        if (cachedAnimal) {
+            // Reset the cached animal's deletion timer
+            cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
+
+            // Return the existing animal from the cache
+            return cachedAnimal.value;
         }
 
+        // Search for the animal in the database
         let animalDocument: Document | null;
         try {
             animalDocument = await AnimalModel.findById(id);
@@ -102,7 +103,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         return animal;
     }
 
-    public async createAnimal(owner: GuildMember, species: Species, cardIndex: number): Promise<void> {
+    public async createAnimal(owner: GuildMember, species: Species, card: SpeciesCard): Promise<void> {
         // Get the player object of the guild member
         let ownerObject: Player;
         try {
@@ -117,7 +118,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
             ownerId: ownerObject.userId,
             guildId: ownerObject.guildId,
             species: species.id,
-            card: species.cards[cardIndex].id,
+            card: card.id,
             experience: 0
         });
 
