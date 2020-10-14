@@ -15,12 +15,12 @@ export default class EmbedBookMessage extends InteractiveMessage {
             {
                 name: "pageLeft",
                 emoji: "⬅️",
-                helpMessage: "Go back one page"
+                helpMessage: "Page left"
             },
             {
                 name: "pageRight",
                 emoji: "➡️",
-                helpMessage: "Go forward one page"
+                helpMessage: "Page right"
             }
         ]});
         this.book = book;

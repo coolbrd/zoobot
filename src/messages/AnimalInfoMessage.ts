@@ -22,7 +22,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             {
                 name: "mode",
                 emoji: "🖼️",
-                helpMessage: "toggle card view"
+                helpMessage: "Toggle card view"
             }
         ]});
 
