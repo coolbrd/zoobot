@@ -20,10 +20,10 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         const channel = parsedUserCommand.channel;
-        
-        // Interpret everything after the command as the name of the species for approval
-        const fullSearchTerm = parsedUserCommand.args.join(" ").toLowerCase();
 
+        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
+
+        // If no arguments were provided
         if (!fullSearchTerm) {
             betterSend(channel, this.help(parsedUserCommand.displayPrefix));
             return;

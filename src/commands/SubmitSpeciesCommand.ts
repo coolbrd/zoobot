@@ -80,7 +80,8 @@ export default class SubmitSpeciesCommand implements Command {
                 alias: "scientific name",
                 prompt: "Enter this animal's scientific (taxonomical) name:",
                 stringOptions: {
-                    maxLength: 128
+                    maxLength: 128,
+                    forceCase: "lower"
                 }
             },
             images: {

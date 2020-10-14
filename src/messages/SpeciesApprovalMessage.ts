@@ -41,7 +41,10 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 type: String,
                 required: true,
                 alias: "scientific name",
-                prompt: "Enter this animal's scientific (taxonomical) name:"
+                prompt: "Enter this animal's scientific (taxonomical) name:",
+                stringOptions: {
+                    forceCase: "lower"
+                }
             },
             cards: {
                 type: [{
