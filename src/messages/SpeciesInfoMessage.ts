@@ -72,11 +72,11 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         switch (buttonName) {
             case "rightArrow": {
-                this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.cards.length);
+                this.cardIndex = loopValue(this.cardIndex + 1, 0, this.species.cards.length - 1);
                 break;
             }
             case "leftArrow": {
-                this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.cards.length);
+                this.cardIndex = loopValue(this.cardIndex - 1, 0, this.species.cards.length - 1);
                 break;
             }
             case "info": {
