@@ -14,6 +14,10 @@ const playerSchema = new Schema({
     animals: {
         type: [Schema.Types.ObjectId],
         required: true
+    },
+    lastCapture: {
+        type: Schema.Types.Date,
+        required: false
     }
 });
 
@@ -35,6 +39,10 @@ export class Player extends DocumentWrapper {
 
     public get animalIds(): Types.ObjectId[] {
         return this.document.get("animals");
+    }
+
+    public get lastCapture(): Date | undefined {
+        return this.document.get("lastCapture");
     }
 
     public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
@@ -139,5 +147,23 @@ export class Player extends DocumentWrapper {
         }
 
         return animalIds;
+    }
+
+    public async captureAnimal(): Promise<void> {
+        try {
+            await this.document.updateOne({
+                lastCapture: new Date()
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error updating a player's last capture field: ${error}`);
+        }
+
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's document after updating their last capture: ${error}`);
+        }
     }
 }
