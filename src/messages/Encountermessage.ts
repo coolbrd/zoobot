@@ -54,6 +54,10 @@ export default class EncounterMessage extends InteractiveMessage {
             embed.addField("Breed", capitalizeFirstLetter(this.card.breed), true);
         }
 
+        if (this.card.special) {
+            embed.addField("Special", capitalizeFirstLetter(this.card.special), true);
+        }
+
         embed.setFooter("Wild encounter");
 
         this.setEmbed(embed);

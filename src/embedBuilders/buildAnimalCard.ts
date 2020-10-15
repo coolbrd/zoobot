@@ -11,6 +11,12 @@ export default function buildAnimalCard(embed: MessageEmbed, animalObject: Anima
     const animalDisplayName = animalObject.nickname || capitalizeFirstLetter(animalObject.name);
 
     embed.setImage(card.url);
-    embed.setTitle(animalDisplayName);
-    embed.setDescription(`Card #${card.index + 1} of ${species.cardCount}`);
+    embed.addField(animalDisplayName, `Card #${card.index + 1} of ${species.cardCount}`, true);
+
+    if (card.breed) {
+        embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
+    }
+    if (card.special) {
+        embed.addField("Special", capitalizeFirstLetter(card.special), true);
+    }
 }

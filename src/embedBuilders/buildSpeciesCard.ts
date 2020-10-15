@@ -9,10 +9,12 @@ export default function buildSpeciesCard(embed: MessageEmbed, species: Species, 
     embed.addField("――――――――", capitalizeFirstLetter(species.scientificName), true);
 
     embed.setImage(card.url);
-    const breed = card.breed;
     // Display a breed field if the current card has one
-    if (breed) {
-        embed.addField("Breed", capitalizeFirstLetter(breed), true);
+    if (card.breed) {
+        embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
+    }
+    if (card.special) {
+        embed.addField("Special", capitalizeFirstLetter(card.special), true);
     }
 
     embed.setFooter(`Card #${card.index + 1} of ${species.cardCount}`);
