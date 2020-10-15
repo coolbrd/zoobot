@@ -78,6 +78,20 @@ export default class ChangeAnimalNicknameCommand implements Command {
             newNickname = args.slice(args.indexOf(animalIdentifier) + animalIdentifier.length, args.length).trim();
         }
 
+        // If the user provided a new nickname to give the animal
+        if (newNickname) {
+            // The set of banned strings that cannot appear in animal nicknames
+            const bannedSubStrings = ["*", "_", "`", "~", ">"];
+
+            // Check for all banned substrings in animal names
+            for (const substring of bannedSubStrings) {
+                if (newNickname.includes(substring)) {
+                    betterSend(parsedUserCommand.channel, `Animal nicknames can't contain any Discord-reserved formatting characters, such as: '${substring}'`);
+                    return;
+                }
+            }
+        }
+
         // Change the animal's nickname to the determined string
         try {
             await animalObject.setNickname(newNickname);
