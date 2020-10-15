@@ -1,12 +1,13 @@
-// A type that represents the bot's currently used prefix
 type BotConfig = {
     prefix: string,
     capturePeriod: number
 };
 
-// The bot's currently used global prefix
+// The bot's default config information
 const config: BotConfig = {
+    // The default prefix the bot responds to
     prefix: "b/",
+    // The time required between player animal captures, in milliseconds
     capturePeriod: 3 * 60 * 60 * 1000
 };
 
