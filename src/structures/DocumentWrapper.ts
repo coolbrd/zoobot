@@ -95,7 +95,7 @@ export default class DocumentWrapper {
     }
 
     protected async refreshDocument(): Promise<void> {
-        this.setDocument(undefined);
+        this.unload();
 
         try {
             await this.loadDocument();
