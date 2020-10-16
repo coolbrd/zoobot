@@ -15,7 +15,7 @@ export default class EditSpeciesCommand implements Command {
     public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}edit\` \`<species name>\` to edit an existing species.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species name>\` to edit an existing species.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

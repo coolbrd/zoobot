@@ -11,7 +11,7 @@ export default class SpeciesInfoCommand implements Command {
     public readonly info = "View a species' information and collectible cards";
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}info\` \`<species>\` to view a species' traits and cards.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

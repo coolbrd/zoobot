@@ -17,7 +17,7 @@ export default class SendPendingSubmissionsCommand implements Command {
     public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}pending\` to view a list of all pending species submissions.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` to view a list of all pending species submissions.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

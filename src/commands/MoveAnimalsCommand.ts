@@ -15,7 +15,7 @@ export default class MoveAnimalsCommand implements Command {
 
     public help(prefix: string): string {
         return stripIndents`
-            Use \`${prefix}moveanimals\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your inventory to a given position.
+            Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your inventory to a given position.
             Example: \`${prefix}moveanimals 12 45 6 2 18\` will move the animals in your inventory that are at positions 45, 6, 2, and 18 (in that order) to the position directly after animal 12 in your inventory.
         `;
     }

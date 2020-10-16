@@ -17,7 +17,7 @@ export default class SubmitSpeciesCommand implements Command {
     public readonly info = "Submit a new species to The Beastiary";
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}submit\` to begin the species submission process.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` to begin the species submission process.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

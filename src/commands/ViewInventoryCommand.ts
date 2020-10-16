@@ -9,7 +9,7 @@ export default class ViewInventoryCommand implements Command {
     public readonly info = "View your collection of animals"
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}inv\` to see a list of all your captured animals.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` to see a list of all your captured animals.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

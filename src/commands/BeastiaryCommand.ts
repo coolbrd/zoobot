@@ -8,7 +8,7 @@ export default class BeastiaryCommand implements Command {
     public readonly info = "View the list of all species available in The Beastiary";
 
     public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}beastiary\` to view a list of every collectible species.`;
+        return `Use \`${displayPrefix}${this.commandNames[0]}\` to view a list of every collectible species.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

@@ -14,7 +14,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
     public readonly info = "Change the nickname of one of your captured animals";
 
     public help(prefix: string): string {
-        return `Use \`${prefix}nickname\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
+        return `Use \`${prefix}${this.commandNames[0]}\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {

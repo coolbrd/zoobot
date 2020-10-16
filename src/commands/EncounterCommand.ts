@@ -11,7 +11,7 @@ export default class EncounterCommand implements Command {
     public readonly info = "Initiate an animal encounter";
 
     public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}e\` to initiate an animal encounter.`;
+        return `Use \`${commandPrefix}${this.commandNames[0]}\` to initiate an animal encounter.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
