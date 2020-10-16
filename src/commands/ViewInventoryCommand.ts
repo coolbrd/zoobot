@@ -4,7 +4,9 @@ import InventoryMessage from "../messages/InventoryMessage";
 import { betterSend } from "../discordUtility/messageMan";
 
 export default class ViewInventoryCommand implements Command {
-    commandNames = ["inventory", "inv", "vi"];
+    public readonly commandNames = ["inventory", "inv", "vi"];
+
+    public readonly info = "View your collection of animals"
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}inv\` to see a list of all your captured animals.`;

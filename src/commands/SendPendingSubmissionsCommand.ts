@@ -12,6 +12,8 @@ import { client } from "..";
 export default class SendPendingSubmissionsCommand implements Command {
     public readonly commandNames = ["pending", "submissions"];
 
+    public readonly info = "View the list of all species currently pending approval";
+
     public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {

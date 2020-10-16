@@ -8,6 +8,8 @@ import { beastiary } from "../beastiary/Beastiary";
 export default class SpeciesInfoCommand implements Command {
     public readonly commandNames = ["info", "i", "search"];
 
+    public readonly info = "View a species' information and collectible cards";
+
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}info\` \`<species>\` to view a species' traits and cards.`;
     }

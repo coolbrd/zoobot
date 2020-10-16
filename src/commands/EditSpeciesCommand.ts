@@ -10,6 +10,8 @@ import { beastiary } from "../beastiary/Beastiary";
 export default class EditSpeciesCommand implements Command {
     public readonly commandNames = ["edit", "editspecies"];
 
+    public readonly info = "Edit an existing species";
+
     public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {

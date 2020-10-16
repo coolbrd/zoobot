@@ -11,6 +11,8 @@ import { Animal } from "../models/Animal";
 export default class ChangeAnimalNicknameCommand implements Command {
     public readonly commandNames = ["nickname", "nick", "nn"];
 
+    public readonly info = "Change the nickname of one of your captured animals";
+
     public help(prefix: string): string {
         return `Use \`${prefix}nickname\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
     }

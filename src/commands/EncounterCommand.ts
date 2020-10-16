@@ -8,6 +8,8 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 export default class EncounterCommand implements Command {
     public readonly commandNames = ["encounter", "e"];
 
+    public readonly info = "Initiate an animal encounter";
+
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}e\` to initiate an animal encounter.`;
     }

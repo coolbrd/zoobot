@@ -9,6 +9,8 @@ import { beastiary } from "../beastiary/Beastiary";
 export default class ChangeGuildPrefixCommand implements Command {
     public readonly commandNames = ["prefix", "changeprefix"];
 
+    public readonly info = "Change the prefix I respond to"
+
     public help(prefix: string): string {
         return `Use \`${prefix}prefix\` \`<new command prefix>\` to change the prefix that I respond to.`;
     }

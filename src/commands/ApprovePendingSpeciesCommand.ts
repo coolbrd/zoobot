@@ -12,6 +12,8 @@ import { SimpleEDoc } from "../structures/EDoc";
 export default class ApprovePendingSpeciesCommand implements Command {
     public readonly commandNames = ["approve", "approvespecies"];
 
+    public readonly info = "Review and approve a pending species";
+
     public readonly adminOnly = true;
 
     public help(commandPrefix: string): string {

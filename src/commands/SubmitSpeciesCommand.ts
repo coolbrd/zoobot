@@ -12,7 +12,9 @@ import EDocMessage from "../messages/EDocMessage";
 
 // Initiates the species submission process. Only to be used in DMs.
 export default class SubmitSpeciesCommand implements Command {
-    public commandNames = ["submitspecies", "submit"];
+    public readonly commandNames = ["submitspecies", "submit"];
+
+    public readonly info = "Submit a new species to The Beastiary";
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}submit\` to begin the species submission process.`;

@@ -8,6 +8,8 @@ import CommandParser from "../structures/CommandParser";
 export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
 
+    public readonly info = "View the stats, info, and card of a captured animal";
+
     public help(prefix: string): string {
         return `Use \`${prefix}animalinfo\` \`<animal number or nickname>\` to view information about that animal.`;
     }

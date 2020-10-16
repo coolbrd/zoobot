@@ -6,6 +6,8 @@ import { commandHandler } from "../structures/CommandHandler";
 export default class HelpCommand implements Command {
     public readonly commandNames = ["help", "h"];
 
+    public readonly info = "View more information about the usage of a command";
+
     public help(prefix: string): string {
         return `Use \`${prefix}help\` \`<command>\` to see more information about the usage of a particular command.`;
     }

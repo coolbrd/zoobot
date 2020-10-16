@@ -5,6 +5,8 @@ import CommandParser from "../structures/CommandParser";
 export default class BeastiaryCommand implements Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];
 
+    public readonly info = "View the list of all species available in The Beastiary";
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}beastiary\` to view a list of every collectible species.`;
     }

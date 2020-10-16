@@ -11,6 +11,8 @@ import { beastiary } from "../beastiary/Beastiary";
 export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ["moveanimals", "ma"];
 
+    public readonly info = "Rearrange animals in your collection";
+
     public help(prefix: string): string {
         return stripIndents`
             Use \`${prefix}moveanimals\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your inventory to a given position.
