@@ -1,9 +1,12 @@
 import { MessageEmbed } from "discord.js";
+import rarityToEmbedColor from "../beastiary/rarityToEmbedColor";
 
 import { SpeciesCard, Species } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildSpeciesCard(embed: MessageEmbed, species: Species, card: SpeciesCard): void {
+    embed.setColor(rarityToEmbedColor(species.rarity));
+
     embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
 
     embed.addField("――――――――", capitalizeFirstLetter(species.scientificName), true);
