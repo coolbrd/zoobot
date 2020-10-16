@@ -1,7 +1,7 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../models/Player";
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";

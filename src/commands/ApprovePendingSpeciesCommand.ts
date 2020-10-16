@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { PendingSpeciesModel, PendingSpecies } from "../models/PendingSpecies";
 import { betterSend } from "../discordUtility/messageMan";

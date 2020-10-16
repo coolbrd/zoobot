@@ -1,5 +1,5 @@
 import BeastiaryMessage from "../messages/BeastiaryMessage";
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 export default class BeastiaryCommand implements Command {

@@ -1,4 +1,4 @@
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import InventoryMessage from "../messages/InventoryMessage";
 import { betterSend } from "../discordUtility/messageMan";

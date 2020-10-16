@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/CommandParser";
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import { Player } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";

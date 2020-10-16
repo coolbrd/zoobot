@@ -1,7 +1,7 @@
 import { stripIndents } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
 
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { PendingSpeciesModel } from "../models/PendingSpecies";

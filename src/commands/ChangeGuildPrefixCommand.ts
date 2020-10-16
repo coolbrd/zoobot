@@ -1,6 +1,6 @@
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import { PlayerGuild } from "../models/Guild";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";

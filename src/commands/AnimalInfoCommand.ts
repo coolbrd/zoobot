@@ -2,7 +2,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../models/Animal";
-import Command from "../structures/CommandInterface";
+import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 export default class AnimalInfoCommand implements Command {
