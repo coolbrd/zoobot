@@ -85,7 +85,7 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
 
         embed.setDescription(pageString);
 
-        embed.setFooter(this.getButtonHelpString());
+        embed.setFooter(`Page ${this.page + 1}/${this.pageCount}\n${this.getButtonHelpString()}`);
 
         return embed;
     }
