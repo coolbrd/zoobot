@@ -24,6 +24,7 @@ import BeastiaryCommand from "../commands/BeastiaryCommand";
 import config from "../config/BotConfig";
 import CommandListCommand from "../commands/CommandListCommand";
 import { parse } from "path";
+import CommandAliasesCommand from "../commands/CommandAliasesCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -48,6 +49,7 @@ class CommandHandler {
             ChangeAnimalNicknameCommand,
             MoveAnimalsCommand,
             ChangeGuildPrefixCommand,
+            CommandAliasesCommand,
             CommandListCommand,
             EditSpeciesCommand,
             SubmitSpeciesCommand,
