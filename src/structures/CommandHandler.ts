@@ -22,6 +22,8 @@ import EditSpeciesCommand from "../commands/EditSpeciesCommand";
 import { errorHandler } from "./ErrorHandler";
 import BeastiaryCommand from "../commands/BeastiaryCommand";
 import config from "../config/BotConfig";
+import CommandListCommand from "../commands/CommandListCommand";
+import { parse } from "path";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -29,7 +31,7 @@ class CommandHandler {
     private readonly prefix: string;
 
     // The array of valid, executable commands
-    private readonly commands: Command[];
+    public readonly commands: Command[];
 
     // The map of guilds and their custom prefixes
     private readonly guildPrefixes: Map<string, string> = new Map();
@@ -37,19 +39,20 @@ class CommandHandler {
     constructor() {
         // Initialize an array of classes that represent the bot's valid commands
         const commandClasses = [
-            AnimalInfoCommand,
-            ApprovePendingSpeciesCommand,
-            BeastiaryCommand,
-            ChangeAnimalNicknameCommand,
-            ChangeGuildPrefixCommand,
-            EditSpeciesCommand,
-            EncounterCommand,
             HelpCommand,
+            BeastiaryCommand,
+            SpeciesInfoCommand,
+            EncounterCommand,
+            ViewInventoryCommand,
+            AnimalInfoCommand,
+            ChangeAnimalNicknameCommand,
             MoveAnimalsCommand,
+            ChangeGuildPrefixCommand,
+            CommandListCommand,
+            EditSpeciesCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
-            SpeciesInfoCommand,
-            ViewInventoryCommand
+            ApprovePendingSpeciesCommand
         ];
 
         // Assign the array of commands to a new instance of each command class
@@ -96,12 +99,19 @@ class CommandHandler {
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
             const commandParser = new CommandParser(message, messagePrefix, guildPrefix);
 
+            // If the user didn't specify a command, just the bot's prefix
+            if (!commandParser.parsedCommandName) {
+                // Alleviate confusion
+                betterSend(commandParser.channel, `Yes? Try using \`${guildPrefix}commands\` to see a list of all my commands.`);
+                return;
+            }
+
             // Find a command class that matches the command specified in the message (taking into account the visibilit of admin commands)
             const matchedCommand = this.getCommand(commandParser.parsedCommandName, message);
 
             // If no matching command was found
             if (!matchedCommand) {
-                betterSend(commandParser.channel, `I don't recognize that command. Try ${guildPrefix}help.`);
+                betterSend(commandParser.channel, `I don't recognize that command. Try \`${guildPrefix}help\`.`);
             }
             // If a matching command was found
             else {
