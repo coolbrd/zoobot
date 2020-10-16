@@ -12,7 +12,7 @@ export default class CommandListCommand implements Command {
     public readonly info = "View this message";
 
     public help(displayPrefix: string): string {
-        return `Use ${displayPrefix}${this.commandNames[0]} to get an overview of all commands and their functions.`;
+        return `Use \`${displayPrefix}${this.commandNames[0]}\` to get an overview of all commands and their functions.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
