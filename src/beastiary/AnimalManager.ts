@@ -130,12 +130,12 @@ export default class AnimalManager extends WrapperCache<Animal> {
             throw new Error(`There was an error saving a new animal: ${error}`);
         }
 
-        // Add the animal's id to the owner's inventory
+        // Add the animal's id to the owner's collection
         try {
             await ownerObject.addAnimal(animalDocument._id);
         }
         catch (error) {
-            throw new Error(`There was an error adding a new animal to a player's inventory: ${error}`);
+            throw new Error(`There was an error adding a new animal to a player's collection: ${error}`);
         }
 
         // Turn the animal into a game object and add it to the cache
@@ -169,12 +169,12 @@ export default class AnimalManager extends WrapperCache<Animal> {
             throw new Error(`There was an error fetching a player from the player manager: ${error}`);
         }
 
-        // Remove the animal from the player's inventory
+        // Remove the animal from the player's collection
         try {
             await owner.removeAnimal(animal.id);
         }
         catch (error) {
-            throw new Error(`There was an error removing an animal's id from it's owner's inventory: ${error}`);
+            throw new Error(`There was an error removing an animal's id from it's owner's collection: ${error}`);
         }
 
         // Remove the animal from the cache
@@ -215,7 +215,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
         // If we're out here, it means that animal indexes need to be considered
 
-        // First make sure the search term isn't a numeric index in a player's inventory to search
+        // First make sure the search term isn't a numeric index in a player's collection to search
         const searchNumber = Number(searchTerm);
 
         // If the search term isn't a number (it's a nickname)
@@ -252,7 +252,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
                 }
             }
 
-            // Get an animal id by the position in the player's inventory
+            // Get an animal id by the position in the player's collection
             const animalId = playerObject.getAnimalIdPositional(searchNumber - 1);
 
             // If an animal at the given position was found

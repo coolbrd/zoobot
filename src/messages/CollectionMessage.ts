@@ -14,8 +14,8 @@ import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import { Types } from "mongoose";
 
-// The set of states that an inventory message can be in
-enum InventoryMessageState {
+// The set of states that a collection message can be in
+enum CollectionMessageState {
     page,
     info,
     card,
@@ -27,9 +27,9 @@ interface LoadableAnimal {
     animal?: Animal
 }
 
-export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
+export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     // The current display state of the message
-    private state: InventoryMessageState;
+    private state: CollectionMessageState;
     
     private readonly user: User;
     public readonly channel: TextChannel;
@@ -63,8 +63,8 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
         this.user = user;
         this.channel = channel;
 
-        // Start the inventory message in paged view mode
-        this.state = InventoryMessageState.page;
+        // Start the collection message in paged view mode
+        this.state = CollectionMessageState.page;
     }
 
     // Pre-send build logic
@@ -77,7 +77,7 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
             playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in an inventory message: ${error}`);
+            throw new Error(`There was an error fetching a player in a collection message: ${error}`);
         }
 
         // Assign the new player object
@@ -101,24 +101,24 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            throw new Error(`There was an error building the initial embed of an inventory message: ${error}`);
+            throw new Error(`There was an error building the initial embed of a collection message: ${error}`);
         }
     }
 
-    // Builds the current page of the inventory's embed
+    // Builds the current page of the collection's embed
     // Is async because fetches for each animal are made as-needed
     private async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         // Make it more clear what we're working with here
-        const inventory = this.elements;
+        const collection = this.elements;
 
         const userAvatar = this.user.avatarURL() || undefined;
         embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
-        embed.setFooter(`${inventory.length} in collection\n${this.getButtonHelpString()}`);
+        embed.setFooter(`${collection.length} in collection\n${this.getButtonHelpString()}`);
 
-        // Don't try anything crazy if the user's inventory is empty
-        if (inventory.length < 1) {
+        // Don't try anything crazy if the user's collection is empty
+        if (collection.length < 1) {
             embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getGuildPrefix(this.channel.guild)}encounter\`!`);
             return embed;
         }
@@ -139,29 +139,29 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
                             resolve();
                         }
                     }).catch(error => {
-                        throw new Error(`There was an error fetching an animal in an inventory message: ${error}`);
+                        throw new Error(`There was an error fetching an animal in an collection message: ${error}`);
                     });
                 });
             });
         }
         catch (error) {
-            throw new Error(`There was an error bulk fetching an inventory page of animals: ${error}`);
+            throw new Error(`There was an error bulk fetching an collection page of animals: ${error}`);
         }
 
         // Get the animal that's selected by the pointer
-        const selectedAnimal = inventory.selection().animal as Animal;
+        const selectedAnimal = collection.selection().animal as Animal;
         const card = selectedAnimal.card;
 
         // Display state behavior
         switch (this.state) {
             // When the message is in paged view mode
-            case InventoryMessageState.page: {
+            case CollectionMessageState.page: {
                 // Show the selected animal's card in the thumbnail
                 embed.setThumbnail(card.url);
 
-                // The string that will hold the formatted inventory string
-                let inventoryString = "";
-                let inventoryIndex = this.firstVisibleIndex;
+                // The string that will hold the formatted collection string
+                let collectionString = "";
+                let collectionIndex = this.firstVisibleIndex;
                 // Iterate over every animal on the current page
                 this.visibleElements.forEach(loadableAnimal => {
                     // Get the animal object (and assume it's an animal because we fetched it)
@@ -175,37 +175,37 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
                     const breedText = !currentAnimal.nickname && card.breed ? `(${card.breed})` : "";
 
                     // The pointer text to draw on the current animal entry (if any)
-                    const pointerText = inventoryIndex === inventory.getPointerPosition() ? " 🔹" : "";
+                    const pointerText = collectionIndex === collection.getPointerPosition() ? " 🔹" : "";
 
-                    inventoryString += `\`${inventoryIndex + 1})\` ${animalName} ${breedText}`;
+                    collectionString += `\`${collectionIndex + 1})\` ${animalName} ${breedText}`;
 
-                    inventoryString += ` ${pointerText}\n`;
+                    collectionString += ` ${pointerText}\n`;
 
-                    inventoryIndex++;
+                    collectionIndex++;
                 });
 
-                embed.setDescription(inventoryString);
+                embed.setDescription(collectionString);
 
                 break;
             }
             // When the message is in info mode
-            case InventoryMessageState.info: {
+            case CollectionMessageState.info: {
                 buildAnimalInfo(embed, selectedAnimal);
 
-                embed.setTitle(`\`${inventory.getPointerPosition() + 1})\` ${embed.title}`);
+                embed.setTitle(`\`${collection.getPointerPosition() + 1})\` ${embed.title}`);
                 
                 break;
             }
             // When the message is in card mode
-            case InventoryMessageState.card: {
+            case CollectionMessageState.card: {
                 buildAnimalCard(embed, selectedAnimal);
 
-                embed.setTitle(`\`${inventory.getPointerPosition() + 1})\` ${embed.title}`);
+                embed.setTitle(`\`${collection.getPointerPosition() + 1})\` ${embed.title}`);
 
                 break;
             }
             // When the message is confirming the release of an animal
-            case InventoryMessageState.release: {
+            case CollectionMessageState.release: {
                 embed.setTitle(`Release ${selectedAnimal.name}?`);
 
                 embed.setDescription(`Press the left arrow (${this.getButtonByName("leftArrow").emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
@@ -218,7 +218,7 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
 
         // Update button messages according to behavior
         switch (this.state) {
-            case InventoryMessageState.release: {
+            case CollectionMessageState.release: {
                 this.setButtonHelpMessage("leftArrow", "Confirm release");
                 break;
             }
@@ -234,10 +234,10 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        const inventory = this.elements;
+        const collection = this.elements;
 
         // If the message in any state other than releasing an animal
-        if (this.state !== InventoryMessageState.release) {
+        if (this.state !== CollectionMessageState.release) {
             // Button behavior
             switch (buttonName) {
                 case "upArrow": {
@@ -250,7 +250,7 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
                 }
                 case "leftArrow": {
                     // Change pages if the message is in page mode, otherwise move the pointer
-                    if (this.state === InventoryMessageState.page) {
+                    if (this.state === CollectionMessageState.page) {
                         this.movePages(-1);
                     }
                     else {
@@ -260,7 +260,7 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
                 }
                 case "rightArrow": {
                     // Change pages if the message is in page mode, otherwise move the pointer
-                    if (this.state === InventoryMessageState.page) {
+                    if (this.state === CollectionMessageState.page) {
                         this.movePages(1);
                     }
                     else {
@@ -269,20 +269,20 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
                     break;
                 }
                 case "mode": {
-                    if (this.state === InventoryMessageState.page) {
-                        this.state = InventoryMessageState.info;
+                    if (this.state === CollectionMessageState.page) {
+                        this.state = CollectionMessageState.info;
                     }
-                    else if (this.state === InventoryMessageState.info) {
-                        this.state = InventoryMessageState.card;
+                    else if (this.state === CollectionMessageState.info) {
+                        this.state = CollectionMessageState.card;
                     }
                     else {
-                        this.state = InventoryMessageState.page;
+                        this.state = CollectionMessageState.page;
                     }
                     break;
                 }
                 case "release": {
                     // Initiate relese mode
-                    this.state = InventoryMessageState.release;
+                    this.state = CollectionMessageState.release;
                 }
             }
         }
@@ -291,30 +291,30 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
             // If the confirmation button is pressed
             if (buttonName === "leftArrow") {
                 // Get the selected animal that will be released
-                const selectedAnimal = inventory.selection();
+                const selectedAnimal = collection.selection();
 
                 // Release the user's animal
                 try {
                     await beastiary.animals.deleteAnimal(selectedAnimal.id);
                 }
                 catch (error) {
-                    errorHandler.handleError(error, "There was an error trying to delete an animal in an inventory message.");
+                    errorHandler.handleError(error, "There was an error trying to delete an animal in a collection message.");
 
                     betterSend(this.channel, "A problem was encountered while trying to release this animal. Please report this to the developer.");
 
                     return;
                 }
 
-                // Delete the animal from the inventory message
-                inventory.deleteAtPointer();
+                // Delete the animal from the collection message
+                collection.deleteAtPointer();
 
                 // Put the message back in paged mode
-                this.state = InventoryMessageState.page;
+                this.state = CollectionMessageState.page;
             }
             // If any button other than the confirmation button is pressed
             else {
                 // Return the message to paged mode
-                this.state = InventoryMessageState.page;
+                this.state = CollectionMessageState.page;
             }
         }
 
@@ -322,7 +322,7 @@ export default class InventoryMessage extends PagedMessage<LoadableAnimal> {
             this.setEmbed(await this.buildEmbed());
         }
         catch (error) {
-            throw new Error(`There was an error building the embed of an inventory message: ${error}`);
+            throw new Error(`There was an error building the embed of a collection message: ${error}`);
         }
     }
 }

@@ -61,7 +61,7 @@ export class Player extends DocumentWrapper {
         return this.animalIds[position];
     }
 
-    // Adds an animal id to the user's inventory
+    // Adds an animal id to the user's collection
     public async addAnimal(animalId: Types.ObjectId): Promise<void> {
         try {
             await this.document.updateOne({
@@ -71,14 +71,14 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error(`There was an error adding an animal to a player's inventory: ${error}`);
+            throw new Error(`There was an error adding an animal to a player's collection: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding an animal to its inventory: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after adding an animal to its collection: ${error}`);
         }
     }
 
@@ -95,18 +95,18 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error(`There was an error adding animals to a player's animal inventory: ${error}`);
+            throw new Error(`There was an error adding animals to a player's animal collection: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding animals to its inventory: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after adding animals to its collection: ${error}`);
         }
     }
 
-    // Removes an animal from the player's inventory by a given id
+    // Removes an animal from the player's collection by a given id
     public async removeAnimal(animalId: Types.ObjectId): Promise<void> {
         try {
             await this.document.updateOne({
@@ -116,14 +116,14 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error(`There was an error removing an animal from a player's animal inventory: ${error}`);
+            throw new Error(`There was an error removing an animal from a player's animal collection: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing an animal from its inventory: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after removing an animal from its collection: ${error}`);
         }
     }
 
@@ -144,14 +144,14 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error(`There was an error removing animals from a player's animal inventory: ${error}`);
+            throw new Error(`There was an error removing animals from a player's animal collection: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing animals from its inventory: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after removing animals from its collection: ${error}`);
         }
 
         return animalIds;

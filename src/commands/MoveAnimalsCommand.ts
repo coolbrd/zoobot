@@ -15,8 +15,8 @@ export default class MoveAnimalsCommand implements Command {
 
     public help(prefix: string): string {
         return stripIndents`
-            Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your inventory to a given position.
-            Example: \`${prefix}moveanimals 12 45 6 2 18\` will move the animals in your inventory that are at positions 45, 6, 2, and 18 (in that order) to the position directly after animal 12 in your inventory.
+            Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your collection to a given position.
+            Example: \`${prefix}moveanimals 12 45 6 2 18\` will move the animals in your collection that are at positions 45, 6, 2, and 18 (in that order) to the position directly after animal 12 in your collection.
         `;
     }
 
@@ -73,7 +73,7 @@ export default class MoveAnimalsCommand implements Command {
 
         // If there are any errors at all
         if (errors.length > 0) {
-            betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your inventory. Errors: ${errors.join(", ")}`);
+            betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your collection. Errors: ${errors.join(", ")}`);
             // Don't run the command with errors
             return;
         }
@@ -89,13 +89,13 @@ export default class MoveAnimalsCommand implements Command {
         // Get the id of the animal that's acting as the anchor in the movement
         const baseAnimalId = playerObject.animalIds[sortPosition];
 
-        // Try to remove all animal ids at the given positions from the user's inventory
+        // Try to remove all animal ids at the given positions from the user's collection
         let animalIds: Types.ObjectId[];
         try {
             animalIds = await playerObject.removeAnimalsPositional(positions);
         }
         catch (error) {
-            throw new Error(`There was an error trying to bulk remove animals from a player's inventory for movement: ${error}`);
+            throw new Error(`There was an error trying to bulk remove animals from a player's collection for movement: ${error}`);
         }
 
         // After the animals have been removed, get the new position of the base animal to sort under
@@ -106,7 +106,7 @@ export default class MoveAnimalsCommand implements Command {
             await playerObject.addAnimalsPositional(animalIds, basePosition + 1);
         }
         catch (error) {
-            throw new Error(`There was an error trying to add animals back to a player's inventory for movement: ${error}`);
+            throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
         }
 
         parsedUserCommand.originalMessage.react("✅").catch(error => {

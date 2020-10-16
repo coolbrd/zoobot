@@ -9,7 +9,7 @@ import SendPendingSubmissionsCommand from "../commands/SendPendingSubmissionsCom
 import ApprovePendingSpeciesCommand from "../commands/ApprovePendingSpeciesCommand";
 import SpeciesInfoCommand from "../commands/SpeciesInfoCommand";
 import EncounterCommand from "../commands/EncounterCommand";
-import ViewInventoryCommand from "../commands/ViewInventoryCommand";
+import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeGuildPrefixCommand from "../commands/ChangeGuildPrefixCommand";
 import { GuildModel } from "../models/Guild";
 import { client } from "..";
@@ -44,7 +44,7 @@ class CommandHandler {
             BeastiaryCommand,
             SpeciesInfoCommand,
             EncounterCommand,
-            ViewInventoryCommand,
+            ViewCollectionCommand,
             AnimalInfoCommand,
             ChangeAnimalNicknameCommand,
             MoveAnimalsCommand,

@@ -37,7 +37,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
 
         // If the user provided a non-number identifier
         if (isNaN(animalNumber)) {
-            betterSend(parsedUserCommand.channel, "You need to specify the animal's numeric identifier (the number next to the animal's place in your inventory).");
+            betterSend(parsedUserCommand.channel, "You need to specify the animal's numeric identifier (the number next to the animal's place in your collection).");
             return;
         }
 
@@ -50,11 +50,11 @@ export default class ChangeAnimalNicknameCommand implements Command {
             throw new Error(`There was an error attempting to get a player in the animal nickname command: ${error}`);
         }
 
-        // Get the animal id at the player's given inventory position
+        // Get the animal id at the player's given collection position
         const animalId = playerObject.getAnimalIdPositional(animalNumber - 1);
 
         if (!animalId) {
-            betterSend(parsedUserCommand.channel, "No animal in your inventory with that number exists.");
+            betterSend(parsedUserCommand.channel, "No animal in your collection with that number exists.");
             return;
         }
 
