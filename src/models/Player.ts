@@ -18,6 +18,10 @@ const playerSchema = new Schema({
     lastCapture: {
         type: Schema.Types.Date,
         required: false
+    },
+    totalCaptures: {
+        type: Number,
+        required: true
     }
 });
 
@@ -43,6 +47,10 @@ export class Player extends DocumentWrapper {
 
     public get lastCapture(): Date | undefined {
         return this.document.get("lastCapture");
+    }
+
+    public get totalCaptures(): number {
+        return this.document.get("totalCaptures");
     }
 
     public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
@@ -157,6 +165,17 @@ export class Player extends DocumentWrapper {
         }
         catch (error) {
             throw new Error(`There was an error updating a player's last capture field: ${error}`);
+        }
+
+        try {
+            await this.document.updateOne({
+                $inc: {
+                    totalCaptures: 1
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error incrementing a player's total captures field: ${error}`);
         }
 
         try {

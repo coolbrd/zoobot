@@ -67,7 +67,8 @@ export default class PlayerManager extends WrapperCache<Player> {
         // Create a new player document
         const playerDocument = new PlayerModel({
             userId: guildMember.user.id,
-            guildId: guildMember.guild.id
+            guildId: guildMember.guild.id,
+            totalCaptures: 0
         });
 
         // Save it
