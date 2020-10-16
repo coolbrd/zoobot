@@ -1,11 +1,13 @@
 import { MessageEmbed } from "discord.js";
-import rarityToEmbedColor from "../beastiary/rarityToEmbedColor";
+import getRarityInfo from "../beastiary/rarityToEmbedColor";
 
 import { SpeciesCard, Species } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard): void {
-    embed.setColor(rarityToEmbedColor(species.rarity));
+    const speciesRarity = getRarityInfo(species.rarity);
+
+    embed.setColor(speciesRarity.color);
 
     embed.setTitle(capitalizeFirstLetter(species.scientificName));
 
@@ -14,6 +16,8 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
     embed.addField("Description", species.description);
 
     embed.addField("Habitat", species.naturalHabitat);
+
+    embed.addField("Rarity", capitalizeFirstLetter(speciesRarity.text));
 
     embed.addField("More info", species.wikiPage);
 

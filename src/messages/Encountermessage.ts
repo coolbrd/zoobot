@@ -9,7 +9,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import config from "../config/BotConfig";
-import rarityToEmbedColor from "../beastiary/rarityToEmbedColor";
+import getRarityInfo from "../beastiary/rarityToEmbedColor";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -38,7 +38,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const embed = new SmartEmbed();
         // Color the encounter's embed properly
-        embed.setColor(rarityToEmbedColor(species.rarity));
+        embed.setColor(getRarityInfo(species.rarity).color);
 
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
 
