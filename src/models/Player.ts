@@ -16,7 +16,7 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: true
     },
-    capturesLeft: {
+    freeCapturesLeft: {
         type: Number,
         required: true
     },
@@ -51,8 +51,8 @@ export class Player extends DocumentWrapper {
     }
 
     // These are private because they don't necessarily represent the most up-to-date information
-    private get capturesLeft(): number {
-        return this.document.get("capturesLeft");
+    private get freeCapturesLeft(): number {
+        return this.document.get("freeCapturesLeft");
     }
 
     public get lastCaptureReset(): Date | undefined {
@@ -169,17 +169,16 @@ export class Player extends DocumentWrapper {
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     public async applyCaptureReset(): Promise<void> {
-        // If the player doesn't already have a capture, and they haven't gotten a free capture this period
-        if (this.capturesLeft < 1 && (!this.lastCaptureReset || this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf())) {
-            // Give the player a capture, and mark this reset period as having been used by the player
+        if (!this.lastCaptureReset || this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
+            // Refresh the player's free capture, and mark this reset period as having been used by the player
             try {
                 await this.document.updateOne({
-                    capturesLeft: 1,
+                    freeCapturesLeft: 1,
                     lastCaptureReset: encounterHandler.lastCaptureReset
                 });
             }
             catch (error) {
-                throw new Error(`There was an error setting a player's captures left field: ${error}`);
+                throw new Error(`There was an error setting a player's free captures field: ${error}`);
             }
 
             try {
@@ -201,12 +200,12 @@ export class Player extends DocumentWrapper {
             throw new Error(`There was an error checking/applying a player's current capture reset period: ${error}`);
         }
 
-        return this.capturesLeft > 0;
+        return this.freeCapturesLeft > 0;
     }
 
     // Called after a player captures an animal, and its stats needs to be updated
     public async captureAnimal(): Promise<void> {
-        if (this.capturesLeft <= 0) {
+        if (this.freeCapturesLeft <= 0) {
             throw new Error("A player's capture stats were updated as if it captured an animal without any remaining captures.");
         }
 
@@ -214,13 +213,13 @@ export class Player extends DocumentWrapper {
         try {
             await this.document.updateOne({
                 $inc: {
-                    capturesLeft: -1,
+                    freeCapturesLeft: -1,
                     totalCaptures: 1
                 }
             });
         }
         catch (error) {
-            throw new Error(`There was an error incrementing a player's total captures field: ${error}`);
+            throw new Error(`There was an error incrementing a player's capture fields: ${error}`);
         }
 
         try {

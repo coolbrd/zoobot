@@ -68,7 +68,7 @@ export default class PlayerManager extends WrapperCache<Player> {
         const playerDocument = new PlayerModel({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
-            capturesLeft: 0,
+            freeCapturesLeft: 0,
             totalCaptures: 0
         });
 
