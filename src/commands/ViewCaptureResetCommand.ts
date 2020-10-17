@@ -25,10 +25,10 @@ export default class ViewCaptureResetCommand implements Command {
         let messageString = "";
         const canCapture = await player.canCapture();
         if (canCapture) {
-            messageString += "You can capture right now";
+            messageString += "You can capture right now.";
         }
         else {
-            messageString += "You can't capture right now";
+            messageString += "You can't capture right now.";
         }
         messageString += "\n\n";
 
