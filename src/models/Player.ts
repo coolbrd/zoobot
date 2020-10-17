@@ -15,6 +15,10 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: true
     },
+    encountersLeft: {
+        type: Number,
+        required: true
+    },
     lastCapture: {
         type: Schema.Types.Date,
         required: false
@@ -43,6 +47,10 @@ export class Player extends DocumentWrapper {
 
     public get animalIds(): Types.ObjectId[] {
         return this.document.get("animals");
+    }
+
+    public get encountersLeft(): number {
+        return this.document.get("encountersLeft");
     }
 
     public get lastCapture(): Date | undefined {
@@ -155,6 +163,26 @@ export class Player extends DocumentWrapper {
         }
 
         return animalIds;
+    }
+
+    public async useEncounter(): Promise<void> {
+        try {
+            await this.document.updateOne({
+                $inc: {
+                    encountersLeft: -1
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error decrementing a player's encounter count: ${error}`);
+        }
+
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's document after using an encounter: ${error}`);
+        }
     }
 
     public async captureAnimal(): Promise<void> {
