@@ -32,7 +32,7 @@ export default class ViewCaptureResetCommand implements Command {
         }
         messageString += "\n\n";
 
-        messageString += `Next capture reset: ${encounterHandler.nextCaptureResetTimeString}.`;
+        messageString += `Next capture reset: **${encounterHandler.nextCaptureResetTimeString}**.`;
 
         betterSend(parsedUserCommand.channel, messageString);
     }
