@@ -23,8 +23,8 @@ import { errorHandler } from "./ErrorHandler";
 import BeastiaryCommand from "../commands/BeastiaryCommand";
 import config from "../config/BotConfig";
 import CommandListCommand from "../commands/CommandListCommand";
-import { parse } from "path";
 import CommandAliasesCommand from "../commands/CommandAliasesCommand";
+import ViewCaptureResetCommand from "../commands/ViewCaptureResetCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -49,6 +49,7 @@ class CommandHandler {
             ChangeAnimalNicknameCommand,
             MoveAnimalsCommand,
             ChangeGuildPrefixCommand,
+            ViewCaptureResetCommand,
             CommandAliasesCommand,
             CommandListCommand,
             EditSpeciesCommand,

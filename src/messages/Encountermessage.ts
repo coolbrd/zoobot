@@ -6,10 +6,9 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesCard } from "../models/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
-import config from "../config/BotConfig";
 import getRarityInfo from "../beastiary/rarityToEmbedColor";
+import { encounterHandler } from "../beastiary/EncounterHandler";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -69,34 +68,27 @@ export default class EncounterMessage extends InteractiveMessage {
         // Get the player object corresponding to the member
         const player = await beastiary.players.fetch(guildMember);
 
-        // If this player has a recorded last capture
-        if (player.lastCapture) {
-            // Right now
-            const now = new Date();
+        // Determine whether or not the player can capture an animal right now
+        let canCapture: boolean;
+        try {
+            canCapture = await player.canCapture();
+        }
+        catch (error) {
+            throw new Error(`There was an error checking if a player can capture an animal: ${error}`);
+        }
 
-            // If the difference between now and the player's last capture isn't greater than the capture period (can't capture)
-            if (now.valueOf() - player.lastCapture.valueOf() < config.capturePeriod) {
-                // If this player hasn't received a message from this encounter yet notifying their capture status
-                if (!this.warnedUserIds.includes(user.id)) {
-                    // The time when the player can claim next
-                    const nextClaim = new Date(player.lastCapture.valueOf() + config.capturePeriod);
-
-                    // Values pertaining to how much time remains before the player can claim again
-                    const secondsToNextClaim = (nextClaim.valueOf() - now.valueOf()) / 1000;
-                    const minutesToNextClaim = secondsToNextClaim / 60;
-                    const hoursToNextClaim = Math.floor(minutesToNextClaim / 60);
-                    const leftoverMinutes = Math.floor(minutesToNextClaim % 60);
-                    const leftoverSeconds = Math.floor(secondsToNextClaim % 60);
-
-                    betterSend(this.channel, `${user}, you can't capture an animal for another **${hoursToNextClaim}h ${leftoverMinutes}m ${leftoverSeconds}s**.`);
-                    
-                    // Add the player's user id to the list of users that have been informed, preventing their ability to spam with this encounter
-                    this.warnedUserIds.push(user.id);
-                }
-
-                // Don't let the player capture the animal
-                return;
+        // If the player can't capture the animal
+        if (!canCapture) {
+            // If this player hasn't received a message from this encounter yet notifying their capture status
+            if (!this.warnedUserIds.includes(user.id)) {
+                betterSend(this.channel, `${user}, you can't capture an animal for another **${encounterHandler.nextCaptureResetTimeString}**.`);
+                
+                // Add the player's user id to the list of users that have been informed, preventing their ability to spam with this encounter
+                this.warnedUserIds.push(user.id);
             }
+
+            // Don't let the player capture the animal
+            return;
         }
 
         // Get the species' primary common name object
@@ -111,13 +103,12 @@ export default class EncounterMessage extends InteractiveMessage {
             await beastiary.animals.createAnimal(guildMember, this.species, this.card);
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error creating a new animal in an encounter message.");
-
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
 
-            return;
+            throw new Error(`There was an error creating a new animal in an encounter message: ${error}`);
         }
 
+        // Indicate to the player object that it just captured an animal
         try {
             await player.captureAnimal();
         }

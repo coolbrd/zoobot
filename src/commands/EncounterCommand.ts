@@ -22,25 +22,11 @@ export default class EncounterCommand implements Command {
             return;
         }
 
-        const player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
-
-        if (player.encountersLeft <= 0) {
-            betterSend(parsedUserCommand.channel, "You don't have any encounters left.");
-            return;
-        }
-
         try {
             await encounterHandler.spawnAnimal(parsedUserCommand.channel);
         }
         catch (error) {
             throw new Error(`There was an error creating a new animal encounter: ${error}`);
-        }
-
-        try {
-            await player.useEncounter();
-        }
-        catch (error) {
-            throw new Error(`There was an error using a player's encounter in the encounter command: ${error}`);
         }
     }
 }

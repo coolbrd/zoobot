@@ -5,11 +5,43 @@ import { SpeciesModel, Species } from "../models/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import getWeightedRandom from "../utility/getWeightedRandom";
 import { beastiary } from "./Beastiary";
+import config from "../config/BotConfig";
 
 // A handler class that deals with creating encounters with species from the total set
 class EncounterHandler {
     // The map of ID and rarity pairs that will determine how common each species is
     private rarityMap: Map<Types.ObjectId, number> = new Map();
+
+    // Get the date (time) of the last capture reset
+    public get lastCaptureReset(): Date {
+        const now = new Date();
+
+        // The number of milliseconds that have passed today
+        const todayMilliseconds = now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000 + now.getSeconds() * 1000 + now.getMilliseconds();
+
+        // The number of milliseconds that have passed since the last capture reset
+        const millisecondsSinceLastReset = todayMilliseconds % config.capturePeriod;
+
+        // The time of the last reset
+        return new Date(now.valueOf() - millisecondsSinceLastReset);
+    }
+
+    // The date (time) of the next capture reset
+    public get nextCaptureReset(): Date {
+        return new Date(this.lastCaptureReset.valueOf() + config.capturePeriod);
+    }
+
+    // Gets the string form of the amount of time until the next capture reset
+    public get nextCaptureResetTimeString(): string {
+        const now = new Date();
+        const secondsToNextCaptureReset = (encounterHandler.nextCaptureReset.valueOf() - now.valueOf()) / 1000;
+        const minutesToNextCaptureReset = secondsToNextCaptureReset / 60;
+        const hoursToNextCaptureReset = Math.floor(minutesToNextCaptureReset / 60);
+        const leftoverMinutes = Math.floor(minutesToNextCaptureReset % 60);
+        const leftoverSeconds = Math.floor(secondsToNextCaptureReset % 60);
+
+        return `${hoursToNextCaptureReset}h ${leftoverMinutes}m ${leftoverSeconds}s`;
+    }
 
     // Loads/reloads the rarity table from the database
     public async loadRarityTable(): Promise<void> {

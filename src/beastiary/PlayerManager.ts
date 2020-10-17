@@ -68,6 +68,7 @@ export default class PlayerManager extends WrapperCache<Player> {
         const playerDocument = new PlayerModel({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
+            capturesLeft: 1,
             totalCaptures: 0,
             encountersLeft: 5
         });
@@ -80,8 +81,8 @@ export default class PlayerManager extends WrapperCache<Player> {
             throw new Error(`There was an error trying to save a new player document: ${error}`);
         }
 
+        // Create the player's object and add it to the cache
         const player = new Player(playerDocument);
-
         try {
             await this.addToCache(player);
         }

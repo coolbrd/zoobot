@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { encounterHandler } from "../beastiary/EncounterHandler";
 
 import DocumentWrapper from "../structures/DocumentWrapper";
 
@@ -15,11 +16,11 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: true
     },
-    encountersLeft: {
+    capturesLeft: {
         type: Number,
         required: true
     },
-    lastCapture: {
+    lastCaptureReset: {
         type: Schema.Types.Date,
         required: false
     },
@@ -49,12 +50,13 @@ export class Player extends DocumentWrapper {
         return this.document.get("animals");
     }
 
-    public get encountersLeft(): number {
-        return this.document.get("encountersLeft");
+    // These are private because they don't necessarily represent the most up-to-date information
+    private get capturesLeft(): number {
+        return this.document.get("capturesLeft");
     }
 
-    public get lastCapture(): Date | undefined {
-        return this.document.get("lastCapture");
+    public get lastCaptureReset(): Date | undefined {
+        return this.document.get("lastCaptureReset");
     }
 
     public get totalCaptures(): number {
@@ -165,39 +167,54 @@ export class Player extends DocumentWrapper {
         return animalIds;
     }
 
-    public async useEncounter(): Promise<void> {
-        try {
-            await this.document.updateOne({
-                $inc: {
-                    encountersLeft: -1
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error decrementing a player's encounter count: ${error}`);
-        }
+    // Checks if the player has been given their free capture during this capture period, and applies it if necessary
+    public async applyCaptureReset(): Promise<void> {
+        // If the player doesn't already have a capture, and they haven't gotten a free capture this period
+        if (this.capturesLeft < 1 && (!this.lastCaptureReset || this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf())) {
+            // Give the player a capture, and mark this reset period as having been used by the player
+            try {
+                await this.document.updateOne({
+                    capturesLeft: 1,
+                    lastCaptureReset: encounterHandler.lastCaptureReset
+                });
+            }
+            catch (error) {
+                throw new Error(`There was an error setting a player's captures left field: ${error}`);
+            }
 
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's document after using an encounter: ${error}`);
+            try {
+                await this.refresh();
+            }
+            catch (error) {
+                throw new Error(`There was an error refreshing a player after resetting their capture period.`);
+            }
         }
     }
 
-    public async captureAnimal(): Promise<void> {
+    // Checks whether or not a player can capture after applying possible capture reset period captures
+    public async canCapture(): Promise<boolean> {
+        // Give the player their free capture for this period if necessary
         try {
-            await this.document.updateOne({
-                lastCapture: new Date()
-            });
+            await this.applyCaptureReset();
         }
         catch (error) {
-            throw new Error(`There was an error updating a player's last capture field: ${error}`);
+            throw new Error(`There was an error checking/applying a player's current capture reset period: ${error}`);
         }
 
+        return this.capturesLeft > 0;
+    }
+
+    // Called after a player captures an animal, and its stats needs to be updated
+    public async captureAnimal(): Promise<void> {
+        if (this.capturesLeft <= 0) {
+            throw new Error("A player's capture stats were updated as if it captured an animal without any remaining captures.");
+        }
+
+        // Increment/decrement values
         try {
             await this.document.updateOne({
                 $inc: {
+                    capturesLeft: -1,
                     totalCaptures: 1
                 }
             });
