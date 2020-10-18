@@ -6,6 +6,7 @@ import EncounterMessage from "../messages/Encountermessage";
 import getWeightedRandom from "../utility/getWeightedRandom";
 import { beastiary } from "./Beastiary";
 import config from "../config/BotConfig";
+import { todaysMilliseconds } from "../utility/timeStuff";
 
 // A handler class that deals with creating encounters with species from the total set
 class EncounterHandler {
@@ -16,11 +17,8 @@ class EncounterHandler {
     public get lastCaptureReset(): Date {
         const now = new Date();
 
-        // The number of milliseconds that have passed today
-        const todayMilliseconds = now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000 + now.getSeconds() * 1000 + now.getMilliseconds();
-
         // The number of milliseconds that have passed since the last capture reset
-        const millisecondsSinceLastReset = todayMilliseconds % config.capturePeriod;
+        const millisecondsSinceLastReset = todaysMilliseconds() % config.capturePeriod;
 
         // The time of the last reset
         return new Date(now.valueOf() - millisecondsSinceLastReset);
@@ -31,16 +29,20 @@ class EncounterHandler {
         return new Date(this.lastCaptureReset.valueOf() + config.capturePeriod);
     }
 
-    // Gets the string form of the amount of time until the next capture reset
-    public get nextCaptureResetTimeString(): string {
+    // Get the date (time) of the last encounter reset
+    public get lastEncounterReset(): Date {
         const now = new Date();
-        const secondsToNextCaptureReset = (encounterHandler.nextCaptureReset.valueOf() - now.valueOf()) / 1000;
-        const minutesToNextCaptureReset = secondsToNextCaptureReset / 60;
-        const hoursToNextCaptureReset = Math.floor(minutesToNextCaptureReset / 60);
-        const leftoverMinutes = Math.floor(minutesToNextCaptureReset % 60);
-        const leftoverSeconds = Math.floor(secondsToNextCaptureReset % 60);
 
-        return `${hoursToNextCaptureReset}h ${leftoverMinutes}m ${leftoverSeconds}s`;
+        // The number of milliseconds that have passed since the last encounter reset
+        const millisecondsSinceLastReset = todaysMilliseconds() % config.encounterPeriod;
+
+        // The time of the last reset
+        return new Date(now.valueOf() - millisecondsSinceLastReset);
+    }
+
+    // The date (time) of the next encounter reset
+    public get nextEncounterReset(): Date {
+        return new Date(this.lastEncounterReset.valueOf() + config.encounterPeriod);
     }
 
     // Loads/reloads the rarity table from the database

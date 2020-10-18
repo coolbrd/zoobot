@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { encounterHandler } from "../beastiary/EncounterHandler";
 
+import { encounterHandler } from "../beastiary/EncounterHandler";
 import DocumentWrapper from "../structures/DocumentWrapper";
 
 const playerSchema = new Schema({
@@ -27,6 +27,18 @@ const playerSchema = new Schema({
     totalCaptures: {
         type: Number,
         required: true
+    },
+    freeEncountersLeft: {
+        type: Number,
+        required: true
+    },
+    lastEncounterReset: {
+        type: Schema.Types.Date,
+        required: false
+    },
+    totalEncounters: {
+        type: Number,
+        required: true
     }
 });
 
@@ -50,7 +62,7 @@ export class Player extends DocumentWrapper {
         return this.document.get("animals");
     }
 
-    // These are private because they don't necessarily represent the most up-to-date information
+    // Private because it doesn't necessarily represent the most recent information
     private get freeCapturesLeft(): number {
         return this.document.get("freeCapturesLeft");
     }
@@ -61,6 +73,18 @@ export class Player extends DocumentWrapper {
 
     public get totalCaptures(): number {
         return this.document.get("totalCaptures");
+    }
+
+    private get freeEncountersLeft(): number {
+        return this.document.get("freeEncountersLeft");
+    }
+
+    public get lastEncounterReset(): Date | undefined {
+        return this.document.get("lastEncounterReset");
+    }
+
+    public get totalEncounters(): number {
+        return this.document.get("totalEncounters");
     }
 
     public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
@@ -227,6 +251,81 @@ export class Player extends DocumentWrapper {
         }
         catch (error) {
             throw new Error(`There was an error refreshing a player's document after updating their last capture: ${error}`);
+        }
+    }
+
+    // Checks if the player has been given their free capture during this capture period, and applies it if necessary
+    public async applyEncounterReset(): Promise<void> {
+        if (!this.lastEncounterReset || this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
+            // Refresh the player's free capture, and mark this reset period as having been used by the player
+            try {
+                await this.document.updateOne({
+                    freeEncountersLeft: 5,
+                    lastEncounterReset: encounterHandler.lastEncounterReset
+                });
+            }
+            catch (error) {
+                throw new Error(`There was an error setting a player's free encounters field: ${error}`);
+            }
+
+            try {
+                await this.refresh();
+            }
+            catch (error) {
+                throw new Error(`There was an error refreshing a player after resetting their encounter period.`);
+            }
+        }
+    }
+
+    // Gets the player's updated number of encounters remaining after applying necessary resets
+    public async encountersLeft(): Promise<number> {
+        // Give the player their free encounters for this period if necessary
+        try {
+            await this.applyEncounterReset();
+        }
+        catch (error) {
+            throw new Error(`There was an error checking/applying a player's current encounter reset period: ${error}`);
+        }
+
+        return this.freeEncountersLeft;
+    }
+
+    // Checks whether or not a player can encounter an animal
+    public async canEncounter(): Promise<boolean> {
+        let encountersLeft: number;
+        try {
+            encountersLeft = await this.encountersLeft();
+        }
+        catch (error) {
+            throw new Error(`There was an error getting a player's remaining number of encounters: ${error}`);
+        }
+
+        return encountersLeft > 0;
+    }
+
+    public async encounterAnimal(): Promise<void> {
+        if (this.freeEncountersLeft <= 0) {
+            throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");
+        }
+
+        // Increment/decrement values
+        try {
+            await this.document.updateOne({
+                $inc: {
+                    freeEncountersLeft: -1,
+                    totalEncounters: 1
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error incrementing a player's encounter fields: ${error}`);
+        }
+
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a player's document after performing an encounter: ${error}`);
         }
     }
 }

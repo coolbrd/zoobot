@@ -69,7 +69,9 @@ export default class PlayerManager extends WrapperCache<Player> {
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
             freeCapturesLeft: 0,
-            totalCaptures: 0
+            totalCaptures: 0,
+            freeEncountersLeft: 0,
+            totalEncounters: 0
         });
 
         // Save it

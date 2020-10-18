@@ -9,6 +9,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import { beastiary } from "../beastiary/Beastiary";
 import getRarityInfo from "../beastiary/rarityToEmbedColor";
 import { encounterHandler } from "../beastiary/EncounterHandler";
+import { remainingTimeString } from "../utility/timeStuff";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -81,7 +82,7 @@ export default class EncounterMessage extends InteractiveMessage {
         if (!canCapture) {
             // If this player hasn't received a message from this encounter yet notifying their capture status
             if (!this.warnedUserIds.includes(user.id)) {
-                betterSend(this.channel, `${user}, you can't capture an animal for another **${encounterHandler.nextCaptureResetTimeString}**.`);
+                betterSend(this.channel, `${user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
                 
                 // Add the player's user id to the list of users that have been informed, preventing their ability to spam with this encounter
                 this.warnedUserIds.push(user.id);
