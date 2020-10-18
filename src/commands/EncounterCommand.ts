@@ -41,7 +41,7 @@ export default class EncounterCommand implements Command {
         }
 
         if (!canEncounter) {
-            betterSend(parsedUserCommand.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**`);
+            betterSend(parsedUserCommand.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
             return;
         }
 
