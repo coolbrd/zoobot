@@ -1,17 +1,18 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
-
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Species, SpeciesModel } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from "./PagedMessage";
 
+// A species id and its optionally loaded species object
 interface LoadableSpecies {
     id: Types.ObjectId,
     species?: Species
 }
 
+// The message that loads and displays the list of all currently available species
 export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
     private readonly user: User;
 
@@ -22,6 +23,7 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
     }
 
     public async build(): Promise<void> {
+        // Get all species
         let speciesDocuments: Document[];
         try {
             speciesDocuments = await SpeciesModel.find({});
@@ -30,16 +32,19 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
             throw new Error(`There was an error getting a list of all species from the database: ${error}`);
         }
 
+        // Sort species by primary common name in alphabetical order
         speciesDocuments.sort((a: Document, b: Document) => {
             return a.get("commonNamesLower")[0] > b.get("commonNamesLower")[0] ? 1 : -1;
         });
 
+        // Add each species id as an unloaded species
         speciesDocuments.forEach(speciesDocument => {
             this.elements.push({
                 id: speciesDocument._id
             });
         });
 
+        // Build the embed initially
         try {
             this.setEmbed(await this.buildEmbed());
         }
@@ -77,6 +82,7 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
             throw new Error(`There was an error bulk loading a set of species in a beastiary message: ${error}`);
         }
 
+        // Build the page's main text
         let pageString = "";
         this.visibleElements.forEach(loadableSpecies => {
             loadableSpecies.species = loadableSpecies.species as Species;

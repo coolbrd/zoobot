@@ -7,6 +7,7 @@ import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
+// Displays the player's current capture availability, and the time remaining until the next capture reset
 export default class ViewCaptureResetCommand implements Command {
     public readonly commandNames = ["capturereset", "captureperiod", "cr", "cp"];
 
@@ -22,6 +23,7 @@ export default class ViewCaptureResetCommand implements Command {
             return;
         }
 
+        // Get the player that initiated this command
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
@@ -30,6 +32,7 @@ export default class ViewCaptureResetCommand implements Command {
             throw new Error(`There was an error fetching a player from the cache in the capture reset command: ${error}`);
         }
 
+        // Determine whether or not the player can currently capture an animal
         let canCapture: boolean;
         try {
             canCapture = await player.canCapture();
@@ -38,6 +41,7 @@ export default class ViewCaptureResetCommand implements Command {
             throw new Error(`There was an error checking if a player can capture in the capture reset command: ${error}`);
         }
 
+        // Format and send an informational message
         let messageString: string;
         if (canCapture) {
             messageString = "You can capture right now.";

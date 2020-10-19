@@ -1,17 +1,18 @@
 import { Document, Types } from "mongoose";
-
 import { Species, SpeciesModel } from "../models/Species";
 import WrapperCache from "../structures/GameObjectCache";
 
+// The manager instance for all species and their information
 export default class SpeciesManager extends WrapperCache<Species> {
+    // Keep species in the cache for at least five minutes
     constructor() {
-        super(3000);
+        super(300000);
     }
 
     // Gets a species object by its id
     public async fetchById(id: Types.ObjectId): Promise<Species> {
         // Try to find an already cached species by its id
-        const cachedSpecies = this.getCachedValue(id);
+        const cachedSpecies = this.getFromCache(id);
 
         // If that species is already in the cache
         if (cachedSpecies) {
@@ -32,6 +33,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
             throw new Error(`There was an error finding an existing species document: ${error}`);
         }
 
+        // If no species of the given id exists
         if (!speciesDocument) {
             throw new Error("A species id whose document couldn't be found was attempted to be fetched from the species cache.");
         }
@@ -39,6 +41,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         // Turn the document into an object and add it to the cache
         const species = new Species(speciesDocument);
 
+        // Add the found species to the cache
         try {
             await this.addToCache(species);
         }
@@ -52,13 +55,17 @@ export default class SpeciesManager extends WrapperCache<Species> {
 
     // Searches and returns a species object by a common name
     public async fetchByCommonName(name: string): Promise<Species | undefined> {
+        // Case-insensitive search
         name = name.toLowerCase();
 
         // Check the cache first
         for (const cachedSpecies of this.cache.values()) {
+            // If the current species has the searched common name
             if (cachedSpecies.value.commonNames.includes(name)) {
+                // Reset its cache reset timer
                 cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
 
+                // Return the cached value
                 return cachedSpecies.value;
             }
         }
@@ -72,6 +79,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
             throw new Error(`There was an error finding a species by its common name: ${error}`);
         }
 
+        // If no species with the searched common name exists, return nothing
         if (!speciesDocument) {
             return;
         }
@@ -79,6 +87,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         // Convert the document into an object and add it to the cache
         const species = new Species(speciesDocument);
         
+        // Add the found species to the cache
         try {
             await this.addToCache(species);
         }

@@ -1,10 +1,11 @@
 import { Document } from "mongoose";
-
 import config from "../config/BotConfig";
 import { GuildModel, PlayerGuild } from "../models/Guild";
 import WrapperCache from "../structures/GameObjectCache";
 
+// The manager instance for guild game objects
 export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
+    // Keep guilds in the cache for at least two minutes
     constructor() {
         super(120000);
     }
@@ -43,6 +44,7 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
                 }
             });
 
+            // Save the new guild
             try {
                 await guildDocument.save();
             }
@@ -51,8 +53,10 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
             }
         }
 
+        // Create a guild object from the guild document
         const playerGuild = new PlayerGuild(guildDocument);
 
+        // Add the guild to the cache
         try {
             await this.addToCache(playerGuild);
         }
@@ -60,7 +64,7 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
             throw new Error(`There was an error adding a guild to the cache: ${error}`);
         }
 
-        // Return the pre-existing or newly created guild document within a wrapper object
+        // Return the pre-existing or newly created guild object
         return playerGuild;
     }
 }

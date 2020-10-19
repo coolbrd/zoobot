@@ -7,6 +7,7 @@ import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
+// Displays a player's current number of encounters stored, plus the amount of time until the next free encounter reset
 export default class ViewEncounterResetCommand implements Command {
     public readonly commandNames = ["encounterreset", "er", "encounterperiod", "ep"];
 
@@ -22,6 +23,7 @@ export default class ViewEncounterResetCommand implements Command {
             return;
         }
 
+        // Get the player that initiated this command
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
@@ -30,6 +32,7 @@ export default class ViewEncounterResetCommand implements Command {
             throw new Error(`There was an error fetching a player from the cache in the encounter reset command: ${error}`);
         }
         
+        // Determine the number of encounters that this player has left
         let encountersLeft: number;
         try {
             encountersLeft = await player.encountersLeft();
@@ -38,6 +41,7 @@ export default class ViewEncounterResetCommand implements Command {
             throw new Error(`There was an error getting the number of encounters a player has left: ${error}`);
         }
         
+        // Format and send an informational message
         let messageString = `You have **${encountersLeft}** encounter${encountersLeft === 1 ? "" : "s"} left.\n\n`;
 
         messageString += `Next encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`;

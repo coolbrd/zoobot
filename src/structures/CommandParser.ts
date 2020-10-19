@@ -19,10 +19,7 @@ export default class CommandParser {
 
     // Initialization required the user's message and the prefix to cut out
     constructor(message: Message, prefixUsed: string, displayPrefix: string) {
-        // Assign this instance's prefix to that which was supplied
         this.commandPrefix = prefixUsed;
-
-        // Assign the prefix to show in messages
         this.displayPrefix = displayPrefix;
         
         // Remove the message's prefix

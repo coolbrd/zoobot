@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import DocumentWrapper from "../structures/DocumentWrapper";
 
@@ -87,6 +86,7 @@ export class Player extends DocumentWrapper {
         return this.document.get("totalEncounters");
     }
 
+    // Gets an animal id by its position in the player's inventory
     public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
         if (position < 0 || position >= this.animalIds.length) {
             return undefined;
@@ -163,11 +163,13 @@ export class Player extends DocumentWrapper {
 
     // Removes a set of animals by an array of positions
     public async removeAnimalsPositional(animalPositions: number[]): Promise<Types.ObjectId[]> {
+        // Form a list of all animal ids that result from the list of positions given
         const animalIds: Types.ObjectId[] = [];
         for (const position of animalPositions) {
             animalIds.push(this.animalIds[position]);
         }
         
+        // Remove all the specified animals from the player's collection (just ids)
         try {
             await this.document.updateOne({
                 $pull: {
@@ -188,11 +190,13 @@ export class Player extends DocumentWrapper {
             throw new Error(`There was an error refreshing a player's information after removing animals from its collection: ${error}`);
         }
 
+        // Return the list of removed animal ids, presumably so they can be added again in a different order
         return animalIds;
     }
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     public async applyCaptureReset(): Promise<void> {
+        // If the player hasn't used/recieved their free capture reset during the current period
         if (!this.lastCaptureReset || this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
             // Refresh the player's free capture, and mark this reset period as having been used by the player
             try {
@@ -256,8 +260,9 @@ export class Player extends DocumentWrapper {
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     public async applyEncounterReset(): Promise<void> {
+        // If the player hasn't been given their free encounters during this period
         if (!this.lastEncounterReset || this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
-            // Refresh the player's free capture, and mark this reset period as having been used by the player
+            // Refresh the player's free encounters, and mark this reset period as having been used by the player
             try {
                 await this.document.updateOne({
                     freeEncountersLeft: 5,
@@ -292,6 +297,7 @@ export class Player extends DocumentWrapper {
 
     // Checks whether or not a player can encounter an animal
     public async canEncounter(): Promise<boolean> {
+        // Determine the player's encounters left (applying potential resets)
         let encountersLeft: number;
         try {
             encountersLeft = await this.encountersLeft();
@@ -303,6 +309,7 @@ export class Player extends DocumentWrapper {
         return encountersLeft > 0;
     }
 
+    // Called when the player encounters an animal and needs to have that action recorded
     public async encounterAnimal(): Promise<void> {
         if (this.freeEncountersLeft <= 0) {
             throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");

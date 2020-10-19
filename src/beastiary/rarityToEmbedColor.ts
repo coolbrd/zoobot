@@ -1,8 +1,10 @@
+// The bundle of information that represents a species' rarity value
 interface RarityInfo {
     text: string,
     color: number
 }
 
+// Gets some visual indication info for any given weighted rarity value
 export default function getRarityInfo(rarity: number): RarityInfo {
     if (rarity > 30) {
         return {

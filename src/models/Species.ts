@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-
 import DocumentWrapper from "../structures/DocumentWrapper";
 import getWeightedRandom from "../utility/getWeightedRandom";
 
@@ -128,16 +127,19 @@ export class SpeciesCard {
     }
 }
 
+// Template for a common name object
 export interface CommonNameTemplate {
     _id?: Types.ObjectId,
     name: string,
     article: string
 }
 
+// A common name object that exists in the database
 export interface CommonNameField extends CommonNameTemplate {
     _id: Types.ObjectId
 }
 
+// The template for a species' set of fields, used for updating fields
 export interface SpeciesFieldsTemplate {
     commonNames?: CommonNameTemplate[],
     scientificName?: string,
@@ -148,6 +150,7 @@ export interface SpeciesFieldsTemplate {
     rarity?: number
 }
 
+// Converts a set of common name objects to a list of lowercase common names
 export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] {
     // The array that will contain lowercase forms of all the common names
     const commonNamesLower: string[] = [];
@@ -164,6 +167,7 @@ export class Species extends DocumentWrapper {
     // The species' list of cards
     private _cards: SpeciesCard[] | undefined;
 
+    // The map of the species' cards and their respective rarity values
     private cardRarity = new Map<SpeciesCard, number>();
 
     constructor(document: Document) {
@@ -198,6 +202,7 @@ export class Species extends DocumentWrapper {
         return this.document.get("rarity");
     }
 
+    // Get a random card from the weighted rarity map
     public getRandomCard(): SpeciesCard {
         if (this.cardRarity.size < 1) {
             throw new Error("Tried to get a species' random card before its cards were loaded.");

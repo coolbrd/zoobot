@@ -1,5 +1,4 @@
 import { TextChannel, User } from "discord.js";
-
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";

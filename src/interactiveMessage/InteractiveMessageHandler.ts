@@ -1,6 +1,5 @@
 import { Client, MessageReaction, User, PartialUser, RateLimitData } from "discord.js";
 import { betterSend } from "../discordUtility/messageMan";
-
 import { errorHandler } from "../structures/ErrorHandler";
 import InteractiveMessage from "./InteractiveMessage";
 

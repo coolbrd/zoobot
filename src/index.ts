@@ -1,6 +1,5 @@
 import Discord, { Message } from "discord.js";
 import mongoose from "mongoose";
-
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import { errorHandler } from "./structures/ErrorHandler";
 import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessageHandler";

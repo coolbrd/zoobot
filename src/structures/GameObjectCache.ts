@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-
 import CachedValue from "./CachedValue";
 import DocumentWrapper from "./DocumentWrapper";
 
+// A cache of values that specifically extend DocumentWrapper, meaning they have an id
 export default class WrapperCache<ValueType extends DocumentWrapper> {
     // The current map of cached objects
     protected readonly cache = new Map<string, CachedValue<ValueType>>();
@@ -23,17 +23,13 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     }
 
     // Adds a value to the cache
-    protected async addToCache(value: ValueType, load?: boolean): Promise<void> {
-        // Load the value's information by default
-        if (load || load === undefined) {
-            try {
-                await value.load();
-            }
-            catch (error) {
-                throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
-            }
+    protected async addToCache(value: ValueType): Promise<void> {
+        try {
+            await value.load();
         }
-
+        catch (error) {
+            throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
+        }
         // Add the value to the cache by its document's id
         this.cache.set(value.id.toHexString(), new CachedValue<ValueType>(value, this.createNewTimer(value)));
     }
@@ -55,12 +51,17 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
         this.cache.delete(valueId.toHexString());
     }
 
-    protected getCachedValue(id: Types.ObjectId): CachedValue<ValueType> | undefined {
+    // Get a cached value by an ObjectId
+    protected getFromCache(id: Types.ObjectId): CachedValue<ValueType> | undefined {
+        // Get using the id as its hex string equivalent
         return this.cache.get(id.toHexString());
     }
 
-    public getFromCache(id: Types.ObjectId): ValueType | undefined {
-        const cachedValue = this.getCachedValue(id);
+    // Get the value from a found cached item in the cache
+    public getValueFromCache(id: Types.ObjectId): ValueType | undefined {
+        // Find the cached item
+        const cachedValue = this.getFromCache(id);
+        // Return its value, or undefined if no item was found
         if (cachedValue) {
             return cachedValue.value;
         }

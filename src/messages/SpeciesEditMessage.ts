@@ -1,10 +1,10 @@
 import { DMChannel, TextChannel } from "discord.js";
-
 import { Species } from "../models/Species";
 import EDocMessage from "./EDocMessage";
 import { EDoc, } from "../structures/EDoc";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
+// A message that allows an existing species to be edited and saved again
 export default class SpeciesEditMessage extends EDocMessage {
     constructor(channel: TextChannel | DMChannel, speciesObject: Species) {
         // The eDoc that will represent the edited state of the species object

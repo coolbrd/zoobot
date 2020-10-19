@@ -4,6 +4,7 @@ import getRarityInfo from "../beastiary/rarityToEmbedColor";
 import { SpeciesCard, Species } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
+// Build's a species' information embed
 export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard): void {
     const speciesRarity = getRarityInfo(species.rarity);
 

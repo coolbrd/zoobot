@@ -14,6 +14,7 @@ export default class CachedValue<T> {
         this.timer = timer;
     }
 
+    // Stop the deletion timer
     public stopTimer(): void {
         clearTimeout(this.timer);
     }

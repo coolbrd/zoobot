@@ -1,6 +1,5 @@
 import { Guild, Message, User } from "discord.js";
 import { Document } from "mongoose";
-
 import Command from "./Command";
 import CommandParser from "./CommandParser";
 import SubmitSpeciesCommand from "../commands/SubmitSpeciesCommand";
@@ -29,7 +28,7 @@ import ViewEncounterResetCommand from "../commands/ViewEncounterResetCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
-    // The bot's prefix that it will respond to
+    // The bot's default that it will respond to
     private readonly prefix: string;
 
     // The array of valid, executable commands
@@ -120,11 +119,12 @@ class CommandHandler {
             }
             // If a matching command was found
             else {
-                // Run the command and check for errors
+                // Run the command
                 try {
                     await matchedCommand.run(commandParser);
                 }
                 catch (error) {
+                    // Handle errors gracefully and inform the user
                     errorHandler.handleError(error, "Command execution failed.");
 
                     betterSend(commandParser.channel, "Something went wrong while performing that command. Please report this to the developer.");
@@ -177,8 +177,7 @@ class CommandHandler {
             guildDocuments = await GuildModel.find({}, { _id: 0, id: 1, config: 1 });
         }
         catch (error) {
-            errorHandler.handleError(error, "There was an error attempting to load guild prefixes from the database.");
-            return;
+            throw new Error(`There was an error attempting to load guild prefixes from the database: ${error}`);
         }
 
         // Clear any possible current entries in the prefix map
@@ -190,6 +189,7 @@ class CommandHandler {
         }
     }
 
+    // Changes a guild's prefix in memory only
     public changeGuildPrefix(guildId: string, newPrefix: string): void {
         this.guildPrefixes.set(guildId, newPrefix);
     }

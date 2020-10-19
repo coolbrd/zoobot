@@ -1,5 +1,4 @@
 import { TextChannel, MessageEmbed, User } from "discord.js";
-
 import { Animal } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
@@ -22,19 +21,19 @@ enum CollectionMessageState {
     release
 }
 
+// An animal id with its optionally loaded animal object
 interface LoadableAnimal {
     id: Types.ObjectId,
     animal?: Animal
 }
 
+// The message displaying a player's animal collection
 export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     // The current display state of the message
     private state: CollectionMessageState;
     
     private readonly user: User;
     public readonly channel: TextChannel;
-
-    private playerObject: Player | undefined;
 
     constructor(channel: TextChannel, user: User) {
         super(channel);
@@ -71,7 +70,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     public async build(): Promise<void> {
         super.build();
 
-        // Attempt to get the user's player object
+        // Get the user's player object
         let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
@@ -79,9 +78,6 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
         catch (error) {
             throw new Error(`There was an error fetching a player in a collection message: ${error}`);
         }
-
-        // Assign the new player object
-        this.playerObject = playerObject;
 
         // The list of animals that will need to be loaded by their ids
         const loadableAnimals: LoadableAnimal[] = [];
@@ -298,11 +294,9 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
                     await beastiary.animals.deleteAnimal(selectedAnimal.id);
                 }
                 catch (error) {
-                    errorHandler.handleError(error, "There was an error trying to delete an animal in a collection message.");
-
                     betterSend(this.channel, "A problem was encountered while trying to release this animal. Please report this to the developer.");
 
-                    return;
+                    throw new Error(`There was an error releasing an animal within a collection message: ${error}`);
                 }
 
                 // Delete the animal from the collection message
@@ -318,6 +312,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             }
         }
 
+        // Rebuild the message
         try {
             this.setEmbed(await this.buildEmbed());
         }

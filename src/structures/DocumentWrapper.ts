@@ -84,6 +84,7 @@ export default class DocumentWrapper {
     // Reloads all the document's fields
     // Used if something was likely to have changed about the document in the database, and the most current data is desired
     public async refresh(): Promise<void> {
+        // Unload and load all fields
         this.unload();
 
         try {
@@ -94,6 +95,7 @@ export default class DocumentWrapper {
         }
     }
 
+    // Refreshes just this wrapper's document without reloading all other associated fields. Only useful for subclasses of this class.
     protected async refreshDocument(): Promise<void> {
         this.unload();
 
@@ -105,7 +107,7 @@ export default class DocumentWrapper {
         }
     }
 
-    // Deletes the wrapped document from the database
+    // Deletes the document from the database
     public async delete(): Promise<void> {
         try {
             await this.document.deleteOne();

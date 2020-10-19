@@ -1,5 +1,4 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
-
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
@@ -72,6 +71,8 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Add the newly created eDoc field to the front of the selection stack, meaning it's selected
         this.selectionStack.push(topField);
+
+        this.setEmbed(this.buildEmbed());
     }
 
     // Gets this message's currently selected field
@@ -79,15 +80,14 @@ export default class EDocMessage extends InteractiveMessage {
         return this.selectionStack[this.selectionStack.length - 1];
     }
 
-    public async build(): Promise<void> {
-        this.setEmbed(this.buildEmbed());
-    }
-
     private buildEmbed(): MessageEmbed {
+        // The current eDoc field that's being displayed by the message
         const selectedField = this.getSelection();
 
+        // The value of the currently selected field (an eDoc or an array)
         const selectedFieldValue = selectedField.getValue();
 
+        // If the field's value isn't a supported selected type
         if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
             throw new Error("Unexpected value type selected in eDoc.");
         }
@@ -99,8 +99,9 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Add the field's name
         fieldTitle += selectedField.getAlias();
-
+        // If the current field doesn't have a name
         if (!fieldTitle) {
+            // Assign an appropriate anonymous placeholder name
             if (selectedField.getTypeString() === "edoc") {
                 fieldTitle = "anonymous document";
             }
@@ -111,6 +112,7 @@ export default class EDocMessage extends InteractiveMessage {
 
         fieldTitle = capitalizeFirstLetter(fieldTitle);
 
+        // Underline document field names
         if (selectedField.getTypeString() === "edoc") {
             fieldTitle = `__${fieldTitle}__`;
         }
@@ -122,6 +124,7 @@ export default class EDocMessage extends InteractiveMessage {
 
         embed.setTitle(`Now editing: ${fieldTitle}`);
 
+        // EDoc behavior
         if (selectedFieldValue instanceof EDoc) {
             // Hide array buttons
             this.disableButton("new");
@@ -157,6 +160,7 @@ export default class EDocMessage extends InteractiveMessage {
                 embed.addField(fieldLabel, valueString);
             }
         }
+        // Array behavior
         else {
             // Show array buttons
             this.enableButton("new");
@@ -225,7 +229,9 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case "edit": {
+                    // Edit button field type behavior
                     switch (fieldType) {
+                        // Get simple string or number input
                         case "string": 
                         case "number": {
                             let promptString: string;
@@ -236,10 +242,13 @@ export default class EDocMessage extends InteractiveMessage {
                                 promptString = selectedNestedField.getPrompt() || "Enter your numeric input for this field:"
                             }
 
+                            // Send the input prompt and wait for the user's response
                             const promptMessage = await betterSend(this.channel, promptString);
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
+                            // If the user responds
                             if (responseMessage) {
+                                // Set the value of the field to the user's response value
                                 try {
                                     selectedNestedField.setValue(responseMessage.content);
                                 }
@@ -249,9 +258,11 @@ export default class EDocMessage extends InteractiveMessage {
                                     }
                                 }
 
+                                // Delete the user's message
                                 safeDeleteMessage(responseMessage);
                             }
 
+                            // Delete the prompt message
                             safeDeleteMessage(promptMessage);
                             break;
                         }

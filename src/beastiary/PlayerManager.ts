@@ -1,12 +1,12 @@
 import { GuildMember } from "discord.js";
 import { Document } from "mongoose";
-
 import { PlayerModel, Player } from "../models/Player";
 import WrapperCache from "../structures/GameObjectCache";
 
 // The player manager within The Beastiary
 // The easiest and most efficient way to access player objects
 export default class PlayerManager extends WrapperCache<Player> {
+    // Keep players in the cache for at least two minutes
     constructor() {
         super(120000);
     }
@@ -25,6 +25,7 @@ export default class PlayerManager extends WrapperCache<Player> {
             }
         }
         // No matching player exists in the cache
+
         // Attempt to find a player document with the given information
         let playerDocument: Document | null;
         try {

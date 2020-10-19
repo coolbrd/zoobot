@@ -2,6 +2,10 @@
 // Two items with the same weigh will have the same chance to be selected as one another
 // An item with 10% the weight of another will, surprisingly, be selected 10% as often as the other item
 export default function getWeightedRandom<T>(items: Map<T, number>): T {
+    if (items.size <= 0) {
+        throw new Error(`An empty map was given to getWeightedRandom.`);
+    }
+
     // Calculate the cumulative weight of the item pool
     let totalWeight = 0;
     for (const weight of items.values()) {
@@ -25,5 +29,5 @@ export default function getWeightedRandom<T>(items: Map<T, number>): T {
     }
 
     // This should never happen
-    throw new Error("No item selected from weighted random function. This shouldn't happen");
+    throw new Error("No item selected from weighted random function. This shouldn't happen.");
 }

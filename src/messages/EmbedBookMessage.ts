@@ -1,5 +1,4 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
-
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import loopValue from "../utility/loopValue";
 

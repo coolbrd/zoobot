@@ -2,6 +2,7 @@ import BeastiaryMessage from "../messages/BeastiaryMessage";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
+// Sends a message listing all the species in the Beastiary
 export default class BeastiaryCommand implements Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];
 
@@ -12,6 +13,7 @@ export default class BeastiaryCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
+        // Create and send a Beastiary message
         const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
         try {
             await beastiaryMessage.send();

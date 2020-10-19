@@ -18,6 +18,7 @@ export default class CommandListCommand implements Command {
     public async run(parsedUserCommand: CommandParser): Promise<void> {
         let commandListString = "Here's a list of all the things I can do:\n\n";
 
+        // Add the command info string of all non-admin commands
         for (const command of commandHandler.commands) {
             if (!command.adminOnly) {
                 commandListString += `\`${command.commandNames[0]}\`: ${command.info}\n`;

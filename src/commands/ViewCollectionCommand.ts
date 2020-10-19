@@ -3,6 +3,7 @@ import CommandParser from "../structures/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { betterSend } from "../discordUtility/messageMan";
 
+// Sends a message containing a player's collection of animals
 export default class ViewCollectionCommand implements Command {
     public readonly commandNames = ["collection", "col", "c"];
 
@@ -19,7 +20,9 @@ export default class ViewCollectionCommand implements Command {
             return;
         }
 
+        // Create and send a new collection message displaying this player's collection
         const collectionMessage = new CollectionMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
+        
         try {
             await collectionMessage.send();
         }

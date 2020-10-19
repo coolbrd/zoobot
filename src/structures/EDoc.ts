@@ -1,6 +1,5 @@
 import clone from "clone";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-
 import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./EDocSkeleton";
 import PointedArray from "./PointedArray";
 import UserError from "./UserError";
@@ -8,9 +7,11 @@ import UserError from "./UserError";
 // The type of values found within an eDoc instance
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
+// The return value of an eDoc-modifying structure
 export type SimpleEDoc = { [fieldName: string]: SimpleEDocValue };
 export type SimpleEDocValue = undefined | string | number | SimpleEDoc | SimpleEDocValue[];
 
+// A field within an eDoc, packaged with its field information and value
 export class EDocField<ValueType extends EDocValue> {
     private readonly info: EDocFieldInfo;
     private value: ValueType;
@@ -18,6 +19,7 @@ export class EDocField<ValueType extends EDocValue> {
     constructor(info: EDocFieldInfo) {
         this.info = info;
 
+        // Type-based initialization behavior
         switch(getEDocTypeString(info.type)) {
             case "array": {
                 let viewportSize = 0;
@@ -72,6 +74,7 @@ export class EDocField<ValueType extends EDocValue> {
         return getEDocTypeString(this.info.type[0].type);
     }
 
+    // Sets this eDoc field's value
     public setValue(input: SimpleEDocValue | EDoc): void {
         // Get a human-friendly name for this field, even if it doesn't have one by default
         const fieldAlias = this.info.alias || "field";

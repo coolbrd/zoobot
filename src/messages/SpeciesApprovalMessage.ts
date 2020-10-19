@@ -1,10 +1,10 @@
 import { DMChannel, TextChannel, User } from "discord.js";
-
 import { client } from "..";
 import { PendingSpecies } from "../models/PendingSpecies";
 import { EDoc } from "../structures/EDoc";
 import EDocMessage from "./EDocMessage";
 
+// A message that takes a pending species and allows for it to be edited and potentially approved
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpecies;
 

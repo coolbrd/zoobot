@@ -1,5 +1,4 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
-
+import mongoose, { Document, Schema } from "mongoose";
 import DocumentWrapper from "../structures/DocumentWrapper";
 
 // The schema for a pending species submission

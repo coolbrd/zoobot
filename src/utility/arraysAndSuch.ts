@@ -25,6 +25,7 @@ export function joinIfArray(value: string | string[] | undefined, delimiter?: st
 // Get the number of occurrences of a given element in a given array
 export function arrayElementCount<T>(array: T[], element: T): number {
     let count = 0;
+    // Count all occurrences of the element
     for (const current of array) {
         if (current === element) {
             count++;

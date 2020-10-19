@@ -4,6 +4,7 @@ import Command from "../structures/Command";
 import { commandHandler } from "../structures/CommandHandler";
 import { stripIndents } from "common-tags";
 
+// Displays help information about any given command
 export default class HelpCommand implements Command {
     public readonly commandNames = ["help", "h"];
 

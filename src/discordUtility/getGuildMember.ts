@@ -1,5 +1,4 @@
 import { UserResolvable, GuildResolvable, GuildMember } from "discord.js";
-
 import { client } from "..";
 
 // Gets a GuildMember instance from a given guild and user

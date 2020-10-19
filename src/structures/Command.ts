@@ -13,7 +13,7 @@ export default interface Command {
     readonly adminOnly?: boolean;
 
     // The command's usage documentation
-    help(commandPrefix: string): string;
+    help(displayPrefix: string): string;
 
     // Execute the command
     run(parsedUserCommand: CommandParser): Promise<void>;

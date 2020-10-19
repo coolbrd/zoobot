@@ -41,8 +41,8 @@ export default class ChangeAnimalNicknameCommand implements Command {
             return;
         }
 
-        let playerObject: Player;
         // Get the player object that represents the player changing the nickname
+        let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
@@ -53,11 +53,13 @@ export default class ChangeAnimalNicknameCommand implements Command {
         // Get the animal id at the player's given collection position
         const animalId = playerObject.getAnimalIdPositional(animalNumber - 1);
 
+        // If no animal in the player's inventory maps to the given position
         if (!animalId) {
             betterSend(parsedUserCommand.channel, "No animal in your collection with that number exists.");
             return;
         }
 
+        // Get an animal object by the found id
         let animalObject: Animal;
         try {
             animalObject = await beastiary.animals.fetchById(animalId);

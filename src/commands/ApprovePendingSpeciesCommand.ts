@@ -1,5 +1,4 @@
 import { Document } from "mongoose";
-
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { PendingSpeciesModel, PendingSpecies } from "../models/PendingSpecies";
@@ -48,13 +47,6 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
         // Create a new pending species object from the found document
         const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument);
-
-        try {
-            await pendingSpeciesObject.load();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a pending species' document's information: ${error}`);
-        }
 
         // Create a new approval message from the object and send it
         const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpeciesObject);

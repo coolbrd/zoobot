@@ -8,6 +8,7 @@ import { Player } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
+// Moves animals in a player's inventory to a specified position in a given order
 export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ["moveanimals", "ma"];
 
@@ -33,8 +34,8 @@ export default class MoveAnimalsCommand implements Command {
             return;
         }
 
-        let playerObject: Player;
         // Get the player game object
+        let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
         }
@@ -42,8 +43,11 @@ export default class MoveAnimalsCommand implements Command {
             throw new Error(`There was an error getting a player object in the move animals command: ${error}`);
         }
 
+        // The numeric positions of the animals to sort
         const positions: number[] = [];
+        // Any errors encountered while parsing positions, if any
         const errors: string[] = [];
+
         // Iterate over every argument provided by the user
         parsedUserCommand.args.forEach(arg => {
             // Parse the argument as a number and offset it for use as an index
@@ -109,6 +113,7 @@ export default class MoveAnimalsCommand implements Command {
             throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
         }
 
+        // Indicate command success
         parsedUserCommand.originalMessage.react("✅").catch(error => {
             errorHandler.handleError(error, "There was an error reacting to a message in the move animals command.");
         });

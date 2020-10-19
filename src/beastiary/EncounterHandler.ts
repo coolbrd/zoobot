@@ -1,6 +1,5 @@
 import { TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
-
 import { SpeciesModel, Species } from "../models/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import getWeightedRandom from "../utility/getWeightedRandom";
@@ -9,6 +8,7 @@ import config from "../config/BotConfig";
 import { todaysMilliseconds } from "../utility/timeStuff";
 
 // A handler class that deals with creating encounters with species from the total set
+// Also respondible for determining the time intervals in which players are rewarded free captures and encounters
 class EncounterHandler {
     // The map of ID and rarity pairs that will determine how common each species is
     private rarityMap: Map<Types.ObjectId, number> = new Map();
@@ -47,8 +47,8 @@ class EncounterHandler {
 
     // Loads/reloads the rarity table from the database
     public async loadRarityTable(): Promise<void> {
-        let rarityList: Document[];
         // Get all species and their associated rarity values
+        let rarityList: Document[];
         try {
             rarityList = await SpeciesModel.find({}, { rarity: 1 });
         }
@@ -65,7 +65,7 @@ class EncounterHandler {
         });
     }
 
-    // Spawn an animal encounter in a given server
+    // Spawn an animal encounter in a given text channel
     public async spawnAnimal(channel: TextChannel): Promise<void> {
         // Don't try to spawn anything if the rarity map is empty
         if (this.rarityMap.size < 1) {
@@ -81,8 +81,8 @@ class EncounterHandler {
             throw new Error(`There was an error getting a species by an id: ${error}`);
         }
 
-        const encounterMessage = new EncounterMessage(channel, species);
         // Send an encounter message to the channel
+        const encounterMessage = new EncounterMessage(channel, species);
         try {
             await encounterMessage.send();
         }

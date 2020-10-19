@@ -5,6 +5,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
 
+// Sends an informational message about a given species
 export default class SpeciesInfoCommand implements Command {
     public readonly commandNames = ["info", "i", "search"];
 

@@ -5,6 +5,7 @@ import { Animal } from "../models/Animal";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
+// Displays the information of a player's captured animal
 export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
 
@@ -30,6 +31,7 @@ export default class AnimalInfoCommand implements Command {
         // The string representing the animal to get the info of
         const animalIdentifier = parsedUserCommand.fullArguments;
 
+        // Search for an animal in the source guild by the given search argument, which can be a nickname or a position
         let animalObject: Animal | undefined;
         try {
             animalObject = await beastiary.animals.searchAnimal(animalIdentifier, {
@@ -42,6 +44,7 @@ export default class AnimalInfoCommand implements Command {
             throw new Error(`There was an error attempting to search an animal for the info command: ${error}`);
         }
 
+        // If no animal by that nickname or position exists in the guild
         if (!animalObject) {
             betterSend(parsedUserCommand.channel, "No animal by that nickname/number could be found in this server.");
             return;
@@ -49,7 +52,7 @@ export default class AnimalInfoCommand implements Command {
 
         // Create and send an info message with the found animal object
         const infoMessage = new AnimalInfoMessage(parsedUserCommand.channel, animalObject);
-
+        
         try {
             await infoMessage.send();
         }

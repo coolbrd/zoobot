@@ -1,5 +1,4 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
-
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { client } from "..";
 import { Species } from "../models/Species";
@@ -9,6 +8,7 @@ import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
 
+// A message that displays a given species' information
 export default class SpeciesInfoMessage extends InteractiveMessage {
     private readonly species: Species;
     // The current card of the species that's being displayed by the info message

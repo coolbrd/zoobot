@@ -14,3 +14,7 @@ export const ADMIN_SERVER_ID = process.env.adminserverid as string;
 
 // The user id of the developer to receive information about errors
 export const DEVELOPER_ID = process.env.developerid as string;
+
+if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID) {
+    throw new Error("One or more environment variables failed to load.");
+}

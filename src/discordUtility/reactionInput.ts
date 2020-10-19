@@ -3,8 +3,8 @@ import { Message, MessageReaction, User } from "discord.js";
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
 export default async function reactionInput(message: Message, timeOut: number, emojis: string[]): Promise<string | undefined> {
+    // Add all reactions
     try {
-        // Add all reactions
         for (const emoji of emojis) {
             await message.react(emoji);
         }
@@ -21,8 +21,8 @@ export default async function reactionInput(message: Message, timeOut: number, e
     // Options that tell the collector to wait for only one reaction, and to expire after the time limit has been reached
     const reactionCollectorOptions = { max: 1, time: timeOut, errors: ["time"] };
 
-    let userReaction;
     // Wait for someone to react to the message
+    let userReaction;
     try {
         userReaction = await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
     }

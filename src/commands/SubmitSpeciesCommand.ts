@@ -1,6 +1,5 @@
 import { stripIndents } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
-
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
@@ -10,7 +9,7 @@ import { arrayToLowerCase } from "../utility/arraysAndSuch";
 import { EDoc, SimpleEDoc } from "../structures/EDoc";
 import EDocMessage from "../messages/EDocMessage";
 
-// Initiates the species submission process. Only to be used in DMs.
+// Initiates the species submission process
 export default class SubmitSpeciesCommand implements Command {
     public readonly commandNames = ["submitspecies", "submit"];
 

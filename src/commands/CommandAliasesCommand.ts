@@ -32,7 +32,9 @@ export default class CommandAliasesCommand implements Command {
         }
 
         let aliasString = "";
+        // Start iterating over the command names at the second name
         for (let i = 1; i < command.commandNames.length; i++) {
+            // Add each command name with commas between them
             aliasString += `\`${command.commandNames[i]}\``;
             if (i < command.commandNames.length - 1) {
                 aliasString += ", ";

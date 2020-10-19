@@ -11,7 +11,7 @@ const config: BotConfig = {
     // The default time between player free encounter resets
     encounterPeriod: 1 * 60 * 1000,
     // The time required between player free animal capture resets
-    capturePeriod: 3 * 60 * 1000
+    capturePeriod: 5 * 60 * 1000
 };
 
 export default config;

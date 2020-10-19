@@ -23,13 +23,14 @@ export default class EditSpeciesCommand implements Command {
         
         const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
 
+        // If the user provided no search term
         if (!fullSearchTerm) {
             betterSend(channel, this.help(parsedUserCommand.displayPrefix));
             return;
         }
 
-        let species: Species | undefined;
         // Get a species whose first common name is the search term
+        let species: Species | undefined;
         try {
             species = await beastiary.species.fetchByCommonName(fullSearchTerm);
         }

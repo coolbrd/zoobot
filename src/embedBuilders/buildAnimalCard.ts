@@ -1,5 +1,4 @@
 import { MessageEmbed } from "discord.js";
-
 import { Animal } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
@@ -8,16 +7,14 @@ export default function buildAnimalCard(embed: MessageEmbed, animalObject: Anima
     const species = animalObject.species;
     const card = animalObject.card;
 
+    // Use the animal's nickname (uncapitalized) if it has one, otherwise use the animal's determined name
     const animalDisplayName = animalObject.nickname || capitalizeFirstLetter(animalObject.name);
 
     embed.setTitle(animalDisplayName);
     embed.setImage(card.url);
     embed.addField("――――――――", `Card #${card.index + 1} of ${species.cardCount}`, true);
 
-    if (card.breed) {
-        embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
-    }
-    if (card.special) {
-        embed.addField("Special", capitalizeFirstLetter(card.special), true);
-    }
+    // Add optional fields
+    card.breed && embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
+    card.special && embed.addField("Special", capitalizeFirstLetter(card.special), true);
 }

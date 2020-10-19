@@ -1,7 +1,5 @@
 import { EventEmitter } from "events";
-
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
-
 import { betterSend } from "../discordUtility/messageMan";
 import { interactiveMessageHandler } from "./InteractiveMessageHandler";
 

@@ -56,6 +56,7 @@ export function getEDocTypeString(fieldType: EDocTypeHint): "string" | "number" 
         case Number: {
             return "number";
         }
+        // Consider possible general object types
         default: {
             if (Array.isArray(fieldType)) {
                 return "array";

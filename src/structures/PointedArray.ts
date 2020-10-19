@@ -138,6 +138,7 @@ export default class PointedArray<T> extends Array {
         }
     }
 
+    // Move the pointer by a specified amount of spaces
     public movePointer(amount: number): number {
         this.pointerPosition = loopValue(this.pointerPosition + amount, 0, this.length - 1);
 

@@ -1,6 +1,5 @@
 import { MessageEmbed } from "discord.js";
 import { Document } from "mongoose";
-
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
@@ -9,6 +8,7 @@ import { PendingSpeciesModel } from "../models/PendingSpecies";
 import EmbedBookMessage from "../messages/EmbedBookMessage";
 import { client } from "..";
 
+// Sends the list of currently pending species submissions
 export default class SendPendingSubmissionsCommand implements Command {
     public readonly commandNames = ["pending", "submissions"];
 

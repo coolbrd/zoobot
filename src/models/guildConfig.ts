@@ -1,5 +1,6 @@
 import { Schema } from "mongoose";
 
+// A subschema representing a guild's configurable settings
 export const guildConfigSchema = new Schema({
     prefix: {
         type: String,
@@ -7,6 +8,6 @@ export const guildConfigSchema = new Schema({
     }
 });
 
-export interface GuildConfigObject {
+export interface GuildConfigTemplate {
     prefix: string;
 }

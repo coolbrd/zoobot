@@ -1,5 +1,4 @@
 import { DMChannel } from "discord.js";
-
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
@@ -19,11 +18,13 @@ export default class EncounterCommand implements Command {
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        if (parsedUserCommand.channel instanceof DMChannel) {
+        // Don't allow encounters in dm channels
+        if (parsedUserCommand.channel.type === "dm") {
             betterSend(parsedUserCommand.channel, "Animal encounters can only be initiated in servers.");
             return;
         }
 
+        // Get the player that initiated the encounter
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
@@ -32,6 +33,7 @@ export default class EncounterCommand implements Command {
             throw new Error(`There was an error fetching a player for use in the encounter command: ${error}`);
         }
 
+        // Determine whether or not the player has an encounter right now
         let canEncounter: boolean;
         try {
             canEncounter = await player.canEncounter();
@@ -40,11 +42,13 @@ export default class EncounterCommand implements Command {
             throw new Error(`There was an error checking if a player has any encounters left in the encounter command: ${error}`);
         }
 
+        // If the player can't encounter an animal
         if (!canEncounter) {
             betterSend(parsedUserCommand.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
             return;
         }
 
+        // Create a new animal encounter
         try {
             await encounterHandler.spawnAnimal(parsedUserCommand.channel);
         }
@@ -52,6 +56,7 @@ export default class EncounterCommand implements Command {
             throw new Error(`There was an error creating a new animal encounter: ${error}`);
         }
 
+        // Use one of the player's encounters
         try {
             await player.encounterAnimal();
         }

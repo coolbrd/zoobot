@@ -10,10 +10,9 @@ export default async function awaitUserNextMessage(channel: TextChannel | DMChan
     // Options that force the collector to finish after one message, or after timeout
     const messageCollectorOptions = { max: 1, time: timeout, errors: ["time"] };
 
-    // Initialize the user's response up here because I have to
+    // Wait for the user to respond to the given field's prompt
     let userResponse;
     try {
-        // Wait for the user to respond to the given field's prompt
         userResponse = await channel.awaitMessages(messageCollectorFilter, messageCollectorOptions);
     }
     // If we enter this that means the user didn't provide an answer
