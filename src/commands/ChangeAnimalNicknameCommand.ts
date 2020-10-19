@@ -1,6 +1,5 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Player } from "../models/Player";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -14,7 +13,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
     public readonly info = "Change the nickname of one of your captured animals";
 
     public help(prefix: string): string {
-        return `Use \`${prefix}${this.commandNames[0]}\` \`<animal identifier>\` to change the nickname of an animal in your collection.`;
+        return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` \`<new nickname>\` to change the nickname of an animal in your collection. Use quotation marks (") for any names with spaces in them.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
@@ -32,58 +31,40 @@ export default class ChangeAnimalNicknameCommand implements Command {
 
         // The string representing the animal the change the nickname of
         const animalIdentifier = parsedUserCommand.arguments[0];
-        // Convert the identifier string into a number
-        const animalNumber = Number(animalIdentifier);
 
-        // If the user provided a non-number identifier
-        if (isNaN(animalNumber)) {
-            betterSend(parsedUserCommand.channel, "You need to specify the animal's numeric identifier (the number next to the animal's place in your collection).");
-            return;
-        }
+        // Get the guild user that initiated this command
+        const guildMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
 
-        // Get the player object that represents the player changing the nickname
-        let playerObject: Player;
+        // Find an animal that matches the given search identifier (number or nickname)
+        let animal: Animal | undefined;
         try {
-            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+            animal = await beastiary.animals.searchAnimal(animalIdentifier, {
+                guildId: guildMember.guild.id,
+                userId: guildMember.user.id,
+                searchByPosition: true
+            });
         }
         catch (error) {
-            throw new Error(`There was an error attempting to get a player in the animal nickname command: ${error}`);
+            throw new Error(`There as an error searching an animal by its nickname: ${error}`);
         }
 
-        // Get the animal id at the player's given collection position
-        const animalId = playerObject.getAnimalIdPositional(animalNumber - 1);
-
-        // If no animal in the player's inventory maps to the given position
-        if (!animalId) {
-            betterSend(parsedUserCommand.channel, "No animal in your collection with that number exists.");
+        // If no animal was found in that player's inventory
+        if (!animal) {
+            betterSend(parsedUserCommand.channel, "No animal by that number/nickname exists in your collection.");
             return;
-        }
-
-        // Get an animal object by the found id
-        let animalObject: Animal;
-        try {
-            animalObject = await beastiary.animals.fetchById(animalId);
-        }
-        catch (error) {
-            throw new Error(`There was an error fetching an animal by its id in the nickname change command: ${error}`);
         }
 
         // The nickname string that will be used
         let newNickname: string | null;
         // If the user didn't provide a nickname to use
         if (parsedUserCommand.arguments.length < 2) {
-            // Set the animal's nickname as an empty string, resetting it
+            // Set the animal's nickname as nothing, resetting it
             newNickname = null;
         }
         // If the user specified a nickname
         else {
-            // Get all text following the animal identifier
-            const args = parsedUserCommand.fullArguments;
-            newNickname = args.slice(args.indexOf(animalIdentifier) + animalIdentifier.length, args.length).trim();
-        }
+            newNickname = parsedUserCommand.arguments[1];
 
-        // If the user provided a new nickname to give the animal
-        if (newNickname) {
             // The set of banned strings that cannot appear in animal nicknames
             const bannedSubStrings = ["*", "_", "`", "~", ">"];
 
@@ -96,9 +77,9 @@ export default class ChangeAnimalNicknameCommand implements Command {
             }
         }
 
-        // Change the animal's nickname to the determined string
+        // Change the animal's nickname to the determined value
         try {
-            await animalObject.setNickname(newNickname);
+            await animal.setNickname(newNickname);
         }
         catch (error) {
             throw new Error(`There was an error attempting to change the nickname of an animal object: ${error}`);
