@@ -31,6 +31,8 @@ export default class CommandListCommand implements Command {
 
         embed.setDescription(commandListString);
 
+        embed.setFooter(`Prefix commands with "${commandHandler.getGuildPrefix(parsedUserCommand.originalMessage.guild)}", or by pinging me!`);
+
         embed.setColor(0x18476b);
         
         betterSend(parsedUserCommand.channel, new APIMessage(parsedUserCommand.channel, { embed: embed }));
