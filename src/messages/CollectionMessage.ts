@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
-import { errorHandler } from "../structures/ErrorHandler";
 import PagedMessage from "./PagedMessage";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
