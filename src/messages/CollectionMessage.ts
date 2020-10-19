@@ -145,7 +145,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
         }
 
         // Get the animal that's selected by the pointer
-        const selectedAnimal = collection.selection().animal as Animal;
+        const selectedAnimal = collection.selection.animal as Animal;
         const card = selectedAnimal.card;
 
         // Display state behavior
@@ -171,7 +171,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
                     const breedText = !currentAnimal.nickname && card.breed ? `(${card.breed})` : "";
 
                     // The pointer text to draw on the current animal entry (if any)
-                    const pointerText = collectionIndex === collection.getPointerPosition() ? " 🔹" : "";
+                    const pointerText = collectionIndex === collection.pointerPosition ? " 🔹" : "";
 
                     collectionString += `\`${collectionIndex + 1})\` ${animalName} ${breedText}`;
 
@@ -188,7 +188,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             case CollectionMessageState.info: {
                 buildAnimalInfo(embed, selectedAnimal);
 
-                embed.setTitle(`\`${collection.getPointerPosition() + 1})\` ${embed.title}`);
+                embed.setTitle(`\`${collection.pointerPosition + 1})\` ${embed.title}`);
                 
                 break;
             }
@@ -196,7 +196,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             case CollectionMessageState.card: {
                 buildAnimalCard(embed, selectedAnimal);
 
-                embed.setTitle(`\`${collection.getPointerPosition() + 1})\` ${embed.title}`);
+                embed.setTitle(`\`${collection.pointerPosition + 1})\` ${embed.title}`);
 
                 break;
             }
@@ -287,7 +287,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             // If the confirmation button is pressed
             if (buttonName === "leftArrow") {
                 // Get the selected animal that will be released
-                const selectedAnimal = collection.selection();
+                const selectedAnimal = collection.selection;
 
                 // Release the user's animal
                 try {

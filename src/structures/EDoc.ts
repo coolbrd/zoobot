@@ -483,7 +483,7 @@ export class EDoc {
 
     // Get the document's currently selected field
     public getSelectedField(): EDocField<EDocValue> {
-        const selectedField = this.fields.get(this.fieldNames.selection());
+        const selectedField = this.fields.get(this.fieldNames.selection);
 
         if (!selectedField) {
             throw new Error('A field name that mapped to no field in an EDoc\'s fields was found.');
@@ -494,7 +494,7 @@ export class EDoc {
 
     // Gets the eDoc's currently selected field's identifier
     public getSelectedFieldName(): string {
-        return this.fieldNames.selection();
+        return this.fieldNames.selection;
     }
 
     public setField(fieldName: string, value: SimpleEDocValue): void {

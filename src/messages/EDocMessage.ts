@@ -299,7 +299,7 @@ export default class EDocMessage extends InteractiveMessage {
                 }
                 // Edit a single item within an array
                 case "edit": {
-                    const selectedElement = selectedFieldValue.selection();
+                    const selectedElement = selectedFieldValue.selection;
 
                     // Don't do anything if the array is empty
                     if (!selectedElement) {

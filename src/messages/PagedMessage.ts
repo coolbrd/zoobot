@@ -68,7 +68,7 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
 
     // Gets the page that the pointer is currently on
     protected get pointerPage(): number {
-        return Math.floor(this.elements.getPointerPosition() / this.elementsPerPage);
+        return Math.floor(this.elements.pointerPosition / this.elementsPerPage);
     }
 
     // Move a number of pages
@@ -78,7 +78,7 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
         // If the page move caused the pointer to be off the page
         if (!this.pointerIsOnPage()) {
             // Move the pointer to the first entry on the page
-            this.elements.setPointerPosition(this.page * this.elementsPerPage);
+            this.elements.pointerPosition = this.page * this.elementsPerPage;
         }
     }
 

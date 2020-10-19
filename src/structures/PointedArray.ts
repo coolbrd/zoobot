@@ -3,7 +3,7 @@ import loopValue from "../utility/loopValue";
 // An array that has a movable pointer
 export default class PointedArray<T> extends Array {
     // The position of the underlying pointer
-    private pointerPosition = 0;
+    private _pointerPosition = 0;
 
     // The position of the array's viewport (for printing the array as a string with a persistent and manipulable viewport)
     private viewPosition = 0;
@@ -38,7 +38,7 @@ export default class PointedArray<T> extends Array {
         numberFilter?: (element: string) => string
     }): string {
         // Get the visible array of elements from this array (all elements within the viewport)
-        const returnArray = this.getViewableSlice();
+        const returnArray = this.viewableSlice;
 
         let returnString = "";
         // Start tracking the index at the first displayed element
@@ -83,7 +83,7 @@ export default class PointedArray<T> extends Array {
             // Append the current value 
             returnString += currentValueString;
             // Append the pointer if one was provided and the current element is the selection
-            returnString += options && options.pointer ? (arrayIndex === this.getPointerPosition() ? ` ${options.pointer}` : "") : "";
+            returnString += options && options.pointer ? (arrayIndex === this.pointerPosition ? ` ${options.pointer}` : "") : "";
             // Append a delimiter
             returnString += options && options.delimiter ? options.delimiter : this.defaultDelimiter;
 
@@ -100,29 +100,28 @@ export default class PointedArray<T> extends Array {
     }
 
     // Gets an array of the elements that can currently be viewed, according to the viewport options
-    public getViewableSlice(): T[] {
+    public get viewableSlice(): T[] {
         return this.slice(this.viewPosition, this.viewSize === 0 ? undefined : this.viewPosition + this.viewSize);
     }
 
-    public getPointerPosition(): number {
-        return this.pointerPosition;
-    }
-
-    // Gets the element that the pointer is currently selecting
-    public selection(): T {
-        return this[this.pointerPosition];
+    public get pointerPosition(): number {
+        return this._pointerPosition;
     }
 
     // Sets the pointers position within the bounds of the array
-    public setPointerPosition(newPosition: number): number {
+    public set pointerPosition(newPosition: number) {
         this.clampPointer(newPosition);
         this.clampViewPort();
-        return this.pointerPosition;
+    }
+
+    // Gets the element that the pointer is currently selecting
+    public get selection(): T {
+        return this[this.pointerPosition];
     }
 
     // Returns the pointer to within the bounds of the array
     private clampPointer(newPosition?: number): number {
-        return this.pointerPosition = Math.max(0, Math.min(this.length - 1, newPosition === undefined ? this.pointerPosition : newPosition));
+        return this._pointerPosition = Math.max(0, Math.min(this.length - 1, newPosition === undefined ? this.pointerPosition : newPosition));
     }
 
     // Keeps the viewport tied to the pointer's position
