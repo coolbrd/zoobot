@@ -5,6 +5,7 @@ import { CommonNameTemplate, SpeciesCardTemplate, Species } from "../models/Spec
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
+import { encounterHandler } from "../beastiary/EncounterHandler";
 
 // The command used to review, edit, and approve a pending species into a real species
 export default class EditSpeciesCommand implements Command {
@@ -80,6 +81,10 @@ export default class EditSpeciesCommand implements Command {
                 rarity: finalDocument["rarity"] as number
             }).then(() => {
                 betterSend(channel, "Edit successful.");
+
+                encounterHandler.loadRarityTable().catch(error => {
+                    throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
+                });
             }).catch(error => {
                 throw new Error(`There was an error editing a species: ${error}`);
             });
