@@ -6,6 +6,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { commonNamesToLower, CommonNameTemplate, SpeciesModel } from "../models/Species";
 import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
 import { SimpleEDoc } from "../structures/EDoc";
+import { encounterHandler } from "../beastiary/EncounterHandler";
 
 // The command used to review, edit, and approve a pending species into a real species
 export default class ApprovePendingSpeciesCommand implements Command {
@@ -88,6 +89,10 @@ export default class ApprovePendingSpeciesCommand implements Command {
             // Save the new species
             speciesDocument.save().then(() => {
                 betterSend(channel, "Species approved.");
+
+                encounterHandler.loadRarityTable().catch(error => {
+                    throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
+                });
 
                 // Delete the pending species
                 pendingSpeciesObject.delete().catch(error => {
