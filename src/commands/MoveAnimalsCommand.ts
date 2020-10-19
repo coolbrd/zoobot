@@ -29,7 +29,7 @@ export default class MoveAnimalsCommand implements Command {
         }
 
         // If the command was used without any arguments
-        if (parsedUserCommand.args.length < 1) {
+        if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
             return;
         }
@@ -49,7 +49,7 @@ export default class MoveAnimalsCommand implements Command {
         const errors: string[] = [];
 
         // Iterate over every argument provided by the user
-        parsedUserCommand.args.forEach(arg => {
+        parsedUserCommand.arguments.forEach(arg => {
             // Parse the argument as a number and offset it for use as an index
             const numericPosition = Number(arg) - 1;
             // If the current argument couldn't be converted int a number

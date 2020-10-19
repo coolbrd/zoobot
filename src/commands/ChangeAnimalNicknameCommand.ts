@@ -25,13 +25,13 @@ export default class ChangeAnimalNicknameCommand implements Command {
         }
 
         // If the user provided no arguments
-        if (parsedUserCommand.args.length < 1) {
+        if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
             return;
         }
 
         // The string representing the animal the change the nickname of
-        const animalIdentifier = parsedUserCommand.args[0];
+        const animalIdentifier = parsedUserCommand.arguments[0];
         // Convert the identifier string into a number
         const animalNumber = Number(animalIdentifier);
 
@@ -71,7 +71,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
         // The nickname string that will be used
         let newNickname: string | null;
         // If the user didn't provide a nickname to use
-        if (parsedUserCommand.args.length < 2) {
+        if (parsedUserCommand.arguments.length < 2) {
             // Set the animal's nickname as an empty string, resetting it
             newNickname = null;
         }

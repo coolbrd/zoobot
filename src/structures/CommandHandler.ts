@@ -101,17 +101,17 @@ class CommandHandler {
         if (messagePrefix) {
             const guildPrefix = this.getGuildPrefix(message.guild);
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
-            const commandParser = new CommandParser(message, messagePrefix, guildPrefix);
+            const commandParser = new CommandParser(message, messagePrefix);
 
             // If the user didn't specify a command, just the bot's prefix
-            if (!commandParser.parsedCommandName) {
+            if (!commandParser.commandName) {
                 // Alleviate confusion
                 betterSend(commandParser.channel, `Yes? Try using \`${guildPrefix}commands\` to see a list of all my commands.`);
                 return;
             }
 
             // Find a command class that matches the command specified in the message (taking into account the visibilit of admin commands)
-            const matchedCommand = this.getCommand(commandParser.parsedCommandName, message);
+            const matchedCommand = this.getCommand(commandParser.commandName, message);
 
             // If no matching command was found
             if (!matchedCommand) {

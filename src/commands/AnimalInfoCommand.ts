@@ -23,7 +23,7 @@ export default class AnimalInfoCommand implements Command {
         }
 
         // If the user provided no arguments
-        if (parsedUserCommand.args.length < 1) {
+        if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
             return;
         }
