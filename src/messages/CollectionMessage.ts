@@ -8,15 +8,13 @@ import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PagedMessage from "./PagedMessage";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
-import { betterSend } from "../discordUtility/messageMan";
 import { Types } from "mongoose";
 
 // The set of states that a collection message can be in
 enum CollectionMessageState {
     page,
     info,
-    card,
-    release
+    card
 }
 
 // An animal id with its optionally loaded animal object
@@ -50,11 +48,6 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             name: "mode",
             emoji: "Ⓜ️",
             helpMessage: "View mode"
-        },
-        {
-            name: "release",
-            emoji: "🗑️",
-            helpMessage: "Release"
         }]);
 
         this.player = player;
@@ -189,28 +182,6 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
 
                 break;
             }
-            // When the message is confirming the release of an animal
-            case CollectionMessageState.release: {
-                embed.setTitle(`Release ${selectedAnimal.name}?`);
-
-                embed.setDescription(`Press the left arrow (${this.getButtonByName("leftArrow").emoji}) to confirm this release. Press any other button or do nothing to cancel.`);
-
-                embed.setThumbnail(card.url);
-
-                break;
-            }
-        }
-
-        // Update button messages according to behavior
-        switch (this.state) {
-            case CollectionMessageState.release: {
-                this.setButtonHelpMessage("leftArrow", "Confirm release");
-                break;
-            }
-            default: {
-                this.setButtonHelpMessage("leftArrow", "Page left");
-                break;
-            }
         }
 
         return embed;
@@ -219,85 +190,47 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        const collection = this.elements;
-
-        // If the message in any state other than releasing an animal
-        if (this.state !== CollectionMessageState.release) {
-            // Button behavior
-            switch (buttonName) {
-                case "upArrow": {
+        // Button behavior
+        switch (buttonName) {
+            case "upArrow": {
+                this.movePointer(-1);
+                break;
+            }
+            case "downArrow": {
+                this.movePointer(1);
+                break;
+            }
+            case "leftArrow": {
+                // Change pages if the message is in page mode, otherwise move the pointer
+                if (this.state === CollectionMessageState.page) {
+                    this.movePages(-1);
+                }
+                else {
                     this.movePointer(-1);
-                    break;
                 }
-                case "downArrow": {
+                break;
+            }
+            case "rightArrow": {
+                // Change pages if the message is in page mode, otherwise move the pointer
+                if (this.state === CollectionMessageState.page) {
+                    this.movePages(1);
+                }
+                else {
                     this.movePointer(1);
-                    break;
                 }
-                case "leftArrow": {
-                    // Change pages if the message is in page mode, otherwise move the pointer
-                    if (this.state === CollectionMessageState.page) {
-                        this.movePages(-1);
-                    }
-                    else {
-                        this.movePointer(-1);
-                    }
-                    break;
-                }
-                case "rightArrow": {
-                    // Change pages if the message is in page mode, otherwise move the pointer
-                    if (this.state === CollectionMessageState.page) {
-                        this.movePages(1);
-                    }
-                    else {
-                        this.movePointer(1);
-                    }
-                    break;
-                }
-                case "mode": {
-                    if (this.state === CollectionMessageState.page) {
-                        this.state = CollectionMessageState.info;
-                    }
-                    else if (this.state === CollectionMessageState.info) {
-                        this.state = CollectionMessageState.card;
-                    }
-                    else {
-                        this.state = CollectionMessageState.page;
-                    }
-                    break;
-                }
-                case "release": {
-                    // Initiate relese mode
-                    this.state = CollectionMessageState.release;
-                }
+                break;
             }
-        }
-        // If the message is currently confirming the release of an animal
-        else {
-            // If the confirmation button is pressed
-            if (buttonName === "leftArrow") {
-                // Get the selected animal that will be released
-                const selectedAnimal = collection.selection;
-
-                // Release the user's animal
-                try {
-                    await beastiary.animals.deleteAnimal(selectedAnimal.id);
+            case "mode": {
+                if (this.state === CollectionMessageState.page) {
+                    this.state = CollectionMessageState.info;
                 }
-                catch (error) {
-                    betterSend(this.channel, "A problem was encountered while trying to release this animal. Please report this to the developer.");
-
-                    throw new Error(`There was an error releasing an animal within a collection message: ${error}`);
+                else if (this.state === CollectionMessageState.info) {
+                    this.state = CollectionMessageState.card;
                 }
-
-                // Delete the animal from the collection message
-                collection.deleteAtPointer();
-
-                // Put the message back in paged mode
-                this.state = CollectionMessageState.page;
-            }
-            // If any button other than the confirmation button is pressed
-            else {
-                // Return the message to paged mode
-                this.state = CollectionMessageState.page;
+                else {
+                    this.state = CollectionMessageState.page;
+                }
+                break;
             }
         }
 

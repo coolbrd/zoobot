@@ -82,7 +82,8 @@ export default class ReleaseAnimalCommand implements Command {
 
         // If the user didn't respond in time
         if (!message) {
-            releaseEmbed.setDescription("Release cancelled.")
+            releaseEmbed.setDescription("Release canceled.");
+            releaseEmbed.setFooter("");
             try {
                 await confirmMessage.edit(releaseEmbed);
             }
@@ -105,7 +106,8 @@ export default class ReleaseAnimalCommand implements Command {
                 errorHandler.handleError(error, "There was an error attempting to react to a message in the animal nickname command.");
             });
 
-            releaseEmbed.setDescription("Release confirmed.")
+            releaseEmbed.setDescription("Release confirmed.");
+            releaseEmbed.setFooter("");
             try {
                 await confirmMessage.edit(releaseEmbed);
             }

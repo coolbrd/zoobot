@@ -25,7 +25,7 @@ import CommandListCommand from "../commands/CommandListCommand";
 import CommandAliasesCommand from "../commands/CommandAliasesCommand";
 import ViewCaptureResetCommand from "../commands/ViewCaptureResetCommand";
 import ViewEncounterResetCommand from "../commands/ViewEncounterResetCommand";
-import ReleaseAnimalCommand from "../commands/ReleaseAnimal";
+import ReleaseAnimalCommand from "../commands/ReleaseAnimalCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
