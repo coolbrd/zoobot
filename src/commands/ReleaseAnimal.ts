@@ -1,11 +1,9 @@
 import { APIMessage, Message } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
-import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Animal } from "../models/Animal";
-import { Player } from "../models/Player";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
