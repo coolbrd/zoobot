@@ -2,8 +2,11 @@ import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { betterSend } from "../discordUtility/messageMan";
-import { User } from "discord.js";
+import { GuildMember, User } from "discord.js";
 import { stripIndents } from "common-tags";
+import { beastiary } from "../beastiary/Beastiary";
+import { Player } from "../models/Player";
+import getGuildMember from "../discordUtility/getGuildMember";
 
 // Sends a message containing a player's collection of animals
 export default class ViewCollectionCommand implements Command {
@@ -26,8 +29,8 @@ export default class ViewCollectionCommand implements Command {
             return;
         }
 
-        // The potential location for the target user to go
-        let specifiedUser: User | undefined;
+        // The potential target guild member
+        let specifiedMember: GuildMember | undefined;
         // If the user provided an argument (presumably the user whose collection they want to view)
         if (parsedUserCommand.arguments.length > 0) {
             let userId: string;
@@ -45,7 +48,7 @@ export default class ViewCollectionCommand implements Command {
             }
 
             // Get the guild member with the extracted id
-            const specifiedMember = parsedUserCommand.channel.guild.member(userId);
+            specifiedMember = parsedUserCommand.channel.guild.member(userId) || undefined;
 
             // If no guild member exists with the given id
             if (!specifiedMember) {
@@ -53,12 +56,38 @@ export default class ViewCollectionCommand implements Command {
                 return;
             }
 
-            // Assign the specified user
-            specifiedUser = specifiedMember.user;
+            // Determine whether or not the specified player exists in The Beastiary
+            let playerExists: boolean;
+            try {
+                playerExists = await beastiary.players.playerExists(specifiedMember);
+            }
+            catch (error) {
+                throw new Error(`There was an error checking if a player exists in the view collection command: ${error}`);
+            }
+
+            // If no player exists for the guild member, don't create a new one
+            if (!playerExists) {
+                betterSend(parsedUserCommand.channel, "That user has yet to become a player in The Beastiary, tell them to catch some animals!");
+                return;
+            }
         }
 
-        // Create and send a new collection message displaying the specified player's collection, or the command sender if no user was specified
-        const collectionMessage = new CollectionMessage(parsedUserCommand.channel, specifiedUser || parsedUserCommand.originalMessage.author);
+        // Use the command sender as the member to display if no other member was found/provided
+        if (!specifiedMember) {
+            specifiedMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
+        }
+
+        // Get the player object of the target member
+        let targetPlayer: Player;
+        try {
+            targetPlayer = await beastiary.players.fetch(specifiedMember);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching a specified player in the view collection command: ${error}`);
+        }
+
+        // Create and send a new collection message displaying the specified player's collection
+        const collectionMessage = new CollectionMessage(parsedUserCommand.channel, targetPlayer);
         
         try {
             await collectionMessage.send();

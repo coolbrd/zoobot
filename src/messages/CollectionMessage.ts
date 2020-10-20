@@ -1,7 +1,6 @@
 import { TextChannel, MessageEmbed, User } from "discord.js";
 import { Animal } from "../models/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import getGuildMember from "../discordUtility/getGuildMember";
 import { Player } from "../models/Player";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
@@ -31,10 +30,10 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     // The current display state of the message
     private state: CollectionMessageState;
     
-    private readonly user: User;
+    private readonly player: Player;
     public readonly channel: TextChannel;
 
-    constructor(channel: TextChannel, user: User) {
+    constructor(channel: TextChannel, player: Player) {
         super(channel);
 
         this.addButtons([{
@@ -58,7 +57,7 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
             helpMessage: "Release"
         }]);
 
-        this.user = user;
+        this.player = player;
         this.channel = channel;
 
         // Start the collection message in paged view mode
@@ -69,20 +68,11 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     public async build(): Promise<void> {
         super.build();
 
-        // Get the user's player object
-        let playerObject: Player;
-        try {
-            playerObject = await beastiary.players.fetch(getGuildMember(this.user, this.channel.guild));
-        }
-        catch (error) {
-            throw new Error(`There was an error fetching a player in a collection message: ${error}`);
-        }
-
         // The list of animals that will need to be loaded by their ids
         const loadableAnimals: LoadableAnimal[] = [];
 
         // Add the all the player's animal ids to the list of loadable animals
-        for (const animalId of playerObject.animalIds) {
+        for (const animalId of this.player.animalIds) {
             loadableAnimals.push({
                 id: animalId
             });
@@ -108,8 +98,8 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
         // Make it more clear what we're working with here
         const collection = this.elements;
 
-        const userAvatar = this.user.avatarURL() || undefined;
-        embed.setAuthor(`${this.user.username}'s collection`, userAvatar);
+        const userAvatar = this.player.user.avatarURL() || undefined;
+        embed.setAuthor(`${this.player.user.username}'s collection`, userAvatar);
         embed.setFooter(`${collection.length} in collection\n${this.getButtonHelpString()}`);
 
         // Don't try anything crazy if the user's collection is empty

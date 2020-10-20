@@ -11,9 +11,8 @@ export default class PlayerManager extends WrapperCache<Player> {
         super(120000);
     }
 
-    // Gets a player object by a given guild member
-    public async fetch(guildMember: GuildMember): Promise<Player> {
-        // First check the cache to see if the player's object already exists in it
+    // Check only the cache for a pre-existing player
+    private getPlayerFromCache(guildMember: GuildMember): Player | undefined {
         for (const cachedPlayer of this.cache.values()) {
             // If the current player's information matches the guild member
             if (cachedPlayer.value.userId === guildMember.user.id && cachedPlayer.value.guildId === guildMember.guild.id) {
@@ -24,9 +23,10 @@ export default class PlayerManager extends WrapperCache<Player> {
                 return cachedPlayer.value;
             }
         }
-        // No matching player exists in the cache
+    }
 
-        // Attempt to find a player document with the given information
+    // Gets a player's document from only the database, not creating a new one if none is found
+    private async getPlayerDocumentFromDatabase(guildMember: GuildMember): Promise<Document | null> {
         let playerDocument: Document | null;
         try {
             playerDocument = await PlayerModel.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
@@ -34,6 +34,21 @@ export default class PlayerManager extends WrapperCache<Player> {
         catch (error) {
             throw new Error(`There was an error finding an existing player document: ${error}`);
         }
+
+        return playerDocument;
+    }
+
+    // Gets a player object by a given guild member
+    public async fetch(guildMember: GuildMember): Promise<Player> {
+        // First check the cache to see if the player's object already exists in it
+        const playerInCache = this.getPlayerFromCache(guildMember);
+        if (playerInCache) {
+            return playerInCache;
+        }
+        // No matching player exists in the cache
+
+        // Attempt to find a player document with the given information
+        const playerDocument = await this.getPlayerDocumentFromDatabase(guildMember);
 
         let player: Player;
         // If no player document exists for the given guild member
@@ -93,5 +108,23 @@ export default class PlayerManager extends WrapperCache<Player> {
         }
 
         return player;
+    }
+
+    // Determines whether a player exists in the game (has used some kind of database-relevent command)
+    public async playerExists(guildMember: GuildMember): Promise<boolean> {
+        // Try to get a player object corresponding to the guild member from the cache and the database
+        const playerInCache = this.getPlayerFromCache(guildMember);
+        let playerDocument: Document | null;
+        try {
+            playerDocument = await this.getPlayerDocumentFromDatabase(guildMember);
+        }
+        catch (error) {
+            throw new Error(`There was an error getting a player's document from the database.`);
+        }
+
+        if (playerInCache || playerDocument) {
+            return true;
+        }
+        return false;
     }
 }

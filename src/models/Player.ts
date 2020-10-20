@@ -1,4 +1,6 @@
+import { User } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { client } from "..";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import DocumentWrapper from "../structures/DocumentWrapper";
 
@@ -45,8 +47,17 @@ export const PlayerModel = mongoose.model("Player", playerSchema);
 
 // A wrapper object for a Mongoose player document
 export class Player extends DocumentWrapper {
+    public readonly user: User;
+
     constructor(document: Document) {
         super(document, PlayerModel);
+
+        // Find the user object associated with this player's user id
+        const potentialUser = client.users.resolve(this.userId);
+        if (!potentialUser) {
+            throw new Error(`A new player object with an invalid user id was created.`);
+        }
+        this.user = potentialUser;
     }
 
     public get userId(): string {
