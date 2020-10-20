@@ -48,13 +48,14 @@ export default class EncounterCommand implements Command {
             return;
         }
 
-        // Create a new animal encounter
-        try {
-            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+        // If one of the user's previous encounters hasn't loaded yet
+        if (encounterHandler.userIsLoadingEncounter(player.user.id)) {
+            betterSend(parsedUserCommand.channel, "You're going to fast, your previous encounter hasn't even loaded yet!");
+            return;
         }
-        catch (error) {
-            throw new Error(`There was an error creating a new animal encounter: ${error}`);
-        }
+
+        // Add the user to the list of those currently loading encounters, preventing them from spamming encounters
+        encounterHandler.userBeginEncounterLoad(player.user.id);
 
         // Use one of the player's encounters
         try {
@@ -63,5 +64,16 @@ export default class EncounterCommand implements Command {
         catch (error) {
             throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
         }
+
+        // Create a new animal encounter
+        try {
+            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+        }
+        catch (error) {
+            throw new Error(`There was an error creating a new animal encounter: ${error}`);
+        }
+
+        // Remove the user from the list of users loading encounters
+        encounterHandler.userEndEncounterLoad(player.user.id);
     }
 }
