@@ -57,23 +57,27 @@ export default class EncounterCommand implements Command {
         // Add the user to the list of those currently loading encounters, preventing them from spamming encounters
         encounterHandler.userBeginEncounterLoad(player.user.id);
 
-        // Use one of the player's encounters
         try {
-            await player.encounterAnimal();
-        }
-        catch (error) {
-            throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
-        }
+            // Use one of the player's encounters
+            try {
+                await player.encounterAnimal();
+            }
+            catch (error) {
+                throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
+            }
 
-        // Create a new animal encounter
-        try {
-            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+            // Create a new animal encounter
+            try {
+                await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+            }
+            catch (error) {
+                throw new Error(`There was an error creating a new animal encounter: ${error}`);
+            }
         }
-        catch (error) {
-            throw new Error(`There was an error creating a new animal encounter: ${error}`);
+        // Regardless of errors encountered in creating the encounter
+        finally {
+            // Mark the player as no longer loading an encounter
+            encounterHandler.userEndEncounterLoad(player.user.id);
         }
-
-        // Remove the user from the list of users loading encounters
-        encounterHandler.userEndEncounterLoad(player.user.id);
     }
 }
