@@ -1,4 +1,3 @@
-import { DMChannel } from "discord.js";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
