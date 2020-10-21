@@ -30,17 +30,12 @@ export default class ViewCollectionCommand implements Command {
         }
 
         // The guild member whose inventory will be displayed
-        let specifiedMember: GuildMember | undefined;
+        let specifiedMember: GuildMember;
         // If the user provided an argument (presumably the user whose collection they want to view)
-        if (parsedUserCommand.arguments.length > 0 && parsedUserCommand.arguments[0].user) {
-            // The user that's been specified for viewing
-            const specifiedUser = parsedUserCommand.arguments[0].user;
-            
-            // Get the guild member with the extracted id
-            specifiedMember = parsedUserCommand.channel.guild.member(specifiedUser) || undefined;
+        if (parsedUserCommand.arguments.length > 0) {
+            const playerArgument = parsedUserCommand.arguments[0];
 
-            // If no guild member exists with the given id
-            if (!specifiedMember) {
+            if (!playerArgument.member) {
                 betterSend(parsedUserCommand.channel, "No user with that id exists in this server.");
                 return;
             }
@@ -48,7 +43,7 @@ export default class ViewCollectionCommand implements Command {
             // Determine whether or not the specified player exists in The Beastiary
             let playerExists: boolean;
             try {
-                playerExists = await beastiary.players.playerExists(specifiedMember);
+                playerExists = await beastiary.players.playerExists(playerArgument.member);
             }
             catch (error) {
                 throw new Error(`There was an error checking if a player exists in the view collection command: ${error}`);
@@ -59,10 +54,11 @@ export default class ViewCollectionCommand implements Command {
                 betterSend(parsedUserCommand.channel, "That user has yet to become a player in The Beastiary, tell them to catch some animals!");
                 return;
             }
-        }
 
-        // Use the command sender as the member to display if no other member was found/provided
-        if (!specifiedMember) {
+            specifiedMember = playerArgument.member;
+        }
+        // If no arguments were provided
+        else {
             specifiedMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
         }
 

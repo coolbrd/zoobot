@@ -1,10 +1,11 @@
-import { Message, TextChannel, DMChannel, User } from "discord.js";
+import { Message, TextChannel, DMChannel, User, GuildMember } from "discord.js";
 import { client } from "..";
 import { commandHandler } from "./CommandHandler";
 
 interface Argument {
     text: string,
-    user?: User
+    user?: User,
+    member?: GuildMember
 }
 
 // The parsed version of a command given by a user's message
@@ -76,8 +77,9 @@ export default class CommandParser {
 
         // Iterate and add every text argument of the split up message to the list of arguments
         for (const argument of splitMessage) {
-            // Where a specified user would go, if this argument can be resolved to one
+            // Where a specified user and member would go, if this argument can be resolved to them
             let user: User | undefined;
+            let member: GuildMember | undefined;
             // Only try to resolve user ids from arguments long enough to contain them
             if (argument.length >= 18) {
                 let userId: string;
@@ -95,12 +97,19 @@ export default class CommandParser {
                 }
                 // Attempt to resolve the argument into a user
                 user = client.users.resolve(userId) || undefined;
+
+                // If a user was found, and this message is in a server
+                if (user && message.channel.type !== "dm") {
+                    // Attempt to resolve a guild member from the id
+                    member = message.channel.guild.member(user) || undefined;
+                }
             }
 
             // Add the current argument to the list
             this.arguments.push({
                 text: argument,
-                user: user
+                user: user,
+                member: member
             });
         }
     

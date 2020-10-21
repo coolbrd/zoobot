@@ -29,22 +29,16 @@ export default class ViewPlayerProfileCommand implements Command {
 
         let targetGuildMember: GuildMember;
         if (parsedUserCommand.arguments.length > 0) {
-            const specifiedUser = parsedUserCommand.arguments[0].user;
+            const playerArgument = parsedUserCommand.arguments[0];
 
-            if (!specifiedUser) {
-                betterSend(parsedUserCommand.channel, "Invalid user tag/id. No user found.");
-                return;
-            }
-
-            const potentialGuildMember = parsedUserCommand.channel.guild.member(specifiedUser);
-            if (!potentialGuildMember) {
+            if (!playerArgument.member) {
                 betterSend(parsedUserCommand.channel, "Could not find a user in this guild with that tag/id.");
                 return;
             }
             
             let playerExists: boolean;
             try {
-                playerExists = await beastiary.players.playerExists(potentialGuildMember);
+                playerExists = await beastiary.players.playerExists(playerArgument.member);
             }
             catch (error) {
                 throw new Error(`There was an error checking if a player exists in the player profile.`)
@@ -55,7 +49,7 @@ export default class ViewPlayerProfileCommand implements Command {
                 return;
             }
 
-            targetGuildMember = potentialGuildMember;
+            targetGuildMember = playerArgument.member;
         }
         else {
             targetGuildMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
