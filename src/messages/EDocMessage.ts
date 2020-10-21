@@ -248,6 +248,7 @@ export default class EDocMessage extends InteractiveMessage {
 
                             // If the user responds
                             if (responseMessage) {
+                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
                                 // Set the value of the field to the user's response value
                                 try {
                                     selectedNestedField.setValue(responseMessage.content);
@@ -317,6 +318,7 @@ export default class EDocMessage extends InteractiveMessage {
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                             if (responseMessage) {
+                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
                                 try {
                                     selectedElement.setValue(responseMessage.content);
                                 }
@@ -354,6 +356,7 @@ export default class EDocMessage extends InteractiveMessage {
                             const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
 
                             if (responseMessage) {
+                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
                                 try {
                                     selectedField.push(responseMessage.content);
                                 }

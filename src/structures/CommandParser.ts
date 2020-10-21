@@ -27,6 +27,7 @@ export default class CommandParser {
 
     // Initialization required the user's message and the prefix to cut out
     constructor(message: Message, prefixUsed: string) {
+        // Set prefixes
         this.commandPrefix = prefixUsed;
         this.displayPrefix = commandHandler.getGuildPrefix(message.guild);
         
