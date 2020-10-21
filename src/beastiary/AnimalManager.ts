@@ -153,7 +153,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
         // Add the animal's id to the owner's collection
         try {
-            await ownerObject.addAnimal(animalDocument._id);
+            await ownerObject.addAnimalToCollection(animalDocument._id);
         }
         catch (error) {
             throw new Error(`There was an error adding a new animal to a player's collection: ${error}`);
@@ -193,7 +193,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
 
         // Remove the animal from the player's collection
         try {
-            await owner.removeAnimal(animal.id);
+            await owner.removeAnimalFromCollection(animal.id);
         }
         catch (error) {
             throw new Error(`There was an error removing an animal's id from it's owner's collection: ${error}`);

@@ -17,6 +17,10 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: true
     },
+    crewAnimals: {
+        type: [Schema.Types.ObjectId],
+        required: false
+    },
     freeCapturesLeft: {
         type: Number,
         required: true
@@ -72,6 +76,10 @@ export class Player extends DocumentWrapper {
         return this.document.get("animals");
     }
 
+    public get crewAnimalIds(): Types.ObjectId[] {
+        return this.document.get("crewAnimals");
+    }
+
     // Private because it doesn't necessarily represent the most recent information
     private get freeCapturesLeft(): number {
         return this.document.get("freeCapturesLeft");
@@ -106,33 +114,50 @@ export class Player extends DocumentWrapper {
         return this.animalIds[position];
     }
 
-    // Adds an animal id to the user's collection
-    public async addAnimal(animalId: Types.ObjectId): Promise<void> {
+    private async addAnimalIdToList(animalId: Types.ObjectId, fieldName: string): Promise<void> {
         try {
             await this.document.updateOne({
                 $push: {
-                    animals: animalId
+                    [fieldName]: animalId
                 }
             });
         }
         catch (error) {
-            throw new Error(`There was an error adding an animal to a player's collection: ${error}`);
+            throw new Error(`There was an error adding an animal to a player's list: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding an animal to its collection: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after adding an animal to a list: ${error}`);
+        }
+    }
+
+    public async addAnimalToCollection(animalId: Types.ObjectId): Promise<void> {
+        try {
+            await this.addAnimalIdToList(animalId, "animals");
+        }
+        catch (error) {
+            throw new Error(`There was an error adding an animal to a player's collection: ${error}`);
+        }
+    }
+
+    public async addAnimalToCrew(animalId: Types.ObjectId): Promise<void> {
+        try {
+            await this.addAnimalIdToList(animalId, "crewAnimals");
+        }
+        catch (error) {
+            throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
         }
     }
 
     // Adds a set of animals at a given base position
-    public async addAnimalsPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
+    private async addAnimalIdsPositional(animalIds: Types.ObjectId[], position: number, fieldName: string): Promise<void> {
         try {
             await this.document.updateOne({
                 $push: {
-                    animals: {
+                    [fieldName]: {
                         $each: animalIds,
                         $position: position
                     }
@@ -140,43 +165,70 @@ export class Player extends DocumentWrapper {
             });
         }
         catch (error) {
-            throw new Error(`There was an error adding animals to a player's animal collection: ${error}`);
+            throw new Error(`There was an error adding animals positionally to a player's list: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding animals to its collection: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after adding animals positionally to a player's list: ${error}`);
+        }
+    }
+
+    public async addAnimalsToCollectionPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
+        try {
+            await this.addAnimalIdsPositional(animalIds, position, "animals");
+        }
+        catch (error) {
+            throw new Error(`There was an error positionally adding animals to a player's collection.`);
         }
     }
 
     // Removes an animal from the player's collection by a given id
-    public async removeAnimal(animalId: Types.ObjectId): Promise<void> {
+    private async removeAnimalIdFromList(animalId: Types.ObjectId, fieldName: string): Promise<void> {
         try {
             await this.document.updateOne({
                 $pull: {
-                    animals: animalId
+                    [fieldName]: animalId
                 }
             });
         }
         catch (error) {
-            throw new Error(`There was an error removing an animal from a player's animal collection: ${error}`);
+            throw new Error(`There was an error removing an animal from a player's list: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing an animal from its collection: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after removing an animal from its list: ${error}`);
+        }
+    }
+
+    public async removeAnimalFromCollection(animalId: Types.ObjectId): Promise<void> {
+        try {
+            await this.removeAnimalIdFromList(animalId, "animals");
+        }
+        catch (error) {
+            throw new Error(`There was an error removing an animal from a player's collection: ${error}`);
+        }
+    }
+
+    public async removeAnimalFromCrew(animalId: Types.ObjectId): Promise<void> {
+        try {
+            await this.removeAnimalIdFromList(animalId, "crewAnimals");
+        }
+        catch (error) {
+            throw new Error(`There was an error removing an animal from a player's crew: ${error}`);
         }
     }
 
     // Removes a set of animals by an array of positions
-    public async removeAnimalsPositional(animalPositions: number[]): Promise<Types.ObjectId[]> {
+    private async removeAnimalIdsFromListPositional(positions: number[], fieldName: string): Promise<Types.ObjectId[]> {
         // Form a list of all animal ids that result from the list of positions given
         const animalIds: Types.ObjectId[] = [];
-        for (const position of animalPositions) {
+        for (const position of positions) {
             animalIds.push(this.animalIds[position]);
         }
         
@@ -184,25 +236,34 @@ export class Player extends DocumentWrapper {
         try {
             await this.document.updateOne({
                 $pull: {
-                    animals: {
+                    [fieldName]: {
                         $in: animalIds
                     }
                 }
             });
         }
         catch (error) {
-            throw new Error(`There was an error removing animals from a player's animal collection: ${error}`);
+            throw new Error(`There was an error removing animals positionally from a player's list: ${error}`);
         }
 
         try {
             await this.refresh();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing animals from its collection: ${error}`);
+            throw new Error(`There was an error refreshing a player's information after removing animals from its list: ${error}`);
         }
 
         // Return the list of removed animal ids, presumably so they can be added again in a different order
         return animalIds;
+    }
+
+    public async removeAnimalsFromCollectionPositional(positions: number[]): Promise<Types.ObjectId[]> {
+        try {
+            return await this.removeAnimalIdsFromListPositional(positions, "animals");
+        }
+        catch (error) {
+            throw new Error(`There was an error positionally removing animal ids from a player's collection: ${error}`);
+        }
     }
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary

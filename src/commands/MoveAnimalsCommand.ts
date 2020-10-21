@@ -99,7 +99,7 @@ export default class MoveAnimalsCommand implements Command {
         // Try to remove all animal ids at the given positions from the user's collection
         let animalIds: Types.ObjectId[];
         try {
-            animalIds = await playerObject.removeAnimalsPositional(positions);
+            animalIds = await playerObject.removeAnimalsFromCollectionPositional(positions);
         }
         catch (error) {
             throw new Error(`There was an error trying to bulk remove animals from a player's collection for movement: ${error}`);
@@ -110,7 +110,7 @@ export default class MoveAnimalsCommand implements Command {
 
         // Attempt to add the previously removed animal ids directly under the position of the animal at the base position
         try {
-            await playerObject.addAnimalsPositional(animalIds, basePosition + 1);
+            await playerObject.addAnimalsToCollectionPositional(animalIds, basePosition + 1);
         }
         catch (error) {
             throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
