@@ -102,7 +102,7 @@ export default class ReleaseAnimalCommand implements Command {
             }
 
             // Indicate that the command was performed successfully
-            parsedUserCommand.originalMessage.react("✅").catch(error => {
+            message.react("✅").catch(error => {
                 errorHandler.handleError(error, "There was an error attempting to react to a message in the animal nickname command.");
             });
 
