@@ -13,6 +13,8 @@ export default class AddAnimalToCrewCommand implements Command {
 
     public readonly section = CommandSection.animalManagement;
 
+    public readonly blocksInput = true;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal nickname or number>\` to add an animal to your crew, allowing them to passively earn xp.`;
     }

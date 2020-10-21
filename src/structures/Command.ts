@@ -21,6 +21,8 @@ export default interface Command {
     // The section that a command falls under, used for command list message organization
     readonly section?: CommandSection;
 
+    readonly blocksInput?: boolean;
+
     // Whether or not this command can only be used by admins
     readonly adminOnly?: boolean;
 

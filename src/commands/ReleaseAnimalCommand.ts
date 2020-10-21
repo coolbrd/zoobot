@@ -16,6 +16,8 @@ export default class ReleaseAnimalCommand implements Command {
 
     public readonly section = CommandSection.animalManagement;
 
+    public readonly blocksInput = true;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to release an animal from your collection`;
     }
@@ -82,19 +84,8 @@ export default class ReleaseAnimalCommand implements Command {
             throw new Error(`There was an error awaiting a user's next message in the release command: ${error}`);
         }
 
-        // If the user didn't respond in time
-        if (!message) {
-            releaseEmbed.setDescription("Release canceled.");
-            releaseEmbed.setFooter("");
-            try {
-                await confirmMessage.edit(releaseEmbed);
-            }
-            catch (error) {
-                throw new Error(`There was an error editing a release confirmation message: ${error}`);
-            }
-        }
         // If the user confirmed the release
-        else if (message.content.toLowerCase() === "yes") {
+        if (message && message.content.toLowerCase() === "yes") {
             // Delete the animal
             try {
                 await beastiary.animals.deleteAnimal(animal.id);
@@ -109,6 +100,17 @@ export default class ReleaseAnimalCommand implements Command {
             });
 
             releaseEmbed.setDescription("Release confirmed.");
+            releaseEmbed.setFooter("");
+            try {
+                await confirmMessage.edit(releaseEmbed);
+            }
+            catch (error) {
+                throw new Error(`There was an error editing a release confirmation message: ${error}`);
+            }
+        }
+        // If the user didn't respond, or responded with anything other than yes
+        else {
+            releaseEmbed.setDescription("Release canceled.");
             releaseEmbed.setFooter("");
             try {
                 await confirmMessage.edit(releaseEmbed);

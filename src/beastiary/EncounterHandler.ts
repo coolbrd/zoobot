@@ -13,30 +13,6 @@ class EncounterHandler {
     // The map of ID and rarity pairs that will determine how common each species is
     private rarityMap: Map<Types.ObjectId, number> = new Map();
 
-    // The set of user ids that correspond to users who have initiated encounters that haven't fully loaded yet
-    private readonly usersLoadingEncounters = new Set<string>();
-
-    // A set of methods dealing with users currently loading encounters
-    public userBeginEncounterLoad(userId: string): void {
-        if (this.userIsLoadingEncounter(userId)) {
-            throw new Error("A user somehow attempted to load another encounter while already having another in progress.");
-        }
-
-        this.usersLoadingEncounters.add(userId);
-    }
-
-    public userIsLoadingEncounter(userId: string): boolean {
-        return this.usersLoadingEncounters.has(userId);
-    }
-
-    public userEndEncounterLoad(userId: string): void {
-        if (!this.usersLoadingEncounters.has(userId)) {
-            throw new Error("Attepmted to remove a user from the list of users loading encounters that wasn't in the list.");
-        }
-
-        this.usersLoadingEncounters.delete(userId);
-    }
-
     // Get the date (time) of the last capture reset
     public get lastCaptureReset(): Date {
         const now = new Date();

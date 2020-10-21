@@ -38,6 +38,9 @@ class CommandHandler {
     // The array of valid, executable commands
     public readonly commands: Command[];
 
+    // The set of user ids corresponding to users that have initiated a command that's still in progress (for applicable commands)
+    private readonly usersLoadingCommands = new Set<string>();
+
     // The map of guilds and their custom prefixes
     private readonly guildPrefixes: Map<string, string> = new Map();
 
@@ -127,6 +130,17 @@ class CommandHandler {
             }
             // If a matching command was found
             else {
+                // If the command blocks input when it's in the process of running
+                if (matchedCommand.blocksInput) {
+                    // If the player still has an unloaded command that blocks input, don't let another one initiate
+                    if (this.userIsLoadingCommand(message.author.id)) {
+                        betterSend(commandParser.channel, "You're going to fast, one of your last commands hasn't even loaded yet!");
+                        return;
+                    }
+                    // If the user isn't loading any other commands, add their id to the list of users loading commands
+                    this.setUserLoadingCommand(message.author.id);
+                }
+
                 // Run the command
                 try {
                     await matchedCommand.run(commandParser);
@@ -136,8 +150,10 @@ class CommandHandler {
                     errorHandler.handleError(error, "Command execution failed.");
 
                     betterSend(commandParser.channel, "Something went wrong while performing that command. Please report this to the developer.");
-                    return;
                 }
+
+                // After the command runs, remove the user from the set of users loading commands
+                this.unsetUserLoadingCommand(message.author.id);
             }
         }
     }
@@ -148,6 +164,25 @@ class CommandHandler {
             return false;
         }
         return message.channel.guild.id === ADMIN_SERVER_ID;
+    }
+
+    // Marks a user as loading a command
+    private setUserLoadingCommand(userId: string): void {
+        if (this.usersLoadingCommands.has(userId)) {
+            throw new Error("A user who was already loading a command was added to the users loading commands list again.");
+        }
+
+        this.usersLoadingCommands.add(userId);
+    }
+
+    // Marks a user as no longer loading a command
+    private unsetUserLoadingCommand(userId: string): void {
+        this.usersLoadingCommands.delete(userId);
+    }
+
+    // Checks if a user is loading a command
+    private userIsLoadingCommand(userId: string): boolean {
+        return this.usersLoadingCommands.has(userId);
     }
 
     // Returns the prefix to use for a given guild id, returns the default prefix if the guild has not set one

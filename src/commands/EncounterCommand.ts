@@ -14,6 +14,8 @@ export default class EncounterCommand implements Command {
 
     public readonly section = CommandSection.gettingStarted;
 
+    public readonly blocksInput = true;
+
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` to initiate an animal encounter.`;
     }
@@ -49,36 +51,20 @@ export default class EncounterCommand implements Command {
             return;
         }
 
-        // If one of the user's previous encounters hasn't loaded yet
-        if (encounterHandler.userIsLoadingEncounter(player.user.id)) {
-            betterSend(parsedUserCommand.channel, "You're going to fast, your previous encounter hasn't even loaded yet!");
-            return;
-        }
-
-        // Add the user to the list of those currently loading encounters, preventing them from spamming encounters
-        encounterHandler.userBeginEncounterLoad(player.user.id);
-
+        // Use one of the player's encounters
         try {
-            // Use one of the player's encounters
-            try {
-                await player.encounterAnimal();
-            }
-            catch (error) {
-                throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
-            }
-
-            // Create a new animal encounter
-            try {
-                await encounterHandler.spawnAnimal(parsedUserCommand.channel);
-            }
-            catch (error) {
-                throw new Error(`There was an error creating a new animal encounter: ${error}`);
-            }
+            await player.encounterAnimal();
         }
-        // Regardless of errors encountered in creating the encounter
-        finally {
-            // Mark the player as no longer loading an encounter
-            encounterHandler.userEndEncounterLoad(player.user.id);
+        catch (error) {
+            throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
+        }
+
+        // Create a new animal encounter
+        try {
+            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+        }
+        catch (error) {
+            throw new Error(`There was an error creating a new animal encounter: ${error}`);
         }
     }
 }

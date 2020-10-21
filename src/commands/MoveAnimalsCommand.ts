@@ -16,6 +16,8 @@ export default class MoveAnimalsCommand implements Command {
 
     public readonly section = CommandSection.animalManagement;
 
+    public readonly blocksInput = true;
+
     public help(prefix: string): string {
         return stripIndents`
             Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your collection to a given position.
