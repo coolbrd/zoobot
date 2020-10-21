@@ -27,6 +27,7 @@ import ViewCaptureResetCommand from "../commands/ViewCaptureResetCommand";
 import ViewEncounterResetCommand from "../commands/ViewEncounterResetCommand";
 import ReleaseAnimalCommand from "../commands/ReleaseAnimalCommand";
 import ExitCommand from "../commands/ExitCommand";
+import ViewPlayerProfileCommand from "../commands/ViewPlayerProfileCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -47,6 +48,7 @@ class CommandHandler {
             SpeciesInfoCommand,
             EncounterCommand,
             ViewCollectionCommand,
+            ViewPlayerProfileCommand,
             AnimalInfoCommand,
             ChangeAnimalNicknameCommand,
             MoveAnimalsCommand,
