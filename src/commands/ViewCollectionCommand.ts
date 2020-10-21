@@ -2,7 +2,7 @@ import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { betterSend } from "../discordUtility/messageMan";
-import { GuildMember, User } from "discord.js";
+import { GuildMember } from "discord.js";
 import { stripIndents } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import { Player } from "../models/Player";
@@ -29,30 +29,19 @@ export default class ViewCollectionCommand implements Command {
             return;
         }
 
-        // The potential target guild member
+        // The guild member whose inventory will be displayed
         let specifiedMember: GuildMember | undefined;
         // If the user provided an argument (presumably the user whose collection they want to view)
-        if (parsedUserCommand.arguments.length > 0) {
-            let userId: string;
-            // The location of the beginning of a user tag, if present
-            const tagPosition = parsedUserCommand.arguments[0].search(/<@!.*>/);
-            // If a tag was found in the first argument
-            if (tagPosition !== -1) {
-                // Extract the user id from the tag
-                userId = parsedUserCommand.arguments[0].slice(tagPosition + 3, tagPosition + 3 + 18);
-            }
-            // If the argument is not a tag
-            else {
-                // Interpret the argument as a plain id
-                userId = parsedUserCommand.arguments[0];
-            }
-
+        if (parsedUserCommand.arguments.length > 0 && parsedUserCommand.arguments[0].user) {
+            // The user that's been specified for viewing
+            const specifiedUser = parsedUserCommand.arguments[0].user;
+            
             // Get the guild member with the extracted id
-            specifiedMember = parsedUserCommand.channel.guild.member(userId) || undefined;
+            specifiedMember = parsedUserCommand.channel.guild.member(specifiedUser) || undefined;
 
             // If no guild member exists with the given id
             if (!specifiedMember) {
-                betterSend(parsedUserCommand.channel, `No user with the id \`${userId}\` exists in this server.`);
+                betterSend(parsedUserCommand.channel, "No user with that id exists in this server.");
                 return;
             }
 

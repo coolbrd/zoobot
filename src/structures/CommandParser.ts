@@ -1,12 +1,18 @@
-import { Message, TextChannel, DMChannel } from "discord.js";
+import { Message, TextChannel, DMChannel, User } from "discord.js";
+import { client } from "..";
 import { commandHandler } from "./CommandHandler";
+
+interface Argument {
+    text: string,
+    user?: User
+}
 
 // The parsed version of a command given by a user's message
 export default class CommandParser {
     // The parsed name of the command that's being used in the message, even if it's not a valid command
     public readonly commandName: string;
-    // The array of text following the command, split by spaces
-    public readonly arguments: string[];
+    // The array of arguments following the command
+    public readonly arguments: Argument[] = [];
     // The full, uncut string after the command name
     public readonly fullArguments: string;
     // The message as originally sent by the user
@@ -64,11 +70,40 @@ export default class CommandParser {
         // Get the command used and remove it from the list of arguments
         // Short-circuit to ensure that even if undefined is returned from the shift method, an empty string will be used
         const commandName = splitMessage.shift() || "";
-        
+
         // Tranform the command name used to lowercase and assign it to this instance
         this.commandName = commandName.toLowerCase();
-        // Assign the split up message to this instance as the command's supplied arguments
-        this.arguments = splitMessage;
+
+        // Iterate and add every text argument of the split up message to the list of arguments
+        for (const argument of splitMessage) {
+            // Where a specified user would go, if this argument can be resolved to one
+            let user: User | undefined;
+            // Only try to resolve user ids from arguments long enough to contain them
+            if (argument.length >= 18) {
+                let userId: string;
+                // Search for a user tag containing a user id
+                const tagPosition = argument.search(/<@!.*>/);
+                // If a tag was found in the argument
+                if (tagPosition !== -1) {
+                    // Extract the user id from the tag
+                    userId = argument.slice(tagPosition + 3, tagPosition + 3 + 18);
+                }
+                // If the argument is not a tag
+                else {
+                    // Interpret the argument as a plain id
+                    userId = argument;
+                }
+                // Attempt to resolve the argument into a user
+                user = client.users.resolve(userId) || undefined;
+            }
+
+            // Add the current argument to the list
+            this.arguments.push({
+                text: argument,
+                user: user
+            });
+        }
+    
         // Assign the original message to this instance
         this.originalMessage = message;
         // Assign the channel

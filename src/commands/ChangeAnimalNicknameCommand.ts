@@ -30,7 +30,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
         }
 
         // The string representing the animal the change the nickname of
-        const animalIdentifier = parsedUserCommand.arguments[0];
+        const animalIdentifier = parsedUserCommand.arguments[0].text;
 
         // Get the guild user that initiated this command
         const guildMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
@@ -63,7 +63,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
         }
         // If the user specified a nickname
         else {
-            newNickname = parsedUserCommand.arguments[1];
+            newNickname = parsedUserCommand.arguments[1].text;
 
             // The set of banned strings that cannot appear in animal nicknames
             const bannedSubStrings = ["*", "_", "`", "~", ">"];

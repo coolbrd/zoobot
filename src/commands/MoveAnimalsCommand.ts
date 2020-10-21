@@ -50,23 +50,24 @@ export default class MoveAnimalsCommand implements Command {
 
         // Iterate over every argument provided by the user
         parsedUserCommand.arguments.forEach(arg => {
+            const argText = arg.text;
             // Parse the argument as a number and offset it for use as an index
-            const numericPosition = Number(arg) - 1;
+            const numericPosition = Number(argText) - 1;
             // If the current argument couldn't be converted int a number
             if (isNaN(numericPosition)) {
-                errors.push(`Not a number: \`${arg}\``);
+                errors.push(`Not a number: \`${argText}\``);
             }
             // If the current number is below the acceptable range
             else if (numericPosition < 0) {
-                errors.push(`Too low: \`${arg}\``);
+                errors.push(`Too low: \`${argText}\``);
             }
             // If the current number is above the acceptable range
             else if (numericPosition >= playerObject.animalIds.length) {
-                errors.push(`Out of range: \`${arg}\``);
+                errors.push(`Out of range: \`${argText}\``);
             }
             // If the current number is a repeat
             else if (positions.includes(numericPosition)) {
-                errors.push(`Duplicate: \`${arg}\``);
+                errors.push(`Duplicate: \`${argText}\``);
             }
             // If the current number passes all tests
             else {

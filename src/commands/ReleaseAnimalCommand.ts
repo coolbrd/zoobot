@@ -30,7 +30,7 @@ export default class ReleaseAnimalCommand implements Command {
         }
 
         // The term to search the animal by
-        const animalIdentifier = parsedUserCommand.arguments[0].toLowerCase();
+        const animalIdentifier = parsedUserCommand.fullArguments.toLowerCase();
 
         // Get the animal by the user's search string
         let animal: Animal | undefined;
