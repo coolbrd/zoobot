@@ -26,6 +26,7 @@ import CommandAliasesCommand from "../commands/CommandAliasesCommand";
 import ViewCaptureResetCommand from "../commands/ViewCaptureResetCommand";
 import ViewEncounterResetCommand from "../commands/ViewEncounterResetCommand";
 import ReleaseAnimalCommand from "../commands/ReleaseAnimalCommand";
+import ExitCommand from "../commands/ExitCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -58,7 +59,8 @@ class CommandHandler {
             EditSpeciesCommand,
             SubmitSpeciesCommand,
             SendPendingSubmissionsCommand,
-            ApprovePendingSpeciesCommand
+            ApprovePendingSpeciesCommand,
+            ExitCommand
         ];
 
         // Assign the array of commands to a new instance of each command class

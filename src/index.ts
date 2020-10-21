@@ -94,3 +94,17 @@ client.on("error", error => console.error("Discord client error: ", error));
 
 // Log the bot into the discord client with the provided token
 client.login(DISCORD_TOKEN);
+
+// Gracefully shuts the bot down
+export async function exit(): Promise<void> {
+    client.destroy();
+
+    try {
+        await mongoose.disconnect();
+    }
+    catch (error) {
+        throw new Error(`There was an error disconnecting from the active MongoDB instance: ${error}`);
+    }
+
+    process.exit();
+}
