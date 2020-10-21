@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/CommandParser";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import { Player } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
@@ -13,6 +13,8 @@ export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ["moveanimals", "ma"];
 
     public readonly info = "Rearrange animals in your collection";
+
+    public readonly section = CommandSection.animalManagement;
 
     public help(prefix: string): string {
         return stripIndents`

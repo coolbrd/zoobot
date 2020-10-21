@@ -1,6 +1,6 @@
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/CommandParser";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import { commandHandler } from "../structures/CommandHandler";
 import { stripIndents } from "common-tags";
 
@@ -9,6 +9,8 @@ export default class HelpCommand implements Command {
     public readonly commandNames = ["help", "h"];
 
     public readonly info = "View more information about the usage of a command";
+
+    public readonly section = CommandSection.info;
 
     public help(prefix: string): string {
         return stripIndents`

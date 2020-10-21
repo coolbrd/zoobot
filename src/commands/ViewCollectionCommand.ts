@@ -1,4 +1,4 @@
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { betterSend } from "../discordUtility/messageMan";
@@ -12,7 +12,9 @@ import getGuildMember from "../discordUtility/getGuildMember";
 export default class ViewCollectionCommand implements Command {
     public readonly commandNames = ["collection", "col", "c"];
 
-    public readonly info = "View your collection of animals"
+    public readonly info = "View you or another player's collection of animals";
+
+    public readonly section = CommandSection.playerInfo;
 
     public help(commandPrefix: string): string {
         return stripIndents`

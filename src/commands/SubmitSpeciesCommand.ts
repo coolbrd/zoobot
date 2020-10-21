@@ -1,6 +1,6 @@
 import { stripIndents } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import { PendingSpeciesModel } from "../models/PendingSpecies";
@@ -14,6 +14,8 @@ export default class SubmitSpeciesCommand implements Command {
     public readonly commandNames = ["submitspecies", "submit"];
 
     public readonly info = "Submit a new species to The Beastiary";
+
+    public readonly section = CommandSection.getInvolved;
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` to begin the species submission process.`;

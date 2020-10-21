@@ -1,6 +1,6 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
@@ -11,6 +11,8 @@ export default class ChangeAnimalNicknameCommand implements Command {
     public readonly commandNames = ["nickname", "nick", "nn"];
 
     public readonly info = "Change the nickname of one of your captured animals";
+
+    public readonly section = CommandSection.animalManagement;
 
     public help(prefix: string): string {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` \`<new nickname>\` to change the nickname of an animal in your collection. Use quotation marks (") for any names with spaces in them.`;

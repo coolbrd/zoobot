@@ -4,7 +4,7 @@ import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Animal } from "../models/Animal";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
@@ -13,6 +13,8 @@ export default class ReleaseAnimalCommand implements Command {
     public readonly commandNames = ["release", "r"];
 
     public readonly info = "Release an animal from your collection";
+
+    public readonly section = CommandSection.animalManagement;
 
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to release an animal from your collection`;

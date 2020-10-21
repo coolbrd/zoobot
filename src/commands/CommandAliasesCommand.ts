@@ -1,5 +1,5 @@
 import { betterSend } from "../discordUtility/messageMan";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import { commandHandler } from "../structures/CommandHandler";
 import CommandParser from "../structures/CommandParser";
 
@@ -8,6 +8,8 @@ export default class CommandAliasesCommand implements Command {
     public readonly commandNames = ["alias", "aliases", "a"];
 
     public readonly info = "View the alternate names and abbreviations of a command";
+
+    public readonly section = CommandSection.info;
 
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view the valid aliases of a command.`;

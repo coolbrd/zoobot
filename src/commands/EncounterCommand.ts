@@ -1,4 +1,4 @@
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { encounterHandler } from "../beastiary/EncounterHandler";
@@ -11,6 +11,8 @@ export default class EncounterCommand implements Command {
     public readonly commandNames = ["encounter", "e"];
 
     public readonly info = "Initiate an animal encounter";
+
+    public readonly section = CommandSection.gettingStarted;
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` to initiate an animal encounter.`;

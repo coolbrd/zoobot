@@ -1,4 +1,4 @@
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { Species } from "../models/Species";
 import { betterSend } from "../discordUtility/messageMan";
@@ -7,9 +7,11 @@ import { beastiary } from "../beastiary/Beastiary";
 
 // Sends an informational message about a given species
 export default class SpeciesInfoCommand implements Command {
-    public readonly commandNames = ["info", "i", "search"];
+    public readonly commandNames = ["speciesinfo", "si"];
 
     public readonly info = "View a species' information and collectible cards";
+
+    public readonly section = CommandSection.info;
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;

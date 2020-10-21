@@ -3,7 +3,7 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../models/Player";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
@@ -11,7 +11,9 @@ import { remainingTimeString } from "../utility/timeStuff";
 export default class ViewEncounterResetCommand implements Command {
     public readonly commandNames = ["encounterreset", "er", "encounterperiod", "ep"];
 
-    public readonly info = "View your current number of encounters remaining, and the time until the next encounter reset.";
+    public readonly info = "View your current number of encounters remaining, and the time until the next encounter reset";
+
+    public readonly section = CommandSection.playerInfo;
 
     public help(displayPrefix: string): string {
         return `Use ${displayPrefix}${this.commandNames[0]} to view the time until the next encounter reset, alongside the number of free encounters you have left.`;

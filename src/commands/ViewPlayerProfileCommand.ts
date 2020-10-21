@@ -5,14 +5,16 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import PlayerProfileMessage from "../messages/PlayerProfileMessage";
 import { Player } from "../models/Player";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 // Sends a message containing the player profile of a given player, or the command sender
 export default class ViewPlayerProfileCommand implements Command {
     public readonly commandNames = ["profile", "p"];
 
-    public readonly info = "View your or another player's profile";
+    public readonly info = "View you or another player's profile";
+
+    public readonly section = CommandSection.playerInfo;
 
     public help(displayPrefix: string): string {
         return stripIndents`

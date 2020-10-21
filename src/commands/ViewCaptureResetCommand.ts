@@ -3,7 +3,7 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../models/Player";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
@@ -11,7 +11,9 @@ import { remainingTimeString } from "../utility/timeStuff";
 export default class ViewCaptureResetCommand implements Command {
     public readonly commandNames = ["capturereset", "captureperiod", "cr", "cp"];
 
-    public readonly info = "See your current number of captures left and the time until the next reset";
+    public readonly info = "View whether or not you can capture, and the time until the next capture reset";
+
+    public readonly section = CommandSection.playerInfo;
 
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view how many captures you have, and the amount of time until the next reset.`;

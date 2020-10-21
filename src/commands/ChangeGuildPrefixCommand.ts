@@ -1,6 +1,6 @@
 import CommandParser from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import { PlayerGuild } from "../models/Guild";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
@@ -9,7 +9,9 @@ import { beastiary } from "../beastiary/Beastiary";
 export default class ChangeGuildPrefixCommand implements Command {
     public readonly commandNames = ["prefix", "changeprefix"];
 
-    public readonly info = "Change the prefix I respond to"
+    public readonly info = "Change the prefix I respond to";
+
+    public readonly section = CommandSection.guildManagement;
 
     public help(prefix: string): string {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<new command prefix>\` to change the prefix that I respond to.`;

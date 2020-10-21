@@ -1,7 +1,7 @@
 import { APIMessage } from "discord.js";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import { commandHandler } from "../structures/CommandHandler";
 import CommandParser from "../structures/CommandParser";
 
@@ -11,28 +11,64 @@ export default class CommandListCommand implements Command {
 
     public readonly info = "View this message";
 
+    public readonly section = CommandSection.info;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to get an overview of all commands and their functions.`;
     }
 
     public async run(parsedUserCommand: CommandParser): Promise<void> {
-        let commandListString = "Here's a list of all the things I can do:\n\n";
+        let infoCommandString = "";
+        let gettingStartedString = "";
+        let playerInfoString = "";
+        let animalManagementString = "";
+        let guildManagementString = "";
+        let getInvolvedString = "";
 
         // Add the command info string of all non-admin commands
         for (const command of commandHandler.commands) {
             if (!command.adminOnly) {
-                commandListString += `\`${command.commandNames[0]}\`: ${command.info}\n`;
+                const infoString = `\`${command.commandNames[0]}\`: ${command.info}\n`;
+                switch (command.section) {
+                    case CommandSection.info: {
+                        infoCommandString += infoString;
+                        break;
+                    }
+                    case CommandSection.gettingStarted: {
+                        gettingStartedString += infoString;
+                        break;
+                    }
+                    case CommandSection.playerInfo: {
+                        playerInfoString += infoString;
+                        break;
+                    }
+                    case CommandSection.animalManagement: {
+                        animalManagementString += infoString;
+                        break;
+                    }
+                    case CommandSection.guildManagement: {
+                        guildManagementString += infoString;
+                        break;
+                    }
+                    case CommandSection.getInvolved: {
+                        getInvolvedString += infoString;
+                        break;
+                    }
+                }
             }
         }
 
         const embed = new SmartEmbed();
 
         embed.setTitle("Commands");
-
-        embed.setDescription(commandListString);
-
+        embed.setDescription("Here's all the things I can do.");
+        embed.addField("Info", infoCommandString, true);
+        embed.addField("Getting started", gettingStartedString, true);
+        embed.addField("Player info", playerInfoString, true);
+        embed.addField("Animal management", animalManagementString, true);
+        embed.addField("Server management", guildManagementString, true);
+        embed.addField("Get involved!", getInvolvedString, true);
         embed.setFooter(`Prefix commands with "${commandHandler.getGuildPrefix(parsedUserCommand.originalMessage.guild)}", or by pinging me!`);
-
         embed.setColor(0x18476b);
         
         betterSend(parsedUserCommand.channel, new APIMessage(parsedUserCommand.channel, { embed: embed }));

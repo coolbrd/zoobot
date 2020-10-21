@@ -2,7 +2,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../models/Animal";
-import Command from "../structures/Command";
+import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 // Displays the information of a player's captured animal
@@ -10,6 +10,8 @@ export default class AnimalInfoCommand implements Command {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
 
     public readonly info = "View the stats, info, and card of a captured animal";
+
+    public readonly section = CommandSection.info;
 
     public help(prefix: string): string {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` to view information about that animal.`;
