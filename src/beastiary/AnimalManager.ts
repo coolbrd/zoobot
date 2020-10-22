@@ -13,7 +13,7 @@ import { beastiary } from "./Beastiary";
 export default class AnimalManager extends WrapperCache<Animal> {
     // Set the timeout period for animal cache objects to 60 seconds
     constructor() {
-        super(60000);
+        super(300000);
     }
 
     // Gets an animal object by its id

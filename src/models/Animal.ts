@@ -43,6 +43,11 @@ export class Animal extends DocumentWrapper {
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
 
+    // The amount of experience the animal has gained since experience was last saved to the database
+    private experienceChunk = 0;
+    // The amount of experience required before a database save is initiated
+    private readonly experienceSaveThreshold = 5;
+
     constructor(document: Document) {
         super(document, AnimalModel);
     }
@@ -65,23 +70,6 @@ export class Animal extends DocumentWrapper {
 
     public get nickname(): string {
         return this.document.get("nickname");
-    }
-
-    public async setNickname(newNickname: string | null): Promise<void> {
-        // Update the animal's document via an atomic operation (does not affect document in memory)
-        try {
-            await this.document.updateOne({
-                $set: {
-                    nickname: newNickname
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error trying to change the nickname of an animal document: ${error}`);
-        }
-
-        // Reflect the changes in memory
-        this.document.set("nickname", newNickname);
     }
 
     public get experience(): number {
@@ -122,6 +110,61 @@ export class Animal extends DocumentWrapper {
     // Whether or not every one of this animal's fields are loaded and ready to go
     public get fullyLoaded(): boolean {
         return super.fullyLoaded && this.speciesLoaded && this.cardLoaded;
+    }
+
+    public async setNickname(newNickname: string | null): Promise<void> {
+        // Update the animal's document via an atomic operation (does not affect document in memory)
+        try {
+            await this.document.updateOne({
+                $set: {
+                    nickname: newNickname
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error trying to change the nickname of an animal document: ${error}`);
+        }
+
+        // Refresh the animal's document
+        try {
+            await this.refresh();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing an animal's document after setting its nickname: ${error}`);
+        }
+    }
+
+    // Adds some experience to the animal
+    // Only commits changes to the database after a significant amount of experience has been added
+    public async addExperience(amount: number, saveAnyway?: boolean): Promise<void> {
+        // Update this document's experience in memory
+        this.document.set("experience", this.experience + amount);
+
+        // Add the experience gained to the current chunk of experience being tracked
+        this.experienceChunk += amount;
+        if (this.experienceChunk >= this.experienceSaveThreshold || saveAnyway) {
+            // Save the animal's current chunk of experience to the database
+            try {
+                await this.document.updateOne({
+                    $inc: {
+                        experience: this.experienceChunk
+                    }
+                });
+            }
+            catch (error) {
+                throw new Error(`There was an error adding experience to an animal: ${error}`);
+            }
+
+            // Refresh the document
+            try {
+                await this.refresh();
+            }
+            catch (error) {
+                throw new Error(`There was an error refreshing an animal's document after updating its experience: ${error}`);
+            }
+            // Reset the current chunk of experience
+            this.experienceChunk = 0;
+        }
     }
 
     // Loads this animal's species object
@@ -194,6 +237,16 @@ export class Animal extends DocumentWrapper {
         }
         catch (error) {
             throw new Error(`There was an error loading an animal's card: ${error}`);
+        }
+    }
+
+    // Saves any chunks of unsaved experience so it doesn't get lost
+    public async finalize(): Promise<void> {
+        try {
+            await this.addExperience(0, true);
+        }
+        catch (error) {
+            throw new Error(`There was an error finalizing an animal's experience before it was unloaded: ${error}`);
         }
     }
 

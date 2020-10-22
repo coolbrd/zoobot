@@ -17,6 +17,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animalObject: Anima
     embed.setTitle(`${animalDisplayName}`);
     embed.addField("Species", capitalizeFirstLetter(species.scientificName), true);
     embed.addField("Card", `${card.index + 1}/${species.cards.length}`, true);
+    embed.addField("Experience", animalObject.experience);
 
     // Only show the animal's common name if its nickname is displayed
     animalObject.nickname && embed.setDescription(capitalizeFirstLetter(animalObject.species.commonNames[0]));

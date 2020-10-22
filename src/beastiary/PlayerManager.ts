@@ -1,14 +1,34 @@
-import { GuildMember } from "discord.js";
+import { GuildMember, Message } from "discord.js";
 import { Document } from "mongoose";
+import config from "../config/BotConfig";
+import getGuildMember from "../discordUtility/getGuildMember";
+import { Animal } from "../models/Animal";
 import { PlayerModel, Player } from "../models/Player";
 import WrapperCache from "../structures/GameObjectCache";
+import { beastiary } from "./Beastiary";
 
 // The player manager within The Beastiary
 // The easiest and most efficient way to access player objects
 export default class PlayerManager extends WrapperCache<Player> {
+    private readonly playerUserIds = new Set<string>();
+
     // Keep players in the cache for at least two minutes
     constructor() {
         super(120000);
+    }
+
+    public async init(): Promise<void> {
+        let playerDocuments: Document[];
+        try {
+            playerDocuments = await PlayerModel.find({}, { userId: 1 });
+        }
+        catch (error) {
+            throw new Error(`There was an error getting all player documents from the database: ${error}`);
+        }
+
+        for (const playerDocument of playerDocuments) {
+            this.playerUserIds.add(playerDocument.get("userId"));
+        }
     }
 
     // Check only the cache for a pre-existing player
@@ -38,8 +58,7 @@ export default class PlayerManager extends WrapperCache<Player> {
         return playerDocument;
     }
 
-    // Gets a player object by a given guild member
-    public async fetch(guildMember: GuildMember): Promise<Player> {
+    public async fetchExisting(guildMember: GuildMember): Promise<Player | undefined> {
         // First check the cache to see if the player's object already exists in it
         const playerInCache = this.getPlayerFromCache(guildMember);
         if (playerInCache) {
@@ -50,22 +69,13 @@ export default class PlayerManager extends WrapperCache<Player> {
         // Attempt to find a player document with the given information
         const playerDocument = await this.getPlayerDocumentFromDatabase(guildMember);
 
-        let player: Player;
-        // If no player document exists for the given guild member
+        // If no player document exists for the given guild member, return nothing
         if (!playerDocument) {
-            // Create a new player object
-            try {
-                player = await this.createNewPlayer(guildMember);
-            }
-            catch (error) {
-                throw new Error(`There was an error creating a new player object: ${error}`);
-            }
+            return;
         }
-        // If an existing player document was found
-        else {
-            // Create an object from the document
-            player = new Player(playerDocument);
-        }
+
+        // Create an object from the document
+        const player = new Player(playerDocument);
         
         // Add the player to the cache
         try {
@@ -73,6 +83,28 @@ export default class PlayerManager extends WrapperCache<Player> {
         }
         catch (error) {
             throw new Error(`There was an error adding a player to the cache: ${error}`);
+        }
+
+        return player;
+    }
+
+    // Gets a player object by a given guild member
+    public async fetch(guildMember: GuildMember): Promise<Player> {
+        let player: Player | undefined;
+        try {
+            player = await this.fetchExisting(guildMember);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching an existing player from the cache: ${error}`);
+        }
+
+        if (!player) {
+            try {
+                player = await this.createNewPlayer(guildMember);
+            }
+            catch (error) {
+                throw new Error(`There was an error creating a new player object: ${error}`);
+            }
         }
 
         return player;
@@ -107,6 +139,9 @@ export default class PlayerManager extends WrapperCache<Player> {
             throw new Error(`There was an error adding a player to the cache: ${error}`);
         }
 
+        // Add the new player's user id to the list of all player user ids in memory
+        this.playerUserIds.add(guildMember.user.id);
+
         return player;
     }
 
@@ -126,5 +161,63 @@ export default class PlayerManager extends WrapperCache<Player> {
             return true;
         }
         return false;
+    }
+
+    // Applies experience to players with animals in their crew
+    public async handleMessage(message: Message): Promise<void> {
+        // Don't continue if the message is in dms, was sent by a bot, or by somebody who isn't a player in the game
+        if (!message.guild || message.author.bot || !this.playerUserIds.has(message.author.id)) {
+            return;
+        }
+
+        // Get the player that sent the message
+        let player: Player;
+        try {
+            player = await beastiary.players.fetch(getGuildMember(message.author, message.guild));
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching a player after they sent a messgae: ${error}`);
+        }
+
+        // Get the animals in the player's crew
+        const crewAnimals: Animal[] = [];
+        try {
+            await new Promise(resolve => {
+                let completed = 0;
+                for (const animalId of player.crewAnimalIds) {
+                    beastiary.animals.fetchById(animalId).then(animal => {
+                        crewAnimals.push(animal);
+
+                        if (++completed >= player.crewAnimalIds.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error fetching a player's crew animal by its id: ${error}`);
+                    });
+                }
+            })
+        }
+        catch (error) {
+            throw new Error(`There was an error bulk fetching a player's crew animals: ${error}`);
+        }
+
+        // Give each animal in the crew some experience
+        try {
+            await new Promise(resolve => {
+                let completed = 0;
+                for (const crewAnimal of crewAnimals) {
+                    crewAnimal.addExperience(config.experiencePerMessage).then(() => {
+                        if (++completed >= crewAnimals.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error adding experience to an animal: ${error}`);
+                    });
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error giving a player's crew animals experience in bulk.`);
+        }
     }
 }

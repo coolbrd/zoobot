@@ -107,6 +107,11 @@ export default class DocumentWrapper {
         }
     }
 
+    // Used to commit any final changes before this wrapper is unloaded. Meant to be extended.
+    public async finalize(): Promise<void> {
+        return;
+    }
+
     // Deletes the document from the database
     public async delete(): Promise<void> {
         try {

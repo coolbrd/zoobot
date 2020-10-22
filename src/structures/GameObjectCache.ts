@@ -18,7 +18,7 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
     protected createNewTimer(value: ValueType): NodeJS.Timeout {
         return setTimeout(() => {
             // Remove the cached value from the cache after the given amount of time
-            this.cache.delete(value.id.toHexString());
+            this.removeFromCache(value.id);
         }, this.cacheTimeout);
     }
 
@@ -46,6 +46,9 @@ export default class WrapperCache<ValueType extends DocumentWrapper> {
 
         // Stop the cached removal timer
         cachedValue.stopTimer();
+
+        // Finalize any data that needs to be committed in the value
+        cachedValue.value.finalize();
 
         // Remove the value from the cache
         this.cache.delete(valueId.toHexString());

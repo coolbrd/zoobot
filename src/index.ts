@@ -5,6 +5,7 @@ import { errorHandler } from "./structures/ErrorHandler";
 import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessageHandler";
 import { encounterHandler } from "./beastiary/EncounterHandler";
 import { commandHandler } from "./structures/CommandHandler";
+import { beastiary } from "./beastiary/Beastiary";
 
 // Create a new client for the bot to use
 export const client = new Discord.Client();
@@ -68,10 +69,14 @@ client.on("ready", () => {
     errorHandler.init(client).then(() => {
         interactiveMessageHandler.init(client);
 
-        console.log("Handlers initialized");
+        beastiary.players.init().then(() => {
+            console.log("Handlers initialized");
 
-        preLoad.handlersInitialized = true;
-        complete();
+            preLoad.handlersInitialized = true;
+            complete();
+        }).catch(error => {
+            throw new Error(`There was an error initializing the player manager: ${error}`);
+        });
     }).catch(error => {
         throw new Error(`There was an error intiailizing the error handler (uh oh!): ${error}`);
     });
@@ -87,6 +92,7 @@ client.on("message", (message: Message) => {
 
     // Handle the incoming message
     commandHandler.handleMessage(message);
+    beastiary.players.handleMessage(message);
 });
 
 // When the bot encounters an error
