@@ -1,4 +1,5 @@
-import mongoose, { Schema, Types } from "mongoose";
+import { GuildMember } from "discord.js";
+import mongoose, { Document, Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
 import GameObject from "../structures/GameObject";
 import { SpeciesCard, Species } from "./Species";
@@ -48,6 +49,17 @@ export class Animal extends GameObject {
     private experienceChunk = 0;
     // The amount of experience required before a database save is initiated
     private readonly experienceSaveThreshold = 10;
+
+    public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
+        // Create the new animal
+        return new AnimalModel({
+            ownerId: owner.user.id,
+            guildId: owner.guild.id,
+            species: species.id,
+            card: card.id,
+            experience: 0
+        });
+    }
 
     public get ownerId(): string {
         return this.document.get("ownerId");

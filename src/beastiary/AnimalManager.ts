@@ -96,14 +96,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(`There was an error fetching a player object by a guild member while creating an animal: ${error}`);
         }
 
-        // Create the new animal
-        const animalDocument = new AnimalModel({
-            ownerId: ownerObject.userId,
-            guildId: ownerObject.guildId,
-            species: species.id,
-            card: card.id,
-            experience: 0
-        });
+        // Create a new animal document
+        const animalDocument = Animal.newDocument(owner, species, card);
 
         // Save the new animal
         try {

@@ -1,4 +1,4 @@
-import { User } from "discord.js";
+import { GuildMember, User } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { client } from "..";
 import { encounterHandler } from "../beastiary/EncounterHandler";
@@ -55,6 +55,18 @@ export class Player extends GameObject {
 
     // The player's associated Discord user object
     public readonly user: User;
+
+    public static newDocument(guildMember: GuildMember): Document {
+        // Create and return a new player document
+        return new PlayerModel({
+            userId: guildMember.user.id,
+            guildId: guildMember.guild.id,
+            freeCapturesLeft: 0,
+            totalCaptures: 0,
+            freeEncountersLeft: 0,
+            totalEncounters: 0
+        });
+    }
 
     constructor(document: Document) {
         super(document);

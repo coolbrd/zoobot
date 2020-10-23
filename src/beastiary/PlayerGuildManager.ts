@@ -1,5 +1,4 @@
 import { Document } from "mongoose";
-import config from "../config/BotConfig";
 import { GuildModel, PlayerGuild } from "../models/Guild";
 import GameObjectCache from "../structures/GameObjectCache";
 
@@ -39,13 +38,8 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
 
         // If no document currently represents the guild
         if (!guildDocument) {
-            // Make one and save it
-            guildDocument = new GuildModel({
-                id: guildId,
-                config: {
-                    prefix: config.prefix
-                }
-            });
+            // Create a new document for the guild
+            guildDocument = PlayerGuild.newDocument(guildId);
 
             // Save the new guild
             try {

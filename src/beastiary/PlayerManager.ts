@@ -12,7 +12,7 @@ import { beastiary } from "./Beastiary";
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
 
-    protected readonly cacheTimeout = 3000;
+    protected readonly cacheTimeout = 300000;
 
     private readonly playerUserIds = new Set<string>();
 
@@ -116,14 +116,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     // Creates and saves a new player
     private async createNewPlayer(guildMember: GuildMember): Promise<Player> {
         // Create a new player document
-        const playerDocument = new PlayerModel({
-            userId: guildMember.user.id,
-            guildId: guildMember.guild.id,
-            freeCapturesLeft: 0,
-            totalCaptures: 0,
-            freeEncountersLeft: 0,
-            totalEncounters: 0
-        });
+        const playerDocument = Player.newDocument(guildMember)
 
         // Save it
         try {
