@@ -1,26 +1,29 @@
 import { Document } from "mongoose";
 import config from "../config/BotConfig";
 import { GuildModel, PlayerGuild } from "../models/Guild";
-import WrapperCache from "../structures/GameObjectCache";
+import GameObjectCache from "../structures/GameObjectCache";
 
 // The manager instance for guild game objects
-export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
-    // Keep guilds in the cache for at least two minutes
-    constructor() {
-        super(120000);
+export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
+    protected readonly model = GuildModel;
+
+    protected readonly cacheTimeout = 300000;
+
+    protected documentToGameObject(document: Document): PlayerGuild {
+        return new PlayerGuild(document);
     }
 
     // Gets a guild object by a given id
-    public async fetch(guildId: string): Promise<PlayerGuild> {
+    public async fetchByGuildId(guildId: string): Promise<PlayerGuild> {
         // First check the cache to see if the guild's object already exists in it
         for (const cachedGuild of this.cache.values()) {
             // If the current guild's information matches
-            if (cachedGuild.value.guildId === guildId) {
+            if (cachedGuild.gameObject.guildId === guildId) {
                 // Reset the cached guild's deletion timer
-                cachedGuild.setTimer(this.createNewTimer(cachedGuild.value));
+                cachedGuild.resetTimer();
 
                 // Return the existing guild from the cache
-                return cachedGuild.value;
+                return cachedGuild.gameObject;
             }
         }
         // No matching guild exists in the cache
@@ -54,7 +57,7 @@ export default class PlayerGuildManager extends WrapperCache<PlayerGuild> {
         }
 
         // Create a guild object from the guild document
-        const playerGuild = new PlayerGuild(guildDocument);
+        const playerGuild = this.documentToGameObject(guildDocument);
 
         // Add the guild to the cache
         try {

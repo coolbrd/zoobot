@@ -1,73 +1,115 @@
-import { Types } from "mongoose";
-import CachedValue from "./CachedValue";
-import DocumentWrapper from "./DocumentWrapper";
+import { Document, Model, Types } from "mongoose";
+import CachedGameObject from "./CachedGameObject";
+import GameObject from "./GameObject";
 
-// A cache of values that specifically extend DocumentWrapper, meaning they have an id
-export default class WrapperCache<ValueType extends DocumentWrapper> {
+// A cache of GameObjects
+export default abstract class GameObjectCache<GameObjectType extends GameObject> {
+    // The model in which game object's documents will be found
+    protected readonly abstract model: Model<Document>;
+
+    // The inactivity time it takes for an object to get removed from the cache
+    protected readonly abstract cacheTimeout: number;
+
     // The current map of cached objects
-    protected readonly cache = new Map<string, CachedValue<ValueType>>();
+    protected readonly cache = new Map<string, CachedGameObject<GameObjectType>>();
 
-    // The inactivity time it takes for a value to get removed from the cache
-    protected readonly cacheTimeout: number;
+    // Get a cached value by an ObjectId
+    protected getCachedGameObject(id: Types.ObjectId): CachedGameObject<GameObjectType> | undefined {
+        // Get using the id as its hex string equivalent
+        const cachedGameObject = this.cache.get(id.toHexString());
 
-    constructor(cacheTimeout: number) {
-        this.cacheTimeout = cacheTimeout;
+        // If a game object was found, reset its timer
+        if (cachedGameObject) {
+            cachedGameObject.resetTimer();
+        }
+        return cachedGameObject;
     }
 
-    // Creates and returns a timeout object used for delaying the deletion of cached values from the cache
-    protected createNewTimer(value: ValueType): NodeJS.Timeout {
-        return setTimeout(() => {
-            // Remove the cached value from the cache after the given amount of time
-            this.removeFromCache(value.id);
-        }, this.cacheTimeout);
+    // Get the value from a found cached item in the cache
+    public getFromCache(id: Types.ObjectId): GameObjectType | undefined {
+        // Find the cached item
+        const cachedValue = this.getCachedGameObject(id);
+        // Return its value, or undefined if no item was found
+        if (cachedValue) {
+            return cachedValue.gameObject;
+        }
+        return undefined;
     }
 
     // Adds a value to the cache
-    protected async addToCache(value: ValueType): Promise<void> {
+    protected async addToCache(value: GameObjectType): Promise<void> {
+        // Load the cached value's information
         try {
             await value.load();
         }
         catch (error) {
             throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
         }
+
+        // Create a new cached value that will remove itself from this cache in a set amount of time
+        const newCachedValue = new CachedGameObject<GameObjectType>(value, this.cacheTimeout, this);
+
         // Add the value to the cache by its document's id
-        this.cache.set(value.id.toHexString(), new CachedValue<ValueType>(value, this.createNewTimer(value)));
+        this.cache.set(value.id.toHexString(), newCachedValue);
     }
 
     // Removes a value by a given id from the cache
-    protected removeFromCache(valueId: Types.ObjectId): void {
-        // Get the cached value
-        const cachedValue = this.cache.get(valueId.toHexString());
+    public async removeFromCache(valueId: Types.ObjectId): Promise<void> {
+        // Get the cached object
+        const cachedGameObject = this.cache.get(valueId.toHexString());
 
         // Make sure it exists
-        if (!cachedValue) {
+        if (!cachedGameObject) {
             throw new Error("Attempted to delete a value that isn't in the specified cache.");
         }
 
-        // Stop the cached removal timer
-        cachedValue.stopTimer();
+        // Stop the cache removal timer
+        cachedGameObject.stopTimer();
 
-        // Finalize any data that needs to be committed in the value
-        cachedValue.value.finalize();
+        // Tell the game object to finalize everything before it's removed from memory
+        try {
+            await cachedGameObject.gameObject.finalize();
+        }
+        catch (error) {
+            throw new Error(`There was an error finalizing a game object before it was removed from its cache: ${error}`);
+        }
 
         // Remove the value from the cache
         this.cache.delete(valueId.toHexString());
     }
 
-    // Get a cached value by an ObjectId
-    protected getFromCache(id: Types.ObjectId): CachedValue<ValueType> | undefined {
-        // Get using the id as its hex string equivalent
-        return this.cache.get(id.toHexString());
-    }
+    // Converts a given document into a game object of the subclassed type
+    protected abstract documentToGameObject(document: Document): GameObjectType;
 
-    // Get the value from a found cached item in the cache
-    public getValueFromCache(id: Types.ObjectId): ValueType | undefined {
-        // Find the cached item
-        const cachedValue = this.getFromCache(id);
-        // Return its value, or undefined if no item was found
-        if (cachedValue) {
-            return cachedValue.value;
+    // Gets an existing game object from either the cache or the database
+    public async fetchById(id: Types.ObjectId): Promise<GameObjectType> {
+        const cachedGameObject = this.getCachedGameObject(id);
+
+        if (cachedGameObject) {
+            return cachedGameObject.gameObject;
         }
-        return undefined;
+
+        let gameObjectDocument: Document | null;
+        try {
+            gameObjectDocument = await this.model.findById(id);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching a game object's document in a cache by its id: ${error}`);
+        }
+
+        if (gameObjectDocument) {
+            const gameObject = this.documentToGameObject(gameObjectDocument);
+            try {
+                await this.addToCache(gameObject);
+            }
+            catch (error) {
+                throw new Error(`There was an error adding a game object to the cache after finding it by its id: ${error}`);
+            }
+
+            return gameObject;
+        }
+        else {
+            throw new Error("An id with no matching document was fetched in a game object cache.");
+        }
     }
 }

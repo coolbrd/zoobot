@@ -75,7 +75,7 @@ class EncounterHandler {
         // Get a weighted random species object
         let species: Species;
         try {
-            species = await beastiary.species.fetchById(getWeightedRandom(this.rarityMap));
+            species = await beastiary.species.fetchExistingById(getWeightedRandom(this.rarityMap));
         }
         catch (error) {
             throw new Error(`There was an error getting a species by an id: ${error}`);

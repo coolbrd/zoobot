@@ -1,26 +1,29 @@
 import { Document, Types } from "mongoose";
 import { Species, SpeciesModel } from "../models/Species";
-import WrapperCache from "../structures/GameObjectCache";
+import GameObjectCache from "../structures/GameObjectCache";
 
 // The manager instance for all species and their information
-export default class SpeciesManager extends WrapperCache<Species> {
-    // Keep species in the cache for at least five minutes
-    constructor() {
-        super(300000);
+export default class SpeciesManager extends GameObjectCache<Species> {
+    protected readonly model = SpeciesModel;
+
+    protected readonly cacheTimeout = 600000;
+
+    protected documentToGameObject(document: Document): Species {
+        return new Species(document);
     }
 
     // Gets a species object by its id
-    public async fetchById(id: Types.ObjectId): Promise<Species> {
+    public async fetchExistingById(id: Types.ObjectId): Promise<Species> {
         // Try to find an already cached species by its id
-        const cachedSpecies = this.getFromCache(id);
+        const cachedSpecies = this.getCachedGameObject(id);
 
         // If that species is already in the cache
         if (cachedSpecies) {
             // Reset the cached species' deletion timer
-            cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
+            cachedSpecies.resetTimer();
 
             // Return the existing species from the cache
-            return cachedSpecies.value;
+            return cachedSpecies.gameObject;
         }
         // The species wasn't found in the cache
 
@@ -61,12 +64,12 @@ export default class SpeciesManager extends WrapperCache<Species> {
         // Check the cache first
         for (const cachedSpecies of this.cache.values()) {
             // If the current species has the searched common name
-            if (cachedSpecies.value.commonNames.includes(name)) {
+            if (cachedSpecies.gameObject.commonNames.includes(name)) {
                 // Reset its cache reset timer
-                cachedSpecies.setTimer(this.createNewTimer(cachedSpecies.value));
+                cachedSpecies.resetTimer();
 
                 // Return the cached value
-                return cachedSpecies.value;
+                return cachedSpecies.gameObject;
             }
         }
 
@@ -85,7 +88,7 @@ export default class SpeciesManager extends WrapperCache<Species> {
         }
 
         // Convert the document into an object and add it to the cache
-        const species = new Species(speciesDocument);
+        const species = this.documentToGameObject(speciesDocument);
         
         // Add the found species to the cache
         try {

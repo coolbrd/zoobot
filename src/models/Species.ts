@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import DocumentWrapper from "../structures/DocumentWrapper";
+import GameObject from "../structures/GameObject";
 import getWeightedRandom from "../utility/getWeightedRandom";
 
 export const cardSubSchema = new Schema({
@@ -163,16 +163,14 @@ export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] 
 }
 
 // The object representation of a species
-export class Species extends DocumentWrapper {
+export class Species extends GameObject {
+    public readonly model = SpeciesModel;
+
     // The species' list of cards
     private _cards: SpeciesCard[] | undefined;
 
     // The map of the species' cards and their respective rarity values
     private cardRarity = new Map<SpeciesCard, number>();
-
-    constructor(document: Document) {
-        super(document, SpeciesModel);
-    }
 
     public get commonNameObjects(): CommonNameField[] {
         return this.document.get("commonNames");
@@ -213,9 +211,6 @@ export class Species extends DocumentWrapper {
 
     // Changes the fields of the species document and commits them to the database
     public async setFields(fields: SpeciesFieldsTemplate): Promise<void> {
-        // Reload fields so default information is as current as possible
-        await this.refresh();
-
         // Change the species' simple fields, using this object's default known value for unchanged fields
         try {
             await this.document.updateOne({

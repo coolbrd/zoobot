@@ -4,57 +4,19 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
 import { Player } from "../models/Player";
 import { Species, SpeciesCard } from "../models/Species";
-import WrapperCache from "../structures/GameObjectCache";
+import GameObjectCache from "../structures/GameObjectCache";
 import { beastiary } from "./Beastiary";
 
 // The central animal manager instance
 // Responsible for creating, searching, retrieving, caching, and deleting animals
 // All operations on animal objects should be performed through this manager
-export default class AnimalManager extends WrapperCache<Animal> {
-    // Set the timeout period for animal cache objects to 60 seconds
-    constructor() {
-        super(300000);
-    }
+export default class AnimalManager extends GameObjectCache<Animal> {
+    protected readonly model = AnimalModel;
 
-    // Gets an animal object by its id
-    public async fetchById(id: Types.ObjectId): Promise<Animal> {
-        // Check the cache first
-        const cachedAnimal = this.getFromCache(id);
+    protected readonly cacheTimeout = 300000;
 
-        // If the animal is in the cache
-        if (cachedAnimal) {
-            // Reset the cached animal's deletion timer
-            cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
-
-            // Return the existing animal from the cache
-            return cachedAnimal.value;
-        }
-
-        // Search for the animal in the database
-        let animalDocument: Document | null;
-        try {
-            animalDocument = await AnimalModel.findById(id);
-        }
-        catch (error) {
-            throw new Error("There was an error finding an existing animal document.");
-        }
-
-        // If no animal by the given id exists
-        if (!animalDocument) {
-            throw new Error("An animal id whose document couldn't be found was attempted to be fetched from the animal cache.");
-        }
-
-        // Turn the document into an object and add it to the cache
-        const animal = new Animal(animalDocument);
-        try {
-            await this.addToCache(animal);
-        }
-        catch (error) {
-            throw new Error(`There was an error adding an animal to the cache: ${error}`);
-        }
-
-        // Return the animal
-        return animal;
+    protected documentToGameObject(document: Document): Animal {
+        return new Animal(document);
     }
 
     // Fetch an animal object by its nickname and optional guild
@@ -62,19 +24,19 @@ export default class AnimalManager extends WrapperCache<Animal> {
         // First search the cache for the appropriate animal
         for (const cachedAnimal of this.cache.values()) {
             // Check for animals with the same nickname first
-            if (cachedAnimal.value.nickname === nickname) {
+            if (cachedAnimal.gameObject.nickname === nickname) {
                 // If a seached guild was provided, and this animal isn't in that guild
-                if (guildId && cachedAnimal.value.guildId !== guildId) {
+                if (guildId && cachedAnimal.gameObject.guildId !== guildId) {
                     // Check the next cached animal
                     continue;
                 }
                 // Either no guild was specified or this animal is from the specified guild
 
                 // Reset the animal's cache timer, preventing it from being removed for a little longer
-                cachedAnimal.setTimer(this.createNewTimer(cachedAnimal.value));
+                cachedAnimal.resetTimer();
 
                 // Return the already cached animal
-                return cachedAnimal.value;
+                return cachedAnimal.gameObject;
             }
         }
         // If the animal wasn't found in the cache
@@ -105,13 +67,13 @@ export default class AnimalManager extends WrapperCache<Animal> {
             throw new Error("There was an error finding an animal by its nickname.");
         }
 
-        // If no animal was found by the given information, don't return anything
+        // If no animal was found by the given information
         if (!animalDocument) {
-            return undefined;
+            return;
         }
 
         // If an animal was found, convert it into an object and add it to the cache
-        const animal = new Animal(animalDocument);
+        const animal = this.documentToGameObject(animalDocument);
         try {
             await this.addToCache(animal);
         }
@@ -160,7 +122,7 @@ export default class AnimalManager extends WrapperCache<Animal> {
         }
 
         // Turn the animal into a game object and add it to the cache
-        const animal = new Animal(animalDocument);
+        const animal = this.documentToGameObject(animalDocument);
 
         // Add the new animal to the cache
         try {

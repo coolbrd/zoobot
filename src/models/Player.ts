@@ -2,7 +2,7 @@ import { User } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { client } from "..";
 import { encounterHandler } from "../beastiary/EncounterHandler";
-import DocumentWrapper from "../structures/DocumentWrapper";
+import GameObject from "../structures/GameObject";
 
 const playerSchema = new Schema({
     userId: {
@@ -49,17 +49,20 @@ const playerSchema = new Schema({
 
 export const PlayerModel = mongoose.model("Player", playerSchema);
 
-// A wrapper object for a Mongoose player document
-export class Player extends DocumentWrapper {
+// A player game object
+export class Player extends GameObject {
+    public readonly model = PlayerModel;
+
+    // The player's associated Discord user object
     public readonly user: User;
 
     constructor(document: Document) {
-        super(document, PlayerModel);
+        super(document);
 
         // Find the user object associated with this player's user id
         const potentialUser = client.users.resolve(this.userId);
         if (!potentialUser) {
-            throw new Error(`A new player object with an invalid user id was created.`);
+            throw new Error(`A new player object with an unknown user id was created.`);
         }
         this.user = potentialUser;
     }
@@ -114,7 +117,9 @@ export class Player extends DocumentWrapper {
         return this.animalIds[position];
     }
 
+    // Adds an animal id to a list within the player's document
     private async addAnimalIdToList(animalId: Types.ObjectId, fieldName: string): Promise<void> {
+        // Add the animal id to the specified list
         try {
             await this.document.updateOne({
                 $push: {
@@ -134,6 +139,7 @@ export class Player extends DocumentWrapper {
         }
     }
 
+    // Adds an animal to a player's animal collection
     public async addAnimalToCollection(animalId: Types.ObjectId): Promise<void> {
         try {
             await this.addAnimalIdToList(animalId, "animals");
@@ -143,6 +149,7 @@ export class Player extends DocumentWrapper {
         }
     }
 
+    // Adds an animal to a player's crew of selected animals
     public async addAnimalToCrew(animalId: Types.ObjectId): Promise<void> {
         try {
             await this.addAnimalIdToList(animalId, "crewAnimals");
@@ -154,6 +161,7 @@ export class Player extends DocumentWrapper {
 
     // Adds a set of animals at a given base position
     private async addAnimalIdsPositional(animalIds: Types.ObjectId[], position: number, fieldName: string): Promise<void> {
+        // Insert all animal ids into the specified list field starting at the given position
         try {
             await this.document.updateOne({
                 $push: {

@@ -36,7 +36,7 @@ export default class ChangeGuildPrefixCommand implements Command {
         // Get the target guild's document
         let guildObject: PlayerGuild;
         try {
-            guildObject = await beastiary.playerGuilds.fetch(parsedUserCommand.channel.guild.id);
+            guildObject = await beastiary.playerGuilds.fetchByGuildId(parsedUserCommand.channel.guild.id);
         }
         catch (error) {
             throw new Error(`There was an error attempting to get a guild object from a guild id: ${error}`);

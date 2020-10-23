@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
-import DocumentWrapper from "../structures/DocumentWrapper";
+import GameObject from "../structures/GameObject";
 import { SpeciesCard, Species } from "./Species";
 
 export const animalSchema = new Schema({
@@ -36,9 +36,10 @@ export const AnimalModel = mongoose.model("Animal", animalSchema);
 // Index animals by their nickname so they can be easily searched by that
 AnimalModel.collection.createIndex({ nickname: "text" });
 
-// An animal's version of a Mongoose document wrapper
-// Allows for animal information to be loaded, reloaded, and set more easily
-export class Animal extends DocumentWrapper {
+// An animal game object
+export class Animal extends GameObject {
+    public readonly model = AnimalModel;
+
     // The object representations of this animal object's fields
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
@@ -46,11 +47,7 @@ export class Animal extends DocumentWrapper {
     // The amount of experience the animal has gained since experience was last saved to the database
     private experienceChunk = 0;
     // The amount of experience required before a database save is initiated
-    private readonly experienceSaveThreshold = 5;
-
-    constructor(document: Document) {
-        super(document, AnimalModel);
-    }
+    private readonly experienceSaveThreshold = 10;
 
     public get ownerId(): string {
         return this.document.get("ownerId");
@@ -79,7 +76,7 @@ export class Animal extends DocumentWrapper {
     // Gets the species object representing this animal's species
     public get species(): Species {
         if (!this._species) {
-            throw new Error("Tried to get an AnimalObject's species before it was loaded.");
+            throw new Error("Tried to get an animal's species before it was loaded.");
         }
 
         return this._species;
@@ -88,13 +85,13 @@ export class Animal extends DocumentWrapper {
     // Gets the object representing this animal's card
     public get card(): SpeciesCard {
         if (!this._card) {
-            throw new Error("Tried to get an AnimalObject's card before it was loaded.");
+            throw new Error("Tried to get an animal's card before it was loaded.");
         }
 
         return this._card;
     }
 
-    // Returns this animal's display name, prefers nickname over common name
+    // Returns this animal's display name, preferring nickname over common name
     public get name(): string {
         return this.nickname || this.species.commonNames[0];
     }
@@ -112,6 +109,7 @@ export class Animal extends DocumentWrapper {
         return super.fullyLoaded && this.speciesLoaded && this.cardLoaded;
     }
 
+    // Sets or resets the animal's nickname
     public async setNickname(newNickname: string | null): Promise<void> {
         // Update the animal's document via an atomic operation (does not affect document in memory)
         try {
@@ -142,6 +140,7 @@ export class Animal extends DocumentWrapper {
 
         // Add the experience gained to the current chunk of experience being tracked
         this.experienceChunk += amount;
+        // If the amount of experience the animal has gained since the last save crosses the threshold, or it's been instructed to save anyway
         if (this.experienceChunk >= this.experienceSaveThreshold || saveAnyway) {
             // Save the animal's current chunk of experience to the database
             try {
@@ -167,7 +166,7 @@ export class Animal extends DocumentWrapper {
         }
     }
 
-    // Loads this animal's species object
+    // Loads this animal's species
     private async loadSpecies(): Promise<void> {
         if (!this.documentLoaded) {
             throw new Error("An animal's species was attempted to be loaded before its document was loaded.");
@@ -180,18 +179,10 @@ export class Animal extends DocumentWrapper {
 
         // Create a new species object from this animal's known species id
         try {
-            this._species = await beastiary.species.fetchById(this.speciesId);
+            this._species = await beastiary.species.fetchExistingById(this.speciesId);
         }
         catch (error) {
             throw new Error(`There was an error fetching a species by its id when loading an animal object: ${error}`);
-        }
-
-        // Load the species object's information
-        try {
-            await this.species.load();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading an animal's species' information: ${error}`);
         }
     }
 

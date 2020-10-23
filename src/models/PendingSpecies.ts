@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-import DocumentWrapper from "../structures/DocumentWrapper";
+import mongoose, { Schema } from "mongoose";
+import GameObject from "../structures/GameObject";
 
 // The schema for a pending species submission
 export const pendingSpeciesSchema = new Schema({
@@ -40,10 +40,8 @@ export const pendingSpeciesSchema = new Schema({
 export const PendingSpeciesModel = mongoose.model("PendingSpecies", pendingSpeciesSchema);
 
 // The object representation of a species submission pending approval
-export class PendingSpecies extends DocumentWrapper {
-    constructor(document: Document) {
-        super(document, PendingSpeciesModel);
-    }
+export class PendingSpecies extends GameObject {
+    public readonly model = PendingSpeciesModel;
 
     public get commonNames(): string[] {
         return this.document.get("commonNames");

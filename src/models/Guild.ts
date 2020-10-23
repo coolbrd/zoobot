@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-import DocumentWrapper from "../structures/DocumentWrapper";
+import mongoose, { Schema } from "mongoose";
+import GameObject from "../structures/GameObject";
 import { guildConfigSchema } from "./guildConfig";
 
 const guildScema = new Schema({
@@ -16,10 +16,8 @@ const guildScema = new Schema({
 export const GuildModel = mongoose.model("Guild", guildScema);
 
 // A guild with at least one player in it. Does not exist for guilds that have not used any game commands.
-export class PlayerGuild extends DocumentWrapper {
-    constructor(document: Document) {
-        super(document, GuildModel);
-    }
+export class PlayerGuild extends GameObject {
+    public readonly model = GuildModel;
 
     public get guildId(): string {
         return this.document.get("id");
