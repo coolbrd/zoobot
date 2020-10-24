@@ -2,6 +2,7 @@ import { GuildMember, User } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { client } from "..";
 import { encounterHandler } from "../beastiary/EncounterHandler";
+import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
 
 const playerSchema = new Schema({
@@ -53,8 +54,8 @@ export const PlayerModel = mongoose.model("Player", playerSchema);
 export class Player extends GameObject {
     public readonly model = PlayerModel;
 
-    // The player's associated Discord user object
-    public readonly user: User;
+    // The player's associated Discord guild member object
+    public readonly member: GuildMember;
 
     public static newDocument(guildMember: GuildMember): Document {
         // Create and return a new player document
@@ -71,12 +72,9 @@ export class Player extends GameObject {
     constructor(document: Document) {
         super(document);
 
-        // Find the user object associated with this player's user id
-        const potentialUser = client.users.resolve(this.userId);
-        if (!potentialUser) {
-            throw new Error(`A new player object with an unknown user id was created.`);
-        }
-        this.user = potentialUser;
+        const guildMember = getGuildMember(this.userId, this.guildId);
+
+        this.member = guildMember;
     }
 
     public get userId(): string {

@@ -38,7 +38,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             embed.setThumbnail(firstAnimal.card.url);
         }
 
-        embed.setAuthor(`${this.player.user.username}'s profile`, this.player.user.avatarURL() || undefined);
+        embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
         embed.setDescription(stripIndents`
             Collection size: **${this.player.animalIds.length}**
             Total encounters: **${this.player.totalEncounters}**

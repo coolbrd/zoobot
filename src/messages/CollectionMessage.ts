@@ -91,8 +91,8 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
         // Make it more clear what we're working with here
         const collection = this.elements;
 
-        const userAvatar = this.player.user.avatarURL() || undefined;
-        embed.setAuthor(`${this.player.user.username}'s collection`, userAvatar);
+        const userAvatar = this.player.member.user.avatarURL() || undefined;
+        embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
         embed.setFooter(`${collection.length} in collection\n${this.getButtonHelpString()}`);
 
         // Don't try anything crazy if the user's collection is empty
