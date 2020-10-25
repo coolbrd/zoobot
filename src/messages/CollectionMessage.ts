@@ -149,13 +149,24 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
 
                     const animalName = currentAnimal.nickname || capitalizeFirstLetter(currentAnimal.name);
 
-                    // Write breed information only if it's present (and the animal doesn't have a nickname)
-                    const breedText = !currentAnimal.nickname && card.breed ? `(${card.breed})` : "";
+                    // Add special or breed text if applicable
+                    let specialText = "";
+                    if (!currentAnimal.nickname) {
+                        if (card.special) {
+                            specialText = card.special;
+                        }
+                        else if (card.breed) {
+                            specialText = card.breed;
+                        }
+                        if (specialText) {
+                            specialText = ` (${specialText})`;
+                        }
+                    }
 
                     // The pointer text to draw on the current animal entry (if any)
                     const pointerText = collectionIndex === collection.pointerPosition ? " 🔹" : "";
 
-                    collectionString += `\`${collectionIndex + 1})\` ${animalName} ${breedText}`;
+                    collectionString += `\`${collectionIndex + 1})\` ${animalName}${specialText}`;
 
                     collectionString += ` ${pointerText}\n`;
 
