@@ -8,6 +8,8 @@ import { Animal } from "../models/Animal";
 
 // Displays a single animal's basic info and card
 export default class AnimalInfoMessage extends InteractiveMessage {
+    protected readonly lifetime = 60000;
+
     private readonly animalObject: Animal;
 
     // The user instance associated with the player that owns the displayed animal
@@ -17,13 +19,15 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     private cardMode = false;
 
     constructor(channel: TextChannel, animalObject: Animal) {
-        super(channel, { buttons: [
+        super(channel);
+
+        this.addButtons([
             {
                 name: "mode",
                 emoji: "🖼️",
                 helpMessage: "Toggle card view"
             }
-        ]});
+        ]);
 
         this.animalObject = animalObject;
     }
@@ -51,11 +55,9 @@ export default class AnimalInfoMessage extends InteractiveMessage {
 
         // Get the owner's user instance
         this.ownerUser = getGuildMember(this.animalObject.ownerId, this.animalObject.guildId).user;
-
-        this.setEmbed(this.buildEmbed());
     }
 
-    private buildEmbed(): MessageEmbed {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
     
         const userAvatar = this.ownerUser.avatarURL() || undefined;
@@ -78,6 +80,11 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     public async buttonPress(_buttonName: string, _user: User): Promise<void> {
         this.cardMode = !this.cardMode;
 
-        this.setEmbed(this.buildEmbed());
+        try {
+            await this.refreshEmbed();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing an animal info message's embed: ${error}`);
+        }
     }
 }

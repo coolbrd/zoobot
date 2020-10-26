@@ -11,11 +11,15 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // An interactive message containing an editable document that allows for the editing of said document
 export default class EDocMessage extends InteractiveMessage {
+    protected readonly lifetime = 300000;
+
     // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
     constructor(channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
-        super(channel, { lifetime: 300000, buttons: [
+        super(channel);
+
+        this.addButtons([
             {
                 name: "pointerUp",
                 emoji: "⬆️",
@@ -56,7 +60,7 @@ export default class EDocMessage extends InteractiveMessage {
                 emoji: "❌",
                 helpMessage: "Exit"
             }
-        ]});
+        ]);
 
         // Create an eDoc field based on the eDoc skeleton provided
         // This is done in here so declarations of top-level eDocs don't need to explicitly declare their type, as it's implicit
@@ -64,15 +68,13 @@ export default class EDocMessage extends InteractiveMessage {
             type: eDoc.getSkeleton(),
             alias: docName || "top document",
             required: true
-        }
+        };
 
         const topField = new EDocField(topFieldInfo);
         topField.setValue(eDoc);
 
         // Add the newly created eDoc field to the front of the selection stack, meaning it's selected
         this.selectionStack.push(topField);
-
-        this.setEmbed(this.buildEmbed());
     }
 
     // Gets this message's currently selected field
@@ -80,7 +82,7 @@ export default class EDocMessage extends InteractiveMessage {
         return this.selectionStack[this.selectionStack.length - 1];
     }
 
-    private buildEmbed(): MessageEmbed {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         // The current eDoc field that's being displayed by the message
         const selectedField = this.getSelection();
 
@@ -412,6 +414,11 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
 
-        this.setEmbed(this.buildEmbed());
+        try {
+            await this.refreshEmbed();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing an eDoc message's embed: ${error}`);
+        }
     }
 }

@@ -8,6 +8,8 @@ import { Player } from "../models/Player";
 
 // Displays a player's various stats
 export default class PlayerProfileMessage extends InteractiveMessage {
+    protected readonly lifetime = 30000;
+
     private readonly player: Player;
 
     constructor(channel: TextChannel, player: Player) {
@@ -16,11 +18,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         this.player = player;
     }
 
-    public async build(): Promise<void> {
-        this.setEmbed(await this.buildEmbed());
-    }
-
-    private async buildEmbed(): Promise<MessageEmbed> {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         // Get the player's first animal in their inventory, if it exists

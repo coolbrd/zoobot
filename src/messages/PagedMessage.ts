@@ -4,17 +4,19 @@ import PointedArray from "../structures/PointedArray";
 import loopValue from "../utility/loopValue";
 
 // A message that's meant to be extended, keeps track of a paged set of elements and provides utility methods for doing so
-export default class PagedMessage<ElementType> extends InteractiveMessage {
+export default abstract class PagedMessage<ElementType> extends InteractiveMessage {
+    protected readonly abstract elementsPerPage: number;
+
     // The array of elements to show in this message
     private _elements = new PointedArray<ElementType>();
 
     // The current page to display
     private _page = 0;
-    // The number of elements displayed on one page
-    protected readonly elementsPerPage: number;
 
-    constructor(channel: TextChannel | DMChannel, elementsPerPage?: number) {
-        super(channel, { buttons: [
+    constructor(channel: TextChannel | DMChannel) {
+        super(channel);
+
+        this.addButtons([
             {
                 name: "leftArrow",
                 emoji: "⬅️",
@@ -25,9 +27,7 @@ export default class PagedMessage<ElementType> extends InteractiveMessage {
                 emoji: "➡️",
                 helpMessage: "Page right"
             }
-        ]});
-
-        this.elementsPerPage = elementsPerPage || 10;
+        ]);
     }
 
     protected get elements(): PointedArray<ElementType> {

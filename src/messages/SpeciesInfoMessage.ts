@@ -10,6 +10,8 @@ import loopValue from "../utility/loopValue";
 
 // A message that displays a given species' information
 export default class SpeciesInfoMessage extends InteractiveMessage {
+    protected readonly lifetime = 30000;
+
     private readonly species: Species;
     // The current card of the species that's being displayed by the info message
     private cardIndex = 0;
@@ -17,7 +19,9 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     private cardMode = true;
 
     constructor(channel: TextChannel | DMChannel, species: Species) {
-        super(channel, { buttons: [
+        super(channel);
+
+        this.addButtons([
             {
                 name: "leftArrow",
                 emoji: "⬅️",
@@ -33,18 +37,12 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
                 emoji: "❔",
                 helpMessage: "Info"
             }
-        ]});
+        ]);
 
         this.species = species;
     }
 
-    public async build(): Promise<void> {
-        super.build();
-
-        this.setEmbed(this.buildEmbed());
-    }
-
-    private buildEmbed(): MessageEmbed {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         // Determine the card to display
@@ -67,7 +65,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    public buttonPress(buttonName: string, user: User): void {
+    public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
@@ -85,6 +83,11 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             }
         }
 
-        this.setEmbed(this.buildEmbed());
+        try {
+            await this.refreshEmbed();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing a species info message's embed: ${error}`);
+        }
     }
 }

@@ -14,10 +14,14 @@ interface LoadableSpecies {
 
 // The message that loads and displays the list of all currently available species
 export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
+    protected readonly lifetime = 60000;
+
+    protected readonly elementsPerPage = 15;
+
     private readonly user: User;
 
     constructor(channel: TextChannel | DMChannel, user: User) {
-        super(channel, 10);
+        super(channel);
 
         this.user = user;
     }
@@ -43,17 +47,9 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
                 id: speciesDocument._id
             });
         });
-
-        // Build the embed initially
-        try {
-            this.setEmbed(await this.buildEmbed());
-        }
-        catch (error) {
-            throw new Error(`There was an error building a beastiary message's initial embed: ${error}`);
-        }
     }
     
-    private async buildEmbed(): Promise<MessageEmbed> {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
@@ -111,10 +107,10 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
         }
 
         try {
-            this.setEmbed(await this.buildEmbed());
+            await this.refreshEmbed();
         }
         catch (error) {
-            throw new Error(`There was an error building a beastiary message's embed after a button press: ${error}`);
+            throw new Error(`There was an error refreshing beastiary message's embed after a button press: ${error}`);
         }
     }
 }

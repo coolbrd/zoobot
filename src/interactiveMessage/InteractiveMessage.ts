@@ -12,13 +12,24 @@ interface EmojiButton {
 }
 
 // A message with pressable reaction buttons
-export default class InteractiveMessage extends EventEmitter {
+export default abstract class InteractiveMessage extends EventEmitter {
+    // The number of milliseconds that this message will be active for
+    // This number is used as an inactivity cooldown that gets reset on each button press by default
+    protected readonly abstract lifetime: number;
+
+    // The method that uses this message's information in order to build its embed
+    protected abstract async buildEmbed(): Promise<MessageEmbed>;
+
+    // Whether or not pressing a button will reset this message's deactivation timer
+    protected readonly resetTimerOnButtonPress = true;
+    // The deactivation text that will be used if its not changed
+    protected readonly defaultDeactivationText = "(message deactivated)";
+
     // The text channel that the message will be sent in
-    // No news channels allowed, I hardly understand how those work
+    // No news channels allowed
     public readonly channel: TextChannel | DMChannel;
 
     // The set of emojis that will serve as buttons on this message
-    // The emoji property of each button ends up getting repeated in the key and I'm not sorry about it
     private readonly buttons: Map<string, EmojiButton> = new Map();
     // More repetition here so I can easily get buttons by their name OR emoji
     private readonly buttonNames: Map<string, string> = new Map();
@@ -28,80 +39,24 @@ export default class InteractiveMessage extends EventEmitter {
     private _message: Message | undefined;
     // The content of the message (usually just has an embed)
     private _content: APIMessage | undefined;
-    // Whether or not the message has been initially built
-    private _built = false;
     // Whether or not the message can be edited (due to Discord rate limits)
     // This is mostly handled automatically by Discord.js, but I wanted to limit the control over messages that are rate limited
     private _rateLimited = false;
-    
-    // The number of milliseconds that this message will be active for
-    // This number is used as an inactivity cooldown that gets reset on each button press by default
-    private readonly lifetime: number;
-    // Whether or not pressing a button will reset this message's deactivation timer
-    private readonly resetTimerOnButtonPress: boolean;
+
     // The timer instance that will keep track of when this message should deactivate
     private _timer: NodeJS.Timeout | undefined;
 
     // Whether or not this message is deactivated
-    protected _deactivated = false;
+    private _deactivated = false;
     // The text to append to the footer of the message once it has been deactivated
-    protected _deactivationText = "(message deactivated)";
+    private _deactivationText = this.defaultDeactivationText;
 
-    constructor(
-        channel: TextChannel | DMChannel,
-        options?: {
-            content?: APIMessage,
-            buttons?: EmojiButton | EmojiButton[],
-            lifetime?: number,
-            resetTimerOnButtonPress?: boolean,
-            deactivationText?: string
-        }
-    ) {
+    constructor(channel: TextChannel | DMChannel) {
         // Do EventEmitter stuff
         super();
 
         // Assign channel
         this.channel = channel;
-
-        // Assign default values
-        this.lifetime = 60000;
-        this.resetTimerOnButtonPress = true;
-
-        // If an options object was provided
-        if (options) {
-            // Assign content (even if none was provided, because it will still just be undefined)
-            this.content = options.content;
-
-            // If buttons were provided
-            if (options.buttons) {
-                // If it's just one button
-                if (!Array.isArray(options.buttons)) {
-                    // Add the button by its given information
-                    this.addButton(options.buttons);
-                }
-                // If it's an array of buttons
-                else {
-                    // Iterate over every button provided
-                    options.buttons.forEach(button => {
-                        // Add each button with its respective information
-                        this.addButton(button);
-                    });
-                }
-            }
-
-            // Assign options fields if present
-            if (options.lifetime) {
-                this.lifetime = options.lifetime;
-            }
-
-            if (options.resetTimerOnButtonPress) {
-                this.resetTimerOnButtonPress = options.resetTimerOnButtonPress;
-            }
-
-            if (options.deactivationText) {
-                this.deactivationText = options.deactivationText;
-            }
-        }
     }
 
     private get content(): APIMessage | undefined {
@@ -139,15 +94,7 @@ export default class InteractiveMessage extends EventEmitter {
     }
 
     private get built(): boolean {
-        return this._built;
-    }
-
-    private set built(built: boolean) {
-        if (this.built === built) {
-            throw new Error("Attempted to set an interactive message's status of being built redundantly.");
-        }
-
-        this._built = built;
+        return Boolean(this._content);
     }
 
     public get rateLimited(): boolean {
@@ -235,15 +182,10 @@ export default class InteractiveMessage extends EventEmitter {
         const message = await betterSend(this.channel, this.content);
 
         if (!message) {
-            throw new Error("An interactive message's messgae was unable to be sent.");
+            throw new Error("An interactive message's message was unable to be sent.");
         }
 
         this.setMessage(message);
-
-        // If nothing came back
-        if (!this.message) {
-            throw new Error("Error sending the base message for an interactive message.");
-        }
 
         // Add this message to the map of other interactive messages
         interactiveMessageHandler.addMessage(this);
@@ -263,57 +205,37 @@ export default class InteractiveMessage extends EventEmitter {
         this.timer = this.setTimer();
     }
 
-    // Optional base method for asynchronous pre-send message building logic
-    // Especially useful for requiring async behavior before the message is sent that can't be put in the constructor
-    // Can also be used to continually update the message as conditions change
+    // Where any pre-send asynchonous building funcionality should go in subclasses
     public async build(): Promise<void> {
-        // Indicate that the message has been built
-        this.built = true;
+        return;
     }
 
-    // The method for sending this message once it's ready
+    // Builds and sends the message
     public async send(): Promise<void> {
         // If the message hasn't been built, build it
-        // This is only here as a courtesy, potentially re-building the message before sending it wouldn't hurt anything (presumably)
         if (!this.built) {
             await this.build();
         }
 
-        // If the message is already prepared for sending
-        if (this.readyToSend()) {
-            try {
-                // Send the message and build it
-                await this.sendAndAddButtons();
-            }
-            catch (error) {
-                throw new Error(`There was an error sending and adding buttons to an interactive message: ${error}`);
-            }
+        // Build the initial embed
+        try {
+            await this.refreshEmbed();
         }
-        // If the message isn't yet prepared to send
-        else {
-            // Assign a one-time listener that will send the message once it's been indicated as ready
-            this.once("readyToSend", async () => {
-                // Make sure this event hasn't been emitted prematurely
-                if (!this.readyToSend()) {
-                    throw new Error("readyToSend event emitted before message is actually ready to send.");
-                }
-                // Send and build the message now that it's actually ready for that
-                this.sendAndAddButtons();
-            });
+        catch (error) {
+            throw new Error(`There was an error initially building an interactive message's embed: ${error}`);
         }
-    }
 
-    // Whether or not the message is prepared to be sent
-    private readyToSend(): boolean {
-        // Return false if the message has no content yet
-        return this.content ? true : false;
+        try {
+            // Send the message and add its buttons
+            await this.sendAndAddButtons();
+        }
+        catch (error) {
+            throw new Error(`There was an error sending and adding buttons to an interactive message: ${error}`);
+        }
     }
 
     // Sets the embed of the message and edits it (if possible)
-    protected async setEmbed(newEmbed: MessageEmbed): Promise<void> {
-        // Whether or not (before this message is edited) the message is already ready to send (or already sent)
-        const readyToSend = this.sent || this.readyToSend();
-
+    private setEmbed(newEmbed: MessageEmbed): void {
         // Don't allow changes to the message if it's deactivated or rate limited
         if (this.deactivated || this.rateLimited) {
             return;
@@ -324,12 +246,19 @@ export default class InteractiveMessage extends EventEmitter {
 
         // If this instance's message has been sent, edit it to reflect the changes
         this.sent && this.message.edit(this.content);
+    }
 
-        // If the message was previously unsent and not ready to send, but is ready now
-        if (!readyToSend && this.readyToSend) {
-            // Emit the ready event, so messages initialized with async build actions in their constructors get sent now
-            this.emit("readyToSend");
+    // Builds the message's embed again and sets it
+    protected async refreshEmbed(): Promise<void> {
+        let newEmbed: MessageEmbed;
+        try {
+            newEmbed = await this.buildEmbed();
         }
+        catch (error) {
+            throw new Error(`There was an error building an embed in an interactive message when refreshing it: ${error}`);
+        }
+
+        this.setEmbed(newEmbed);
     }
 
     // Checks if the message already has a button with a given name or emoji (making the given info ineligable for addition)
@@ -448,7 +377,7 @@ export default class InteractiveMessage extends EventEmitter {
 
     // Deactivates the interactive message, removing it from the handler's map and disabling this message's buttons
     protected deactivate(): void {
-        // If the message is sent, it has an embed, and it has deactivation text to add
+        // If the message is sent, has an embed, and needs deactivation text appended to it
         if (this.sent && this.message.embeds.length > 0 && this.deactivationText) {
             // Get the displayed embed of the message
             const embed = this.message.embeds[0];
@@ -473,6 +402,7 @@ export default class InteractiveMessage extends EventEmitter {
             this.setEmbed(embed);
         }
 
+        // Mark this message as being deactivated
         this.setDeactivated();
 
         // Indicate that this message has been deactivated

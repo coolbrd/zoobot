@@ -25,6 +25,10 @@ interface LoadableAnimal {
 
 // The message displaying a player's animal collection
 export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
+    protected readonly lifetime = 90000;
+
+    protected readonly elementsPerPage = 10;
+
     // The current display state of the message
     private state: CollectionMessageState;
     
@@ -34,21 +38,23 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
     constructor(channel: TextChannel, player: Player) {
         super(channel);
 
-        this.addButtons([{
-            name: "upArrow",
-            emoji: "⬆️",
-            helpMessage: "Pointer up"
-        },
-        {
-            name: "downArrow",
-            emoji: "⬇️",
-            helpMessage: "Pointer down"
-        },
-        {
-            name: "mode",
-            emoji: "Ⓜ️",
-            helpMessage: "View mode"
-        }]);
+        this.addButtons([
+            {
+                name: "upArrow",
+                emoji: "⬆️",
+                helpMessage: "Pointer up"
+            },
+            {
+                name: "downArrow",
+                emoji: "⬇️",
+                helpMessage: "Pointer down"
+            },
+            {
+                name: "mode",
+                emoji: "Ⓜ️",
+                helpMessage: "View mode"
+            }
+        ]);
 
         this.player = player;
         this.channel = channel;
@@ -59,8 +65,6 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
 
     // Pre-send build logic
     public async build(): Promise<void> {
-        super.build();
-
         // The list of animals that will need to be loaded by their ids
         const loadableAnimals: LoadableAnimal[] = [];
 
@@ -73,19 +77,10 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
 
         // Set paged elements
         this.setElements(loadableAnimals);
-
-        // Build the initial embed
-        try {
-            this.setEmbed(await this.buildEmbed());
-        }
-        catch (error) {
-            throw new Error(`There was an error building the initial embed of a collection message: ${error}`);
-        }
     }
 
     // Builds the current page of the collection's embed
-    // Is async because fetches for each animal are made as-needed
-    private async buildEmbed(): Promise<MessageEmbed> {
+    protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
         // Make it more clear what we're working with here
@@ -247,10 +242,10 @@ export default class CollectionMessage extends PagedMessage<LoadableAnimal> {
 
         // Rebuild the message
         try {
-            this.setEmbed(await this.buildEmbed());
+            await this.refreshEmbed();
         }
         catch (error) {
-            throw new Error(`There was an error building the embed of a collection message: ${error}`);
+            throw new Error(`There was an error refreshing the embed of a collection message: ${error}`);
         }
     }
 }

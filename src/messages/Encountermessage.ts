@@ -1,4 +1,4 @@
-import { TextChannel, User } from "discord.js";
+import { MessageEmbed, TextChannel, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
@@ -12,12 +12,13 @@ import { remainingTimeString } from "../utility/timeStuff";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
+    protected readonly lifetime = 60000;
+
     // Override base channel field, because EncounterMessage can only be sent in TextChannels
     public readonly channel: TextChannel;
 
     // The species of the animal contained within this encounter
     private readonly species: Species;
-
     // The card of the animal to display
     private readonly card: SpeciesCard;
 
@@ -25,29 +26,30 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly warnedUserIds: string[] = [];
 
     constructor(channel: TextChannel, species: Species) {
-        super(channel, { buttons: {
-                name: "capture",
-                emoji: "🔘",
-                helpMessage: "Capture"
-            },
-            deactivationText: "(fled)"
+        super(channel);
+
+        this.addButton({
+            name: "capture",
+            emoji: "🔘",
+            helpMessage: "Capture"
         });
+
         this.channel = channel;
         this.species = species;
+        this.card = this.species.getRandomCard();
+    }
 
+    public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
-        // Color the encounter's embed properly
-        embed.setColor(getRarityInfo(species.rarity).color);
+        
+        embed.setColor(getRarityInfo(this.species.rarity).color);
 
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
 
         embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
 
-        // Determine the animal's card
-        this.card = this.species.getRandomCard();
         embed.setImage(this.card.url);
 
-        // Add the breed field if it's there
         if (this.card.breed) {
             embed.addField("Breed", capitalizeFirstLetter(this.card.breed), true);
         }
@@ -58,7 +60,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         embed.setFooter("Wild encounter");
 
-        this.setEmbed(embed);
+        return embed;
     }
 
     // Whenever the encounter's button is pressed
