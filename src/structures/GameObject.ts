@@ -57,7 +57,7 @@ export default abstract class GameObject {
 
         // If the id is invalid
         if (!document) {
-            throw new Error("Nothing was found when a game object tried to load it's document.");
+            throw new Error("Nothing was found when a game object tried to load its document.");
         }
 
         // Assign the new document
