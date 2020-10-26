@@ -156,7 +156,12 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         }
 
         // Remove the animal from the cache
-        this.removeFromCache(animal.id);
+        try {
+            await this.removeFromCache(animal.id);
+        }
+        catch (error) {
+            throw new Error(`There was an error removing a deleted animal from the cache: ${error}`);
+        }
 
         // Delete the animal's document
         try {
