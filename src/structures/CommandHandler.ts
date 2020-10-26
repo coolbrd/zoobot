@@ -4,7 +4,6 @@ import Command from "./Command";
 import CommandParser from "./CommandParser";
 import SubmitSpeciesCommand from "../commands/SubmitSpeciesCommand";
 import { betterSend } from "../discordUtility/messageMan";
-import SendPendingSubmissionsCommand from "../commands/SendPendingSubmissionsCommand";
 import ApprovePendingSpeciesCommand from "../commands/ApprovePendingSpeciesCommand";
 import SpeciesInfoCommand from "../commands/SpeciesInfoCommand";
 import EncounterCommand from "../commands/EncounterCommand";
@@ -65,7 +64,6 @@ class CommandHandler {
             CommandListCommand,
             EditSpeciesCommand,
             SubmitSpeciesCommand,
-            SendPendingSubmissionsCommand,
             ApprovePendingSpeciesCommand,
             ExitCommand
         ];
