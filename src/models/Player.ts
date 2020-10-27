@@ -1,6 +1,5 @@
-import { GuildMember, User } from "discord.js";
+import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { client } from "..";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
@@ -14,7 +13,7 @@ const playerSchema = new Schema({
         type: String,
         required: true
     },
-    animals: {
+    collectionAnimals: {
         type: [Schema.Types.ObjectId],
         required: true
     },
@@ -85,8 +84,8 @@ export class Player extends GameObject {
         return this.document.get("guildId");
     }
 
-    public get animalIds(): Types.ObjectId[] {
-        return this.document.get("animals");
+    public get collectionAnimalIds(): Types.ObjectId[] {
+        return this.document.get("collectionAnimals");
     }
 
     public get crewAnimalIds(): Types.ObjectId[] {
@@ -120,11 +119,11 @@ export class Player extends GameObject {
 
     // Gets an animal id by its position in the player's collection
     public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
-        if (position < 0 || position >= this.animalIds.length) {
+        if (position < 0 || position >= this.collectionAnimalIds.length) {
             return undefined;
         }
 
-        return this.animalIds[position];
+        return this.collectionAnimalIds[position];
     }
 
     public getCrewIdPositional(position: number): Types.ObjectId | undefined {
@@ -160,7 +159,7 @@ export class Player extends GameObject {
     // Adds an animal to a player's animal collection
     public async addAnimalToCollection(animalId: Types.ObjectId): Promise<void> {
         try {
-            await this.addAnimalIdToList(animalId, "animals");
+            await this.addAnimalIdToList(animalId, "collectionAnimals");
         }
         catch (error) {
             throw new Error(`There was an error adding an animal to a player's collection: ${error}`);
@@ -204,7 +203,7 @@ export class Player extends GameObject {
 
     public async addAnimalsToCollectionPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
         try {
-            await this.addAnimalIdsPositional(animalIds, position, "animals");
+            await this.addAnimalIdsPositional(animalIds, position, "collectionAnimals");
         }
         catch (error) {
             throw new Error(`There was an error positionally adding animals to a player's collection.`);
@@ -234,7 +233,7 @@ export class Player extends GameObject {
 
     public async removeAnimalFromCollection(animalId: Types.ObjectId): Promise<void> {
         try {
-            await this.removeAnimalIdFromList(animalId, "animals");
+            await this.removeAnimalIdFromList(animalId, "collectionAnimals");
         }
         catch (error) {
             throw new Error(`There was an error removing an animal from a player's collection: ${error}`);
@@ -255,7 +254,7 @@ export class Player extends GameObject {
         // Form a list of all animal ids that result from the list of positions given
         const animalIds: Types.ObjectId[] = [];
         for (const position of positions) {
-            animalIds.push(this.animalIds[position]);
+            animalIds.push(this.collectionAnimalIds[position]);
         }
         
         // Remove all the specified animals from the player's collection (just ids)
@@ -285,7 +284,7 @@ export class Player extends GameObject {
 
     public async removeAnimalsFromCollectionPositional(positions: number[]): Promise<Types.ObjectId[]> {
         try {
-            return await this.removeAnimalIdsFromListPositional(positions, "animals");
+            return await this.removeAnimalIdsFromListPositional(positions, "collectionAnimals");
         }
         catch (error) {
             throw new Error(`There was an error positionally removing animal ids from a player's collection: ${error}`);

@@ -66,7 +66,7 @@ export default class MoveAnimalsCommand implements Command {
                 errors.push(`Too low: \`${argText}\``);
             }
             // If the current number is above the acceptable range
-            else if (numericPosition >= playerObject.animalIds.length) {
+            else if (numericPosition >= playerObject.collectionAnimalIds.length) {
                 errors.push(`Out of range: \`${argText}\``);
             }
             // If the current number is a repeat
@@ -96,7 +96,7 @@ export default class MoveAnimalsCommand implements Command {
         // Get the first position from the array and remove it
         const sortPosition = positions.shift() as number;
         // Get the id of the animal that's acting as the anchor in the movement
-        const baseAnimalId = playerObject.animalIds[sortPosition];
+        const baseAnimalId = playerObject.collectionAnimalIds[sortPosition];
 
         // Try to remove all animal ids at the given positions from the user's collection
         let animalIds: Types.ObjectId[];
@@ -108,7 +108,7 @@ export default class MoveAnimalsCommand implements Command {
         }
 
         // After the animals have been removed, get the new position of the base animal to sort under
-        const basePosition = playerObject.animalIds.indexOf(baseAnimalId);
+        const basePosition = playerObject.collectionAnimalIds.indexOf(baseAnimalId);
 
         // Attempt to add the previously removed animal ids directly under the position of the animal at the base position
         try {

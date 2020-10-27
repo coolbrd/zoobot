@@ -23,9 +23,9 @@ export default class PlayerProfileMessage extends InteractiveMessage {
 
         // Get the player's first animal in their collection, if it exists
         let firstAnimal: Animal | undefined;
-        if (this.player.animalIds.length > 0) {
+        if (this.player.collectionAnimalIds.length > 0) {
             try {
-                firstAnimal = await beastiary.animals.fetchById(this.player.animalIds[0]);
+                firstAnimal = await beastiary.animals.fetchById(this.player.collectionAnimalIds[0]);
             }
             catch (error) {
                 throw new Error(`There was an error fetching a player's first animal for use in a profile message: ${error}`);
@@ -38,7 +38,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
         embed.setDescription(stripIndents`
-            Collection size: **${this.player.animalIds.length}**
+            Collection size: **${this.player.collectionAnimalIds.length}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**
         `);
