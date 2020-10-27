@@ -8,7 +8,7 @@ import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 export default class ViewCrewCommand implements Command {
-    public readonly commandNames = ["crew", "cr"];
+    public readonly commandNames = ["crew"];
 
     public readonly info = "View your current crew of selected animals";
 
