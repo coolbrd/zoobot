@@ -16,6 +16,10 @@ export default class EDocMessage extends InteractiveMessage {
     // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
+    // Whether or not the bot is currently taking a user's input
+    // Exists so multiple input prompts can't exist at once
+    private takingInput = false;
+
     constructor(channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
         super(channel);
 
@@ -213,6 +217,11 @@ export default class EDocMessage extends InteractiveMessage {
             throw new Error("Unexpected value type selected in eDoc.");
         }
 
+        if (this.takingInput) {
+            betterSend(this.channel, "Finish your current input prompt first.", 10000);
+            return;
+        }
+
         // Document controls
         if (selectedFieldValue instanceof EDoc) {
             // Get the field that the pointer is currently selecting
@@ -244,29 +253,28 @@ export default class EDocMessage extends InteractiveMessage {
                                 promptString = selectedNestedField.getPrompt() || "Enter your numeric input for this field:"
                             }
 
-                            // Send the input prompt and wait for the user's response
-                            const promptMessage = await betterSend(this.channel, promptString);
-                            const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
-
-                            // If the user responds
-                            if (responseMessage) {
-                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
-                                // Set the value of the field to the user's response value
-                                try {
-                                    selectedNestedField.setValue(responseMessage.content);
-                                }
-                                catch (error) {
-                                    if (handleUserError(responseMessage.channel, error)) {
-                                        throw new Error(`There was a non-user error setting a simple value in an eDoc message: ${error}`);
-                                    }
-                                }
-
-                                // Delete the user's message
-                                safeDeleteMessage(responseMessage);
+                            let userInput: string | undefined;
+                            try {
+                                userInput = await this.takeUserInput(promptString, user);
+                            }
+                            catch (error) {
+                                throw new Error(`There was an error taking a user's input in an eDoc message: ${error}`);
                             }
 
-                            // Delete the prompt message
-                            safeDeleteMessage(promptMessage);
+                            if (!userInput) {
+                                betterSend(this.channel, "Input canceled.", 10000);
+                                return;
+                            }
+
+                            // Set the value of the field to the user's response value
+                            try {
+                                selectedNestedField.setValue(userInput);
+                            }
+                            catch (error) {
+                                if (handleUserError(this.channel, error)) {
+                                    throw new Error(`There was a non-user error setting a simple value in an eDoc message: ${error}`);
+                                }
+                            }
                             break;
                         }
                         case "array": {
@@ -316,24 +324,27 @@ export default class EDocMessage extends InteractiveMessage {
                         case "number": {
                             const promptString = selectedField.getPrompt() || "Enter your input to replace this list entry:";
 
-                            const promptMessage = await betterSend(this.channel, promptString);
-                            const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
-
-                            if (responseMessage) {
-                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
-                                try {
-                                    selectedElement.setValue(responseMessage.content);
-                                }
-                                catch (error) {
-                                    if (handleUserError(responseMessage.channel, error)) {
-                                        throw new Error(`There was a non-user error setting an eDoc array element in an eDoc message: ${error}`);
-                                    }
-                                }
-
-                                safeDeleteMessage(responseMessage);
+                            let userInput: string | undefined;
+                            try {
+                                userInput = await this.takeUserInput(promptString, user);
+                            }
+                            catch (error) {
+                                throw new Error(`There was an error taking a user's input in an eDoc message: ${error}`);
                             }
 
-                            safeDeleteMessage(promptMessage);
+                            if (!userInput) {
+                                betterSend(this.channel, "Input canceled.", 10);
+                                return;
+                            }
+
+                            try {
+                                selectedElement.setValue(userInput);
+                            }
+                            catch (error) {
+                                if (handleUserError(this.channel, error)) {
+                                    throw new Error(`There was a non-user error setting an eDoc array element in an eDoc message: ${error}`);
+                                }
+                            }
                             break;
                         }
                         // For array and document arrays, select the selected element as the new field to display
@@ -354,24 +365,27 @@ export default class EDocMessage extends InteractiveMessage {
                         case "number": {
                             const promptString = selectedField.getPrompt() || "Enter your input for a new list entry:";
 
-                            const promptMessage = await betterSend(this.channel, promptString);
-                            const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
-
-                            if (responseMessage) {
-                                responseMessage.channel = responseMessage.channel as TextChannel | DMChannel;
-                                try {
-                                    selectedField.push(responseMessage.content);
-                                }
-                                catch (error) {
-                                    if (handleUserError(responseMessage.channel, error)) {
-                                        throw new Error(`There was an error pushing a new element to an eDoc array field in an eDoc message: ${error}`);
-                                    }
-                                }
-
-                                safeDeleteMessage(responseMessage);
+                            let userInput: string | undefined;
+                            try {
+                                userInput = await this.takeUserInput(promptString, user);
+                            }
+                            catch (error) {
+                                throw new Error(`There was an error taking a user's input in an eDoc message: ${error}`);
                             }
 
-                            safeDeleteMessage(promptMessage);
+                            if (!userInput) {
+                                betterSend(this.channel, "Input canceled.", 10);
+                                return;
+                            }
+
+                            try {
+                                selectedField.push(userInput);
+                            }
+                            catch (error) {
+                                if (handleUserError(this.channel, error)) {
+                                    throw new Error(`There was an error pushing a new element to an eDoc array field in an eDoc message: ${error}`);
+                                }
+                            }
                             break;
                         }
                         // For arrays and eDocs, just add a new one to the array
@@ -420,5 +434,22 @@ export default class EDocMessage extends InteractiveMessage {
         catch (error) {
             throw new Error(`There was an error refreshing an eDoc message's embed: ${error}`);
         }
+    }
+
+    private async takeUserInput(prompt: string, user: User): Promise<string | undefined> {
+        this.takingInput = true;
+        const promptMessage = await betterSend(this.channel, prompt);
+        const responseMessage = await awaitUserNextMessage(this.channel, user, 60000);
+
+        let input: string | undefined;
+        if (responseMessage) {
+            input = responseMessage.content;
+
+            safeDeleteMessage(responseMessage);
+        }
+
+        safeDeleteMessage(promptMessage);
+        this.takingInput = false;
+        return input;
     }
 }
