@@ -13,21 +13,24 @@ export default abstract class PagedMessage<ElementType> extends InteractiveMessa
     // The current page to display
     private _page = 0;
 
-    constructor(channel: TextChannel | DMChannel) {
+    constructor(channel: TextChannel | DMChannel, singlePage?: boolean) {
         super(channel);
 
-        this.addButtons([
-            {
-                name: "leftArrow",
-                emoji: "⬅️",
-                helpMessage: "Page left"
-            },
-            {
-                name: "rightArrow",
-                emoji: "➡️",
-                helpMessage: "Page right"
-            }
-        ]);
+        // Add page control buttons if this paged message isn't marked as being a single page
+        if (!singlePage) {
+            this.addButtons([
+                {
+                    name: "leftArrow",
+                    emoji: "⬅️",
+                    helpMessage: "Page left"
+                },
+                {
+                    name: "rightArrow",
+                    emoji: "➡️",
+                    helpMessage: "Page right"
+                }
+            ]);
+        }
     }
 
     protected get elements(): PointedArray<ElementType> {

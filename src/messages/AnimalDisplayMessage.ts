@@ -26,26 +26,28 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
     // The current display state of the message
     protected state: AnimalDisplayMessageState;
 
-    constructor(channel: TextChannel, animalIds: Types.ObjectId[]) {
-        super(channel);
+    constructor(channel: TextChannel, animalIds: Types.ObjectId[], singlePage?: boolean, disablePointer?: boolean) {
+        super(channel, singlePage);
 
-        this.addButtons([
-            {
-                name: "upArrow",
-                emoji: "⬆️",
-                helpMessage: "Pointer up"
-            },
-            {
-                name: "downArrow",
-                emoji: "⬇️",
-                helpMessage: "Pointer down"
-            },
-            {
-                name: "mode",
-                emoji: "Ⓜ️",
-                helpMessage: "View mode"
-            }
-        ]);
+        if (!disablePointer) {
+            this.addButtons([
+                {
+                    name: "upArrow",
+                    emoji: "⬆️",
+                    helpMessage: "Pointer up"
+                },
+                {
+                    name: "downArrow",
+                    emoji: "⬇️",
+                    helpMessage: "Pointer down"
+                },
+                {
+                    name: "mode",
+                    emoji: "Ⓜ️",
+                    helpMessage: "View mode"
+                }
+            ]);
+        }
 
         // Start the message in paged view mode
         this.state = AnimalDisplayMessageState.page;

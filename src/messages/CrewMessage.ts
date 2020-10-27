@@ -1,7 +1,7 @@
 import { TextChannel, MessageEmbed } from "discord.js";
 import { Player } from "../models/Player";
 import { commandHandler } from "../structures/CommandHandler";
-import AnimalDisplayMessage, { AnimalDisplayMessageState } from "./AnimalDisplayMessage";
+import AnimalDisplayMessage from "./AnimalDisplayMessage";
 
 export default class CrewMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 30000;
@@ -12,7 +12,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
     public readonly channel: TextChannel;
 
     constructor(channel: TextChannel, player: Player) {
-        super(channel, player.crewAnimalIds);
+        super(channel, player.crewAnimalIds, true, true);
 
         this.player = player;
         this.channel = channel;
