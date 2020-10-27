@@ -64,6 +64,17 @@ export default abstract class GameObject {
         this.setDocument(document);
     }
 
+    protected async unloadDocument(): Promise<void> {
+        try {
+            await this.finalize();
+        }
+        catch (error) {
+            throw new Error(`There was an error finalizing a document before it was unloaded by its game object: ${error}`);
+        }
+
+        this.setDocument(undefined)
+    }
+
     // Loads all unloaded fields of the object. Meant to be extended.
     public async load(): Promise<void> {
         try {
@@ -75,15 +86,25 @@ export default abstract class GameObject {
     }
 
     // Unloads all of this object's information. Meant to be extended.
-    protected unload(): void {
-        this.setDocument(undefined);
+    protected async unload(): Promise<void> {
+        try {
+            await this.unloadDocument();
+        }
+        catch (error) {
+            throw new Error(`There was an error unloading a game object's document during full unloading: ${error}`);
+        }
     }
 
     // Reloads all the object's fields
     // Used if something was likely to have changed about the document in the database, and the most current data is desired
     public async refresh(): Promise<void> {
         // Unload and load all fields
-        this.unload();
+        try {
+            await this.unload();
+        }
+        catch (error) {
+            throw new Error(`There was an error unloading a game object during a refresh: ${error}`);
+        }
 
         try {
             await this.load();

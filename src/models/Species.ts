@@ -302,8 +302,13 @@ export class Species extends GameObject {
     }
 
     // Unloads this species' data
-    public unload(): void {
-        super.unload();
+    public async unload(): Promise<void> {
+        try {
+            await super.unload();
+        }
+        catch (error) {
+            throw new Error(`There was an error unloading a species' inherited information: ${error}`);
+        }
         this._cards = undefined;
     }
 }

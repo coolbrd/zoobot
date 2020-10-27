@@ -166,13 +166,6 @@ export class Animal extends GameObject {
                 throw new Error(`There was an error adding experience to an animal: ${error}`);
             }
 
-            // Refresh the document
-            try {
-                await this.refresh();
-            }
-            catch (error) {
-                throw new Error(`There was an error refreshing an animal's document after updating its experience: ${error}`);
-            }
             // Reset the current chunk of experience
             this.experienceChunk = 0;
         }
@@ -254,8 +247,13 @@ export class Animal extends GameObject {
     }
 
     // Unloads all the animal's fields
-    public unload(): void {
-        super.unload();
+    public async unload(): Promise<void> {
+        try {
+            await super.unload();
+        }
+        catch (error) {
+            throw new Error(`There was an error unloading an animal's inherited information: ${error}`);
+        }
         this._species = undefined;
         this._card = undefined;
     }
