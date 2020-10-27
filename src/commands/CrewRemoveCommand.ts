@@ -14,6 +14,8 @@ export default class CrewRemoveCommand implements Command {
 
     public readonly section = CommandSection.animalManagement;
 
+    public readonly blocksInput = true;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to remove an animal from your crew.`;
     }
