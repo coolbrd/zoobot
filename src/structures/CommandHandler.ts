@@ -29,6 +29,7 @@ import ExitCommand from "../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../commands/ViewPlayerProfileCommand";
 import CrewAddCommand from "../commands/CrewAddCommand";
 import ViewCrewCommand from "../commands/ViewCrewCommand";
+import CrewRemoveCommand from "../commands/CrewRemoveCommand";
 
 // The class responsible for executing commands
 class CommandHandler {
@@ -56,6 +57,7 @@ class CommandHandler {
             AnimalInfoCommand,
             ChangeAnimalNicknameCommand,
             CrewAddCommand,
+            CrewRemoveCommand,
             ViewCrewCommand,
             MoveAnimalsCommand,
             ReleaseAnimalCommand,
