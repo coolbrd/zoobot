@@ -4,7 +4,9 @@ import config from "../config/BotConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal } from "../models/Animal";
 import { PlayerModel, Player } from "../models/Player";
+import { Argument } from "../structures/CommandParser";
 import GameObjectCache from "../structures/GameObjectCache";
+import UserError from "../structures/UserError";
 import { beastiary } from "./Beastiary";
 
 // The player manager within The Beastiary
@@ -107,6 +109,38 @@ export default class PlayerManager extends GameObjectCache<Player> {
             }
             catch (error) {
                 throw new Error(`There was an error creating a new player object: ${error}`);
+            }
+        }
+
+        return player;
+    }
+
+    // Takes a parsed command's argument and attempts to resolve it into a player object
+    public async fetchByArgument(argument: Argument, existingOnly?: boolean): Promise<Player> {
+        // If the argument didn't specify a guild member
+        if (!argument.member) {
+            throw new UserError("No user with that id exists in this server.");
+        }
+
+        // Get a pre-existing player within The Beastiary
+        let player: Player | undefined;
+        try {
+            player = await beastiary.players.fetchExisting(argument.member);
+        }
+        catch (error) {
+            throw new Error(`There was an error getting an existing player in fetchByArgument: ${error}`);
+        }
+
+        // If no player exists for the guild member
+        if (!player) {
+            // If only existing players are being searched
+            if (existingOnly) {
+                throw new UserError("That user has yet to become a player in The Beastiary, tell them to catch some animals!");
+            }
+            // If searching a valid member should always return a player
+            else {
+                // Create a new player for the guild member
+                player = await this.createNewPlayer(argument.member);
             }
         }
 

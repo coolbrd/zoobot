@@ -7,6 +7,7 @@ import { stripIndents } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import { Player } from "../models/Player";
 import getGuildMember from "../discordUtility/getGuildMember";
+import handleUserError from "../discordUtility/handleUserError";
 
 // Sends a message containing a player's collection of animals
 export default class ViewCollectionCommand implements Command {
@@ -31,46 +32,26 @@ export default class ViewCollectionCommand implements Command {
             return;
         }
 
-        // The guild member whose collection will be displayed
-        let specifiedMember: GuildMember;
-        // If the user provided an argument (presumably the user whose collection they want to view)
+        // Get a specified player or use the command sender
+        let targetPlayer: Player;
         if (parsedUserCommand.arguments.length > 0) {
-            const playerArgument = parsedUserCommand.arguments[0];
-
-            if (!playerArgument.member) {
-                betterSend(parsedUserCommand.channel, "No user with that id exists in this server.");
-                return;
-            }
-
-            // Determine whether or not the specified player exists in The Beastiary
-            let playerExists: boolean;
             try {
-                playerExists = await beastiary.players.playerExists(playerArgument.member);
+                targetPlayer = await beastiary.players.fetchByArgument(parsedUserCommand.arguments[0], true);
             }
             catch (error) {
-                throw new Error(`There was an error checking if a player exists in the view collection command: ${error}`);
-            }
-
-            // If no player exists for the guild member, don't create a new one
-            if (!playerExists) {
-                betterSend(parsedUserCommand.channel, "That user has yet to become a player in The Beastiary, tell them to catch some animals!");
+                if (handleUserError(parsedUserCommand.channel, error, )) {
+                    throw new Error(`There was an error fetching a player by an argument ${error}`);
+                }
                 return;
             }
-
-            specifiedMember = playerArgument.member;
         }
-        // If no arguments were provided
         else {
-            specifiedMember = getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel);
-        }
-
-        // Get the player object of the target member
-        let targetPlayer: Player;
-        try {
-            targetPlayer = await beastiary.players.fetch(specifiedMember);
-        }
-        catch (error) {
-            throw new Error(`There was an error fetching a specified player in the view collection command: ${error}`);
+            try {
+                targetPlayer = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+            }
+            catch (error) {
+                throw new Error(`There was an error fetching a player in the view crew command: ${error}`);
+            }
         }
 
         // Create and send a new collection message displaying the specified player's collection

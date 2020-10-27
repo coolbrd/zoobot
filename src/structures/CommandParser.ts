@@ -2,7 +2,7 @@ import { Message, TextChannel, DMChannel, User, GuildMember } from "discord.js";
 import { client } from "..";
 import { commandHandler } from "./CommandHandler";
 
-interface Argument {
+export interface Argument {
     text: string,
     user?: User,
     member?: GuildMember
