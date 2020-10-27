@@ -1,8 +1,5 @@
 import { stripIndents } from "common-tags";
-import { GuildMember } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
-import parsedCommandToPlayer from "../beastiary/parsedCommandToPlayer";
-import getGuildMember from "../discordUtility/getGuildMember";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
 import CrewMessage from "../messages/CrewMessage";
@@ -35,7 +32,7 @@ export default class ViewCrewCommand implements Command {
         // Get a specified player or the player of the command sender
         let player: Player;
         try {
-            player = await parsedCommandToPlayer(parsedUserCommand, 0, true);
+            player = await beastiary.players.fetchByCommand(parsedUserCommand, 0, true);
         }
         catch (error) {
             if (handleUserError(parsedUserCommand.channel, error)) {

@@ -5,6 +5,7 @@ import { Animal } from "../models/Animal";
 import { Player } from "../models/Player";
 import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
+import { errorHandler } from "../structures/ErrorHandler";
 
 export default class AddAnimalToCrewCommand implements Command {
     public readonly commandNames = ["crewadd", "ca"];
@@ -73,5 +74,10 @@ export default class AddAnimalToCrewCommand implements Command {
         catch (error) {
             throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
         }
+
+        // Indicate that the command was performed successfully
+        parsedUserCommand.originalMessage.react("✅").catch(error => {
+            errorHandler.handleError(error, "There was an error attempting to react to a message in the add to crew command.");
+        });
     }
 }

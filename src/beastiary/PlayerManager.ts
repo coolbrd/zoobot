@@ -4,7 +4,7 @@ import config from "../config/BotConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal } from "../models/Animal";
 import { PlayerModel, Player } from "../models/Player";
-import { Argument } from "../structures/CommandParser";
+import CommandParser, { Argument } from "../structures/CommandParser";
 import GameObjectCache from "../structures/GameObjectCache";
 import UserError from "../structures/UserError";
 import { beastiary } from "./Beastiary";
@@ -192,6 +192,43 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
         return false;
     }
+
+    // Extracts a player from a command parser object, using the command sender by default if no player could be found in the specified argument
+    public async fetchByCommand(parsedUserCommand: CommandParser, argumentIndex?: number, existingOnly?: boolean): Promise<Player> {
+        let player: Player;
+
+        // If an argument was specified and the message has enough arguments to allow for checking
+        if (argumentIndex !== undefined && parsedUserCommand.arguments.length > argumentIndex) {
+            // Get the player that was specified in the argument
+            try {
+                player = await this.fetchByArgument(parsedUserCommand.arguments[argumentIndex], existingOnly);
+            }
+            catch (error) {
+                if (error instanceof UserError) {
+                    throw error;
+                }
+                else {
+                    throw new Error(`There was an error fetching a player by an argument ${error}`);
+                }
+            }
+        }
+        // If no argument was specified
+        else {
+            if (parsedUserCommand.channel.type === "dm") {
+                throw new Error("parsedCommandToPlayer was called in a dm channel somehow.");
+            }
+
+            // Get (create if necessary) the player of the command sender
+            try {
+                player = await this.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+            }
+            catch (error) {
+                throw new Error(`There was an error fetching a player in the view crew command: ${error}`);
+            }
+        }
+        
+        return player;
+    } 
 
     // Applies experience to players with animals in their crew
     public async handleMessage(message: Message): Promise<void> {

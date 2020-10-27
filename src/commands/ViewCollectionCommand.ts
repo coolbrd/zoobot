@@ -2,13 +2,10 @@ import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { betterSend } from "../discordUtility/messageMan";
-import { GuildMember } from "discord.js";
 import { stripIndents } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import { Player } from "../models/Player";
-import getGuildMember from "../discordUtility/getGuildMember";
 import handleUserError from "../discordUtility/handleUserError";
-import parsedCommandToPlayer from "../beastiary/parsedCommandToPlayer";
 
 // Sends a message containing a player's collection of animals
 export default class ViewCollectionCommand implements Command {
@@ -36,7 +33,7 @@ export default class ViewCollectionCommand implements Command {
         // Get a specified player or the command sender's player
         let player: Player;
         try {
-            player = await parsedCommandToPlayer(parsedUserCommand, 0, true);
+            player = await beastiary.players.fetchByCommand(parsedUserCommand, 0, true);
         }
         catch (error) {
             if (handleUserError(parsedUserCommand.channel, error)) {
