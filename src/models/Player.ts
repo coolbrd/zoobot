@@ -119,12 +119,20 @@ export class Player extends GameObject {
     }
 
     // Gets an animal id by its position in the player's collection
-    public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
+    public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
         if (position < 0 || position >= this.animalIds.length) {
             return undefined;
         }
 
         return this.animalIds[position];
+    }
+
+    public getCrewIdPositional(position: number): Types.ObjectId | undefined {
+        if (position < 0 || position >= this.crewAnimalIds.length) {
+            return undefined;
+        }
+
+        return this.crewAnimalIds[position];
     }
 
     // Adds an animal id to a list within the player's document

@@ -39,7 +39,7 @@ export default class AnimalInfoCommand implements Command {
             animalObject = await beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedUserCommand.channel.guild.id,
                 userId: parsedUserCommand.originalMessage.author.id,
-                searchByPosition: true 
+                positionalList: "collection"
             });
         }
         catch (error) {

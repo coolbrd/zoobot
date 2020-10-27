@@ -38,7 +38,7 @@ export default class CrewAddCommand implements Command {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedUserCommand.channel.guild.id,
                 userId: parsedUserCommand.originalMessage.author.id,
-                searchByPosition: true
+                positionalList: "collection"
             });
         }
         catch (error) {

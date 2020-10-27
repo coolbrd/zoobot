@@ -179,16 +179,16 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             guildId?: string,
             userId?: string,
             playerObject?: Player,
-            searchByPosition?: boolean
+            positionalList?: "collection" | "crew"
         }): Promise<Animal | undefined> {
         // Pull the potential guild id and player object from the search options (undefined if none)
         const guildId = searchOptions && searchOptions.guildId;
         const userId = searchOptions && searchOptions.userId;
         let playerObject = searchOptions && searchOptions.playerObject;
-        const searchByPosition = searchOptions && searchOptions.searchByPosition;
+        const positionalListName = searchOptions && searchOptions.positionalList;
 
         // If the search is only to be done by nickname
-        if (!searchByPosition) {
+        if (!positionalListName) {
             // Get the animal by its nickname and return the result
             try {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
@@ -236,8 +236,19 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 }
             }
 
-            // Get an animal id by the position in the player's collection
-            const animalId = playerObject.getAnimalIdPositional(searchNumber - 1);
+            let animalId: Types.ObjectId | undefined;
+            switch (positionalListName) {
+                case "collection": {
+                    // Get an animal id by the position in the player's collection
+                    animalId = playerObject.getCollectionIdPositional(searchNumber - 1);
+                    break;
+                }
+                case "crew": {
+                    // Get an animal id by the position in the player's crew
+                    animalId = playerObject.getCrewIdPositional(searchNumber - 1);
+                    break;
+                }
+            }
 
             // If an animal at the given position was found
             if (animalId) {
