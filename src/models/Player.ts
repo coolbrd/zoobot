@@ -118,7 +118,7 @@ export class Player extends GameObject {
         return this.document.get("totalEncounters");
     }
 
-    // Gets an animal id by its position in the player's inventory
+    // Gets an animal id by its position in the player's collection
     public getAnimalIdPositional(position: number): Types.ObjectId | undefined {
         if (position < 0 || position >= this.animalIds.length) {
             return undefined;

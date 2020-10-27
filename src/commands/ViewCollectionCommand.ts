@@ -31,7 +31,7 @@ export default class ViewCollectionCommand implements Command {
             return;
         }
 
-        // The guild member whose inventory will be displayed
+        // The guild member whose collection will be displayed
         let specifiedMember: GuildMember;
         // If the user provided an argument (presumably the user whose collection they want to view)
         if (parsedUserCommand.arguments.length > 0) {

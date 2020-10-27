@@ -50,7 +50,7 @@ export default class ChangeAnimalNicknameCommand implements Command {
             throw new Error(`There as an error searching an animal by its nickname: ${error}`);
         }
 
-        // If no animal was found in that player's inventory
+        // If no animal was found in that player's collection
         if (!animal) {
             betterSend(parsedUserCommand.channel, "No animal by that number/nickname exists in your collection.");
             return;

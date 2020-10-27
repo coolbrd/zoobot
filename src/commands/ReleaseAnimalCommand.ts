@@ -8,7 +8,7 @@ import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
-// Releases an animal from a user's inventory
+// Releases an animal from a user's collection
 export default class ReleaseAnimalCommand implements Command {
     public readonly commandNames = ["release", "r"];
 

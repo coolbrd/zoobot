@@ -45,7 +45,7 @@ export default class AddAnimalToCrewCommand implements Command {
         }
 
         if (!animal) {
-            betterSend(parsedUserCommand.channel, "No animal with that nickname/number exists in your inventory.");
+            betterSend(parsedUserCommand.channel, "No animal with that nickname/number exists in your collection.");
             return;
         }
 

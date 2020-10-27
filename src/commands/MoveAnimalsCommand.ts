@@ -8,7 +8,7 @@ import { Player } from "../models/Player";
 import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
-// Moves animals in a player's inventory to a specified position in a given order
+// Moves animals in a player's collection to a specified position in a given order
 export default class MoveAnimalsCommand implements Command {
     public readonly commandNames = ["moveanimals", "ma"];
 
