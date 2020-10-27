@@ -7,7 +7,7 @@ import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
-export default class AddAnimalToCrewCommand implements Command {
+export default class CrewAddCommand implements Command {
     public readonly commandNames = ["crewadd", "ca"];
 
     public readonly info = "Add an animal to your crew";
