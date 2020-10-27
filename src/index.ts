@@ -91,8 +91,9 @@ client.on("message", (message: Message) => {
     }
 
     // Handle the incoming message
-    commandHandler.handleMessage(message);
-    beastiary.players.handleMessage(message);
+    commandHandler.handleMessage(message).then(() => {
+        beastiary.players.handleMessage(message);
+    });
 });
 
 // When the bot encounters an error

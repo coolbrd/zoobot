@@ -66,6 +66,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     public async fetchExisting(guildMember: GuildMember): Promise<Player | undefined> {
         // First check the cache to see if the player's object already exists in it
         const playerInCache = this.getFromCacheByGuildMember(guildMember);
+
         if (playerInCache) {
             return playerInCache;
         }
@@ -243,7 +244,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             player = await beastiary.players.fetch(getGuildMember(message.author, message.guild));
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player after they sent a messgae: ${error}`);
+            throw new Error(`There was an error fetching a player after they sent a message: ${error}`);
         }
 
         // Get the animals in the player's crew
