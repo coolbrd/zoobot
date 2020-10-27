@@ -271,7 +271,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedNestedField.setValue(userInput);
                             }
                             catch (error) {
-                                if (handleUserError(this.channel, error)) {
+                                if (handleUserError(this.channel, error, 10000)) {
                                     throw new Error(`There was a non-user error setting a simple value in an eDoc message: ${error}`);
                                 }
                             }
@@ -341,7 +341,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedElement.setValue(userInput);
                             }
                             catch (error) {
-                                if (handleUserError(this.channel, error)) {
+                                if (handleUserError(this.channel, error, 10000)) {
                                     throw new Error(`There was a non-user error setting an eDoc array element in an eDoc message: ${error}`);
                                 }
                             }
@@ -382,7 +382,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedField.push(userInput);
                             }
                             catch (error) {
-                                if (handleUserError(this.channel, error)) {
+                                if (handleUserError(this.channel, error, 10000)) {
                                     throw new Error(`There was an error pushing a new element to an eDoc array field in an eDoc message: ${error}`);
                                 }
                             }

@@ -3,9 +3,9 @@ import UserError from "../structures/UserError";
 import { betterSend } from "./messageMan";
 
 // Handles an error that could potentially be a user error, requiring display to the user
-export default function handleUserError(channel: TextChannel | DMChannel, error: Error): Error | undefined {
+export default function handleUserError(channel: TextChannel | DMChannel, error: Error, lifetime?: number): Error | undefined {
     if (error instanceof UserError) {
-        betterSend(channel, "Error: " + error.message, 10000);
+        betterSend(channel, "Error: " + error.message, lifetime);
         return;
     }
     else {
