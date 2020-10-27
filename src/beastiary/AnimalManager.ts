@@ -155,6 +155,13 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(`There was an error removing an animal's id from it's owner's collection: ${error}`);
         }
 
+        try {
+            await owner.removeAnimalFromCrew(animal.id);
+        }
+        catch (error) {
+            throw new Error(`There was an error removing a released animal from a player's crew: ${error}`);
+        }
+
         // Remove the animal from the cache
         try {
             await this.removeFromCache(animal.id);
