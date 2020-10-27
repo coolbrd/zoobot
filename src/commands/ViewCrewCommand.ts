@@ -1,6 +1,7 @@
 import { stripIndents } from "common-tags";
 import { GuildMember } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
+import parsedCommandToPlayer from "../beastiary/parsedCommandToPlayer";
 import getGuildMember from "../discordUtility/getGuildMember";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
@@ -31,28 +32,19 @@ export default class ViewCrewCommand implements Command {
             return;
         }
 
-        let targetPlayer: Player;
-        if (parsedUserCommand.arguments.length > 0) {
-            try {
-                targetPlayer = await beastiary.players.fetchByArgument(parsedUserCommand.arguments[0], true);
-            }
-            catch (error) {
-                if (handleUserError(parsedUserCommand.channel, error, )) {
-                    throw new Error(`There was an error fetching a player by an argument ${error}`);
-                }
-                return;
-            }
+        // Get a specified player or the player of the command sender
+        let player: Player;
+        try {
+            player = await parsedCommandToPlayer(parsedUserCommand, 0, true);
         }
-        else {
-            try {
-                targetPlayer = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+        catch (error) {
+            if (handleUserError(parsedUserCommand.channel, error)) {
+                throw new Error(`There was an error converting a parsed command to a player: ${error}`);
             }
-            catch (error) {
-                throw new Error(`There was an error fetching a player in the view crew command: ${error}`);
-            }
+            return;
         }
 
-        const crewMessage = new CrewMessage(parsedUserCommand.channel, targetPlayer);
+        const crewMessage = new CrewMessage(parsedUserCommand.channel, player);
 
         try {
             await crewMessage.send();
