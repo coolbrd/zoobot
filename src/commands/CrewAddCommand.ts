@@ -8,7 +8,7 @@ import { GuildCommandParser } from "../structures/CommandParser";
 
 // Adds an animal to a player's crew
 export default class CrewAddCommand extends GuildCommand {
-    public readonly commandNames = ["crewadd", "ca"];
+    public readonly commandNames = ["crewadd", "cra"];
 
     public readonly info = "Add an animal to your crew";
 

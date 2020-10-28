@@ -8,7 +8,7 @@ import { GuildCommandParser } from "../structures/CommandParser";
 
 // Removes an animal from a player's crew
 export default class CrewRemoveCommand extends GuildCommand {
-    public readonly commandNames = ["crewremove", "cr"];
+    public readonly commandNames = ["crewremove", "crr"];
 
     public readonly info = "Remove an animal from your crew";
 
