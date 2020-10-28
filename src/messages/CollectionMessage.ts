@@ -34,7 +34,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
         const userAvatar = this.player.member.user.avatarURL() || undefined;
         embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
-        embed.setFooter(`${collection.length} in collection\n${this.getButtonHelpString()}`);
+        embed.setFooter(`${collection.length} in collection (max ${this.player.collectionSizeLimit})\n${this.getButtonHelpString()}`);
 
         // Don't try anything crazy if the user's collection is empty
         if (collection.length < 1) {

@@ -9,6 +9,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import getRarityInfo from "../beastiary/rarityToEmbedColor";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
+import { commandHandler } from "../structures/CommandHandler";
 
 // An interactive message that will represent an animal encounter
 export default class EncounterMessage extends InteractiveMessage {
@@ -83,8 +84,15 @@ export default class EncounterMessage extends InteractiveMessage {
         if (!canCapture) {
             // If this player hasn't received a message from this encounter yet notifying their capture status
             if (!this.warnedUserIds.includes(user.id)) {
-                betterSend(this.channel, `${user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
-                
+                // If the player can't capture because their collection is full
+                if (player.collectionAnimalIds.length >= player.collectionSizeLimit) {
+                    betterSend(this.channel, `${user}, your collection is full! Either release some animals with \`${commandHandler.getGuildPrefix(this.channel.guild)}release\`, or upgrade your collection size.`);
+                }
+                // If the player can't capture because they don't have any captures left
+                else {
+                    betterSend(this.channel, `${user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
+                }
+
                 // Add the player's user id to the list of users that have been informed, preventing their ability to spam with this encounter
                 this.warnedUserIds.push(user.id);
             }
@@ -100,6 +108,14 @@ export default class EncounterMessage extends InteractiveMessage {
         betterSend(this.channel, `${user}, you caught ${commonName.article} ${commonName.name}!`);
         this.setDeactivationText("(caught)");
 
+        // Indicate to the player object that it just captured an animal
+        try {
+            await player.captureAnimal();
+        }
+        catch (error) {
+            throw new Error(`There was an error indicating that a player captured an animal (most likely lost stats and did not get the animal): ${error}`);
+        }
+
         // Create the new animal
         try {
             await beastiary.animals.createAnimal(guildMember, this.species, this.card);
@@ -108,14 +124,6 @@ export default class EncounterMessage extends InteractiveMessage {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
 
             throw new Error(`There was an error creating a new animal in an encounter message: ${error}`);
-        }
-
-        // Indicate to the player object that it just captured an animal
-        try {
-            await player.captureAnimal();
-        }
-        catch (error) {
-            throw new Error(`There was an error resetting a player's last claim: ${error}`);
         }
 
         // Stop this message from receiving any more input

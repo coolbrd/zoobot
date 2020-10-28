@@ -65,7 +65,7 @@ export class Player extends GameObject {
         return new PlayerModel({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
-            collectionSizeLimit: 0,
+            collectionSizeLimit: 5,
             freeCapturesLeft: 0,
             totalCaptures: 0,
             freeEncountersLeft: 0,
@@ -324,8 +324,8 @@ export class Player extends GameObject {
         }
     }
 
-    // Checks whether or not a player can capture after applying possible capture reset period captures
-    public async canCapture(): Promise<boolean> {
+    // The amount of captures a play has left to use
+    public async capturesLeft(): Promise<number> {
         // Give the player their free capture for this period if necessary
         try {
             await this.applyCaptureReset();
@@ -334,13 +334,30 @@ export class Player extends GameObject {
             throw new Error(`There was an error checking/applying a player's current capture reset period: ${error}`);
         }
 
-        return this.freeCapturesLeft > 0;
+        return this.freeCapturesLeft;
+    }
+
+    // Whether or not the player can capture an animal, due to any of the given restrictions
+    public async canCapture(): Promise<boolean> {
+        let capturesLeft: number;
+        try {
+            capturesLeft = await this.capturesLeft();
+        }
+        catch (error) {
+            throw new Error(`There was an error getting the number of captures a player has left: ${error}`);
+        }
+
+        return capturesLeft > 0 && this.collectionAnimalIds.length < this.collectionSizeLimit;
     }
 
     // Called after a player captures an animal, and its stats needs to be updated
     public async captureAnimal(): Promise<void> {
         if (this.freeCapturesLeft <= 0) {
-            throw new Error("A player's capture stats were updated as if it captured an animal without any remaining captures.");
+            throw new Error("A player's capture stats were updated as if they captured an animal without any remaining captures.");
+        }
+
+        if (this.collectionAnimalIds.length >= this.collectionSizeLimit) {
+            throw new Error("A player's capture stats were updated as if they captured an animal when their collection was full. ");
         }
 
         // Increment/decrement values
