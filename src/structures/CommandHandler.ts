@@ -161,9 +161,10 @@ class CommandHandler {
                     this.setUserLoadingCommand(message.author.id);
                 }
 
+                let commandSuccessful: boolean | void;
                 // Run the command
                 try {
-                    await matchedCommand.run(parsedMessage);
+                    commandSuccessful = await matchedCommand.run(parsedMessage);
                 }
                 catch (error) {
                     // Handle errors gracefully and inform the user
@@ -177,7 +178,7 @@ class CommandHandler {
                 }
 
                 // If the bot should react to the message after it's completed the command
-                if (matchedCommand.reactConfirm) {
+                if (matchedCommand.reactConfirm && commandSuccessful) {
                     // Indicate that the command was performed successfully
                     parsedMessage.originalMessage.react("✅").catch(error => {
                         errorHandler.handleError(error, "There was an error attempting to react to a message after a command was completed.");

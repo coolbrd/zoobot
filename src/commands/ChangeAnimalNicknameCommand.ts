@@ -19,11 +19,11 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` \`<new nickname>\` to change the nickname of an animal in your collection. Use quotation marks (") for any names with spaces in them.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser): Promise<boolean> {
         // If the user provided no arguments
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return false;
         }
 
         // The string representing the animal the change the nickname of
@@ -48,7 +48,7 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
         // If no animal was found in that player's collection
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal by that number/nickname exists in your collection.");
-            return;
+            return false;
         }
 
         // The nickname string that will be used
@@ -69,7 +69,7 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             for (const substring of bannedSubStrings) {
                 if (newNickname.includes(substring)) {
                     betterSend(parsedMessage.channel, `Animal nicknames can't contain any Discord-reserved formatting characters, such as: '${substring}'`);
-                    return;
+                    return false;
                 }
             }
         }
@@ -81,5 +81,7 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
         catch (error) {
             throw new Error(`There was an error attempting to change the nickname of an animal object: ${error}`);
         }
+
+        return true;
     }
 }

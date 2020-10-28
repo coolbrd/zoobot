@@ -22,10 +22,10 @@ export default class CrewAddCommand extends GuildCommand {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal nickname or number>\` to add an animal to your crew, allowing them to passively earn xp.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser): Promise<boolean> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return false;
         }
 
         const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
@@ -44,7 +44,7 @@ export default class CrewAddCommand extends GuildCommand {
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname/number exists in your collection.");
-            return;
+            return false;
         }
 
         let player: Player;
@@ -57,12 +57,12 @@ export default class CrewAddCommand extends GuildCommand {
 
         if (player.crewAnimalIds.includes(animal.id)) {
             betterSend(parsedMessage.channel, "That animal is already in your crew.");
-            return;
+            return false;
         }
 
         if (player.crewAnimalIds.length >= 4) {
             betterSend(parsedMessage.channel, "Your crew is full, remove an animal and try again.");
-            return;
+            return false;
         }
 
         try {
@@ -71,5 +71,7 @@ export default class CrewAddCommand extends GuildCommand {
         catch (error) {
             throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
         }
+
+        return true;
     }
 }

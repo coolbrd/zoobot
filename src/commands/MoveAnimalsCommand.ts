@@ -26,11 +26,11 @@ export default class MoveAnimalsCommand extends GuildCommand {
         `;
     }
 
-    public async run(parsedUserCommand: GuildCommandParser): Promise<void> {
+    public async run(parsedUserCommand: GuildCommandParser): Promise<boolean> {
         // If the command was used without any arguments
         if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
-            return;
+            return false;
         }
 
         // Get the player game object
@@ -79,13 +79,13 @@ export default class MoveAnimalsCommand extends GuildCommand {
         if (errors.length > 0) {
             betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your collection. Errors: ${errors.join(", ")}`);
             // Don't run the command with errors
-            return;
+            return false;
         }
 
         // If enough positions weren't provided
         if (positions.length < 2) {
             betterSend(parsedUserCommand.channel, `You need to specify at least one position of an animal to place after position \`${positions[0]}\`.`);
-            return;
+            return false;
         }
 
         // Get the first position from the array and remove it
@@ -112,5 +112,7 @@ export default class MoveAnimalsCommand extends GuildCommand {
         catch (error) {
             throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
         }
+
+        return true;
     }
 }

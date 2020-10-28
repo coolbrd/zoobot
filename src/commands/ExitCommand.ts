@@ -17,7 +17,7 @@ export default class ExitCommand extends Command {
         return `Why do you need help with this? It's pretty straightforward.`;
     }
 
-    public async run(_parsedMessage: CommandParser): Promise<void> {
+    public async run(_parsedMessage: CommandParser): Promise<boolean> {
         console.log("Exiting...");
 
         client.destroy()
@@ -27,6 +27,9 @@ export default class ExitCommand extends Command {
         }
         catch (error) {
             errorHandler.handleError(error, "There was an error exiting the bot process in the exit command.");
+            return false;
         }
+
+        return true;
     }
 }

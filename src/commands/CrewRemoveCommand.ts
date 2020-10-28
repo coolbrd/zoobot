@@ -22,10 +22,10 @@ export default class CrewRemoveCommand extends GuildCommand {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to remove an animal from your crew.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser): Promise<boolean> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return false;
         }
 
         const searchTerm = parsedMessage.fullArguments.toLowerCase();
@@ -53,7 +53,7 @@ export default class CrewRemoveCommand extends GuildCommand {
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname or number exists in your crew.");
-            return;
+            return false;
         }
 
         const targetAnimalId = animal.id;
@@ -64,7 +64,7 @@ export default class CrewRemoveCommand extends GuildCommand {
 
         if (!animalInCrew) {
             betterSend(parsedMessage.channel, `"${animal.name}" isn't in your crew, so it couldn't be removed.`);
-            return;
+            return false;
         }
 
         try {
@@ -73,5 +73,7 @@ export default class CrewRemoveCommand extends GuildCommand {
         catch (error) {
             throw new Error(`There was an error removing an animal from a player's crew: ${error}`);
         }
+
+        return true;
     }
 }

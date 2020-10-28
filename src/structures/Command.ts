@@ -37,7 +37,7 @@ export default abstract class Command {
     public abstract help(displayPrefix: string): string;
 
     // Execute the command
-    public abstract run(parsedMessage: CommandParser): Promise<void>;
+    public abstract run(parsedMessage: CommandParser): Promise<void> | Promise<boolean>;
 }
 
 // A command that can only be run in a guild
@@ -45,5 +45,5 @@ export abstract class GuildCommand extends Command {
     // Indicate that these commands can only be run in guilds
     public readonly guildOnly = true;
 
-    public abstract run(parsedMessage: GuildCommandParser): Promise<void>;
+    public abstract run(parsedMessage: GuildCommandParser): Promise<void> | Promise<boolean>;
 }
