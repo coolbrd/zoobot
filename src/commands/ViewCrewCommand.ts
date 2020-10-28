@@ -1,13 +1,13 @@
 import { stripIndents } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
-import { betterSend } from "../discordUtility/messageMan";
 import CrewMessage from "../messages/CrewMessage";
 import { Player } from "../models/Player";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 
-export default class ViewCrewCommand implements Command {
+// Displays a player's crew
+export default class ViewCrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];
 
     public readonly info = "View your current crew of selected animals";
@@ -22,26 +22,20 @@ export default class ViewCrewCommand implements Command {
         `;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        // Don't run the command if it's in DMs
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "The crew command can only be used in servers.");
-            return;
-        }
-
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
         // Get a specified player or the player of the command sender
         let player: Player;
         try {
-            player = await beastiary.players.fetchByCommand(parsedUserCommand, 0, true);
+            player = await beastiary.players.fetchByCommand(parsedMessage, 0, true);
         }
         catch (error) {
-            if (handleUserError(parsedUserCommand.channel, error)) {
+            if (handleUserError(parsedMessage.channel, error)) {
                 throw new Error(`There was an error converting a parsed command to a player: ${error}`);
             }
             return;
         }
 
-        const crewMessage = new CrewMessage(parsedUserCommand.channel, player);
+        const crewMessage = new CrewMessage(parsedMessage.channel, player);
 
         try {
             await crewMessage.send();

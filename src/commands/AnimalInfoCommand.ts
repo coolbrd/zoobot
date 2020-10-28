@@ -2,11 +2,11 @@ import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../models/Animal";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 
 // Displays the information of a player's captured animal
-export default class AnimalInfoCommand implements Command {
+export default class AnimalInfoCommand extends GuildCommand {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
 
     public readonly info = "View the stats, info, and card of a captured animal";
@@ -17,28 +17,22 @@ export default class AnimalInfoCommand implements Command {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` to view information about that animal.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        // Don't let this command be used in dms
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
-            return;
-        }
-
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
         // If the user provided no arguments
-        if (parsedUserCommand.arguments.length < 1) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
+        if (parsedMessage.arguments.length < 1) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
         // The string representing the animal to get the info of
-        const animalIdentifier = parsedUserCommand.fullArguments;
+        const animalIdentifier = parsedMessage.arguments[0].text;
 
         // Search for an animal in the source guild by the given search argument, which can be a nickname or a position
         let animalObject: Animal | undefined;
         try {
             animalObject = await beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedUserCommand.channel.guild.id,
-                userId: parsedUserCommand.originalMessage.author.id,
+                guildId: parsedMessage.guild.id,
+                userId: parsedMessage.sender.id,
                 positionalList: "collection"
             });
         }
@@ -48,12 +42,12 @@ export default class AnimalInfoCommand implements Command {
 
         // If no animal by that nickname or position exists in the guild
         if (!animalObject) {
-            betterSend(parsedUserCommand.channel, "No animal by that nickname/number could be found in this server.");
+            betterSend(parsedMessage.channel, "No animal by that nickname/number could be found in this server.");
             return;
         }
 
         // Create and send an info message with the found animal object
-        const infoMessage = new AnimalInfoMessage(parsedUserCommand.channel, animalObject);
+        const infoMessage = new AnimalInfoMessage(parsedMessage.channel, animalObject);
         
         try {
             await infoMessage.send();

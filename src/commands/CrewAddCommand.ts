@@ -3,11 +3,11 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Animal } from "../models/Animal";
 import { Player } from "../models/Player";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
-import { errorHandler } from "../structures/ErrorHandler";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 
-export default class CrewAddCommand implements Command {
+// Adds an animal to a player's crew
+export default class CrewAddCommand extends GuildCommand {
     public readonly commandNames = ["crewadd", "ca"];
 
     public readonly info = "Add an animal to your crew";
@@ -16,28 +16,25 @@ export default class CrewAddCommand implements Command {
 
     public readonly blocksInput = true;
 
+    public readonly reactConfirm = true;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal nickname or number>\` to add an animal to your crew, allowing them to passively earn xp.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+        if (!parsedMessage.fullArguments) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
-        if (!parsedUserCommand.fullArguments) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
-            return;
-        }
-
-        const animalIdentifier = parsedUserCommand.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
 
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedUserCommand.channel.guild.id,
-                userId: parsedUserCommand.originalMessage.author.id,
+                guildId: parsedMessage.guild.id,
+                userId: parsedMessage.sender.id,
                 positionalList: "collection"
             });
         }
@@ -46,25 +43,25 @@ export default class CrewAddCommand implements Command {
         }
 
         if (!animal) {
-            betterSend(parsedUserCommand.channel, "No animal with that nickname/number exists in your collection.");
+            betterSend(parsedMessage.channel, "No animal with that nickname/number exists in your collection.");
             return;
         }
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
         }
         catch (error) {
             throw new Error(`There was an error fetching a player in the animal add to crew command: ${error}`);
         }
 
         if (player.crewAnimalIds.includes(animal.id)) {
-            betterSend(parsedUserCommand.channel, "That animal is already in your crew.");
+            betterSend(parsedMessage.channel, "That animal is already in your crew.");
             return;
         }
 
         if (player.crewAnimalIds.length >= 4) {
-            betterSend(parsedUserCommand.channel, "Your crew is full, remove an animal and try again.");
+            betterSend(parsedMessage.channel, "Your crew is full, remove an animal and try again.");
             return;
         }
 
@@ -74,10 +71,5 @@ export default class CrewAddCommand implements Command {
         catch (error) {
             throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
         }
-
-        // Indicate that the command was performed successfully
-        parsedUserCommand.originalMessage.react("✅").catch(error => {
-            errorHandler.handleError(error, "There was an error attempting to react to a message in the add to crew command.");
-        });
     }
 }

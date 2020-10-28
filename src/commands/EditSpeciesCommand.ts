@@ -8,7 +8,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 
 // The command used to review, edit, and approve a pending species into a real species
-export default class EditSpeciesCommand implements Command {
+export default class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
 
     public readonly info = "Edit an existing species";
@@ -19,16 +19,14 @@ export default class EditSpeciesCommand implements Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species name>\` to edit an existing species.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const channel = parsedUserCommand.channel;
-        
-        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
-
+    public async run(parsedMessage: CommandParser): Promise<void> {
         // If the user provided no search term
-        if (!fullSearchTerm) {
-            betterSend(channel, this.help(parsedUserCommand.displayPrefix));
+        if (!parsedMessage.fullArguments) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
+
+        const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         // Get a species whose first common name is the search term
         let species: Species | undefined;
@@ -41,12 +39,12 @@ export default class EditSpeciesCommand implements Command {
 
         // If nothing was found by that name
         if (!species) {
-            betterSend(channel, `No species with the common name "${fullSearchTerm}" could be found.`);
+            betterSend(parsedMessage.channel, `No species with the common name "${fullSearchTerm}" could be found.`);
             return;
         }
 
         // Create a new species edit message from the species object and send it
-        const editMessage = new SpeciesEditMessage(channel, species);
+        const editMessage = new SpeciesEditMessage(parsedMessage.channel, species);
         try {
             await editMessage.send();
         }
@@ -56,12 +54,12 @@ export default class EditSpeciesCommand implements Command {
 
         // When the message's time limit is reached
         editMessage.once("timeExpired", () => {
-            betterSend(channel, "Time limit expired.");
+            betterSend(parsedMessage.channel, "Time limit expired.");
         });
 
         // When the user presses the exit button
         editMessage.once("exit", () => {
-            betterSend(channel, "Edit process aborted.");
+            betterSend(parsedMessage.channel, "Edit process aborted.");
         });
 
         // When the editing process is complete
@@ -80,7 +78,7 @@ export default class EditSpeciesCommand implements Command {
                 wikiPage: finalDocument["wikiPage"] as string,
                 rarity: finalDocument["rarity"] as number
             }).then(() => {
-                betterSend(channel, "Edit successful.");
+                betterSend(parsedMessage.channel, "Edit successful.");
 
                 encounterHandler.loadRarityTable().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);

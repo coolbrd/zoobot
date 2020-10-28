@@ -4,7 +4,7 @@ import config from "../config/BotConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { Animal } from "../models/Animal";
 import { PlayerModel, Player } from "../models/Player";
-import CommandParser, { Argument } from "../structures/CommandParser";
+import { Argument, GuildCommandParser } from "../structures/CommandParser";
 import GameObjectCache from "../structures/GameObjectCache";
 import UserError from "../structures/UserError";
 import { beastiary } from "./Beastiary";
@@ -195,14 +195,14 @@ export default class PlayerManager extends GameObjectCache<Player> {
     }
 
     // Extracts a player from a command parser object, using the command sender by default if no player could be found in the specified argument
-    public async fetchByCommand(parsedUserCommand: CommandParser, argumentIndex?: number, existingOnly?: boolean): Promise<Player> {
+    public async fetchByCommand(parsedMessage: GuildCommandParser, argumentIndex?: number, existingOnly?: boolean): Promise<Player> {
         let player: Player;
 
         // If an argument was specified and the message has enough arguments to allow for checking
-        if (argumentIndex !== undefined && parsedUserCommand.arguments.length > argumentIndex) {
+        if (argumentIndex !== undefined && parsedMessage.arguments.length > argumentIndex) {
             // Get the player that was specified in the argument
             try {
-                player = await this.fetchByArgument(parsedUserCommand.arguments[argumentIndex], existingOnly);
+                player = await this.fetchByArgument(parsedMessage.arguments[argumentIndex], existingOnly);
             }
             catch (error) {
                 if (error instanceof UserError) {
@@ -215,16 +215,12 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
         // If no argument was specified
         else {
-            if (parsedUserCommand.channel.type === "dm") {
-                throw new Error("parsedCommandToPlayer was called in a dm channel somehow.");
-            }
-
             // Get (create if necessary) the player of the command sender
             try {
-                player = await this.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+                player = await this.fetch(getGuildMember(parsedMessage.sender, parsedMessage.guild));
             }
             catch (error) {
-                throw new Error(`There was an error fetching a player in the view crew command: ${error}`);
+                throw new Error(`There was an error fetching a player by a command: ${error}`);
             }
         }
         

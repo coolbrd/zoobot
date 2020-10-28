@@ -2,14 +2,13 @@ import { stripIndents } from "common-tags";
 import { Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import CommandParser from "../structures/CommandParser";
-import Command, { CommandSection } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
 import { Player } from "../models/Player";
-import { errorHandler } from "../structures/ErrorHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
 // Moves animals in a player's collection to a specified position in a given order
-export default class MoveAnimalsCommand implements Command {
+export default class MoveAnimalsCommand extends GuildCommand {
     public readonly commandNames = ["moveanimals", "ma"];
 
     public readonly info = "Rearrange animals in your collection";
@@ -18,6 +17,8 @@ export default class MoveAnimalsCommand implements Command {
 
     public readonly blocksInput = true;
 
+    public readonly reactConfirm = true;
+
     public help(prefix: string): string {
         return stripIndents`
             Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your collection to a given position.
@@ -25,13 +26,7 @@ export default class MoveAnimalsCommand implements Command {
         `;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        // If the message was sent in a dm chat, don't let things continue (naughty user!)
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
-            return
-        }
-
+    public async run(parsedUserCommand: GuildCommandParser): Promise<void> {
         // If the command was used without any arguments
         if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
@@ -41,7 +36,7 @@ export default class MoveAnimalsCommand implements Command {
         // Get the player game object
         let playerObject: Player;
         try {
-            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.sender, parsedUserCommand.guild));
         }
         catch (error) {
             throw new Error(`There was an error getting a player object in the move animals command: ${error}`);
@@ -117,10 +112,5 @@ export default class MoveAnimalsCommand implements Command {
         catch (error) {
             throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
         }
-
-        // Indicate command success
-        parsedUserCommand.originalMessage.react("✅").catch(error => {
-            errorHandler.handleError(error, "There was an error reacting to a message in the move animals command.");
-        });
     }
 }

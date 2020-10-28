@@ -5,7 +5,7 @@ import { commandHandler } from "../structures/CommandHandler";
 import { stripIndents } from "common-tags";
 
 // Displays help information about any given command
-export default class HelpCommand implements Command {
+export default class HelpCommand extends Command {
     public readonly commandNames = ["help", "h"];
 
     public readonly info = "View more information about the usage of a command";
@@ -20,25 +20,25 @@ export default class HelpCommand implements Command {
         `;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const commandName = parsedUserCommand.fullArguments.toLowerCase();
+    public async run(parsedMessage: CommandParser): Promise<void> {
+        const commandName = parsedMessage.fullArguments.toLowerCase();
 
         // If the user didn't provide a command name to search
         if (!commandName) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
         // Try to find a command by the given search term
-        const command = commandHandler.getCommand(commandName.toLowerCase(), parsedUserCommand.originalMessage);
+        const command = commandHandler.getCommand(commandName.toLowerCase(), parsedMessage.originalMessage);
 
         // If no command by that name exists
         if (!command) {
-            betterSend(parsedUserCommand.channel, `No command by the name "${commandName}" exists.`);
+            betterSend(parsedMessage.channel, `No command by the name "${commandName}" exists.`);
             return;
         }
 
         // Send help information about the found command
-        betterSend(parsedUserCommand.channel, command.help(parsedUserCommand.displayPrefix));
+        betterSend(parsedMessage.channel, command.help(parsedMessage.displayPrefix));
     }
 }

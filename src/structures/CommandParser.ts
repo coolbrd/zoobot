@@ -1,4 +1,4 @@
-import { Message, TextChannel, DMChannel, User, GuildMember } from "discord.js";
+import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
 import { client } from "..";
 import { commandHandler } from "./CommandHandler";
 
@@ -10,20 +10,24 @@ export interface Argument {
 
 // The parsed version of a command given by a user's message
 export default class CommandParser {
+    // The prefix used by the command handler
+    public readonly commandPrefix: string;
+    // The prefix to give to help commands for display purposes
+    public readonly displayPrefix: string;
+
     // The parsed name of the command that's being used in the message, even if it's not a valid command
     public readonly commandName: string;
     // The array of arguments following the command
     public readonly arguments: Argument[] = [];
     // The full, uncut string after the command name
     public readonly fullArguments: string;
+
     // The message as originally sent by the user
     public readonly originalMessage: Message;
     // The channel that the message was sent in
     public readonly channel: TextChannel | DMChannel;
-    // The prefix used by the command handler
-    public readonly commandPrefix: string;
-    // The prefix to give to help commands for display purposes
-    public readonly displayPrefix: string;
+    // The user that sent the original message
+    public readonly sender: User;
 
     // Initialization required the user's message and the prefix to cut out
     constructor(message: Message, prefixUsed: string) {
@@ -78,14 +82,14 @@ export default class CommandParser {
 
         // Iterate and add every text argument of the split up message to the list of arguments
         for (const argument of splitMessage) {
-            // Where a specified user and member would go, if this argument can be resolved to them
+            // Where a specified user would go if this argument can be resolved to one
             let user: User | undefined;
-            let member: GuildMember | undefined;
             // Only try to resolve user ids from arguments long enough to contain them
             if (argument.length >= 18) {
                 let userId: string;
                 // Search for a user tag containing a user id
                 const tagPosition = argument.search(/<@!.*>/);
+
                 // If a tag was found in the argument
                 if (tagPosition !== -1) {
                     // Extract the user id from the tag
@@ -96,27 +100,42 @@ export default class CommandParser {
                     // Interpret the argument as a plain id
                     userId = argument;
                 }
+
                 // Attempt to resolve the argument into a user
                 user = client.users.resolve(userId) || undefined;
-
-                // If a user was found, and this message is in a server
-                if (user && message.channel.type !== "dm") {
-                    // Attempt to resolve a guild member from the id
-                    member = message.channel.guild.member(user) || undefined;
-                }
             }
 
             // Add the current argument to the list
             this.arguments.push({
                 text: argument,
-                user: user,
-                member: member
+                user: user
             });
         }
     
-        // Assign the original message to this instance
         this.originalMessage = message;
-        // Assign the channel
         this.channel = message.channel as TextChannel | DMChannel;
+        this.sender = message.author;
+    }
+}
+
+export class GuildCommandParser extends CommandParser {
+    public readonly channel: TextChannel;
+    public readonly guild: Guild;
+
+    constructor(message: Message, prefixUsed: string) {
+        super(message, prefixUsed);
+
+        if (message.channel.type !== "text") {
+            throw new Error("A message within a non-text channel was given to a guild command parser.");
+        }
+
+        this.arguments.forEach(argument => {
+            if (argument.user) {
+                argument.member = this.channel.guild.member(argument.user) || undefined;
+            }
+        });
+
+        this.channel = message.channel;
+        this.guild = this.channel.guild;
     }
 }

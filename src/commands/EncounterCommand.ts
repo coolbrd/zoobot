@@ -1,5 +1,5 @@
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { beastiary } from "../beastiary/Beastiary";
@@ -7,7 +7,7 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { Player } from "../models/Player";
 import { remainingTimeString } from "../utility/timeStuff";
 
-export default class EncounterCommand implements Command {
+export default class EncounterCommand extends GuildCommand {
     public readonly commandNames = ["encounter", "e"];
 
     public readonly info = "Initiate an animal encounter";
@@ -20,17 +20,11 @@ export default class EncounterCommand implements Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` to initiate an animal encounter.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        // Don't allow encounters in dm channels
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "Animal encounters can only be initiated in servers.");
-            return;
-        }
-
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
         // Get the player that initiated the encounter
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
         }
         catch (error) {
             throw new Error(`There was an error fetching a player for use in the encounter command: ${error}`);
@@ -47,7 +41,7 @@ export default class EncounterCommand implements Command {
 
         // If the player can't encounter an animal
         if (!canEncounter) {
-            betterSend(parsedUserCommand.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
+            betterSend(parsedMessage.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
             return;
         }
 
@@ -61,7 +55,7 @@ export default class EncounterCommand implements Command {
 
         // Create a new animal encounter
         try {
-            await encounterHandler.spawnAnimal(parsedUserCommand.channel);
+            await encounterHandler.spawnAnimal(parsedMessage.channel);
         }
         catch (error) {
             throw new Error(`There was an error creating a new animal encounter: ${error}`);

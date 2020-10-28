@@ -6,7 +6,7 @@ import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
 
 // Sends an informational message about a given species
-export default class SpeciesInfoCommand implements Command {
+export default class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
 
     public readonly info = "View a species' information and collectible cards";
@@ -17,15 +17,13 @@ export default class SpeciesInfoCommand implements Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const channel = parsedUserCommand.channel;
-
-        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
-
-        if (!fullSearchTerm) {
-            betterSend(channel, this.help(parsedUserCommand.displayPrefix));
+    public async run(parsedMessage: CommandParser): Promise<void> {
+        if (!parsedMessage.fullArguments) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
+
+        const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         // Find a species by its common name
         let species: Species | undefined;
@@ -38,12 +36,12 @@ export default class SpeciesInfoCommand implements Command {
 
         // If no species with the given name was found
         if (!species) {
-            betterSend(channel, `No animal by the name "${fullSearchTerm}" could be found.`);
+            betterSend(parsedMessage.channel, `No animal by the name "${fullSearchTerm}" could be found.`);
             return;
         }
 
         // Construct and send an informational message about the species
-        const infoMessage = new SpeciesInfoMessage(channel, species);
+        const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species);
         try {
             await infoMessage.send();
         }

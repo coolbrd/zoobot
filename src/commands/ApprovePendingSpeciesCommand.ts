@@ -9,7 +9,7 @@ import { SimpleEDoc } from "../structures/EDoc";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 
 // The command used to review, edit, and approve a pending species into a real species
-export default class ApprovePendingSpeciesCommand implements Command {
+export default class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
 
     public readonly info = "Review and approve a pending species";
@@ -20,14 +20,12 @@ export default class ApprovePendingSpeciesCommand implements Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<pending species name>\` to begin the process of reviewing and approving a species submission.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        const channel = parsedUserCommand.channel;
-
-        const fullSearchTerm = parsedUserCommand.fullArguments.toLowerCase();
+    public async run(parsedMessage: CommandParser): Promise<void> {
+        const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         // If no arguments were provided
         if (!fullSearchTerm) {
-            betterSend(channel, this.help(parsedUserCommand.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
@@ -42,7 +40,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
         // If nothing was found by that name
         if (!pendingSpeciesDocument) {
-            betterSend(channel, `No pending species submission with the common name "${fullSearchTerm}" could be found.`);
+            betterSend(parsedMessage.channel, `No pending species submission with the common name "${fullSearchTerm}" could be found.`);
             return;
         }
 
@@ -50,7 +48,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
         const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument);
 
         // Create a new approval message from the object and send it
-        const approvalMessage = new SpeciesApprovalMessage(channel, pendingSpeciesObject);
+        const approvalMessage = new SpeciesApprovalMessage(parsedMessage.channel, pendingSpeciesObject);
 
         try {
             await approvalMessage.send();
@@ -61,17 +59,17 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
         // When the message's time limit is reached
         approvalMessage.once("timeExpired", () => {
-            betterSend(channel, "Time limit expired.");
+            betterSend(parsedMessage.channel, "Time limit expired.");
         });
 
         // When the user presses the exit button
         approvalMessage.once("exit", () => {
-            betterSend(channel, "Approval process aborted.");
+            betterSend(parsedMessage.channel, "Approval process aborted.");
         });
 
         // When the user presses the deny button
         approvalMessage.once("deny", () => {
-            betterSend(channel, "Submission denied.");
+            betterSend(parsedMessage.channel, "Submission denied.");
         });
 
         // If the submission gets approved (submitted)
@@ -88,7 +86,7 @@ export default class ApprovePendingSpeciesCommand implements Command {
 
             // Save the new species
             speciesDocument.save().then(() => {
-                betterSend(channel, "Species approved.");
+                betterSend(parsedMessage.channel, "Species approved.");
 
                 encounterHandler.loadRarityTable().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);

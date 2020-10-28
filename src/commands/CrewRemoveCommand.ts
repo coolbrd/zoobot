@@ -3,11 +3,11 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Animal } from "../models/Animal";
 import { Player } from "../models/Player";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
-import { errorHandler } from "../structures/ErrorHandler";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 
-export default class CrewRemoveCommand implements Command {
+// Removes an animal from a player's crew
+export default class CrewRemoveCommand extends GuildCommand {
     public readonly commandNames = ["crewremove", "cr"];
 
     public readonly info = "Remove an animal from your crew";
@@ -16,26 +16,23 @@ export default class CrewRemoveCommand implements Command {
 
     public readonly blocksInput = true;
 
+    public readonly reactConfirm = true;
+
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to remove an animal from your crew.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "You can only edit your animal crew in servers.");
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+        if (!parsedMessage.fullArguments) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
-        if (parsedUserCommand.arguments.length < 1) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
-            return;
-        }
-
-        const searchTerm = parsedUserCommand.arguments[0].text;
+        const searchTerm = parsedMessage.fullArguments.toLowerCase();
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel));
+            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
         }
         catch (error) {
             throw new Error(`There was an error fetching a player in the crew remove command: ${error}`);
@@ -44,8 +41,8 @@ export default class CrewRemoveCommand implements Command {
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(searchTerm, {
-                guildId: parsedUserCommand.channel.guild.id,
-                userId: parsedUserCommand.originalMessage.author.id,
+                guildId: parsedMessage.guild.id,
+                userId: parsedMessage.sender.id,
                 playerObject: player,
                 positionalList: "crew"
             });
@@ -55,7 +52,7 @@ export default class CrewRemoveCommand implements Command {
         }
 
         if (!animal) {
-            betterSend(parsedUserCommand.channel, "No animal with that nickname or number exists in your crew.");
+            betterSend(parsedMessage.channel, "No animal with that nickname or number exists in your crew.");
             return;
         }
 
@@ -66,7 +63,7 @@ export default class CrewRemoveCommand implements Command {
         });
 
         if (!animalInCrew) {
-            betterSend(parsedUserCommand.channel, `"${animal.name}" isn't in your crew, so it couldn't be removed.`);
+            betterSend(parsedMessage.channel, `"${animal.name}" isn't in your crew, so it couldn't be removed.`);
             return;
         }
 
@@ -76,10 +73,5 @@ export default class CrewRemoveCommand implements Command {
         catch (error) {
             throw new Error(`There was an error removing an animal from a player's crew: ${error}`);
         }
-
-        // Indicate that the command was performed successfully
-        parsedUserCommand.originalMessage.react("✅").catch(error => {
-            errorHandler.handleError(error, "There was an error attempting to react to a message in the add to crew command.");
-        });
     }
 }

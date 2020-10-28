@@ -6,7 +6,7 @@ import { commandHandler } from "../structures/CommandHandler";
 import CommandParser from "../structures/CommandParser";
 
 // Sends an embed containing a list of all non-admin commands and their basic functions
-export default class CommandListCommand implements Command {
+export default class CommandListCommand extends Command {
     public readonly commandNames = ["commands", "commandlist", "listcommands", "command"];
 
     public readonly info = "View this message";
@@ -17,7 +17,7 @@ export default class CommandListCommand implements Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to get an overview of all commands and their functions.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser): Promise<void> {
         let infoCommandString = "";
         let gettingStartedString = "";
         let playerInfoString = "";
@@ -68,9 +68,9 @@ export default class CommandListCommand implements Command {
         embed.addField("Animal management", animalManagementString, true);
         embed.addField("Server management", guildManagementString, true);
         embed.addField("Get involved!", getInvolvedString, true);
-        embed.setFooter(`Prefix commands with "${commandHandler.getGuildPrefix(parsedUserCommand.originalMessage.guild)}", or by pinging me!`);
+        embed.setFooter(`Prefix commands with "${commandHandler.getGuildPrefix(parsedMessage.originalMessage.guild)}", or by pinging me!`);
         embed.setColor(0x18476b);
         
-        betterSend(parsedUserCommand.channel, new APIMessage(parsedUserCommand.channel, { embed: embed }));
+        betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: embed }));
     }
 }

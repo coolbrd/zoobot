@@ -3,7 +3,7 @@ import Command, { CommandSection } from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 
 // Sends a message listing all the species in the Beastiary
-export default class BeastiaryCommand implements Command {
+export default class BeastiaryCommand extends Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];
 
     public readonly info = "View the list of all species available in The Beastiary";

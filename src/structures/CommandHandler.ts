@@ -1,7 +1,7 @@
 import { Guild, Message, User } from "discord.js";
 import { Document } from "mongoose";
 import Command from "./Command";
-import CommandParser from "./CommandParser";
+import CommandParser, { GuildCommandParser } from "./CommandParser";
 import SubmitSpeciesCommand from "../commands/SubmitSpeciesCommand";
 import { betterSend } from "../discordUtility/messageMan";
 import ApprovePendingSpeciesCommand from "../commands/ApprovePendingSpeciesCommand";
@@ -112,31 +112,49 @@ class CommandHandler {
         const messagePrefix = this.prefixUsed(message);
         // If the message contained a valid prefix
         if (messagePrefix) {
+            // Whether or not the message was sent in a guild
+            const inGuild = Boolean(message.guild);
+
+            // The default prefix to use for help message display
             const guildPrefix = this.getGuildPrefix(message.guild);
+
             // Create a new command parser with the given message, which will be parsed into its constituent parts within the parser instance
-            const commandParser = new CommandParser(message, messagePrefix);
+            let parsedMessage: CommandParser | GuildCommandParser;
+            if (inGuild) {
+                parsedMessage = new GuildCommandParser(message, messagePrefix);
+            }
+            else {
+                parsedMessage = new CommandParser(message, messagePrefix);
+            }
 
             // If the user didn't specify a command, just the bot's prefix
-            if (!commandParser.commandName) {
+            if (!parsedMessage.commandName) {
                 // Alleviate confusion
-                betterSend(commandParser.channel, `Yes? Try using \`${guildPrefix}commands\` to see a list of all my commands.`);
+                betterSend(parsedMessage.channel, `Yes? Try using \`${guildPrefix}commands\` to see a list of all my commands.`);
                 return;
             }
 
             // Find a command class that matches the command specified in the message (taking into account the visibilit of admin commands)
-            const matchedCommand = this.getCommand(commandParser.commandName, message);
+            const matchedCommand = this.getCommand(parsedMessage.commandName, message);
 
             // If no matching command was found
             if (!matchedCommand) {
-                betterSend(commandParser.channel, `I don't recognize that command. Try \`${guildPrefix}help\`.`);
+                betterSend(parsedMessage.channel, `I don't recognize that command. Try \`${guildPrefix}help\`.`);
+                return;
             }
             // If a matching command was found
             else {
+                // If the message wasn't sent in a guild, and the matched command can only be used in guilds
+                if (!inGuild && matchedCommand.guildOnly) {
+                    betterSend(parsedMessage.channel, "That command can only be used in servers.");
+                    return;
+                }
+
                 // If the command blocks input when it's in the process of running
                 if (matchedCommand.blocksInput) {
                     // If the player still has an unloaded command that blocks input, don't let another one initiate
                     if (this.userIsLoadingCommand(message.author.id)) {
-                        betterSend(commandParser.channel, "You're going to fast, one of your last commands hasn't even loaded yet!");
+                        betterSend(parsedMessage.channel, "You're going to fast, one of your last commands hasn't even loaded yet!");
                         return;
                     }
                     // If the user isn't loading any other commands, add their id to the list of users loading commands
@@ -145,17 +163,26 @@ class CommandHandler {
 
                 // Run the command
                 try {
-                    await matchedCommand.run(commandParser);
+                    await matchedCommand.run(parsedMessage);
                 }
                 catch (error) {
                     // Handle errors gracefully and inform the user
                     errorHandler.handleError(error, "Command execution failed.");
 
-                    betterSend(commandParser.channel, "Something went wrong while performing that command. Please report this to the developer.");
+                    betterSend(parsedMessage.channel, "Something went wrong while performing that command. Please report this to the developer.");
+                }
+                finally {
+                    // After the command runs, remove the user from the set of users loading commands
+                    this.unsetUserLoadingCommand(message.author.id);
                 }
 
-                // After the command runs, remove the user from the set of users loading commands
-                this.unsetUserLoadingCommand(message.author.id);
+                // If the bot should react to the message after it's completed the command
+                if (matchedCommand.reactConfirm) {
+                    // Indicate that the command was performed successfully
+                    parsedMessage.originalMessage.react("✅").catch(error => {
+                        errorHandler.handleError(error, "There was an error attempting to react to a message after a command was completed.");
+                    });
+                }
             }
         }
     }

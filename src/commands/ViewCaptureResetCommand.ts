@@ -3,12 +3,12 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../models/Player";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
 // Displays the player's current capture availability, and the time remaining until the next capture reset
-export default class ViewCaptureResetCommand implements Command {
+export default class ViewCaptureResetCommand extends GuildCommand {
     public readonly commandNames = ["capturereset", "captureperiod", "cr", "cp"];
 
     public readonly info = "View whether or not you can capture, and the time until the next capture reset";
@@ -19,16 +19,11 @@ export default class ViewCaptureResetCommand implements Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view how many captures you have, and the amount of time until the next reset.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "This command can only be used in servers.");
-            return;
-        }
-
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
         // Get the player that initiated this command
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedUserCommand.originalMessage.author, parsedUserCommand.channel.guild));
+            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.guild));
         }
         catch (error) {
             throw new Error(`There was an error fetching a player from the cache in the capture reset command: ${error}`);
@@ -55,6 +50,6 @@ export default class ViewCaptureResetCommand implements Command {
 
         messageString += `Next capture reset: **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`;
 
-        betterSend(parsedUserCommand.channel, messageString);
+        betterSend(parsedMessage.channel, messageString);
     }
 }

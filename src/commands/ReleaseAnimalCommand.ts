@@ -4,12 +4,12 @@ import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Animal } from "../models/Animal";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command";
+import { GuildCommandParser } from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
 // Releases an animal from a user's collection
-export default class ReleaseAnimalCommand implements Command {
+export default class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
 
     public readonly info = "Release an animal from your collection";
@@ -22,26 +22,21 @@ export default class ReleaseAnimalCommand implements Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to release an animal from your collection`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
-        if (parsedUserCommand.channel.type === "dm") {
-            betterSend(parsedUserCommand.channel, "The release command can only be used in servers, where you have animals!");
-            return;
-        }
-
-        if (parsedUserCommand.arguments.length < 1) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
+    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+        if (parsedMessage.arguments.length < 1) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
         // The term to search the animal by
-        const animalIdentifier = parsedUserCommand.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
 
         // Get the animal by the user's search string
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedUserCommand.channel.guild.id,
-                userId: parsedUserCommand.originalMessage.author.id,
+                guildId: parsedMessage.channel.guild.id,
+                userId: parsedMessage.originalMessage.author.id,
                 positionalList: "collection"
             });
         }
@@ -50,7 +45,7 @@ export default class ReleaseAnimalCommand implements Command {
         }
 
         if (!animal) {
-            betterSend(parsedUserCommand.channel, `No animal with the nickname or number "${animalIdentifier}" exists in your collection.`);
+            betterSend(parsedMessage.channel, `No animal with the nickname or number "${animalIdentifier}" exists in your collection.`);
             return;
         }
 
@@ -65,7 +60,7 @@ export default class ReleaseAnimalCommand implements Command {
         // Confirm with the user
         let confirmMessage: Message | undefined;
         try {
-            confirmMessage = await betterSend(parsedUserCommand.channel, new APIMessage(parsedUserCommand.channel, { embed: releaseEmbed }));
+            confirmMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: releaseEmbed }));
         }
         catch (error) {
             throw new Error(`There was an error sending a release command confirmation message: ${error}`);
@@ -78,7 +73,7 @@ export default class ReleaseAnimalCommand implements Command {
         // Wait for the user to respond
         let message: Message | undefined;
         try {
-            message = await awaitUserNextMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author, 6000);
+            message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 6000);
         }
         catch (error) {
             throw new Error(`There was an error awaiting a user's next message in the release command: ${error}`);

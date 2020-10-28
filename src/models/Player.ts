@@ -17,6 +17,10 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: true
     },
+    collectionSizeLimit: {
+        type: Number,
+        required: true
+    },
     crewAnimals: {
         type: [Schema.Types.ObjectId],
         required: false
@@ -61,6 +65,7 @@ export class Player extends GameObject {
         return new PlayerModel({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
+            collectionSizeLimit: 0,
             freeCapturesLeft: 0,
             totalCaptures: 0,
             freeEncountersLeft: 0,
@@ -86,6 +91,10 @@ export class Player extends GameObject {
 
     public get collectionAnimalIds(): Types.ObjectId[] {
         return this.document.get("collectionAnimals");
+    }
+
+    public get collectionSizeLimit(): number {
+        return this.document.get("collectionSizeLimit");
     }
 
     public get crewAnimalIds(): Types.ObjectId[] {
