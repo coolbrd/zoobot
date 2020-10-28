@@ -30,9 +30,9 @@ export default class ViewCaptureResetCommand extends GuildCommand {
         }
 
         // Determine whether or not the player can currently capture an animal
-        let canCapture: boolean;
+        let capturesLeft: number;
         try {
-            canCapture = await player.canCapture();
+            capturesLeft = await player.capturesLeft();
         }
         catch (error) {
             throw new Error(`There was an error checking if a player can capture in the capture reset command: ${error}`);
@@ -40,7 +40,7 @@ export default class ViewCaptureResetCommand extends GuildCommand {
 
         // Format and send an informational message
         let messageString: string;
-        if (canCapture) {
+        if (capturesLeft > 0) {
             messageString = "You can capture right now.";
         }
         else {
