@@ -8,12 +8,11 @@ export default abstract class GameObject {
     // The document wrapped by this game object
     protected readonly document: Document;
 
-    // The id of the object's document. Unchangeable and always set.
+    // The id of the object's document
     public readonly id: Types.ObjectId;
 
     // Whether or not this game object's document has been modified since the last save
     private modified = false;
-
     // The timer responsible for saving the game object after some time
     private saveTimer: NodeJS.Timeout | undefined;
     // The amount of time that will pass between the object's first unsaved change and it being saved
@@ -24,14 +23,30 @@ export default abstract class GameObject {
         this.id = document._id;
     }
 
+    // Stops this game object's save timer
+    private stopSaveTimer(): void {
+        // Clear the timer and unset it
+        this.saveTimer && clearTimeout(this.saveTimer);
+        this.saveTimer = undefined;
+    }
+
+    // Resets this game object's save timer
+    private startSaveTimer(): void {
+        // Stop the timer first, preventing it from firing twice
+        this.stopSaveTimer();
+
+        // Save the document after a delay
+        this.saveTimer = setTimeout(() => {
+            this.save();
+        }, this.saveDelay);
+    }
+
     // Marks the game object as being modified after the most recent save period
     protected modify(): void {
         // If this is the first change to be made since the last save
         if (!this.modified) {
-            // Save the document in 10 seconds
-            this.saveTimer = setTimeout(() => {
-                this.save();
-            }, this.saveDelay);
+            // Set the game object to be saved after a delay
+            this.startSaveTimer();
 
             // Mark the document as modified
             this.modified = true;
@@ -43,14 +58,16 @@ export default abstract class GameObject {
         // Mark the game object as unmodified since the last save period
         this.modified = false;
 
-        // Clear the timer and unset it
-        this.saveTimer && clearTimeout(this.saveTimer);
-        this.saveTimer = undefined;
+        // Stop the save timer
+        this.stopSaveTimer();
     }
 
-    // Sets a field within this game object's document. Meant to be called instead of document.set()
+    // Sets a field within this game object's document. Meant to be called in children instead of document.set
     protected setField(fieldName: string, value: unknown): void {
+        // Marks this game object as having been modified
         this.modify();
+
+        // Set the field
         this.document.set(fieldName, value);
     }
 
@@ -79,8 +96,6 @@ export default abstract class GameObject {
         catch (error) {
             throw new Error(`There was an error saving a game object's document before unmodifying it: ${error}`);
         }
-
-        console.log(`Saved ${this.id}`);
 
         // Mark the document as no longer having been modified since its last save
         this.unmodify();
