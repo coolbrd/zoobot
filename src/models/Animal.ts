@@ -4,7 +4,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import GameObject from "../structures/GameObject";
 import { Species, SpeciesCard } from "./Species";
 
-export const animalSchema = new Schema({
+const animalSchema = new Schema({
     ownerId: {
         type: String,
         required: true

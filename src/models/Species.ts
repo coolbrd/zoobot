@@ -3,7 +3,7 @@ import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 import getWeightedRandom from "../utility/getWeightedRandom";
 
-export const cardSubSchema = new Schema({
+const cardSubSchema = new Schema({
     url: {
         type: String,
         required: true
@@ -22,7 +22,7 @@ export const cardSubSchema = new Schema({
     }
 });
 
-export const speciesSchema = new Schema({
+const speciesSchema = new Schema({
     commonNames: [{
         name: {
             type: String,

@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import GameObject from "../structures/GameObject";
 
 // The schema for a pending species submission
-export const pendingSpeciesSchema = new Schema({
+const pendingSpeciesSchema = new Schema({
     commonNames: {
         type: [String],
         required: true,
