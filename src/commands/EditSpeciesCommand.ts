@@ -68,13 +68,13 @@ export default class EditSpeciesCommand extends Command {
                 throw new Error("Undefined species value somehow encountered after species edit document submission.");
             }
 
-            species.setCommonNameObjects(finalDocument["commonNames"] as unknown as CommonNameTemplate[]);
-            species.scientificName = finalDocument["scientificName"] as string;
-            species.setCards(finalDocument["cards"] as unknown as SpeciesCardTemplate[]);
-            species.description = finalDocument["description"] as string;
-            species.naturalHabitat = finalDocument["naturalHabitat"] as string;
-            species.wikiPage = finalDocument["wikiPage"] as string;
-            species.rarity = finalDocument["rarity"] as number;
+            species.setCommonNameObjects(finalDocument[Species.fieldNames.commonNames] as unknown as CommonNameTemplate[]);
+            species.scientificName = finalDocument[Species.fieldNames.scientificName] as string;
+            species.setCards(finalDocument[Species.fieldNames.cards] as unknown as SpeciesCardTemplate[]);
+            species.description = finalDocument[Species.fieldNames.description] as string;
+            species.naturalHabitat = finalDocument[Species.fieldNames.naturalHabitat] as string;
+            species.wikiPage = finalDocument[Species.fieldNames.wikiPage] as string;
+            species.rarity = finalDocument[Species.fieldNames.rarity] as number;
             
             species.save().then(() => {
                 betterSend(parsedMessage.channel, "Edit successful.");

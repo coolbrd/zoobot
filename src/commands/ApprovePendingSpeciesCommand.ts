@@ -32,7 +32,7 @@ export default class ApprovePendingSpeciesCommand extends Command {
         // Get a pending species whose first common name is the search term
         let pendingSpeciesDocument: Document | null;
         try {
-            pendingSpeciesDocument = await PendingSpeciesModel.findOne({ commonNamesLower: fullSearchTerm });
+            pendingSpeciesDocument = await PendingSpeciesModel.findOne({ [PendingSpecies.fieldNames.commonNamesLower]: fullSearchTerm });
         }
         catch (error) {
             throw new Error(`There was an error trying to find a pending species document in the database: ${error}`);
@@ -78,11 +78,11 @@ export default class ApprovePendingSpeciesCommand extends Command {
             const speciesDocument = new SpeciesModel(finalDocument);
 
             // Get common names and their lowercase array form
-            const commonNames = finalDocument["commonNames"] as unknown as CommonNameTemplate[];
+            const commonNames = finalDocument[PendingSpecies.fieldNames.commonNames] as unknown as CommonNameTemplate[];
             const commonNamesLower = commonNamesToLower(commonNames);
             
             // Assign lowercase common names
-            speciesDocument.set("commonNamesLower", commonNamesLower);
+            speciesDocument.set(PendingSpecies.fieldNames.commonNamesLower, commonNamesLower);
 
             // Save the new species
             speciesDocument.save().then(() => {

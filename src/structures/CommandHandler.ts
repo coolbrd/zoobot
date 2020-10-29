@@ -9,7 +9,7 @@ import SpeciesInfoCommand from "../commands/SpeciesInfoCommand";
 import EncounterCommand from "../commands/EncounterCommand";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeGuildPrefixCommand from "../commands/ChangeGuildPrefixCommand";
-import { GuildModel } from "../models/Guild";
+import { GuildModel, PlayerGuild } from "../models/Guild";
 import { client } from "..";
 import HelpCommand from "../commands/HelpCommand";
 import MoveAnimalsCommand from "../commands/MoveAnimalsCommand";
@@ -258,7 +258,7 @@ class CommandHandler {
         // Iterate over every document returned
         for (const guildDocument of guildDocuments) {
             // Add each guild and its prefix to the map
-            this.guildPrefixes.set(guildDocument.get("guildId"), guildDocument.get("config").prefix);
+            this.guildPrefixes.set(guildDocument.get(PlayerGuild.fieldNames.guildId), guildDocument.get(PlayerGuild.fieldNames.config).prefix);
         }
     }
 

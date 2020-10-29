@@ -51,7 +51,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         // If a guild id was provided to narrow down the search
         if (guildId) {
             // Add the appropriate property to the search query options
-            Object.defineProperty(searchQuery, "guildId", {
+            Object.defineProperty(searchQuery, Animal.fieldNames.guildId, {
                 value: guildId,
                 writable: false,
                 enumerable: true

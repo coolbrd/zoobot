@@ -5,70 +5,35 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 
-const playerSchema = new Schema({
-    userId: {
-        type: String,
-        required: true
-    },
-    guildId: {
-        type: String,
-        required: true
-    },
-    collectionAnimalIds: {
-        type: [Schema.Types.ObjectId],
-        required: true
-    },
-    collectionSizeLimit: {
-        type: Number,
-        required: true
-    },
-    crewAnimalIds: {
-        type: [Schema.Types.ObjectId],
-        required: false
-    },
-    freeCapturesLeft: {
-        type: Number,
-        required: true
-    },
-    lastCaptureReset: {
-        type: Schema.Types.Date,
-        required: true
-    },
-    totalCaptures: {
-        type: Number,
-        required: true
-    },
-    freeEncountersLeft: {
-        type: Number,
-        required: true
-    },
-    lastEncounterReset: {
-        type: Schema.Types.Date,
-        required: true
-    },
-    totalEncounters: {
-        type: Number,
-        required: true
-    }
-});
-
-export const PlayerModel = mongoose.model("Player", playerSchema);
-
 // A player game object
 export class Player extends GameObject {
     public readonly model = PlayerModel;
 
+    public static readonly fieldNames = {
+        userId: "userId",
+        guildId: "guildId",
+        collectionAnimalIds: "collectionAnimalIds",
+        collectionSizeLimit: "collectionSizeLimit",
+        crewAnimalIds: "crewAnimalIds",
+        freeCapturesLeft: "freeCapturesLeft",
+        lastCaptureReset: "lastCaptureReset",
+        totalCaptures: "totalCaptures",
+        freeEncountersLeft: "freeEncountersLeft",
+        lastEncounterReset: "lastEncounterReset",
+        totalEncounters: "totalEncounters"
+    };
+
     public static newDocument(guildMember: GuildMember): Document {
         return new PlayerModel({
-            userId: guildMember.user.id,
-            guildId: guildMember.guild.id,
-            collectionSizeLimit: 5,
-            freeCapturesLeft: 0,
-            lastCaptureReset: new Date(0),
-            totalCaptures: 0,
-            freeEncountersLeft: 0,
-            lastEncounterReset: new Date(0),
-            totalEncounters: 0
+            [Player.fieldNames.userId]: guildMember.user.id,
+            [Player.fieldNames.guildId]: guildMember.guild.id,
+            [Player.fieldNames.collectionSizeLimit]: 5,
+            [Player.fieldNames.freeCapturesLeft]: 0,
+            [Player.fieldNames.lastCaptureReset]: new Date(0),
+            [Player.fieldNames.totalCaptures]: 0,
+            [Player.fieldNames.freeEncountersLeft]: 0,
+            [Player.fieldNames.lastEncounterReset]: new Date(0),
+            [Player.fieldNames.totalEncounters]: 0
         });
     }
 
@@ -82,75 +47,75 @@ export class Player extends GameObject {
     }
 
     public get userId(): string {
-        return this.document.get("userId");
+        return this.document.get(Player.fieldNames.userId);
     }
 
     public get guildId(): string {
-        return this.document.get("guildId");
+        return this.document.get(Player.fieldNames.guildId);
     }
 
     public get collectionAnimalIds(): Types.ObjectId[] {
-        return this.document.get("collectionAnimalIds");
+        return this.document.get(Player.fieldNames.collectionAnimalIds);
     }
 
     public get collectionSizeLimit(): number {
-        return this.document.get("collectionSizeLimit");
+        return this.document.get(Player.fieldNames.collectionSizeLimit);
     }
 
     public get crewAnimalIds(): Types.ObjectId[] {
-        return this.document.get("crewAnimalIds");
+        return this.document.get(Player.fieldNames.crewAnimalIds);
     }
 
     public get freeCapturesLeft(): number {
         this.applyCaptureReset();
 
-        return this.document.get("freeCapturesLeft");
+        return this.document.get(Player.fieldNames.freeCapturesLeft);
     }
 
     public set freeCapturesLeft(freeCapturesLeft: number) {
-        this.setField("freeCapturesLeft", freeCapturesLeft);
+        this.setField(Player.fieldNames.freeCapturesLeft, freeCapturesLeft);
     }
 
     public get lastCaptureReset(): Date {
-        return this.document.get("lastCaptureReset");
+        return this.document.get(Player.fieldNames.lastCaptureReset);
     }
 
     public set lastCaptureReset(lastCaptureReset: Date) {
-        this.setField("lastCaptureReset", lastCaptureReset);
+        this.setField(Player.fieldNames.lastCaptureReset, lastCaptureReset);
     }
 
     public get totalCaptures(): number {
-        return this.document.get("totalCaptures");
+        return this.document.get(Player.fieldNames.totalCaptures);
     }
 
     public set totalCaptures(totalCaptures: number) {
-        this.setField("totalCaptures", totalCaptures);
+        this.setField(Player.fieldNames.totalCaptures, totalCaptures);
     }
 
     public get freeEncountersLeft(): number {
         this.applyEncounterReset();
 
-        return this.document.get("freeEncountersLeft");
+        return this.document.get(Player.fieldNames.freeEncountersLeft);
     }
 
     public set freeEncountersLeft(freeEncountersLeft: number) {
-        this.setField("freeEncountersLeft", freeEncountersLeft);
+        this.setField(Player.fieldNames.freeEncountersLeft, freeEncountersLeft);
     }
 
     public get lastEncounterReset(): Date {
-        return this.document.get("lastEncounterReset");
+        return this.document.get(Player.fieldNames.lastEncounterReset);
     }
 
     public set lastEncounterReset(lastEncounterReset: Date) {
-        this.setField("lastEncounterReset", lastEncounterReset);
+        this.setField(Player.fieldNames.lastEncounterReset, lastEncounterReset);
     }
 
     public get totalEncounters(): number {
-        return this.document.get("totalEncounters");
+        return this.document.get(Player.fieldNames.totalEncounters);
     }
 
     public set totalEncounters(totalEncounters: number) {
-        this.setField("totalEncounters", totalEncounters);
+        this.setField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
     // Whether or not the player can capture an animal, due to any of the given restrictions
@@ -290,3 +255,52 @@ export class Player extends GameObject {
         this.totalEncounters += 1;
     }
 }
+
+const playerSchema = new Schema({
+    [Player.fieldNames.userId]: {
+        type: String,
+        required: true
+    },
+    [Player.fieldNames.guildId]: {
+        type: String,
+        required: true
+    },
+    [Player.fieldNames.collectionAnimalIds]: {
+        type: [Schema.Types.ObjectId],
+        required: true
+    },
+    [Player.fieldNames.collectionSizeLimit]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.crewAnimalIds]: {
+        type: [Schema.Types.ObjectId],
+        required: false
+    },
+    [Player.fieldNames.freeCapturesLeft]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.lastCaptureReset]: {
+        type: Schema.Types.Date,
+        required: true
+    },
+    [Player.fieldNames.totalCaptures]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.freeEncountersLeft]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.lastEncounterReset]: {
+        type: Schema.Types.Date,
+        required: true
+    },
+    [Player.fieldNames.totalEncounters]: {
+        type: Number,
+        required: true
+    }
+});
+
+export const PlayerModel = mongoose.model("Player", playerSchema);

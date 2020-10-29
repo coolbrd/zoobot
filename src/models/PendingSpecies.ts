@@ -1,73 +1,84 @@
 import mongoose, { Schema } from "mongoose";
 import GameObject from "../structures/GameObject";
 
+// The object representation of a species submission pending approval
+export class PendingSpecies extends GameObject {
+    public readonly model = PendingSpeciesModel;
+
+    public static readonly fieldNames = {
+        commonNames: "commonNames",
+        commonNamesLower: "commonNamesLower",
+        scientificName: "scientificName",
+        images: "images",
+        description: "description",
+        naturalHabitat: "naturalHabitat",
+        wikiPage: "wikiPage",
+        author: "author"
+    };
+
+    public get commonNames(): string[] {
+        return this.document.get(PendingSpecies.fieldNames.commonNames);
+    }
+
+    public get scientificName(): string {
+        return this.document.get(PendingSpecies.fieldNames.scientificName);
+    }
+
+    public get images(): string[] | undefined {
+        return this.document.get(PendingSpecies.fieldNames.images);
+    }
+
+    public get description(): string | undefined {
+        return this.document.get(PendingSpecies.fieldNames.description);
+    }
+
+    public get naturalHabitat(): string | undefined {
+        return this.document.get(PendingSpecies.fieldNames.naturalHabitat);
+    }
+
+    public get wikiPage(): string | undefined {
+        return this.document.get(PendingSpecies.fieldNames.wikiPage);
+    }
+
+    public get authorId(): string {
+        return this.document.get(PendingSpecies.fieldNames.author);
+    }
+}
+
 // The schema for a pending species submission
 const pendingSpeciesSchema = new Schema({
-    commonNames: {
+    [PendingSpecies.fieldNames.commonNames]: {
         type: [String],
         required: true,
     },
-    commonNamesLower: {
+    [PendingSpecies.fieldNames.commonNamesLower]: {
         type: [String],
         required: true
     },
-    scientificName: {
+    [PendingSpecies.fieldNames.scientificName]: {
         type: String,
         required: true,
     },
-    images: {
+    [PendingSpecies.fieldNames.images]: {
         type: [String],
         required: false,
     },
-    description: {
+    [PendingSpecies.fieldNames.description]: {
         type: String,
         required: false,
     },
-    naturalHabitat: {
+    [PendingSpecies.fieldNames.naturalHabitat]: {
         type: String,
         required: false,
     },
-    wikiPage: {
+    [PendingSpecies.fieldNames.wikiPage]: {
         type: String,
         required: false,
     },
-    author: {
+    [PendingSpecies.fieldNames.author]: {
         type: String,
         required: true
     }
 });
 
 export const PendingSpeciesModel = mongoose.model("PendingSpecies", pendingSpeciesSchema);
-
-// The object representation of a species submission pending approval
-export class PendingSpecies extends GameObject {
-    public readonly model = PendingSpeciesModel;
-
-    public get commonNames(): string[] {
-        return this.document.get("commonNames");
-    }
-
-    public get scientificName(): string {
-        return this.document.get("scientificName");
-    }
-
-    public get images(): string[] | undefined {
-        return this.document.get("images");
-    }
-
-    public get description(): string | undefined {
-        return this.document.get("description");
-    }
-
-    public get naturalHabitat(): string | undefined {
-        return this.document.get("naturalHabitat");
-    }
-
-    public get wikiPage(): string | undefined {
-        return this.document.get("wikiPage");
-    }
-
-    public get authorId(): string {
-        return this.document.get("author");
-    }
-}

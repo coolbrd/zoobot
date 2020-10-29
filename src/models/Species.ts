@@ -3,6 +3,119 @@ import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 import getWeightedRandom from "../utility/getWeightedRandom";
 
+// The object representation of a species
+export class Species extends GameObject {
+    public readonly model = SpeciesModel;
+
+    public static readonly fieldNames = {
+        commonNames: "commonNames",
+        commonNamesLower: "commonNamesLower",
+        scientificName: "scientificName",
+        cards: "cards",
+        description: "description",
+        naturalHabitat: "naturalHabitat",
+        wikiPage: "wikiPage",
+        rarity: "rarity"
+    };
+
+    public get commonNameObjects(): CommonName[] {
+        return this.document.get(Species.fieldNames.commonNames);
+    }
+
+    public setCommonNameObjects(commonNameObjects: CommonNameTemplate[]): void {
+        this.modify();
+
+        this.document.set(Species.fieldNames.commonNames, commonNameObjects);
+
+        this.document.set(Species.fieldNames.commonNamesLower, commonNamesToLower(commonNameObjects));
+    }
+
+    public get scientificName(): string {
+        return this.document.get(Species.fieldNames.scientificName);
+    }
+
+    public set scientificName(scientificName: string) {
+        this.setField(Species.fieldNames.scientificName, scientificName);
+    }
+
+    public get cards(): SpeciesCard[] {
+        return this.document.get(Species.fieldNames.cards);
+    }
+
+    public setCards(cards: SpeciesCardTemplate[]): void {
+        this.setField(Species.fieldNames.cards, cards);
+    }
+
+    public get description(): string {
+        return this.document.get(Species.fieldNames.description);
+    }
+
+    public set description(description: string) {
+        this.setField(Species.fieldNames.description, description);
+    }
+
+    public get naturalHabitat(): string {
+        return this.document.get(Species.fieldNames.naturalHabitat);
+    }
+
+    public set naturalHabitat(naturalHabitat: string) {
+        this.setField(Species.fieldNames.naturalHabitat, naturalHabitat);
+    }
+
+    public get wikiPage(): string {
+        return this.document.get(Species.fieldNames.wikiPage);
+    }
+
+    public set wikiPage(wikiPage: string) {
+        this.setField(Species.fieldNames.wikiPage, wikiPage);
+    }
+
+    public get rarity(): number {
+        return this.document.get(Species.fieldNames.rarity);
+    }
+
+    public set rarity(rarity: number) {
+        this.setField(Species.fieldNames.rarity, rarity);
+    }
+
+    // Gets a simple array of this species' common names
+    public get commonNames(): string[] {
+        const commonNameObjects = this.commonNameObjects;
+
+        const commonNames: string[] = [];
+        commonNameObjects.forEach(commonNameObject => {
+            commonNames.push(commonNameObject.name);
+        });
+
+        return commonNames;
+    }
+
+    public get cardCount(): number {
+        return this.cards.length;
+    }
+
+    // Gets the rarity table of this species' cards
+    private get cardRarityTable(): Map<SpeciesCard, number> {
+        const cardRarity = new Map<SpeciesCard, number>();
+
+        this.cards.forEach(currentCard => {
+            cardRarity.set(currentCard, currentCard.rarity);
+        });
+
+        return cardRarity;
+    }
+
+    // Get a random card from the weighted rarity map of cards
+    public getRandomCard(): SpeciesCard {
+        return getWeightedRandom(this.cardRarityTable);
+    }
+
+    // Determines and returns the index of a given card id within this species
+    public indexOfCard(cardId: Types.ObjectId): number {
+        return indexWhere(this.cards, card => card._id.equals(cardId));
+    }
+}
+
 const cardSubSchema = new Schema({
     url: {
         type: String,
@@ -23,7 +136,7 @@ const cardSubSchema = new Schema({
 });
 
 const speciesSchema = new Schema({
-    commonNames: [{
+    [Species.fieldNames.commonNames]: [{
         name: {
             type: String,
             required: true
@@ -33,31 +146,31 @@ const speciesSchema = new Schema({
             required: true
         }
     }],
-    commonNamesLower: {
+    [Species.fieldNames.commonNamesLower]: {
         type: Array,
         required: true
     },
-    scientificName: {
+    [Species.fieldNames.scientificName]: {
         type: String,
         required: true
     },
-    cards: {
+    [Species.fieldNames.cards]: {
         type: [cardSubSchema],
         required: true
     },
-    description: {
+    [Species.fieldNames.description]: {
         type: String,
         required: true
     },
-    naturalHabitat: {
+    [Species.fieldNames.naturalHabitat]: {
         type: String,
         required: true
     },
-    wikiPage: {
+    [Species.fieldNames.wikiPage]: {
         type: String,
         required: true
     },
-    rarity: {
+    [Species.fieldNames.rarity]: {
         type: Number,
         required: true
     }
@@ -97,106 +210,4 @@ export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] 
     });
 
     return commonNamesLower;
-}
-
-// The object representation of a species
-export class Species extends GameObject {
-    public readonly model = SpeciesModel;
-
-    public get commonNameObjects(): CommonName[] {
-        return this.document.get("commonNames");
-    }
-
-    public setCommonNameObjects(commonNameObjects: CommonNameTemplate[]): void {
-        this.modify();
-
-        this.document.set("commonNames", commonNameObjects);
-
-        this.document.set("commonNamesLower", commonNamesToLower(commonNameObjects));
-    }
-
-    public get scientificName(): string {
-        return this.document.get("scientificName");
-    }
-
-    public set scientificName(scientificName: string) {
-        this.setField("scientificName", scientificName);
-    }
-
-    public get cards(): SpeciesCard[] {
-        return this.document.get("cards");
-    }
-
-    public setCards(cards: SpeciesCardTemplate[]): void {
-        this.setField("cards", cards);
-    }
-
-    public get description(): string {
-        return this.document.get("description");
-    }
-
-    public set description(description: string) {
-        this.setField("description", description);
-    }
-
-    public get naturalHabitat(): string {
-        return this.document.get("naturalHabitat");
-    }
-
-    public set naturalHabitat(naturalHabitat: string) {
-        this.setField("naturalHabitat", naturalHabitat);
-    }
-
-    public get wikiPage(): string {
-        return this.document.get("wikiPage");
-    }
-
-    public set wikiPage(wikiPage: string) {
-        this.setField("wikiPage", wikiPage);
-    }
-
-    public get rarity(): number {
-        return this.document.get("rarity");
-    }
-
-    public set rarity(rarity: number) {
-        this.setField("rarity", rarity);
-    }
-
-    // Gets a simple array of this species' common names
-    public get commonNames(): string[] {
-        const commonNameObjects = this.commonNameObjects;
-
-        const commonNames: string[] = [];
-        commonNameObjects.forEach(commonNameObject => {
-            commonNames.push(commonNameObject.name);
-        });
-
-        return commonNames;
-    }
-
-    public get cardCount(): number {
-        return this.cards.length;
-    }
-
-    // Gets the rarity table of this species' cards
-    private get cardRarityTable(): Map<SpeciesCard, number> {
-        const cardRarity = new Map<SpeciesCard, number>();
-
-        this.cards.forEach(currentCard => {
-            cardRarity.set(currentCard, currentCard.rarity);
-        });
-
-        return cardRarity;
-    }
-
-    // Get a random card from the weighted rarity map of cards
-    public getRandomCard(): SpeciesCard {
-        return getWeightedRandom(this.cardRarityTable);
-    }
-
-    // Determines and returns the index of a given card id within this species
-    public indexOfCard(cardId: Types.ObjectId): number {
-        return indexWhere(this.cards, card => card._id.equals(cardId));
-    }
 }

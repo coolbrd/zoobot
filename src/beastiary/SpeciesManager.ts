@@ -76,7 +76,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         // Search for the species in the database
         let speciesDocument: Document | null;
         try {
-            speciesDocument = await SpeciesModel.findOne({ commonNamesLower: name });
+            speciesDocument = await SpeciesModel.findOne({ [Species.fieldNames.commonNamesLower]: name });
         }
         catch (error) {
             throw new Error(`There was an error finding a species by its common name: ${error}`);

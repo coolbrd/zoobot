@@ -9,7 +9,7 @@ export default class SpeciesEditMessage extends EDocMessage {
     constructor(channel: TextChannel | DMChannel, speciesObject: Species) {
         // The eDoc that will represent the edited state of the species object
         const eDoc = new EDoc({
-            commonNames: {
+            [Species.fieldNames.commonNames]: {
                 type: [{
                     type: {
                         _id: {
@@ -41,7 +41,7 @@ export default class SpeciesEditMessage extends EDocMessage {
                     viewportSize: 10
                 }
             },
-            scientificName: {
+            [Species.fieldNames.scientificName]: {
                 type: String,
                 required: true,
                 alias: "scientific name",
@@ -50,7 +50,7 @@ export default class SpeciesEditMessage extends EDocMessage {
                     forceCase: "lower"
                 }
             },
-            cards: {
+            [Species.fieldNames.cards]: {
                 type: [{
                     type: {
                         _id: {
@@ -94,25 +94,25 @@ export default class SpeciesEditMessage extends EDocMessage {
                     viewportSize: 10
                 }
             },
-            description: {
+            [Species.fieldNames.description]: {
                 type: String,
                 required: true,
                 alias: "description",
                 prompt: "Enter a concise description of the animal (see other animals for examples):"
             },
-            naturalHabitat: {
+            [Species.fieldNames.naturalHabitat]: {
                 type: String,
                 required: true,
                 alias: "natural habitat",
                 prompt: "Enter a concise summary of where the animal is naturally found (see other animals for examples):"
             },
-            wikiPage: {
+            [Species.fieldNames.wikiPage]: {
                 type: String,
                 required: true,
                 alias: "Wikipedia page",
                 prompt: "Enter the link that leads to this animal's page on Wikipedia:"
             },
-            rarity: {
+            [Species.fieldNames.rarity]: {
                 type: Number,
                 required: true,
                 alias: "rarity",
@@ -121,7 +121,7 @@ export default class SpeciesEditMessage extends EDocMessage {
         });
 
         // Assign common names (with id being converted to a string)
-        const commonNamesField = eDoc.getField("commonNames");
+        const commonNamesField = eDoc.getField(Species.fieldNames.commonNames);
         const commonNames = speciesObject.commonNameObjects;
         commonNames.forEach(commonName => {
             commonNamesField.push({
@@ -132,7 +132,7 @@ export default class SpeciesEditMessage extends EDocMessage {
         });
 
         // Same deal with cards
-        const cardsField = eDoc.getField("cards");
+        const cardsField = eDoc.getField(Species.fieldNames.cards);
         speciesObject.cards.forEach(card => {
             cardsField.push({
                 _id: card._id ? String(card._id) : undefined,
@@ -144,11 +144,11 @@ export default class SpeciesEditMessage extends EDocMessage {
         });
 
         // Assign simple fields
-        eDoc.setField("scientificName", speciesObject.scientificName);
-        eDoc.setField("description", speciesObject.description);
-        eDoc.setField("naturalHabitat", speciesObject.naturalHabitat);
-        eDoc.setField("wikiPage", speciesObject.wikiPage);
-        eDoc.setField("rarity", speciesObject.rarity);
+        eDoc.setField(Species.fieldNames.scientificName, speciesObject.scientificName);
+        eDoc.setField(Species.fieldNames.description, speciesObject.description);
+        eDoc.setField(Species.fieldNames.naturalHabitat, speciesObject.naturalHabitat);
+        eDoc.setField(Species.fieldNames.wikiPage, speciesObject.wikiPage);
+        eDoc.setField(Species.fieldNames.rarity, speciesObject.rarity);
 
         super(channel, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));
     }

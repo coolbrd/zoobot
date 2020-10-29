@@ -50,7 +50,7 @@ class EncounterHandler {
         // Get all species and their associated rarity values
         let rarityList: Document[];
         try {
-            rarityList = await SpeciesModel.find({}, { rarity: 1 });
+            rarityList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
         }
         catch (error) {
             throw new Error(`There was an error getting all species rarities from the database: ${error}`);

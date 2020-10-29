@@ -1,9 +1,9 @@
 import { stripIndents } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
 import Command, { CommandSection } from "../structures/Command";
-import CommandParser, { GuildCommandParser } from "../structures/CommandParser";
+import { GuildCommandParser } from "../structures/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
-import { PendingSpeciesModel } from "../models/PendingSpecies";
+import { PendingSpecies, PendingSpeciesModel } from "../models/PendingSpecies";
 import reactionInput from "../discordUtility/reactionInput";
 import { arrayToLowerCase } from "../utility/arraysAndSuch";
 import { EDoc, SimpleEDoc } from "../structures/EDoc";
@@ -58,7 +58,7 @@ export default class SubmitSpeciesCommand extends Command {
 
         // The eDoc containing all field information regarding the new submission
         const submissionDocument = new EDoc({
-            commonNames: {
+            [PendingSpecies.fieldNames.commonNames]: {
                 type: [{
                     type: String,
                     alias: "common name",
@@ -73,7 +73,7 @@ export default class SubmitSpeciesCommand extends Command {
                     viewportSize: 10
                 }
             },
-            scientificName: {
+            [PendingSpecies.fieldNames.scientificName]: {
                 type: String,
                 required: true,
                 alias: "scientific name",
@@ -83,7 +83,7 @@ export default class SubmitSpeciesCommand extends Command {
                     forceCase: "lower"
                 }
             },
-            images: {
+            [PendingSpecies.fieldNames.images]: {
                 type: [{
                     type: String,
                     alias: "url",
@@ -97,7 +97,7 @@ export default class SubmitSpeciesCommand extends Command {
                     viewportSize: 10
                 }
             },
-            description: {
+            [PendingSpecies.fieldNames.description]: {
                 type: String,
                 alias: "description",
                 prompt: "Enter a concise description of the animal (see other animals for examples):",
@@ -105,7 +105,7 @@ export default class SubmitSpeciesCommand extends Command {
                     maxLength: 512
                 }
             },
-            naturalHabitat: {
+            [PendingSpecies.fieldNames.naturalHabitat]: {
                 type: String,
                 alias: "natural habitat",
                 prompt: "Enter a concise summary of where the animal is naturally found (see other animals for examples):",
@@ -113,7 +113,7 @@ export default class SubmitSpeciesCommand extends Command {
                     maxLength: 512
                 }
             },
-            wikiPage: {
+            [PendingSpecies.fieldNames.wikiPage]: {
                 type: String,
                 alias: "Wikipedia page",
                 prompt: "Enter the link that leads to this animal's page on Wikipedia:",
@@ -147,17 +147,17 @@ export default class SubmitSpeciesCommand extends Command {
             const pendingSpecies = new PendingSpeciesModel();
 
             // Assign fields
-            pendingSpecies.set("commonNames", finalDocument["commonNames"]);
-            pendingSpecies.set("scientificName", finalDocument["scientificName"]);
-            pendingSpecies.set("images", finalDocument["images"]);
-            pendingSpecies.set("description", finalDocument["description"]);
-            pendingSpecies.set("naturalHabitat", finalDocument["naturalHabitat"]);
-            pendingSpecies.set("wikiPage", finalDocument["wikiPage"]);
+            pendingSpecies.set(PendingSpecies.fieldNames.commonNames, finalDocument[PendingSpecies.fieldNames.commonNames]);
+            pendingSpecies.set(PendingSpecies.fieldNames.scientificName, finalDocument[PendingSpecies.fieldNames.scientificName]);
+            pendingSpecies.set(PendingSpecies.fieldNames.images, finalDocument[PendingSpecies.fieldNames.images]);
+            pendingSpecies.set(PendingSpecies.fieldNames.description, finalDocument[PendingSpecies.fieldNames.description]);
+            pendingSpecies.set(PendingSpecies.fieldNames.naturalHabitat, finalDocument[PendingSpecies.fieldNames.naturalHabitat]);
+            pendingSpecies.set(PendingSpecies.fieldNames.wikiPage, finalDocument[PendingSpecies.fieldNames.wikiPage]);
 
             // Assign case-normalized names
-            pendingSpecies.set("commonNamesLower", arrayToLowerCase(pendingSpecies.get("commonNames")));
+            pendingSpecies.set(PendingSpecies.fieldNames.commonNamesLower, arrayToLowerCase(pendingSpecies.get(PendingSpecies.fieldNames.commonNames)));
             // Set the author
-            pendingSpecies.set("author", parsedMessage.sender.id);
+            pendingSpecies.set(PendingSpecies.fieldNames.author, parsedMessage.sender.id);
 
             // Save the document
             pendingSpecies.save().then(() => {

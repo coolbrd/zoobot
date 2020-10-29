@@ -30,7 +30,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         // Attempt to find a guild document with the given information
         let guildDocument: Document | null;
         try {
-            guildDocument = await GuildModel.findOne({ id: guildId });
+            guildDocument = await GuildModel.findOne({ [PlayerGuild.fieldNames.guildId]: guildId });
         }
         catch (error) {
             throw new Error(`There was an error finding an existing guild document: ${error}`);

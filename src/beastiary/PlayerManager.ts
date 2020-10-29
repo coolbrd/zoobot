@@ -25,14 +25,14 @@ export default class PlayerManager extends GameObjectCache<Player> {
     public async init(): Promise<void> {
         let playerDocuments: Document[];
         try {
-            playerDocuments = await PlayerModel.find({}, { userId: 1 });
+            playerDocuments = await PlayerModel.find({}, { [Player.fieldNames.userId]: 1 });
         }
         catch (error) {
             throw new Error(`There was an error getting all player documents from the database: ${error}`);
         }
 
         for (const playerDocument of playerDocuments) {
-            this.playerUserIds.add(playerDocument.get("userId"));
+            this.playerUserIds.add(playerDocument.get(Player.fieldNames.userId));
         }
     }
 
@@ -54,7 +54,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     private async getPlayerDocument(guildMember: GuildMember): Promise<Document | null> {
         let playerDocument: Document | null;
         try {
-            playerDocument = await PlayerModel.findOne({ userId: guildMember.user.id, guildId: guildMember.guild.id });
+            playerDocument = await PlayerModel.findOne({ [Player.fieldNames.userId]: guildMember.user.id, [Player.fieldNames.guildId]: guildMember.guild.id });
         }
         catch (error) {
             throw new Error(`There was an error finding an existing player document: ${error}`);

@@ -1,6 +1,7 @@
 import { DMChannel, TextChannel, User } from "discord.js";
 import { client } from "..";
 import { PendingSpecies } from "../models/PendingSpecies";
+import { Species } from "../models/Species";
 import { EDoc } from "../structures/EDoc";
 import EDocMessage from "./EDocMessage";
 
@@ -10,7 +11,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
 
     constructor(channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpecies) {
         const eDoc = new EDoc({
-            commonNames: {
+            [Species.fieldNames.commonNames]: {
                 type: [{
                     type: {
                         name: {
@@ -37,7 +38,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                     viewportSize: 10
                 }
             },
-            scientificName: {
+            [Species.fieldNames.scientificName]: {
                 type: String,
                 required: true,
                 alias: "scientific name",
@@ -46,7 +47,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                     forceCase: "lower"
                 }
             },
-            cards: {
+            [Species.fieldNames.cards]: {
                 type: [{
                     type: {
                         url: {
@@ -85,25 +86,25 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                     viewportSize: 10
                 }
             },
-            description: {
+            [Species.fieldNames.description]: {
                 type: String,
                 required: true,
                 alias: "description",
                 prompt: "Enter a concise description of the animal (see other animals for examples):"
             },
-            naturalHabitat: {
+            [Species.fieldNames.naturalHabitat]: {
                 type: String,
                 required: true,
                 alias: "natural habitat",
                 prompt: "Enter a concise summary of where the animal is naturally found (see other animals for examples):"
             },
-            wikiPage: {
+            [Species.fieldNames.wikiPage]: {
                 type: String,
                 required: true,
                 alias: "Wikipedia page",
                 prompt: "Enter the link that leads to this animal's page on Wikipedia:"
             },
-            rarity: {
+            [Species.fieldNames.rarity]: {
                 type: Number,
                 required: true,
                 alias: "rarity",
@@ -112,7 +113,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         });
 
         // Get common names array and add it as an eDoc array
-        const commonNamesField = eDoc.getField("commonNames");
+        const commonNamesField = eDoc.getField(Species.fieldNames.commonNames);
         for (const commonName of pendingSpeciesObject.commonNames) {
             commonNamesField.push({
                 name: commonName
@@ -120,7 +121,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         }
         
         // Get card url array and add is as an eDoc array
-        const cardsField = eDoc.getField("cards");
+        const cardsField = eDoc.getField(Species.fieldNames.cards);
         const cardUrls = pendingSpeciesObject.images;
         if (cardUrls) {
             for (const url of cardUrls) {
@@ -132,10 +133,10 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         }
 
         // Assign simple fields
-        eDoc.setField("scientificName", pendingSpeciesObject.scientificName);
-        eDoc.setField("description", pendingSpeciesObject.description);
-        eDoc.setField("naturalHabitat", pendingSpeciesObject.naturalHabitat);
-        eDoc.setField("wikiPage", pendingSpeciesObject.wikiPage);
+        eDoc.setField(Species.fieldNames.scientificName, pendingSpeciesObject.scientificName);
+        eDoc.setField(Species.fieldNames.description, pendingSpeciesObject.description);
+        eDoc.setField(Species.fieldNames.naturalHabitat, pendingSpeciesObject.naturalHabitat);
+        eDoc.setField(Species.fieldNames.wikiPage, pendingSpeciesObject.wikiPage);
 
         // Get the user that made this submission
         const authorUser = client.users.resolve(pendingSpeciesObject.authorId);

@@ -11,6 +11,9 @@ export default abstract class GameObject {
     // The id of the object's document
     public readonly id: Types.ObjectId;
 
+    // The set of field names that are used to access data within this object's document
+    public static readonly fieldNames: {[fieldName: string]: string};
+
     // Whether or not this game object's document has been modified since the last save
     private modified = false;
     // The timer responsible for saving the game object after some time
