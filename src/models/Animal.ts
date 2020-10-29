@@ -119,7 +119,7 @@ export class Animal extends GameObject {
 
     // Loads this animal's species
     private async loadSpecies(): Promise<void> {
-        // Create a new species object from this animal's known species id
+        // Get and assign the animal's species
         try {
             this._species = await beastiary.species.fetchExistingById(this.speciesId);
         }
@@ -150,11 +150,6 @@ export class Animal extends GameObject {
             throw new Error(`There was an error loading an animal's species: ${error}`);
         }
 
-        try {
-            this.loadCard();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading an animal's card: ${error}`);
-        }
+        this.loadCard();
     }
 }

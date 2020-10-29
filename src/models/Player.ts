@@ -78,9 +78,7 @@ export class Player extends GameObject {
     constructor(document: Document) {
         super(document);
 
-        const guildMember = getGuildMember(this.userId, this.guildId);
-
-        this.member = guildMember;
+        this.member = getGuildMember(this.userId, this.guildId);
     }
 
     public get userId(): string {
@@ -191,9 +189,10 @@ export class Player extends GameObject {
         this.addAnimalIdToList(this.crewAnimalIds, animalId);
     }
 
+    // Adds a list of animal ids to a given list after a given position
     private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
         this.modify();
-        
+
         baseList.splice(position, 0, ...animalIds);
     }
 
@@ -225,6 +224,7 @@ export class Player extends GameObject {
         this.removeAnimalIdFromList(this.crewAnimalIds, animalId);
     }
 
+    // Removes a set of animal ids from a list by a given set of positions and returns them
     public removeAnimalIdsFromListPositional(baseList: Types.ObjectId[], positions: number[]): Types.ObjectId[] {
         this.modify();
 
@@ -250,7 +250,7 @@ export class Player extends GameObject {
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     private applyCaptureReset(): void {
-        // If the player hasn't used/recieved their free capture reset during the current period
+        // If the player hasn't recieved their free capture reset during the current period
         if (this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
             this.freeCapturesLeft = 1;
             this.lastCaptureReset = new Date();
@@ -273,14 +273,14 @@ export class Player extends GameObject {
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     private applyEncounterReset(): void {
-        // If the player hasn't been given their free encounters during this period
+        // If the player hasn't received their free encounters during this period
         if (this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
             this.freeEncountersLeft = 5;
             this.lastEncounterReset = new Date();
         }
     }
 
-    // Called when the player encounters an animal and needs to have that action recorded
+    // Called when the player encounters an animal and their stats need to be updated
     public encounterAnimal(): void {
         if (this.freeEncountersLeft <= 0) {
             throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");

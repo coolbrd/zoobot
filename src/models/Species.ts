@@ -166,10 +166,12 @@ export class Species extends GameObject {
     // Gets a simple array of this species' common names
     public get commonNames(): string[] {
         const commonNameObjects = this.commonNameObjects;
+
         const commonNames: string[] = [];
         commonNameObjects.forEach(commonNameObject => {
             commonNames.push(commonNameObject.name);
         });
+
         return commonNames;
     }
 
@@ -177,17 +179,23 @@ export class Species extends GameObject {
         return this.cards.length;
     }
 
-    // Get a random card from the weighted rarity map of cards
-    public getRandomCard(): SpeciesCard {
+    // Gets the rarity table of this species' cards
+    private get cardRarityTable(): Map<SpeciesCard, number> {
         const cardRarity = new Map<SpeciesCard, number>();
 
         this.cards.forEach(currentCard => {
             cardRarity.set(currentCard, currentCard.rarity);
         });
 
-        return getWeightedRandom(cardRarity);
+        return cardRarity;
     }
 
+    // Get a random card from the weighted rarity map of cards
+    public getRandomCard(): SpeciesCard {
+        return getWeightedRandom(this.cardRarityTable);
+    }
+
+    // Determines and returns the index of a given card id within this species
     public indexOfCard(cardId: Types.ObjectId): number {
         return indexWhere(this.cards, card => card._id.equals(cardId));
     }
