@@ -67,25 +67,24 @@ export default class EditSpeciesCommand extends Command {
             if (!species) {
                 throw new Error("Undefined species value somehow encountered after species edit document submission.");
             }
+
+            species.setCommonNameObjects(finalDocument["commonNames"] as unknown as CommonNameTemplate[]);
+            species.scientificName = finalDocument["scientificName"] as string;
+            species.setCards(finalDocument["cards"] as unknown as SpeciesCardTemplate[]);
+            species.description = finalDocument["description"] as string;
+            species.naturalHabitat = finalDocument["naturalHabitat"] as string;
+            species.wikiPage = finalDocument["wikiPage"] as string;
+            species.rarity = finalDocument["rarity"] as number;
             
-            // Assign the species its new information
-            species.setFields({
-                commonNames: finalDocument["commonNames"] as unknown as CommonNameTemplate[],
-                scientificName: finalDocument["scientificName"] as string,
-                cards: finalDocument["cards"] as unknown as SpeciesCardTemplate[],
-                description: finalDocument["description"] as string,
-                naturalHabitat: finalDocument["naturalHabitat"] as string,
-                wikiPage: finalDocument["wikiPage"] as string,
-                rarity: finalDocument["rarity"] as number
-            }).then(() => {
+            species.save().then(() => {
                 betterSend(parsedMessage.channel, "Edit successful.");
 
                 encounterHandler.loadRarityTable().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
                 });
             }).catch(error => {
-                throw new Error(`There was an error editing a species: ${error}`);
-            });
+                throw new Error(`There was an error saving a species after editing it: ${error}`);
+            })
         });
     }
 }

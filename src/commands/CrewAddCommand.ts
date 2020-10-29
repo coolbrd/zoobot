@@ -65,12 +65,7 @@ export default class CrewAddCommand extends GuildCommand {
             return false;
         }
 
-        try {
-            await player.addAnimalToCrew(animal.id);
-        }
-        catch (error) {
-            throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
-        }
+        player.addAnimalIdToCrew(animal.id);
 
         return true;
     }

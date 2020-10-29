@@ -16,7 +16,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animalObject: Anima
     embed.setThumbnail(card.url);
     embed.setTitle(`${animalDisplayName}`);
     embed.addField("Species", capitalizeFirstLetter(species.scientificName), true);
-    embed.addField("Card", `${card.index + 1}/${species.cards.length}`, true);
+    embed.addField("Card", `${species.indexOfCard(card._id) + 1}/${species.cards.length}`, true);
     breed && embed.addField("Breed", capitalizeFirstLetter(breed), true);
     card.special && embed.addField("Special", capitalizeFirstLetter(card.special), true);
     embed.addField("Experience", animalObject.experience);

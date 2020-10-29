@@ -72,8 +72,10 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             return;
         }
 
-        // If an animal was found, convert it into an object and add it to the cache
+        // If an animal was found, convert it into an object
         const animal = this.documentToGameObject(animalDocument);
+
+        // Add the animal to the cache
         try {
             await this.addToCache(animal);
         }
@@ -81,23 +83,22 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(`There was an error adding a searched animal to the cache: ${error}`);
         }
 
-        // Return the animal
         return animal;
     }
 
     // Create a new animal and assign it to a given guild member's player object
-    public async createAnimal(owner: GuildMember, species: Species, card: SpeciesCard): Promise<void> {
+    public async createAnimal(ownerMember: GuildMember, species: Species, card: SpeciesCard): Promise<void> {
         // Get the player object of the guild member
-        let ownerObject: Player;
+        let owner: Player;
         try {
-            ownerObject = await beastiary.players.fetch(owner);
+            owner = await beastiary.players.fetch(ownerMember);
         }
         catch (error) {
             throw new Error(`There was an error fetching a player object by a guild member while creating an animal: ${error}`);
         }
 
         // Create a new animal document
-        const animalDocument = Animal.newDocument(owner, species, card);
+        const animalDocument = Animal.newDocument(ownerMember, species, card);
 
         // Save the new animal
         try {
@@ -105,14 +106,6 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         }
         catch (error) {
             throw new Error(`There was an error saving a new animal: ${error}`);
-        }
-
-        // Add the animal's id to the owner's collection
-        try {
-            await ownerObject.addAnimalToCollection(animalDocument._id);
-        }
-        catch (error) {
-            throw new Error(`There was an error adding a new animal to a player's collection: ${error}`);
         }
 
         // Turn the animal into a game object and add it to the cache
@@ -125,6 +118,9 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         catch (error) {
             throw new Error(`There was an error adding a new animal to the animal cache: ${error}`);
         }
+
+        // Add the animal to the player's collection
+        owner.addAnimalIdToCollection(animal.id);
     }
 
     // Deletes an animal by a given id
@@ -147,20 +143,9 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(`There was an error fetching a player from the player manager: ${error}`);
         }
 
-        // Remove the animal from the player's collection
-        try {
-            await owner.removeAnimalFromCollection(animal.id);
-        }
-        catch (error) {
-            throw new Error(`There was an error removing an animal's id from it's owner's collection: ${error}`);
-        }
-
-        try {
-            await owner.removeAnimalFromCrew(animal.id);
-        }
-        catch (error) {
-            throw new Error(`There was an error removing a released animal from a player's crew: ${error}`);
-        }
+        // Remove the animal from the player's possession
+        owner.removeAnimalIdFromCollection(animal.id);
+        owner.removeAnimalIdFromCrew(animal.id);
 
         // Remove the animal from the cache
         try {

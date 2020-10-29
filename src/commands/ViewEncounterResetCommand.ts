@@ -29,17 +29,8 @@ export default class ViewEncounterResetCommand extends GuildCommand {
             throw new Error(`There was an error fetching a player from the cache in the encounter reset command: ${error}`);
         }
         
-        // Determine the number of encounters that this player has left
-        let encountersLeft: number;
-        try {
-            encountersLeft = await player.encountersLeft();
-        }
-        catch (error) {
-            throw new Error(`There was an error getting the number of encounters a player has left: ${error}`);
-        }
-        
         // Format and send an informational message
-        let messageString = `You have **${encountersLeft}** encounter${encountersLeft === 1 ? "" : "s"} left.\n\n`;
+        let messageString = `You have **${player.freeEncountersLeft}** encounter${player.freeEncountersLeft === 1 ? "" : "s"} left.\n\n`;
 
         messageString += `Next encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`;
 

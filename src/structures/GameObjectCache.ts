@@ -5,10 +5,13 @@ import GameObject from "./GameObject";
 // A cache of GameObjects
 export default abstract class GameObjectCache<GameObjectType extends GameObject> {
     // The model in which game object's documents will be found
-    protected readonly abstract model: Model<Document>;
+    protected abstract readonly model: Model<Document>;
 
     // The inactivity time it takes for an object to get removed from the cache
-    protected readonly abstract cacheTimeout: number;
+    protected abstract readonly cacheTimeout: number;
+
+    // Converts a given document into a game object of the subclassed type
+    protected abstract documentToGameObject(document: Document): GameObjectType;
 
     // The current map of cached objects
     protected readonly cache = new Map<string, CachedGameObject<GameObjectType>>();
@@ -40,7 +43,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
     protected async addToCache(value: GameObjectType): Promise<void> {
         // Load the cached value's information
         try {
-            await value.load();
+            await value.loadFields();
         }
         catch (error) {
             throw new Error(`There was an error loading a cached value's information in a cache: ${error}`);
@@ -66,20 +69,17 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         // Stop the cache removal timer
         cachedGameObject.stopTimer();
 
-        // Tell the game object to finalize everything before it's removed from memory
+        // Save the game object to the database before removing it
         try {
-            await cachedGameObject.gameObject.finalize();
+            await cachedGameObject.gameObject.save();
         }
         catch (error) {
-            throw new Error(`There was an error finalizing a game object before it was removed from its cache: ${error}`);
+            throw new Error(`There was an error saving a game object before it was removed from the cache: ${error}`);
         }
 
         // Remove the value from the cache
         this.cache.delete(valueId.toHexString());
     }
-
-    // Converts a given document into a game object of the subclassed type
-    protected abstract documentToGameObject(document: Document): GameObjectType;
 
     // Gets an existing game object from either the cache or the database
     public async fetchById(id: Types.ObjectId): Promise<GameObjectType> {

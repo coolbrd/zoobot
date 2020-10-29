@@ -30,28 +30,14 @@ export default class EncounterCommand extends GuildCommand {
             throw new Error(`There was an error fetching a player for use in the encounter command: ${error}`);
         }
 
-        // Determine whether or not the player has an encounter right now
-        let canEncounter: boolean;
-        try {
-            canEncounter = await player.canEncounter();
-        }
-        catch (error) {
-            throw new Error(`There was an error checking if a player has any encounters left in the encounter command: ${error}`);
-        }
-
         // If the player can't encounter an animal
-        if (!canEncounter) {
+        if (player.freeEncountersLeft === 0) {
             betterSend(parsedMessage.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
             return;
         }
 
-        // Use one of the player's encounters
-        try {
-            await player.encounterAnimal();
-        }
-        catch (error) {
-            throw new Error(`There was an error indicating to a player object that an encounter was initiated: ${error}`);
-        }
+        // Indicate that the player has encountered the animal
+        player.encounterAnimal();
 
         // Create a new animal encounter
         try {

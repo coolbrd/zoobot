@@ -3,6 +3,7 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
+import { indexWhere } from "../utility/arraysAndSuch";
 
 const playerSchema = new Schema({
     userId: {
@@ -13,7 +14,7 @@ const playerSchema = new Schema({
         type: String,
         required: true
     },
-    collectionAnimals: {
+    collectionAnimalIds: {
         type: [Schema.Types.ObjectId],
         required: true
     },
@@ -21,7 +22,7 @@ const playerSchema = new Schema({
         type: Number,
         required: true
     },
-    crewAnimals: {
+    crewAnimalIds: {
         type: [Schema.Types.ObjectId],
         required: false
     },
@@ -31,7 +32,7 @@ const playerSchema = new Schema({
     },
     lastCaptureReset: {
         type: Schema.Types.Date,
-        required: false
+        required: true
     },
     totalCaptures: {
         type: Number,
@@ -43,7 +44,7 @@ const playerSchema = new Schema({
     },
     lastEncounterReset: {
         type: Schema.Types.Date,
-        required: false
+        required: true
     },
     totalEncounters: {
         type: Number,
@@ -57,21 +58,22 @@ export const PlayerModel = mongoose.model("Player", playerSchema);
 export class Player extends GameObject {
     public readonly model = PlayerModel;
 
-    // The player's associated Discord guild member object
-    public readonly member: GuildMember;
-
     public static newDocument(guildMember: GuildMember): Document {
-        // Create and return a new player document
         return new PlayerModel({
             userId: guildMember.user.id,
             guildId: guildMember.guild.id,
             collectionSizeLimit: 5,
             freeCapturesLeft: 0,
+            lastCaptureReset: new Date(0),
             totalCaptures: 0,
             freeEncountersLeft: 0,
+            lastEncounterReset: new Date(0),
             totalEncounters: 0
         });
     }
+
+    // The player's associated Discord guild member object
+    public readonly member: GuildMember;
 
     constructor(document: Document) {
         super(document);
@@ -90,7 +92,7 @@ export class Player extends GameObject {
     }
 
     public get collectionAnimalIds(): Types.ObjectId[] {
-        return this.document.get("collectionAnimals");
+        return this.document.get("collectionAnimalIds");
     }
 
     public get collectionSizeLimit(): number {
@@ -98,32 +100,64 @@ export class Player extends GameObject {
     }
 
     public get crewAnimalIds(): Types.ObjectId[] {
-        return this.document.get("crewAnimals");
+        return this.document.get("crewAnimalIds");
     }
 
-    // Private because it doesn't necessarily represent the most recent information
-    private get freeCapturesLeft(): number {
+    public get freeCapturesLeft(): number {
+        this.applyCaptureReset();
+
         return this.document.get("freeCapturesLeft");
     }
 
-    public get lastCaptureReset(): Date | undefined {
+    public set freeCapturesLeft(freeCapturesLeft: number) {
+        this.setField("freeCapturesLeft", freeCapturesLeft);
+    }
+
+    public get lastCaptureReset(): Date {
         return this.document.get("lastCaptureReset");
+    }
+
+    public set lastCaptureReset(lastCaptureReset: Date) {
+        this.setField("lastCaptureReset", lastCaptureReset);
     }
 
     public get totalCaptures(): number {
         return this.document.get("totalCaptures");
     }
 
-    private get freeEncountersLeft(): number {
+    public set totalCaptures(totalCaptures: number) {
+        this.setField("totalCaptures", totalCaptures);
+    }
+
+    public get freeEncountersLeft(): number {
+        this.applyEncounterReset();
+
         return this.document.get("freeEncountersLeft");
     }
 
-    public get lastEncounterReset(): Date | undefined {
+    public set freeEncountersLeft(freeEncountersLeft: number) {
+        this.setField("freeEncountersLeft", freeEncountersLeft);
+    }
+
+    public get lastEncounterReset(): Date {
         return this.document.get("lastEncounterReset");
+    }
+
+    public set lastEncounterReset(lastEncounterReset: Date) {
+        this.setField("lastEncounterReset", lastEncounterReset);
     }
 
     public get totalEncounters(): number {
         return this.document.get("totalEncounters");
+    }
+
+    public set totalEncounters(totalEncounters: number) {
+        this.setField("totalEncounters", totalEncounters);
+    }
+
+    // Whether or not the player can capture an animal, due to any of the given restrictions
+    public canCapture(): boolean {
+        return this.freeCapturesLeft > 0 && this.collectionAnimalIds.length < this.collectionSizeLimit;
     }
 
     // Gets an animal id by its position in the player's collection
@@ -143,215 +177,88 @@ export class Player extends GameObject {
         return this.crewAnimalIds[position];
     }
 
-    // Adds an animal id to a list within the player's document
-    private async addAnimalIdToList(animalId: Types.ObjectId, fieldName: string): Promise<void> {
-        // Add the animal id to the specified list
-        try {
-            await this.document.updateOne({
-                $push: {
-                    [fieldName]: animalId
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error adding an animal to a player's list: ${error}`);
-        }
+    private addAnimalIdToList(baseList: Types.ObjectId[], animalId: Types.ObjectId): void {
+        this.modify();
 
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding an animal to a list: ${error}`);
-        }
+        baseList.push(animalId);
     }
 
-    // Adds an animal to a player's animal collection
-    public async addAnimalToCollection(animalId: Types.ObjectId): Promise<void> {
-        try {
-            await this.addAnimalIdToList(animalId, "collectionAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error adding an animal to a player's collection: ${error}`);
-        }
+    public addAnimalIdToCollection(animalId: Types.ObjectId): void {
+        this.addAnimalIdToList(this.collectionAnimalIds, animalId);
     }
 
-    // Adds an animal to a player's crew of selected animals
-    public async addAnimalToCrew(animalId: Types.ObjectId): Promise<void> {
-        try {
-            await this.addAnimalIdToList(animalId, "crewAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error adding an animal to a player's crew: ${error}`);
-        }
+    public addAnimalIdToCrew(animalId: Types.ObjectId): void {
+        this.addAnimalIdToList(this.crewAnimalIds, animalId);
     }
 
-    // Adds a set of animals at a given base position
-    private async addAnimalIdsPositional(animalIds: Types.ObjectId[], position: number, fieldName: string): Promise<void> {
-        // Insert all animal ids into the specified list field starting at the given position
-        try {
-            await this.document.updateOne({
-                $push: {
-                    [fieldName]: {
-                        $each: animalIds,
-                        $position: position
-                    }
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error adding animals positionally to a player's list: ${error}`);
-        }
-
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's information after adding animals positionally to a player's list: ${error}`);
-        }
-    }
-
-    public async addAnimalsToCollectionPositional(animalIds: Types.ObjectId[], position: number): Promise<void> {
-        try {
-            await this.addAnimalIdsPositional(animalIds, position, "collectionAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error positionally adding animals to a player's collection.`);
-        }
-    }
-
-    // Removes an animal from the player's collection by a given id
-    private async removeAnimalIdFromList(animalId: Types.ObjectId, fieldName: string): Promise<void> {
-        try {
-            await this.document.updateOne({
-                $pull: {
-                    [fieldName]: animalId
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error removing an animal from a player's list: ${error}`);
-        }
-
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing an animal from its list: ${error}`);
-        }
-    }
-
-    public async removeAnimalFromCollection(animalId: Types.ObjectId): Promise<void> {
-        try {
-            await this.removeAnimalIdFromList(animalId, "collectionAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error removing an animal from a player's collection: ${error}`);
-        }
-    }
-
-    public async removeAnimalFromCrew(animalId: Types.ObjectId): Promise<void> {
-        try {
-            await this.removeAnimalIdFromList(animalId, "crewAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error removing an animal from a player's crew: ${error}`);
-        }
-    }
-
-    // Removes a set of animals by an array of positions
-    private async removeAnimalIdsFromListPositional(positions: number[], fieldName: string): Promise<Types.ObjectId[]> {
-        // Form a list of all animal ids that result from the list of positions given
-        const animalIds: Types.ObjectId[] = [];
-        for (const position of positions) {
-            animalIds.push(this.collectionAnimalIds[position]);
-        }
+    private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
+        this.modify();
         
-        // Remove all the specified animals from the player's collection (just ids)
-        try {
-            await this.document.updateOne({
-                $pull: {
-                    [fieldName]: {
-                        $in: animalIds
-                    }
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error removing animals positionally from a player's list: ${error}`);
+        baseList.splice(position, 0, ...animalIds);
+    }
+
+    public addAnimalIdsToCollectionPositional(animalIds: Types.ObjectId[], position: number): void {
+        this.addAnimalIdsToListPositional(this.collectionAnimalIds, animalIds, position);
+    }
+
+    public addAnimalIdsToCrewPositional(animalIds: Types.ObjectId[], position: number): void {
+        this.addAnimalIdsToListPositional(this.crewAnimalIds, animalIds, position);
+    }
+
+    public removeAnimalIdFromList(baseList: Types.ObjectId[], animalId: Types.ObjectId): void {
+        this.modify();
+
+        const indexInBaseList = indexWhere(baseList, element => element.equals(animalId));
+
+        if (indexInBaseList == -1) {
+            return;
         }
 
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's information after removing animals from its list: ${error}`);
-        }
+        baseList.splice(indexInBaseList, 1);
+    }
 
-        // Return the list of removed animal ids, presumably so they can be added again in a different order
+    public removeAnimalIdFromCollection(animalId: Types.ObjectId): void {
+        this.removeAnimalIdFromList(this.collectionAnimalIds, animalId);
+    }
+
+    public removeAnimalIdFromCrew(animalId: Types.ObjectId): void {
+        this.removeAnimalIdFromList(this.crewAnimalIds, animalId);
+    }
+
+    public removeAnimalIdsFromListPositional(baseList: Types.ObjectId[], positions: number[]): Types.ObjectId[] {
+        this.modify();
+
+        const animalIds: Types.ObjectId[] = [];
+        positions.forEach(currentPosition => {
+            animalIds.push(baseList[currentPosition]);
+        });
+
+        animalIds.forEach(currentAnimalId => {
+            this.removeAnimalIdFromList(baseList, currentAnimalId);
+        });
+
         return animalIds;
     }
 
-    public async removeAnimalsFromCollectionPositional(positions: number[]): Promise<Types.ObjectId[]> {
-        try {
-            return await this.removeAnimalIdsFromListPositional(positions, "collectionAnimals");
-        }
-        catch (error) {
-            throw new Error(`There was an error positionally removing animal ids from a player's collection: ${error}`);
-        }
+    public removeAnimalIdsFromCollectionPositional(positions: number[]): Types.ObjectId[] {
+        return this.removeAnimalIdsFromListPositional(this.collectionAnimalIds, positions);
+    }
+
+    public removeAnimalIdsFromCrewPositional(positions: number[]): Types.ObjectId[] {
+        return this.removeAnimalIdsFromListPositional(this.crewAnimalIds, positions);
     }
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
-    public async applyCaptureReset(): Promise<void> {
+    private applyCaptureReset(): void {
         // If the player hasn't used/recieved their free capture reset during the current period
-        if (!this.lastCaptureReset || this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
-            // Refresh the player's free capture, and mark this reset period as having been used by the player
-            try {
-                await this.document.updateOne({
-                    freeCapturesLeft: 1,
-                    lastCaptureReset: encounterHandler.lastCaptureReset
-                });
-            }
-            catch (error) {
-                throw new Error(`There was an error setting a player's free captures field: ${error}`);
-            }
-
-            try {
-                await this.refresh();
-            }
-            catch (error) {
-                throw new Error(`There was an error refreshing a player after resetting their capture period.`);
-            }
+        if (this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
+            this.freeCapturesLeft = 1;
+            this.lastCaptureReset = new Date();
         }
-    }
-
-    // The amount of captures a play has left to use
-    public async capturesLeft(): Promise<number> {
-        // Give the player their free capture for this period if necessary
-        try {
-            await this.applyCaptureReset();
-        }
-        catch (error) {
-            throw new Error(`There was an error checking/applying a player's current capture reset period: ${error}`);
-        }
-
-        return this.freeCapturesLeft;
-    }
-
-    // Whether or not the player can capture an animal, due to any of the given restrictions
-    public async canCapture(): Promise<boolean> {
-        let capturesLeft: number;
-        try {
-            capturesLeft = await this.capturesLeft();
-        }
-        catch (error) {
-            throw new Error(`There was an error getting the number of captures a player has left: ${error}`);
-        }
-
-        return capturesLeft > 0 && this.collectionAnimalIds.length < this.collectionSizeLimit;
     }
 
     // Called after a player captures an animal, and its stats needs to be updated
-    public async captureAnimal(): Promise<void> {
+    public captureAnimal(): void {
         if (this.freeCapturesLeft <= 0) {
             throw new Error("A player's capture stats were updated as if they captured an animal without any remaining captures.");
         }
@@ -360,102 +267,26 @@ export class Player extends GameObject {
             throw new Error("A player's capture stats were updated as if they captured an animal when their collection was full. ");
         }
 
-        // Increment/decrement values
-        try {
-            await this.document.updateOne({
-                $inc: {
-                    freeCapturesLeft: -1,
-                    totalCaptures: 1
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error incrementing a player's capture fields: ${error}`);
-        }
-
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's document after updating their last capture: ${error}`);
-        }
+        this.freeCapturesLeft -= 1;
+        this.totalCaptures += 1;
     }
 
     // Checks if the player has been given their free capture during this capture period, and applies it if necessary
-    public async applyEncounterReset(): Promise<void> {
+    private applyEncounterReset(): void {
         // If the player hasn't been given their free encounters during this period
-        if (!this.lastEncounterReset || this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
-            // Refresh the player's free encounters, and mark this reset period as having been used by the player
-            try {
-                await this.document.updateOne({
-                    freeEncountersLeft: 5,
-                    lastEncounterReset: encounterHandler.lastEncounterReset
-                });
-            }
-            catch (error) {
-                throw new Error(`There was an error setting a player's free encounters field: ${error}`);
-            }
-
-            try {
-                await this.refresh();
-            }
-            catch (error) {
-                throw new Error(`There was an error refreshing a player after resetting their encounter period.`);
-            }
+        if (this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
+            this.freeEncountersLeft = 5;
+            this.lastEncounterReset = new Date();
         }
-    }
-
-    // Gets the player's updated number of encounters remaining after applying necessary resets
-    public async encountersLeft(): Promise<number> {
-        // Give the player their free encounters for this period if necessary
-        try {
-            await this.applyEncounterReset();
-        }
-        catch (error) {
-            throw new Error(`There was an error checking/applying a player's current encounter reset period: ${error}`);
-        }
-
-        return this.freeEncountersLeft;
-    }
-
-    // Checks whether or not a player can encounter an animal
-    public async canEncounter(): Promise<boolean> {
-        // Determine the player's encounters left (applying potential resets)
-        let encountersLeft: number;
-        try {
-            encountersLeft = await this.encountersLeft();
-        }
-        catch (error) {
-            throw new Error(`There was an error getting a player's remaining number of encounters: ${error}`);
-        }
-
-        return encountersLeft > 0;
     }
 
     // Called when the player encounters an animal and needs to have that action recorded
-    public async encounterAnimal(): Promise<void> {
+    public encounterAnimal(): void {
         if (this.freeEncountersLeft <= 0) {
             throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");
         }
 
-        // Increment/decrement values
-        try {
-            await this.document.updateOne({
-                $inc: {
-                    freeEncountersLeft: -1,
-                    totalEncounters: 1
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error incrementing a player's encounter fields: ${error}`);
-        }
-
-        try {
-            await this.refresh();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a player's document after performing an encounter: ${error}`);
-        }
+        this.freeEncountersLeft -= 1;
+        this.totalEncounters += 1;
     }
 }

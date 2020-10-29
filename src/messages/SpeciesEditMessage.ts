@@ -133,7 +133,7 @@ export default class SpeciesEditMessage extends EDocMessage {
 
         // Same deal with cards
         const cardsField = eDoc.getField("cards");
-        speciesObject.cardObjects.forEach(card => {
+        speciesObject.cards.forEach(card => {
             cardsField.push({
                 _id: card._id ? String(card._id) : undefined,
                 url: card.url,

@@ -33,3 +33,21 @@ export function arrayElementCount<T>(array: T[], element: T): number {
     }
     return count;
 }
+
+// Gets the index of an element within a list where a predicate function is satisfied
+export function indexWhere<T>(list: T[], predicate: (element: T) => boolean): number {
+    let indexInList = -1;
+
+    // Iterate over the list until the condition is met
+    list.some((currentElement, currentIndex) => {
+        // If the condition is met
+        if (predicate(currentElement)) {
+            // Assign the matching index
+            indexInList = currentIndex;
+            // Don't test any more elements
+            return true;
+        }
+    });
+
+    return indexInList;
+}

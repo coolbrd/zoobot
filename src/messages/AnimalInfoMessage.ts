@@ -47,7 +47,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     public async build(): Promise<void> {
         // Load the animal's information
         try {
-            await this.animalObject.load();
+            await this.animalObject.loadFields();
         }
         catch (error) {
             throw new Error(`There was an error loading an animal object's data: ${error}`);

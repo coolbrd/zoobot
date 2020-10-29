@@ -1,10 +1,21 @@
 import mongoose, { Document, Schema } from "mongoose";
 import config from "../config/BotConfig";
 import GameObject from "../structures/GameObject";
-import { guildConfigSchema } from "./guildConfig";
+
+// A subschema representing a guild's configurable settings
+const guildConfigSchema = new Schema({
+    prefix: {
+        type: String,
+        required: true
+    }
+});
+
+interface GuildConfigTemplate {
+    prefix: string;
+}
 
 const guildScema = new Schema({
-    id: {
+    guildId: {
         type: String,
         required: true
     },
@@ -23,7 +34,7 @@ export class PlayerGuild extends GameObject {
     public static newDocument(guildId: string): Document {
         // Make one and save it
         return new GuildModel({
-            id: guildId,
+            guildId: guildId,
             config: {
                 prefix: config.prefix
             }
@@ -31,31 +42,19 @@ export class PlayerGuild extends GameObject {
     }
 
     public get guildId(): string {
-        return this.document.get("id");
+        return this.document.get("guildId");
+    }
+
+    public get config(): GuildConfigTemplate {
+        return this.document.get("config");
     }
 
     public get prefix(): string {
-        return this.document.get("config.prefix");
+        return this.config.prefix;
     }
 
-    public async setPrefix(newPrefix: string): Promise<void> {
-        if (!this.documentLoaded) {
-            throw new Error("Tried to change a guild document's prefix before it was loaded.");
-        }
-
-        // Attempt to update the guild's prefix
-        try {
-            await this.document.updateOne({
-                $set: {
-                    "config.prefix": newPrefix
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error updating a guild model in the change prefix command: ${error}`);
-        }
-
-        // Reflect the changes in memory
-        this.document.set("config.prefix", newPrefix);
+    public set prefix(prefix: string) {
+        this.modify();
+        this.config.prefix = prefix;
     }
 }

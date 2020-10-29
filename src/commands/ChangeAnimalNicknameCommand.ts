@@ -52,11 +52,11 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
         }
 
         // The nickname string that will be used
-        let newNickname: string | null;
+        let newNickname: string | undefined;
         // If the user didn't provide a nickname to use
         if (parsedMessage.arguments.length < 2) {
             // Set the animal's nickname as nothing, resetting it
-            newNickname = null;
+            newNickname = undefined;
         }
         // If the user specified a nickname
         else {
@@ -74,14 +74,10 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             }
         }
 
-        // Change the animal's nickname to the determined value
-        try {
-            await animal.setNickname(newNickname);
-        }
-        catch (error) {
-            throw new Error(`There was an error attempting to change the nickname of an animal object: ${error}`);
-        }
+        // Set the animal's new nickname
+        animal.nickname = newNickname;
 
+        // Indicate that the command executed its function successfully
         return true;
     }
 }

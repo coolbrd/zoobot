@@ -5,130 +5,85 @@ export default abstract class GameObject {
     // The model in which this object's document can be found
     public readonly abstract model: Model<Document>;
 
-    // The document object that corresponds to this object's id
-    private _document: Document | undefined;
+    // The document wrapped by this game object
+    protected readonly document: Document;
 
     // The id of the object's document. Unchangeable and always set.
     public readonly id: Types.ObjectId;
 
+    // Whether or not this game object's document has been modified since the last save
+    private modified = false;
+
+    // The timer responsible for saving the game object after some time
+    private saveTimer: NodeJS.Timeout | undefined;
+    // The amount of time that will pass between the object's first unsaved change and it being saved
+    private saveDelay = 10000;
+
     constructor(document: Document) {
-        this._document = document;
+        this.document = document;
         this.id = document._id;
     }
 
-    // Gets this object's document. Only to be used after it's been loaded.
-    protected get document(): Document {
-        if (!this._document) {
-            throw new Error("A game object's document was attempted to be accessed before it was loaded.");
-        }
+    // Marks the game object as being modified after the most recent save period
+    protected modify(): void {
+        // If this is the first change to be made since the last save
+        if (!this.modified) {
+            // Save the document in 10 seconds
+            this.saveTimer = setTimeout(() => {
+                this.save();
+            }, this.saveDelay);
 
-        return this._document;
-    }
-
-    private setDocument(document: Document | undefined): void {
-        this._document = document;
-    }
-
-    // Whether or not this object's document has been loaded
-    public get documentLoaded(): boolean {
-        return Boolean(this._document);
-    }
-
-    // Whether or not all fields of this object are loaded. Meant to be extended.
-    public get fullyLoaded(): boolean {
-        return this.documentLoaded;
-    }
-
-    // Loads this object's document by its id
-    public async loadDocument(): Promise<void> {
-        // Save time and don't do anything if it's already loaded
-        if (this.documentLoaded) {
-            return;
-        }
-
-        // Get the object's document by its id
-        let document: Document | null;
-        try {
-            document = await this.model.findById(this.id);
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a game object's document: ${error}`);
-        }
-
-        // If the id is invalid
-        if (!document) {
-            throw new Error("Nothing was found when a game object tried to load its document.");
-        }
-
-        // Assign the new document
-        this.setDocument(document);
-    }
-
-    protected async unloadDocument(): Promise<void> {
-        try {
-            await this.finalize();
-        }
-        catch (error) {
-            throw new Error(`There was an error finalizing a document before it was unloaded by its game object: ${error}`);
-        }
-
-        this.setDocument(undefined)
-    }
-
-    // Loads all unloaded fields of the object. Meant to be extended.
-    public async load(): Promise<void> {
-        try {
-            await this.loadDocument();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a game object's document: ${error}`);
+            // Mark the document as modified
+            this.modified = true;
         }
     }
 
-    // Unloads all of this object's information. Meant to be extended.
-    protected async unload(): Promise<void> {
-        try {
-            await this.unloadDocument();
-        }
-        catch (error) {
-            throw new Error(`There was an error unloading a game object's document during full unloading: ${error}`);
-        }
+    // Marks the game object as no longer being modified
+    private unmodify(): void {
+        // Mark the game object as unmodified since the last save period
+        this.modified = false;
+
+        // Clear the timer and unset it
+        this.saveTimer && clearTimeout(this.saveTimer);
+        this.saveTimer = undefined;
     }
 
-    // Reloads all the object's fields
-    // Used if something was likely to have changed about the document in the database, and the most current data is desired
-    public async refresh(): Promise<void> {
-        // Unload and load all fields
-        try {
-            await this.unload();
-        }
-        catch (error) {
-            throw new Error(`There was an error unloading a game object during a refresh: ${error}`);
-        }
-
-        try {
-            await this.load();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a game object's information during a refresh: ${error}`);
-        }
+    // Sets a field within this game object's document. Meant to be called instead of document.set()
+    protected setField(fieldName: string, value: unknown): void {
+        this.modify();
+        this.document.set(fieldName, value);
     }
 
-    // Refreshes just this object's document without reloading all other associated fields. Only useful for subclasses of this class.
-    protected async refreshDocument(): Promise<void> {
-        this.unload();
-
-        try {
-            await this.loadDocument();
-        }
-        catch (error) {
-            throw new Error(`There was an error loading a game object's document in the refresh document method: ${error}`);
-        }
-    }
-
-    // Used to commit any final changes before this object is unloaded. Meant to be extended.
-    public async finalize(): Promise<void> {
+    // Loads/reloads all fields of the object. Meant to be extended.
+    public async loadFields(): Promise<void> {
         return;
+    }
+
+    // Saves this game object's document to the database
+    private async saveDocument(): Promise<void> {
+        try {
+            await this.document.save();
+        }
+        catch (error) {
+            throw new Error(`There was an error saving a game object's document: ${error}`);
+        }
+    }
+
+    // Saves the current version of the document to the database
+    // There should only ever be one instance of any given document assigned to a game object at any time, so this shouldn't cause conflicts
+    public async save(): Promise<void> {
+        // Save the document to the database
+        try {
+            await this.saveDocument();
+        }
+        catch (error) {
+            throw new Error(`There was an error saving a game object's document before unmodifying it: ${error}`);
+        }
+
+        console.log(`Saved ${this.id}`);
+
+        // Mark the document as no longer having been modified since its last save
+        this.unmodify();
     }
 
     // Deletes the object's document from the database. Meant to be called exclusively in tandem with other methods that remove the object from the game.
@@ -139,7 +94,5 @@ export default abstract class GameObject {
         catch (error) {
             throw new Error(`There was an error deleting a game object's document: ${error}`);
         }
-
-        this.unload();
     }
 }

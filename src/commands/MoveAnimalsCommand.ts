@@ -1,5 +1,4 @@
 import { stripIndents } from "common-tags";
-import { Types } from "mongoose";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommandParser } from "../structures/CommandParser";
@@ -93,25 +92,14 @@ export default class MoveAnimalsCommand extends GuildCommand {
         // Get the id of the animal that's acting as the anchor in the movement
         const baseAnimalId = playerObject.collectionAnimalIds[sortPosition];
 
-        // Try to remove all animal ids at the given positions from the user's collection
-        let animalIds: Types.ObjectId[];
-        try {
-            animalIds = await playerObject.removeAnimalsFromCollectionPositional(positions);
-        }
-        catch (error) {
-            throw new Error(`There was an error trying to bulk remove animals from a player's collection for movement: ${error}`);
-        }
+        // Remove the animal ids at the given positions and store them
+        const movedAnimalIds = playerObject.removeAnimalIdsFromCollectionPositional(positions);
 
         // After the animals have been removed, get the new position of the base animal to sort under
         const basePosition = playerObject.collectionAnimalIds.indexOf(baseAnimalId);
 
-        // Attempt to add the previously removed animal ids directly under the position of the animal at the base position
-        try {
-            await playerObject.addAnimalsToCollectionPositional(animalIds, basePosition + 1);
-        }
-        catch (error) {
-            throw new Error(`There was an error trying to add animals back to a player's collection for movement: ${error}`);
-        }
+        // Add all removed animals back to the player's collection under the base animal
+        playerObject.addAnimalIdsToCollectionPositional(movedAnimalIds, basePosition + 1);
 
         return true;
     }

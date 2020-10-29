@@ -67,12 +67,7 @@ export default class CrewRemoveCommand extends GuildCommand {
             return false;
         }
 
-        try {
-            await player.removeAnimalFromCrew(targetAnimalId);
-        }
-        catch (error) {
-            throw new Error(`There was an error removing an animal from a player's crew: ${error}`);
-        }
+        player.removeAnimalIdFromCrew(animal.id);
 
         return true;
     }

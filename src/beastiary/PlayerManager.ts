@@ -180,6 +180,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     public async playerExists(guildMember: GuildMember): Promise<boolean> {
         // Try to get a player object corresponding to the guild member from the cache and the database
         const playerInCache = this.getFromCacheByGuildMember(guildMember);
+
         let playerDocument: Document | null;
         try {
             playerDocument = await this.getPlayerDocument(guildMember);
@@ -265,23 +266,9 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(`There was an error bulk fetching a player's crew animals: ${error}`);
         }
 
-        // Give each animal in the crew some experience
-        try {
-            await new Promise(resolve => {
-                let completed = 0;
-                for (const crewAnimal of crewAnimals) {
-                    crewAnimal.addExperience(config.experiencePerMessage).then(() => {
-                        if (++completed >= crewAnimals.length) {
-                            resolve();
-                        }
-                    }).catch(error => {
-                        throw new Error(`There was an error adding experience to an animal: ${error}`);
-                    });
-                }
-            });
-        }
-        catch (error) {
-            throw new Error(`There was an error giving a player's crew animals experience in bulk.`);
+        // Give each animal some experience
+        for (const crewAnimal of crewAnimals) {
+            crewAnimal.experience += config.experiencePerMessage;
         }
     }
 }

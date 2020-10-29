@@ -1,7 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import getRarityInfo from "../beastiary/rarityToEmbedColor";
-
-import { SpeciesCard, Species } from "../models/Species";
+import { Species, SpeciesCard } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 // Build's a species' information embed

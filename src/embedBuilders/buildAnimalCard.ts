@@ -12,7 +12,7 @@ export default function buildAnimalCard(embed: MessageEmbed, animalObject: Anima
 
     embed.setTitle(animalDisplayName);
     embed.setImage(card.url);
-    embed.addField("――――――――", `Card #${card.index + 1} of ${species.cardCount}`, true);
+    embed.addField("――――――――", `Card #${species.indexOfCard(card._id) + 1} of ${species.cardCount}`, true);
 
     // Add optional fields
     card.breed && embed.addField("Breed", capitalizeFirstLetter(card.breed), true);

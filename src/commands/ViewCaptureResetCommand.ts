@@ -29,18 +29,9 @@ export default class ViewCaptureResetCommand extends GuildCommand {
             throw new Error(`There was an error fetching a player from the cache in the capture reset command: ${error}`);
         }
 
-        // Determine whether or not the player can currently capture an animal
-        let capturesLeft: number;
-        try {
-            capturesLeft = await player.capturesLeft();
-        }
-        catch (error) {
-            throw new Error(`There was an error checking if a player can capture in the capture reset command: ${error}`);
-        }
-
         // Format and send an informational message
         let messageString: string;
-        if (capturesLeft > 0) {
+        if (player.freeCapturesLeft > 0) {
             messageString = "You can capture right now.";
         }
         else {

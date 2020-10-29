@@ -247,7 +247,7 @@ class CommandHandler {
         let guildDocuments: Document[] | null;
         // Find all known guild documents
         try {
-            guildDocuments = await GuildModel.find({}, { _id: 0, id: 1, config: 1 });
+            guildDocuments = await GuildModel.find({});
         }
         catch (error) {
             throw new Error(`There was an error attempting to load guild prefixes from the database: ${error}`);
@@ -258,7 +258,7 @@ class CommandHandler {
         // Iterate over every document returned
         for (const guildDocument of guildDocuments) {
             // Add each guild and its prefix to the map
-            this.guildPrefixes.set(guildDocument.get("id"), guildDocument.get("config").prefix);
+            this.guildPrefixes.set(guildDocument.get("guildId"), guildDocument.get("config").prefix);
         }
     }
 
