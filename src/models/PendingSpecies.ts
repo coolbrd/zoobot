@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import GameObject from "../structures/GameObject";
 
-// The object representation of a species submission pending approval
 export class PendingSpecies extends GameObject {
     public readonly model = PendingSpeciesModel;
 
@@ -45,7 +44,6 @@ export class PendingSpecies extends GameObject {
     }
 }
 
-// The schema for a pending species submission
 const pendingSpeciesSchema = new Schema({
     [PendingSpecies.fieldNames.commonNames]: {
         type: [String],

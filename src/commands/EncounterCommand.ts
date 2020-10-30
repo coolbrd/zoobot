@@ -21,7 +21,6 @@ export default class EncounterCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        // Get the player that initiated the encounter
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
@@ -30,16 +29,13 @@ export default class EncounterCommand extends GuildCommand {
             throw new Error(`There was an error fetching a player for use in the encounter command: ${error}`);
         }
 
-        // If the player can't encounter an animal
-        if (player.freeEncountersLeft === 0) {
+        if (!player.hasEncounters) {
             betterSend(parsedMessage.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
             return;
         }
 
-        // Indicate that the player has encountered the animal
         player.encounterAnimal();
 
-        // Create a new animal encounter
         try {
             await encounterHandler.spawnAnimal(parsedMessage.channel);
         }

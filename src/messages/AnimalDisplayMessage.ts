@@ -8,22 +8,18 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 
-// The set of states that an animal display message can be in
 export enum AnimalDisplayMessageState {
     page,
     info,
     card
 }
 
-// An animal id with its optionally loaded animal object
 interface LoadableAnimal {
     id: Types.ObjectId,
     animal?: Animal
 }
 
-// The message displaying a player's animal collection
 export default abstract class AnimalDisplayMessage extends PagedMessage<LoadableAnimal> {
-    // The current display state of the message
     protected state: AnimalDisplayMessageState;
 
     constructor(channel: TextChannel, animalIds: Types.ObjectId[], singlePage?: boolean, disablePointer?: boolean) {
@@ -49,7 +45,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
             ]);
         }
 
-        // Start the message in paged view mode
         this.state = AnimalDisplayMessageState.page;
 
         const loadableAnimals: LoadableAnimal[] = [];
@@ -60,7 +55,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
             });
         }
 
-        // Set paged elements
         this.setElements(loadableAnimals);
     }
 
@@ -73,18 +67,13 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
             return embed;
         }
 
-        // Bulk load all animals on the current page
         try {
             await new Promise(resolve => {
                 let count = 0;
-                // Iterate over every loadable animal on the page
                 loadableAnimalsOnPage.forEach(loadableAnimal => {
-                    // Get each animal's object by their id
                     beastiary.animals.fetchById(loadableAnimal.id).then(animal => {
-                        // Assign the loaded animal
                         loadableAnimal.animal = animal;
 
-                        // Resolve once all animals on the page are loaded
                         if (++count >= loadableAnimalsOnPage.length) {
                             resolve();
                         }
@@ -112,9 +101,7 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
 
                 let pageString = "";
                 let elementIndex = this.firstVisibleIndex;
-                // Iterate over every animal on the current page
                 loadableAnimalsOnPage.forEach(loadableAnimal => {
-                    // Get the animal object
                     const currentAnimal = loadableAnimal.animal;
 
                     if (!currentAnimal) {
@@ -123,9 +110,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
 
                     const card = currentAnimal.card;
 
-                    const animalName = currentAnimal.nickname || capitalizeFirstLetter(currentAnimal.name);
-
-                    // Add special or breed text if applicable
                     let specialText = "";
                     if (!currentAnimal.nickname) {
                         if (card.special) {
@@ -139,10 +123,9 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
                         }
                     }
 
-                    // The pointer text to draw on the current animal entry (if any)
                     const pointerText = elementIndex === this.elements.pointerPosition ? " 🔹" : "";
 
-                    pageString += `\`${elementIndex + 1})\` ${animalName}${specialText}`;
+                    pageString += `\`${elementIndex + 1})\` ${currentAnimal.displayName}${specialText}`;
 
                     pageString += ` ${pointerText}\n`;
 
@@ -168,7 +151,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        // Button behavior
         switch (buttonName) {
             case "upArrow": {
                 this.movePointer(-1);
@@ -179,7 +161,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
                 break;
             }
             case "leftArrow": {
-                // Change pages if the message is in page mode, otherwise move the pointer
                 if (this.state === AnimalDisplayMessageState.page) {
                     this.movePages(-1);
                 }
@@ -189,7 +170,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
                 break;
             }
             case "rightArrow": {
-                // Change pages if the message is in page mode, otherwise move the pointer
                 if (this.state === AnimalDisplayMessageState.page) {
                     this.movePages(1);
                 }
@@ -212,7 +192,6 @@ export default abstract class AnimalDisplayMessage extends PagedMessage<Loadable
             }
         }
 
-        // Rebuild the message
         try {
             await this.refreshEmbed();
         }

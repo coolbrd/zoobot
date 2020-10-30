@@ -5,7 +5,6 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 
-// A player game object
 export class Player extends GameObject {
     public readonly model = PlayerModel;
 
@@ -37,7 +36,6 @@ export class Player extends GameObject {
         });
     }
 
-    // The player's associated Discord guild member object
     public readonly member: GuildMember;
 
     constructor(document: Document) {
@@ -118,12 +116,30 @@ export class Player extends GameObject {
         this.setField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
-    // Whether or not the player can capture an animal, due to any of the given restrictions
-    public canCapture(): boolean {
-        return this.freeCapturesLeft > 0 && this.collectionAnimalIds.length < this.collectionSizeLimit;
+    public get hasCaptures(): boolean {
+        return this.freeCapturesLeft > 0;
     }
 
-    // Gets an animal id by its position in the player's collection
+    public get collectionFull(): boolean {
+        return this.collectionAnimalIds.length >= this.collectionSizeLimit;
+    }
+
+    public get hasCaptureReset(): boolean {
+        return this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf();
+    }
+
+    public get canCapture(): boolean {
+        return this.hasCaptures && !this.collectionFull;
+    }
+
+    public get hasEncounters(): boolean {
+        return this.freeEncountersLeft > 0;
+    }
+
+    public get hasEncounterReset(): boolean {
+        return this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf();
+    }
+
     public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
         if (position < 0 || position >= this.collectionAnimalIds.length) {
             return undefined;
@@ -154,7 +170,6 @@ export class Player extends GameObject {
         this.addAnimalIdToList(this.crewAnimalIds, animalId);
     }
 
-    // Adds a list of animal ids to a given list after a given position
     private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
         this.modify();
 
@@ -189,7 +204,6 @@ export class Player extends GameObject {
         this.removeAnimalIdFromList(this.crewAnimalIds, animalId);
     }
 
-    // Removes a set of animal ids from a list by a given set of positions and returns them
     public removeAnimalIdsFromListPositional(baseList: Types.ObjectId[], positions: number[]): Types.ObjectId[] {
         this.modify();
 
@@ -213,22 +227,19 @@ export class Player extends GameObject {
         return this.removeAnimalIdsFromListPositional(this.crewAnimalIds, positions);
     }
 
-    // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     private applyCaptureReset(): void {
-        // If the player hasn't recieved their free capture reset during the current period
-        if (this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf()) {
+        if (this.hasCaptureReset) {
             this.freeCapturesLeft = 1;
             this.lastCaptureReset = new Date();
         }
     }
 
-    // Called after a player captures an animal, and its stats needs to be updated
     public captureAnimal(): void {
-        if (this.freeCapturesLeft <= 0) {
+        if (!this.hasCaptures) {
             throw new Error("A player's capture stats were updated as if they captured an animal without any remaining captures.");
         }
 
-        if (this.collectionAnimalIds.length >= this.collectionSizeLimit) {
+        if (this.collectionFull) {
             throw new Error("A player's capture stats were updated as if they captured an animal when their collection was full. ");
         }
 
@@ -236,18 +247,15 @@ export class Player extends GameObject {
         this.totalCaptures += 1;
     }
 
-    // Checks if the player has been given their free capture during this capture period, and applies it if necessary
     private applyEncounterReset(): void {
-        // If the player hasn't received their free encounters during this period
-        if (this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf()) {
+        if (this.hasEncounterReset) {
             this.freeEncountersLeft = 5;
             this.lastEncounterReset = new Date();
         }
     }
 
-    // Called when the player encounters an animal and their stats need to be updated
     public encounterAnimal(): void {
-        if (this.freeEncountersLeft <= 0) {
+        if (!this.hasEncounters) {
             throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");
         }
 

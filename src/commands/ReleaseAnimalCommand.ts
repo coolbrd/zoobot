@@ -8,7 +8,6 @@ import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
-// Releases an animal from a user's collection
 export default class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
 
@@ -28,10 +27,8 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             return;
         }
 
-        // The term to search the animal by
         const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
 
-        // Get the animal by the user's search string
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
@@ -51,13 +48,12 @@ export default class ReleaseAnimalCommand extends GuildCommand {
 
         const releaseEmbed = new SmartEmbed();
 
-        releaseEmbed.setTitle(`Release ${animal.name}?`);
+        releaseEmbed.setTitle(`Release ${animal.displayName}?`);
         releaseEmbed.setThumbnail(animal.card.url);
         releaseEmbed.setDescription("Confirm this release by responding with \"yes\".");
         releaseEmbed.setFooter("This release will automatically cancel if no response is given.");
         releaseEmbed.setColor(0xFF0000);
 
-        // Confirm with the user
         let confirmMessage: Message | undefined;
         try {
             confirmMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: releaseEmbed }));
@@ -70,7 +66,6 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             throw new Error("There was an error sending a release command confirmation message.");
         }
 
-        // Wait for the user to respond
         let message: Message | undefined;
         try {
             message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 6000);
@@ -79,9 +74,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             throw new Error(`There was an error awaiting a user's next message in the release command: ${error}`);
         }
 
-        // If the user confirmed the release
         if (message && message.content.toLowerCase() === "yes") {
-            // Delete the animal
             try {
                 await beastiary.animals.deleteAnimal(animal.id);
             }
@@ -89,7 +82,6 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(`There was an error deleting an animal in the release command: ${error}`);
             }
 
-            // Indicate that the command was performed successfully
             message.react("✅").catch(error => {
                 errorHandler.handleError(error, "There was an error attempting to react to a message in the animal nickname command.");
             });

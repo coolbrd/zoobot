@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from "mongoose";
 import config from "../config/BotConfig";
 import GameObject from "../structures/GameObject";
 
-// A guild with at least one player in it. Does not exist for guilds that have not used any game commands.
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
 
@@ -12,7 +11,6 @@ export class PlayerGuild extends GameObject {
     };
 
     public static newDocument(guildId: string): Document {
-        // Make one and save it
         return new GuildModel({
             guildId: guildId,
             config: {
@@ -39,7 +37,6 @@ export class PlayerGuild extends GameObject {
     }
 }
 
-// A subschema representing a guild's configurable settings
 const guildConfigSchema = new Schema({
     prefix: {
         type: String,

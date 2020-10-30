@@ -3,7 +3,6 @@ import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 import getWeightedRandom from "../utility/getWeightedRandom";
 
-// The object representation of a species
 export class Species extends GameObject {
     public readonly model = SpeciesModel;
 
@@ -27,7 +26,7 @@ export class Species extends GameObject {
 
         this.document.set(Species.fieldNames.commonNames, commonNameObjects);
 
-        this.document.set(Species.fieldNames.commonNamesLower, commonNamesToLower(commonNameObjects));
+        this.document.set(Species.fieldNames.commonNamesLower, commonNamesToLowerArray(commonNameObjects));
     }
 
     public get scientificName(): string {
@@ -78,7 +77,6 @@ export class Species extends GameObject {
         this.setField(Species.fieldNames.rarity, rarity);
     }
 
-    // Gets a simple array of this species' common names
     public get commonNames(): string[] {
         const commonNameObjects = this.commonNameObjects;
 
@@ -94,7 +92,6 @@ export class Species extends GameObject {
         return this.cards.length;
     }
 
-    // Gets the rarity table of this species' cards
     private get cardRarityTable(): Map<SpeciesCard, number> {
         const cardRarity = new Map<SpeciesCard, number>();
 
@@ -105,12 +102,10 @@ export class Species extends GameObject {
         return cardRarity;
     }
 
-    // Get a random card from the weighted rarity map of cards
     public getRandomCard(): SpeciesCard {
         return getWeightedRandom(this.cardRarityTable);
     }
 
-    // Determines and returns the index of a given card id within this species
     public indexOfCard(cardId: Types.ObjectId): number {
         return indexWhere(this.cards, card => card._id.equals(cardId));
     }
@@ -201,12 +196,11 @@ export interface CommonName extends CommonNameTemplate {
 }
 
 // Converts a set of common name objects to a list of lowercase common names
-export function commonNamesToLower(commonNames: CommonNameTemplate[]): string[] {
-    // The array that will contain lowercase forms of all the common names
+export function commonNamesToLowerArray(commonNames: CommonNameTemplate[]): string[] {
     const commonNamesLower: string[] = [];
-    // Add each name's lowercase form to the list
+
     commonNames.forEach(commonName => {
-        commonNamesLower.push((commonName["name"] as string).toLowerCase());
+        commonNamesLower.push((commonName.name).toLowerCase());
     });
 
     return commonNamesLower;

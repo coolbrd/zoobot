@@ -2,9 +2,9 @@ import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
 import GameObject from "../structures/GameObject";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import { Species, SpeciesCard } from "./Species";
 
-// An animal game object
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
 
@@ -17,7 +17,6 @@ export class Animal extends GameObject {
         experience: "experience"
     };
 
-    // The default template for creating a new animal document
     public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
         return new AnimalModel({
             [Animal.fieldNames.ownerId]: owner.user.id,
@@ -28,7 +27,6 @@ export class Animal extends GameObject {
         });
     }
 
-    // The object representations of this animal object's fields
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
 
@@ -64,17 +62,8 @@ export class Animal extends GameObject {
         this.setField(Animal.fieldNames.experience, experience);
     }
 
-    // Returns this animal's display name, preferring nickname over common name
-    public get name(): string {
-        return this.nickname || this.species.commonNames[0];
-    }
-
-    public get speciesLoaded(): boolean {
-        return Boolean(this._species);
-    }
-
-    public get cardLoaded(): boolean {
-        return Boolean(this._card);
+    public get displayName(): string {
+        return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
     }
 
     public get species(): Species {
@@ -93,9 +82,7 @@ export class Animal extends GameObject {
         return this._card;
     }
 
-    // Loads this animal's species
     private async loadSpecies(): Promise<void> {
-        // Get and assign the animal's species
         try {
             this._species = await beastiary.species.fetchExistingById(this.speciesId);
         }
@@ -104,20 +91,16 @@ export class Animal extends GameObject {
         }
     }
 
-    // Loads this animal's card object
     private loadCard(): void {
-        // Set the animal's card to the one that corresponds to this animal's card id
         this._card = this.species.cards.find(speciesCard => {
             return this.cardId.equals(speciesCard._id);
         });
 
-        // Make sure that an card was found from that search
         if (!this.card) {
             throw new Error("An animal's card couldn't be found in the card of its species.");
         }
     }
 
-    // Load all the animal's fields
     public async loadFields(): Promise<void> {
         try {
             await this.loadSpecies();

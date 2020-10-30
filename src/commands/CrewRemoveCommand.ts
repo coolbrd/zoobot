@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
-// Removes an animal from a player's crew
 export default class CrewRemoveCommand extends GuildCommand {
     public readonly commandNames = ["crewremove", "crr"];
 
@@ -63,7 +62,7 @@ export default class CrewRemoveCommand extends GuildCommand {
         });
 
         if (!animalInCrew) {
-            betterSend(parsedMessage.channel, `"${animal.name}" isn't in your crew, so it couldn't be removed.`);
+            betterSend(parsedMessage.channel, `"${animal.displayName}" isn't in your crew, so it couldn't be removed.`);
             return false;
         }
 
