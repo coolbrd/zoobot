@@ -34,7 +34,7 @@ export class Species extends GameObject {
     }
 
     public set scientificName(scientificName: string) {
-        this.setField(Species.fieldNames.scientificName, scientificName);
+        this.setDocumentField(Species.fieldNames.scientificName, scientificName);
     }
 
     public get cards(): SpeciesCard[] {
@@ -42,7 +42,7 @@ export class Species extends GameObject {
     }
 
     public setCards(cards: SpeciesCardTemplate[]): void {
-        this.setField(Species.fieldNames.cards, cards);
+        this.setDocumentField(Species.fieldNames.cards, cards);
     }
 
     public get description(): string {
@@ -50,7 +50,7 @@ export class Species extends GameObject {
     }
 
     public set description(description: string) {
-        this.setField(Species.fieldNames.description, description);
+        this.setDocumentField(Species.fieldNames.description, description);
     }
 
     public get naturalHabitat(): string {
@@ -58,7 +58,7 @@ export class Species extends GameObject {
     }
 
     public set naturalHabitat(naturalHabitat: string) {
-        this.setField(Species.fieldNames.naturalHabitat, naturalHabitat);
+        this.setDocumentField(Species.fieldNames.naturalHabitat, naturalHabitat);
     }
 
     public get wikiPage(): string {
@@ -66,7 +66,7 @@ export class Species extends GameObject {
     }
 
     public set wikiPage(wikiPage: string) {
-        this.setField(Species.fieldNames.wikiPage, wikiPage);
+        this.setDocumentField(Species.fieldNames.wikiPage, wikiPage);
     }
 
     public get rarity(): number {
@@ -74,7 +74,7 @@ export class Species extends GameObject {
     }
 
     public set rarity(rarity: number) {
-        this.setField(Species.fieldNames.rarity, rarity);
+        this.setDocumentField(Species.fieldNames.rarity, rarity);
     }
 
     public get commonNames(): string[] {

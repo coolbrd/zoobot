@@ -71,7 +71,7 @@ export class Player extends GameObject {
     }
 
     public set freeCapturesLeft(freeCapturesLeft: number) {
-        this.setField(Player.fieldNames.freeCapturesLeft, freeCapturesLeft);
+        this.setDocumentField(Player.fieldNames.freeCapturesLeft, freeCapturesLeft);
     }
 
     public get lastCaptureReset(): Date {
@@ -79,7 +79,7 @@ export class Player extends GameObject {
     }
 
     public set lastCaptureReset(lastCaptureReset: Date) {
-        this.setField(Player.fieldNames.lastCaptureReset, lastCaptureReset);
+        this.setDocumentField(Player.fieldNames.lastCaptureReset, lastCaptureReset);
     }
 
     public get totalCaptures(): number {
@@ -87,7 +87,7 @@ export class Player extends GameObject {
     }
 
     public set totalCaptures(totalCaptures: number) {
-        this.setField(Player.fieldNames.totalCaptures, totalCaptures);
+        this.setDocumentField(Player.fieldNames.totalCaptures, totalCaptures);
     }
 
     public get freeEncountersLeft(): number {
@@ -97,7 +97,7 @@ export class Player extends GameObject {
     }
 
     public set freeEncountersLeft(freeEncountersLeft: number) {
-        this.setField(Player.fieldNames.freeEncountersLeft, freeEncountersLeft);
+        this.setDocumentField(Player.fieldNames.freeEncountersLeft, freeEncountersLeft);
     }
 
     public get lastEncounterReset(): Date {
@@ -105,7 +105,7 @@ export class Player extends GameObject {
     }
 
     public set lastEncounterReset(lastEncounterReset: Date) {
-        this.setField(Player.fieldNames.lastEncounterReset, lastEncounterReset);
+        this.setDocumentField(Player.fieldNames.lastEncounterReset, lastEncounterReset);
     }
 
     public get totalEncounters(): number {
@@ -113,7 +113,7 @@ export class Player extends GameObject {
     }
 
     public set totalEncounters(totalEncounters: number) {
-        this.setField(Player.fieldNames.totalEncounters, totalEncounters);
+        this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
     public get hasCaptures(): boolean {

@@ -51,7 +51,7 @@ export class Animal extends GameObject {
     }
 
     public set nickname(nickname: string | undefined) {
-        this.setField(Animal.fieldNames.nickname, nickname);
+        this.setDocumentField(Animal.fieldNames.nickname, nickname);
     }
 
     public get experience(): number {
@@ -59,7 +59,7 @@ export class Animal extends GameObject {
     }
 
     public set experience(experience: number) {
-        this.setField(Animal.fieldNames.experience, experience);
+        this.setDocumentField(Animal.fieldNames.experience, experience);
     }
 
     public get displayName(): string {
