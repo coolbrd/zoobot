@@ -25,7 +25,7 @@ export default class AnimalInfoCommand extends GuildCommand {
         }
 
         // The string representing the animal to get the info of
-        const animalIdentifier = parsedMessage.arguments[0].text;
+        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
 
         // Search for an animal in the source guild by the given search argument, which can be a nickname or a position
         let animalObject: Animal | undefined;
@@ -33,7 +33,7 @@ export default class AnimalInfoCommand extends GuildCommand {
             animalObject = await beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.guild.id,
                 userId: parsedMessage.sender.id,
-                positionalList: "collection"
+                searchList: "collection"
             });
         }
         catch (error) {

@@ -1,9 +1,11 @@
 import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
+import { Animal } from "./Animal";
 
 export class Player extends GameObject {
     public readonly model = PlayerModel;
@@ -261,6 +263,33 @@ export class Player extends GameObject {
 
         this.freeEncountersLeft -= 1;
         this.totalEncounters += 1;
+    }
+
+    public async awardCrewExperience(experienceAmount: number): Promise<void> {
+        const crewAnimals: Animal[] = [];
+        try {
+            await new Promise(resolve => {
+                let completed = 0;
+                for (const currentCrewAnimalId of this.crewAnimalIds) {
+                    beastiary.animals.fetchById(currentCrewAnimalId).then(animal => {
+                        crewAnimals.push(animal);
+
+                        if (++completed >= this.crewAnimalIds.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error fetching a player's crew animal by its id: ${error}`);
+                    });
+                }
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error bulk fetching a player's crew animals: ${error}`);
+        }
+
+        for (const crewAnimal of crewAnimals) {
+            crewAnimal.experience += experienceAmount;
+        }
     }
 }
 

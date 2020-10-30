@@ -29,6 +29,10 @@ export class Species extends GameObject {
         this.document.set(Species.fieldNames.commonNamesLower, commonNamesToLowerArray(commonNameObjects));
     }
 
+    public get commonNamesLower(): string[] {
+        return this.document.get(Species.fieldNames.commonNamesLower);
+    }
+
     public get scientificName(): string {
         return this.document.get(Species.fieldNames.scientificName);
     }

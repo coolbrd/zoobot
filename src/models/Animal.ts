@@ -84,7 +84,7 @@ export class Animal extends GameObject {
 
     private async loadSpecies(): Promise<void> {
         try {
-            this._species = await beastiary.species.fetchExistingById(this.speciesId);
+            this._species = await beastiary.species.fetchById(this.speciesId);
         }
         catch (error) {
             throw new Error(`There was an error fetching a species by its id when loading an animal object: ${error}`);

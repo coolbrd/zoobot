@@ -23,14 +23,13 @@ export default class ViewCrewCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        // Get a specified player or the player of the command sender
         let player: Player;
         try {
-            player = await beastiary.players.fetchByCommand(parsedMessage, 0, true);
+            player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             if (handleUserError(parsedMessage.channel, error)) {
-                throw new Error(`There was an error converting a parsed command to a player: ${error}`);
+                throw error;
             }
             return;
         }

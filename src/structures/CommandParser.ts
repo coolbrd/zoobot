@@ -1,5 +1,6 @@
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
 import { client } from "..";
+import getGuildMember from "../discordUtility/getGuildMember";
 import { commandHandler } from "./CommandHandler";
 
 export interface Argument {
@@ -122,6 +123,8 @@ export class GuildCommandParser extends CommandParser {
     public readonly channel: TextChannel;
     public readonly guild: Guild;
 
+    public readonly member: GuildMember;
+
     constructor(message: Message, prefixUsed: string) {
         super(message, prefixUsed);
 
@@ -129,13 +132,15 @@ export class GuildCommandParser extends CommandParser {
             throw new Error("A message within a non-text channel was given to a guild command parser.");
         }
 
+        this.channel = message.channel;
+        this.guild = this.channel.guild;
+
+        this.member = getGuildMember(this.sender, this.guild);
+
         this.arguments.forEach(argument => {
             if (argument.user) {
                 argument.member = this.channel.guild.member(argument.user) || undefined;
             }
         });
-
-        this.channel = message.channel;
-        this.guild = this.channel.guild;
     }
 }

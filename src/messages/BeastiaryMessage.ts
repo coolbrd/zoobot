@@ -61,7 +61,7 @@ export default class BeastiaryMessage extends PagedMessage<LoadableSpecies> {
                 // Iterate over every potentially unloaded species on the page
                 this.visibleElements.forEach(loadableSpecies => {
                     // Fetch the species object of the current species
-                    beastiary.species.fetchExistingById(loadableSpecies.id).then(species => {
+                    beastiary.species.fetchById(loadableSpecies.id).then(species => {
                         // Assign the potentially loaded species the newly fetched species
                         loadableSpecies.species = species;
 

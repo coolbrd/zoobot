@@ -43,7 +43,7 @@ export default class CrewRemoveCommand extends GuildCommand {
                 guildId: parsedMessage.guild.id,
                 userId: parsedMessage.sender.id,
                 playerObject: player,
-                positionalList: "crew"
+                searchList: "crew"
             });
         }
         catch (error) {

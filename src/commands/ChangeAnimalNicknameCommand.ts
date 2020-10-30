@@ -38,7 +38,7 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: guildMember.guild.id,
                 userId: guildMember.user.id,
-                positionalList: "collection"
+                searchList: "collection"
             });
         }
         catch (error) {

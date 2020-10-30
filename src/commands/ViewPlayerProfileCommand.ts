@@ -1,8 +1,6 @@
 import { stripIndents } from "common-tags";
-import { GuildMember } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
-import getGuildMember from "../discordUtility/getGuildMember";
-import { betterSend } from "../discordUtility/messageMan";
+import handleUserError from "../discordUtility/handleUserError";
 import PlayerProfileMessage from "../messages/PlayerProfileMessage";
 import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
@@ -24,49 +22,24 @@ export default class ViewPlayerProfileCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        let targetGuildMember: GuildMember;
-        if (parsedMessage.arguments.length > 0) {
-            const playerArgument = parsedMessage.arguments[0];
-
-            if (!playerArgument.member) {
-                betterSend(parsedMessage.channel, "Could not find a user in this guild with that tag/id.");
-                return;
-            }
-            
-            let playerExists: boolean;
-            try {
-                playerExists = await beastiary.players.playerExists(playerArgument.member);
-            }
-            catch (error) {
-                throw new Error(`There was an error checking if a player exists in the player profile.`)
-            }
-
-            if (!playerExists) {
-                betterSend(parsedMessage.channel, "That user doesn't have a profile in The Beastiary yet. Tell them to catch some animals!");
-                return;
-            }
-
-            targetGuildMember = playerArgument.member;
-        }
-        else {
-            targetGuildMember = getGuildMember(parsedMessage.sender, parsedMessage.channel);
-        }
-
         let player: Player;
         try {
-            player = await beastiary.players.fetch(targetGuildMember);
+            player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in the player profile command: ${error}`);
+            if (handleUserError(parsedMessage.channel, error)) {
+                throw error;
+            }
+            return;
         }
 
-        const profileMessage = new PlayerProfileMessage(parsedMessage.channel, player);
+        const playerProfileMessage = new PlayerProfileMessage(parsedMessage.channel, player);
 
         try {
-            await profileMessage.send();
+            await playerProfileMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a player profile message: ${error}`);
+            throw new Error(`There was an error sending a profile message: ${error}`);
         }
     }
 }

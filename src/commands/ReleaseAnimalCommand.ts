@@ -34,7 +34,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.channel.guild.id,
                 userId: parsedMessage.originalMessage.author.id,
-                positionalList: "collection"
+                searchList: "collection"
             });
         }
         catch (error) {
