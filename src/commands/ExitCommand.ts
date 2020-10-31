@@ -1,4 +1,4 @@
-import { client, exit } from "..";
+import { exit } from "..";
 import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
@@ -19,8 +19,6 @@ export default class ExitCommand extends Command {
 
     public async run(_parsedMessage: CommandParser): Promise<boolean> {
         console.log("Exiting...");
-
-        client.destroy()
 
         try {
             await exit();
