@@ -38,6 +38,16 @@ class EncounterHandler {
         return new Date(this.lastEncounterReset.valueOf() + gameConfig.encounterPeriod);
     }
 
+    public getTotalRarityWeight(): number {
+        let totalRarityWeight = 0;
+
+        for (const currentRarityWeight of this.rarityMap.values()) {
+            totalRarityWeight += currentRarityWeight;
+        }
+
+        return totalRarityWeight;
+    }
+
     public async loadRarityTable(): Promise<void> {
         let rarityList: Document[];
         try {
