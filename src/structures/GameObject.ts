@@ -1,4 +1,5 @@
 import { Document, Model, Types } from "mongoose";
+import gameConfig from "../config/gameConfig";
 
 export default abstract class GameObject {
     // The model in which the game object's representative documents are found
@@ -12,7 +13,7 @@ export default abstract class GameObject {
 
     private modifiedSinceLastSave = false;
     private saveTimer: NodeJS.Timeout | undefined;
-    private saveDelay = 10000;
+    private saveDelay = gameConfig.gameObjectSaveDelay;
 
     constructor(document: Document) {
         this.document = document;

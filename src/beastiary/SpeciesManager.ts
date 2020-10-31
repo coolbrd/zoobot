@@ -1,11 +1,12 @@
 import { Document } from "mongoose";
+import gameConfig from "../config/gameConfig";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
 
-    protected readonly cacheObjectTimeout = 600000;
+    protected readonly cacheObjectTimeout = gameConfig.speciesCacheTimeout;
 
     protected documentToGameObject(document: Document): Species {
         return new Species(document);

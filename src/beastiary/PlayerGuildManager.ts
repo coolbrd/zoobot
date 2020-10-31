@@ -1,11 +1,12 @@
 import { Document } from "mongoose";
+import gameConfig from "../config/gameConfig";
 import { GuildModel, PlayerGuild } from "../models/Guild";
 import GameObjectCache from "../structures/GameObjectCache";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
 
-    protected readonly cacheObjectTimeout = 300000;
+    protected readonly cacheObjectTimeout = gameConfig.playerGuildCacheTimeout;
 
     protected documentToGameObject(document: Document): PlayerGuild {
         return new PlayerGuild(document);

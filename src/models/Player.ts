@@ -2,6 +2,7 @@ import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
+import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
@@ -269,7 +270,7 @@ export class Player extends GameObject {
 
     private applyCaptureReset(): void {
         if (this.hasCaptureReset) {
-            this.freeCapturesLeft = 1;
+            this.freeCapturesLeft = gameConfig.freeCapturesPerPeriod;
             this.lastCaptureReset = new Date();
         }
     }
@@ -301,7 +302,7 @@ export class Player extends GameObject {
 
     private applyEncounterReset(): void {
         if (this.hasEncounterReset) {
-            this.freeEncountersLeft = 5;
+            this.freeEncountersLeft = gameConfig.freeEncountersPerPeriod;
             this.lastEncounterReset = new Date();
         }
     }
@@ -413,5 +414,4 @@ const playerSchema = new Schema({
         required: true
     }
 });
-
 export const PlayerModel = mongoose.model("Player", playerSchema);

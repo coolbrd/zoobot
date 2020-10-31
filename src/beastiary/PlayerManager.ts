@@ -1,6 +1,6 @@
 import { Guild, GuildMember, Message } from "discord.js";
 import { Document } from "mongoose";
-import config from "../config/BotConfig";
+import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { PlayerModel, Player } from "../models/Player";
 import { GuildCommandParser } from "../structures/CommandParser";
@@ -11,7 +11,7 @@ import { beastiary } from "./Beastiary";
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
 
-    protected readonly cacheObjectTimeout = 300000;
+    protected readonly cacheObjectTimeout = gameConfig.playerCacheTimeout;
 
     private readonly playerUserIds = new Set<string>();
 
@@ -191,7 +191,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
 
         try {
-            await player.awardCrewExperience(config.experiencePerMessage);
+            await player.awardCrewExperience(gameConfig.experiencePerMessage);
         }
         catch (error) {
             throw new Error(`There was an error awarding a player's crew of animals some experience after a message was sent.`);

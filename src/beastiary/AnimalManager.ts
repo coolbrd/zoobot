@@ -1,5 +1,6 @@
 import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
+import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel, Animal } from "../models/Animal";
 import { Player } from "../models/Player";
@@ -10,7 +11,7 @@ import { beastiary } from "./Beastiary";
 export default class AnimalManager extends GameObjectCache<Animal> {
     protected readonly model = AnimalModel;
 
-    protected readonly cacheObjectTimeout = 300000;
+    protected readonly cacheObjectTimeout = gameConfig.animalCacheTimeout;
 
     protected documentToGameObject(document: Document): Animal {
         return new Animal(document);
