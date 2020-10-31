@@ -31,6 +31,7 @@ import ViewCrewCommand from "../commands/ViewCrewCommand";
 import CrewRemoveCommand from "../commands/CrewRemoveCommand";
 import { ADMIN_SERVER_ID } from "../config/secrets";
 import ViewScrapsCommand from "../commands/ViewScrapsCommand";
+import FavoriteAnimalCommand from "../commands/FavoriteAnimalCommand";
 
 class CommandHandler {
     public readonly commands: Command[];
@@ -51,6 +52,7 @@ class CommandHandler {
             CrewAddCommand,
             CrewRemoveCommand,
             ViewCrewCommand,
+            FavoriteAnimalCommand,
             MoveAnimalsCommand,
             ReleaseAnimalCommand,
             ChangeGuildPrefixCommand,
