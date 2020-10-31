@@ -18,9 +18,11 @@ export class Player extends GameObject {
         collectionSizeLimit: "collectionSizeLimit",
         crewAnimalIds: "crewAnimalIds",
         freeCapturesLeft: "freeCapturesLeft",
+        extraCapturesLeft: "extraCapturesLeft",
         lastCaptureReset: "lastCaptureReset",
         totalCaptures: "totalCaptures",
         freeEncountersLeft: "freeEncountersLeft",
+        extraEncountersLeft: "extraEncountersLeft",
         lastEncounterReset: "lastEncounterReset",
         totalEncounters: "totalEncounters"
     };
@@ -32,9 +34,11 @@ export class Player extends GameObject {
             [Player.fieldNames.scraps]: 0,
             [Player.fieldNames.collectionSizeLimit]: 5,
             [Player.fieldNames.freeCapturesLeft]: 0,
+            [Player.fieldNames.extraCapturesLeft]: 0,
             [Player.fieldNames.lastCaptureReset]: new Date(0),
             [Player.fieldNames.totalCaptures]: 0,
             [Player.fieldNames.freeEncountersLeft]: 0,
+            [Player.fieldNames.extraEncountersLeft]: 0,
             [Player.fieldNames.lastEncounterReset]: new Date(0),
             [Player.fieldNames.totalEncounters]: 0
         });
@@ -86,6 +90,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.freeCapturesLeft, freeCapturesLeft);
     }
 
+    public get extraCapturesLeft(): number {
+        return this.document.get(Player.fieldNames.extraCapturesLeft);
+    }
+
+    public set extraCapturesLeft(extraCapturesLeft: number) {
+        this.setDocumentField(Player.fieldNames.extraCapturesLeft, extraCapturesLeft);
+    }
+
     public get lastCaptureReset(): Date {
         return this.document.get(Player.fieldNames.lastCaptureReset);
     }
@@ -112,6 +124,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.freeEncountersLeft, freeEncountersLeft);
     }
 
+    public get extraEncountersLeft(): number {
+        return this.document.get(Player.fieldNames.extraEncountersLeft);
+    }
+
+    public set extraEncountersLeft(extraEncountersLeft: number) {
+        this.setDocumentField(Player.fieldNames.extraEncountersLeft, extraEncountersLeft);
+    }
+
     public get lastEncounterReset(): Date {
         return this.document.get(Player.fieldNames.lastEncounterReset);
     }
@@ -128,8 +148,12 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
+    public get capturesLeft(): number {
+        return this.freeCapturesLeft + this.extraCapturesLeft;
+    }
+
     public get hasCaptures(): boolean {
-        return this.freeCapturesLeft > 0;
+        return this.capturesLeft > 0;
     }
 
     public get collectionFull(): boolean {
@@ -144,8 +168,12 @@ export class Player extends GameObject {
         return this.hasCaptures && !this.collectionFull;
     }
 
+    public get encountersLeft(): number {
+        return this.freeEncountersLeft + this.extraEncountersLeft;
+    }
+
     public get hasEncounters(): boolean {
-        return this.freeEncountersLeft > 0;
+        return this.encountersLeft > 0;
     }
 
     public get hasEncounterReset(): boolean {
@@ -246,6 +274,18 @@ export class Player extends GameObject {
         }
     }
 
+    public decrementCapturesLeft(): void {
+        if (this.freeCapturesLeft > 0) {
+            this.freeCapturesLeft -= 1;
+        }
+        else if (this.extraCapturesLeft > 0) {
+            this.extraCapturesLeft -= 1;
+        }
+        else {
+            throw new Error("A player's captures were decremented when the player had none left.");
+        }
+    }
+
     public captureAnimal(): void {
         if (!this.hasCaptures) {
             throw new Error("A player's capture stats were updated as if they captured an animal without any remaining captures.");
@@ -255,7 +295,7 @@ export class Player extends GameObject {
             throw new Error("A player's capture stats were updated as if they captured an animal when their collection was full. ");
         }
 
-        this.freeCapturesLeft -= 1;
+        this.decrementCapturesLeft();
         this.totalCaptures += 1;
     }
 
@@ -266,12 +306,24 @@ export class Player extends GameObject {
         }
     }
 
+    public decrementEncountersLeft(): void {
+        if (this.freeEncountersLeft > 0) {
+            this.freeEncountersLeft -= 1;
+        }
+        else if (this.extraEncountersLeft > 0) {
+            this.extraEncountersLeft -= 1;
+        }
+        else {
+            throw new Error("A player's encounters were decremented when the player had none left.");
+        }
+    }
+
     public encounterAnimal(): void {
         if (!this.hasEncounters) {
             throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");
         }
 
-        this.freeEncountersLeft -= 1;
+        this.decrementEncountersLeft();
         this.totalEncounters += 1;
     }
 
@@ -332,6 +384,10 @@ const playerSchema = new Schema({
         type: Number,
         required: true
     },
+    [Player.fieldNames.extraCapturesLeft]: {
+        type: Number,
+        required: true
+    },
     [Player.fieldNames.lastCaptureReset]: {
         type: Schema.Types.Date,
         required: true
@@ -341,6 +397,10 @@ const playerSchema = new Schema({
         required: true
     },
     [Player.fieldNames.freeEncountersLeft]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.extraEncountersLeft]: {
         type: Number,
         required: true
     },

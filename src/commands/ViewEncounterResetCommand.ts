@@ -16,11 +16,10 @@ export default class ViewEncounterResetCommand extends GuildCommand {
     public readonly section = CommandSection.playerInfo;
 
     public help(displayPrefix: string): string {
-        return `Use ${displayPrefix}${this.commandNames[0]} to view the time until the next encounter reset, alongside the number of free encounters you have left.`;
+        return `Use ${displayPrefix}${this.commandNames[0]} to view the time until the next encounter reset, alongside the number of encounters you have left.`;
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        // Get the player that initiated this command
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.guild));
@@ -29,9 +28,9 @@ export default class ViewEncounterResetCommand extends GuildCommand {
             throw new Error(`There was an error fetching a player from the cache in the encounter reset command: ${error}`);
         }
         
-        // Format and send an informational message
-        let messageString = `You have **${player.freeEncountersLeft}** encounter${player.freeEncountersLeft === 1 ? "" : "s"} left.\n\n`;
+        let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
 
+        messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n\n`
         messageString += `Next encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`;
 
         betterSend(parsedMessage.channel, messageString);

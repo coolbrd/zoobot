@@ -20,26 +20,18 @@ export default class ViewCaptureResetCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        // Get the player that initiated this command
         let player: Player;
         try {
             player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.guild));
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player from the cache in the capture reset command: ${error}`);
+            throw new Error(`There was an error fetching a player from the cache in the encounter reset command: ${error}`);
         }
+        
+        let messageString = `You have **${player.capturesLeft}** captures${player.capturesLeft === 1 ? "" : "s"} left`;
 
-        // Format and send an informational message
-        let messageString: string;
-        if (player.freeCapturesLeft > 0) {
-            messageString = "You can capture right now.";
-        }
-        else {
-            messageString = "You can't capture right now.";
-        }
-        messageString += "\n\n";
-
-        messageString += `Next capture reset: **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`;
+        messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n\n`
+        messageString += `Next capture reset reset: **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`;
 
         betterSend(parsedMessage.channel, messageString);
     }
