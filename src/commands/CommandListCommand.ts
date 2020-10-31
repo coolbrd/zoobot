@@ -68,7 +68,7 @@ export default class CommandListCommand extends Command {
         embed.addField("Animal management", animalManagementString, true);
         embed.addField("Server management", guildManagementString, true);
         embed.addField("Get involved!", getInvolvedString, true);
-        embed.setFooter(`Prefix commands with "${commandHandler.getGuildPrefix(parsedMessage.originalMessage.guild)}", or by pinging me!`);
+        embed.setFooter(`Prefix commands with "${commandHandler.getDisplayPrefixByMessage(parsedMessage.originalMessage)}", or by pinging me!`);
         embed.setColor(0x18476b);
         
         betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: embed }));

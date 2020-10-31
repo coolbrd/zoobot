@@ -25,7 +25,7 @@ export default class CommandAliasesCommand extends Command {
         }
 
         // Try to find a command by the given search term
-        const command = commandHandler.getCommand(commandName.toLowerCase(), parsedMessage.originalMessage);
+        const command = commandHandler.getCommand(commandName.toLowerCase());
 
         // If no command by that name exists
         if (!command) {

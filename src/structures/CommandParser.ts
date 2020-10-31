@@ -34,7 +34,7 @@ export default class CommandParser {
     constructor(message: Message, prefixUsed: string) {
         // Set prefixes
         this.commandPrefix = prefixUsed;
-        this.displayPrefix = commandHandler.getGuildPrefix(message.guild);
+        this.displayPrefix = commandHandler.getDisplayPrefixByMessage(message);
         
         // Remove the message's prefix
         const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();

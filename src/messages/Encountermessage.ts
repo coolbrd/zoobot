@@ -71,7 +71,7 @@ export default class EncounterMessage extends InteractiveMessage {
         if (!player.canCapture) {
             if (!this.warnedUserIds.includes(user.id)) {
                 if (player.collectionAnimalIds.length >= player.collectionSizeLimit) {
-                    betterSend(this.channel, `${user}, your collection is full! Either release some animals with \`${commandHandler.getGuildPrefix(this.channel.guild)}release\`, or upgrade your collection size.`);
+                    betterSend(this.channel, `${user}, your collection is full! Either release some animals with \`${commandHandler.getDisplayPrefixByMessage(this.message)}release\`, or upgrade your collection size.`);
                 }
                 else {
                     betterSend(this.channel, `${user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);

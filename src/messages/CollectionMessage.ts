@@ -38,7 +38,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
         // Don't try anything crazy if the user's collection is empty
         if (collection.length < 1) {
-            embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getGuildPrefix(this.channel.guild)}encounter\`!`);
+            embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getDisplayPrefixByMessage(this.message)}encounter\`!`);
             return embed;
         }
 
