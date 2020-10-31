@@ -130,7 +130,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             }
 
             if (!existingPlayer) {
-                throw new UserError("That user hasn't done anything in The Beastiary yet, so they don't have a collection to show. Tell them to catch some animals!");
+                throw new UserError("That user hasn't done anything in The Beastiary yet, so they don't have any information to show. Tell them to catch some animals!");
             }
 
             player = existingPlayer;
