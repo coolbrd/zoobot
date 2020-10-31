@@ -11,7 +11,7 @@ export default class AnimalInfoCommand extends GuildCommand {
 
     public readonly info = "View the stats, info, and card of a captured animal";
 
-    public readonly section = CommandSection.info;
+    public readonly section = CommandSection.gettingStarted;
 
     public help(prefix: string): string {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` to view information about that animal.`;

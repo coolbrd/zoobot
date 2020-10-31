@@ -11,7 +11,7 @@ export default class SpeciesInfoCommand extends Command {
 
     public readonly info = "View a species' information and collectible cards";
 
-    public readonly section = CommandSection.info;
+    public readonly section = CommandSection.gettingStarted;
 
     public help(commandPrefix: string): string {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;

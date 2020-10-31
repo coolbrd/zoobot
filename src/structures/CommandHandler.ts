@@ -39,9 +39,9 @@ class CommandHandler {
     constructor() {
         const commandClasses = [
             HelpCommand,
+            EncounterCommand,
             BeastiaryCommand,
             SpeciesInfoCommand,
-            EncounterCommand,
             ViewCollectionCommand,
             ViewPlayerProfileCommand,
             AnimalInfoCommand,
