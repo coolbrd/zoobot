@@ -29,6 +29,7 @@ import ViewPlayerProfileCommand from "../commands/ViewPlayerProfileCommand";
 import CrewAddCommand from "../commands/CrewAddCommand";
 import ViewCrewCommand from "../commands/ViewCrewCommand";
 import CrewRemoveCommand from "../commands/CrewRemoveCommand";
+import { ADMIN_SERVER_ID } from "../config/secrets";
 
 class CommandHandler {
     public readonly commands: Command[];
@@ -68,10 +69,21 @@ class CommandHandler {
         return `<@!${(client.user as User).id}>`;
     }
 
-    public getCommand(commandName: string): Command | undefined {
-        return this.commands.find(command => {
+    public getCommand(commandName: string, message: Message): Command | undefined {
+        const matchedCommand = this.commands.find(command => {
             return command.commandNames.includes(commandName);
         });
+
+        if (matchedCommand) {
+            if (matchedCommand.adminOnly) {
+                if (message.guild && message.guild.id === ADMIN_SERVER_ID) {
+                    return matchedCommand;
+                }
+                return;
+            }
+        }
+
+        return matchedCommand;
     }
 
     public async handleMessage(message: Message): Promise<void> {
@@ -102,7 +114,7 @@ class CommandHandler {
                 return;
             }
 
-            const matchedCommand = this.getCommand(parsedMessage.commandName);
+            const matchedCommand = this.getCommand(parsedMessage.commandName, parsedMessage.originalMessage);
 
             if (!matchedCommand) {
                 betterSend(parsedMessage.channel, `I don't recognize that command. Try \`${displayPrefix}help\`.`);
