@@ -8,6 +8,8 @@ import { Species, SpeciesCard } from "./Species";
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
 
+    private readonly randomValue = 100;
+
     public static readonly fieldNames = {
         ownerId: "ownerId",
         guildId: "guildId",
@@ -80,6 +82,10 @@ export class Animal extends GameObject {
         }
 
         return this._card;
+    }
+
+    public get value(): number {
+        return this.randomValue;
     }
 
     private async loadSpecies(): Promise<void> {

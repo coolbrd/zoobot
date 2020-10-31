@@ -38,6 +38,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
         embed.setDescription(stripIndents`
+            Scraps: **${this.player.scraps}**
             Collection size: **${this.player.collectionAnimalIds.length}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**

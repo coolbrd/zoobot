@@ -76,15 +76,11 @@ export default class ReleaseAnimalCommand extends GuildCommand {
 
         if (message && message.content.toLowerCase() === "yes") {
             try {
-                await beastiary.animals.deleteAnimal(animal.id);
+                await beastiary.animals.releaseAnimal(animal.id);
             }
             catch (error) {
                 throw new Error(`There was an error deleting an animal in the release command: ${error}`);
             }
-
-            message.react("✅").catch(error => {
-                errorHandler.handleError(error, "There was an error attempting to react to a message in the animal nickname command.");
-            });
 
             releaseEmbed.setDescription("Release confirmed.");
             releaseEmbed.setFooter("");
@@ -94,6 +90,8 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             catch (error) {
                 throw new Error(`There was an error editing a release confirmation message: ${error}`);
             }
+
+            betterSend(parsedMessage.channel, `${animal.displayName} was released. +**${animal.value}** scraps.`);
         }
         // If the user didn't respond, or responded with anything other than yes
         else {

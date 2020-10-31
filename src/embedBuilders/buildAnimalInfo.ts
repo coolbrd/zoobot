@@ -12,6 +12,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
     animal.card.special && embed.addField("Special", capitalizeFirstLetter(animal.card.special), true);
     
     embed.addField("Experience", animal.experience);
+    embed.addField("Value", animal.value, true)
 
     animal.nickname && embed.setDescription(capitalizeFirstLetter(animal.species.commonNames[0]));
 }

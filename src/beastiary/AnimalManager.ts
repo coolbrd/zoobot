@@ -103,7 +103,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         owner.addAnimalIdToCollection(animal.id);
     }
 
-    public async deleteAnimal(animalId: Types.ObjectId): Promise<void> {
+    public async releaseAnimal(animalId: Types.ObjectId): Promise<void> {
         let animal: Animal;
         try {
             animal = await this.fetchById(animalId);
@@ -122,6 +122,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
 
         owner.removeAnimalIdFromCollection(animal.id);
         owner.removeAnimalIdFromCrew(animal.id);
+
+        owner.scraps += animal.value;
 
         try {
             await this.removeFromCache(animal.id);

@@ -13,6 +13,7 @@ export class Player extends GameObject {
     public static readonly fieldNames = {
         userId: "userId",
         guildId: "guildId",
+        scraps: "scraps",
         collectionAnimalIds: "collectionAnimalIds",
         collectionSizeLimit: "collectionSizeLimit",
         crewAnimalIds: "crewAnimalIds",
@@ -28,6 +29,7 @@ export class Player extends GameObject {
         return new PlayerModel({
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
+            [Player.fieldNames.scraps]: 0,
             [Player.fieldNames.collectionSizeLimit]: 5,
             [Player.fieldNames.freeCapturesLeft]: 0,
             [Player.fieldNames.lastCaptureReset]: new Date(0),
@@ -52,6 +54,14 @@ export class Player extends GameObject {
 
     public get guildId(): string {
         return this.document.get(Player.fieldNames.guildId);
+    }
+
+    public get scraps(): number {
+        return this.document.get(Player.fieldNames.scraps);
+    }
+
+    public set scraps(scraps: number) {
+        this.setDocumentField(Player.fieldNames.scraps, scraps);
     }
 
     public get collectionAnimalIds(): Types.ObjectId[] {
@@ -300,6 +310,10 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.guildId]: {
         type: String,
+        required: true
+    },
+    [Player.fieldNames.scraps]: {
+        type: Number,
         required: true
     },
     [Player.fieldNames.collectionAnimalIds]: {
