@@ -6,12 +6,11 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Animal } from "../models/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
-import { errorHandler } from "../structures/ErrorHandler";
 
 export default class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
 
-    public readonly info = "Release an animal from your collection";
+    public readonly info = "Release an animal from your collection in exchange for some scraps";
 
     public readonly section = CommandSection.animalManagement;
 
