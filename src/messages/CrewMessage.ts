@@ -37,7 +37,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
 
         // Don't try anything crazy if the user's crew is empty
         if (crew.length < 1) {
-            embed.setDescription(`It's empty in here. Add animals to your crew with \`${commandHandler.getDisplayPrefixByMessage(this.message)}crewadd\`!`);
+            embed.setDescription(`It's empty in here. Add animals to your crew with \`${commandHandler.getPrefixByGuild(this.channel.guild)}crewadd\`!`);
             return embed;
         }
 
