@@ -123,7 +123,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         owner.removeAnimalIdFromCollection(animal.id);
         owner.removeAnimalIdFromCrew(animal.id);
 
-        owner.scraps += animal.value;
+        owner.scraps += animal.baseValue;
 
         try {
             await this.removeFromCache(animal.id);

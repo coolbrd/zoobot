@@ -10,18 +10,18 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
         embed.setDescription(capitalizeFirstLetter(animal.species.commonNames[0]));
     }
 
-    embed.addField("Species", capitalizeFirstLetter(animal.species.scientificName));
+    embed.addField("Species", capitalizeFirstLetter(animal.species.scientificName), true);
     
     embed.addField("Card", `${animal.species.indexOfCard(animal.card._id) + 1}/${animal.species.cards.length}`, true);
 
     if (animal.card.breed) {
-        embed.addField("Breed", capitalizeFirstLetter(animal.card.breed), true);
+        embed.addField("Breed", capitalizeFirstLetter(animal.card.breed));
     }
 
     if (animal.card.special) {
-        embed.addField("Special", capitalizeFirstLetter(animal.card.special), true);
+        embed.addField("Special", capitalizeFirstLetter(animal.card.special));
     }
     
-    embed.addField("Experience", animal.experience, true);
-    embed.addField("Value", animal.value, true);
+    embed.addField("Experience", animal.experience);
+    embed.addField("Value", animal.baseValue);
 }

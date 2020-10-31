@@ -84,6 +84,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
 
             releaseEmbed.setDescription("Release confirmed.");
             releaseEmbed.setFooter("");
+
             try {
                 await confirmMessage.edit(releaseEmbed);
             }
@@ -91,7 +92,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(`There was an error editing a release confirmation message: ${error}`);
             }
 
-            betterSend(parsedMessage.channel, `${animal.displayName} was released. +**${animal.value}** scraps.`);
+            betterSend(parsedMessage.channel, `${animal.displayName} was released. **+${animal.baseValue}** scraps.`);
         }
         // If the user didn't respond, or responded with anything other than yes
         else {

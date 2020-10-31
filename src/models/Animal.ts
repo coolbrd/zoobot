@@ -8,15 +8,14 @@ import { Species, SpeciesCard } from "./Species";
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
 
-    private readonly randomValue = 100;
-
     public static readonly fieldNames = {
         ownerId: "ownerId",
         guildId: "guildId",
         speciesId: "speciesId",
         cardId: "cardId",
         nickname: "nickname",
-        experience: "experience"
+        experience: "experience",
+        baseValue: "baseValue"
     };
 
     public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
@@ -25,7 +24,8 @@ export class Animal extends GameObject {
             [Animal.fieldNames.guildId]: owner.guild.id,
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
-            [Animal.fieldNames.experience]: 0
+            [Animal.fieldNames.experience]: 0,
+            [Animal.fieldNames.baseValue]: 10
         });
     }
 
@@ -64,6 +64,14 @@ export class Animal extends GameObject {
         this.setDocumentField(Animal.fieldNames.experience, experience);
     }
 
+    public get baseValue(): number {
+        return this.document.get(Animal.fieldNames.baseValue);
+    }
+
+    public set baseValue(value: number) {
+        this.setDocumentField(Animal.fieldNames.baseValue, value);
+    }
+
     public get displayName(): string {
         return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
     }
@@ -82,10 +90,6 @@ export class Animal extends GameObject {
         }
 
         return this._card;
-    }
-
-    public get value(): number {
-        return this.randomValue;
     }
 
     private async loadSpecies(): Promise<void> {
@@ -142,6 +146,10 @@ const animalSchema = new Schema({
         required: false
     },
     [Animal.fieldNames.experience]: {
+        type: Number,
+        required: true
+    },
+    [Animal.fieldNames.baseValue]: {
         type: Number,
         required: true
     }
