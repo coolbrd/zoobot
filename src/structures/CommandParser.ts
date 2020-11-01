@@ -21,7 +21,11 @@ export default class CommandParser {
     public readonly channel: TextChannel | DMChannel;
     public readonly sender: User;
 
+    public readonly inGuild: boolean;
+
     constructor(message: Message, prefixUsed: string) {
+        this.inGuild = Boolean(message.guild);
+
         this.commandPrefix = prefixUsed;
         this.displayPrefix = commandHandler.getDisplayPrefixByMessage(message);
         
@@ -82,6 +86,8 @@ export default class CommandParser {
 }
 
 export class GuildCommandParser extends CommandParser {
+    public readonly inGuild = true;
+
     public readonly channel: TextChannel;
     public readonly guild: Guild;
 

@@ -103,15 +103,13 @@ class CommandHandler {
         const messagePrefix = this.getMessagePrefixUsed(message);
 
         if (messagePrefix) {
-            const inGuild = Boolean(message.guild);
+            const sendInGuild = Boolean(message.guild);
 
             let parsedMessage: CommandParser | GuildCommandParser;
-            if (inGuild) {
+            if (sendInGuild)
                 parsedMessage = new GuildCommandParser(message, messagePrefix);
-            }
-            else {
+            else
                 parsedMessage = new CommandParser(message, messagePrefix);
-            }
 
             const displayPrefix = this.getDisplayPrefixByMessage(message);
 
@@ -127,7 +125,7 @@ class CommandHandler {
                 return;
             }
             else {
-                if (!inGuild && matchedCommand.guildOnly) {
+                if (!parsedMessage.inGuild && matchedCommand.guildOnly) {
                     betterSend(parsedMessage.channel, "That command can only be used in servers.");
                     return;
                 }
@@ -153,7 +151,7 @@ class CommandHandler {
                     this.unsetUserLoadingCommand(message.author.id);
                 }
 
-                if (matchedCommand.reactConfirm && commandSuccessful) {
+                if (commandSuccessful && matchedCommand.reactConfirm) {
                     parsedMessage.originalMessage.react("✅").catch(error => {
                         errorHandler.handleError(error, "There was an error attempting to react to a message after a command was completed.");
                     });
