@@ -89,6 +89,8 @@ export default abstract class GameObject {
 
     // This should only be called after the game object has been properly removed from the game
     public async delete(): Promise<void> {
+        this.stopSaveTimer();
+
         try {
             await this.document.deleteOne();
         }
