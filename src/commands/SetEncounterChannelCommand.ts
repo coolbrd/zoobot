@@ -7,7 +7,7 @@ import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
 export default class SetEncounterChannelCommand extends GuildCommand {
-    public readonly commandNames = ["encounterchannel"];
+    public readonly commandNames = ["setencounterchannel"];
 
     public readonly info = "Sets the channel that random encounters will appear in";
 
