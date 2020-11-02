@@ -33,6 +33,7 @@ import { ADMIN_SERVER_ID } from "../config/secrets";
 import ViewScrapsCommand from "../commands/ViewScrapsCommand";
 import FavoriteAnimalCommand from "../commands/FavoriteAnimalCommand";
 import SpeciesRarityCommand from '../commands/SpeciesRarityCommand';
+import SetEncounterChannelCommand from "../commands/SetEncounterChannelCommand";
 
 class CommandHandler {
     public readonly commands: Command[];
@@ -56,6 +57,7 @@ class CommandHandler {
             FavoriteAnimalCommand,
             MoveAnimalsCommand,
             ReleaseAnimalCommand,
+            SetEncounterChannelCommand,
             ChangeGuildPrefixCommand,
             ViewEncounterResetCommand,
             ViewCaptureResetCommand,
