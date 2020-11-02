@@ -7,7 +7,7 @@ export default class BeastiaryCommand extends Command {
 
     public readonly info = "View the list of all species available in The Beastiary";
 
-    public readonly section = CommandSection.info;
+    public readonly section = CommandSection.gettingStarted;
 
     public help(displayPrefix: string): string {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view a list of every collectible species.`;
