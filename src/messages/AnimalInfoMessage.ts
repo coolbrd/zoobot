@@ -68,7 +68,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    public buttonPress(_buttonName: string, _user: User): void {
+    protected buttonPress(_buttonName: string, _user: User): void {
         this.cardMode = !this.cardMode;
     }
 }

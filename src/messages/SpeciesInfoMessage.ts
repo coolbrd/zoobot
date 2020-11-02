@@ -59,7 +59,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    public buttonPress(buttonName: string, user: User): void {
+    protected buttonPress(buttonName: string, user: User): void {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
