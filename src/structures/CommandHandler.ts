@@ -21,8 +21,7 @@ import BeastiaryCommand from "../commands/BeastiaryCommand";
 import config from "../config/BotConfig";
 import CommandListCommand from "../commands/CommandListCommand";
 import CommandAliasesCommand from "../commands/CommandAliasesCommand";
-import ViewCaptureResetCommand from "../commands/ViewCaptureResetCommand";
-import ViewEncounterResetCommand from "../commands/ViewEncounterResetCommand";
+import ViewResetsCommand from "../commands/ViewResetsCommand";
 import ReleaseAnimalCommand from "../commands/ReleaseAnimalCommand";
 import ExitCommand from "../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../commands/ViewPlayerProfileCommand";
@@ -59,8 +58,7 @@ class CommandHandler {
             ReleaseAnimalCommand,
             SetEncounterChannelCommand,
             ChangeGuildPrefixCommand,
-            ViewEncounterResetCommand,
-            ViewCaptureResetCommand,
+            ViewResetsCommand,
             CommandAliasesCommand,
             CommandListCommand,
             EditSpeciesCommand,
