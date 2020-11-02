@@ -13,6 +13,6 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
 
     embed.addField("Description", species.description);
     embed.addField("Habitat", species.naturalHabitat);
-    embed.addField("Rarity", capitalizeFirstLetter(speciesRarity.text));
-    embed.addField("More info", species.wikiPage);
+    embed.addField("Rarity", `T${speciesRarity.tier}`, true);
+    embed.addField("More info", species.wikiPage, true);
 }
