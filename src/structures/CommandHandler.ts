@@ -9,7 +9,7 @@ import SpeciesInfoCommand from "../commands/SpeciesInfoCommand";
 import EncounterCommand from "../commands/EncounterCommand";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeGuildPrefixCommand from "../commands/ChangeGuildPrefixCommand";
-import { GuildModel, PlayerGuild } from "../models/Guild";
+import { GuildModel, PlayerGuild } from "../models/PlayerGuild";
 import { client } from "..";
 import HelpCommand from "../commands/HelpCommand";
 import MoveAnimalsCommand from "../commands/MoveAnimalsCommand";
@@ -220,7 +220,7 @@ class CommandHandler {
         for (const guildDocument of guildDocuments) {
             this.guildPrefixes.set(
                 guildDocument.get(PlayerGuild.fieldNames.guildId),
-                guildDocument.get(PlayerGuild.fieldNames.config).prefix
+                guildDocument.get(PlayerGuild.fieldNames.prefix)
             );
         }
     }

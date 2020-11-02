@@ -1,6 +1,8 @@
+import { Guild } from "discord.js";
 import { Document } from "mongoose";
+import { client } from "..";
 import gameConfig from "../config/gameConfig";
-import { GuildModel, PlayerGuild } from "../models/Guild";
+import { GuildModel, PlayerGuild } from "../models/PlayerGuild";
 import GameObjectCache from "../structures/GameObjectCache";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
@@ -30,7 +32,15 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         }
 
         if (!guildDocument) {
-            guildDocument = PlayerGuild.newDocument(guildId);
+            let guild: Guild;
+            try {
+                guild = await client.guilds.fetch(guildId);
+            }
+            catch (error) {
+                throw new Error(`There was an error fetching a guild by its id when creating a new guild document: ${error}`);
+            }
+
+            guildDocument = PlayerGuild.newDocument(guild);
 
             try {
                 await guildDocument.save();

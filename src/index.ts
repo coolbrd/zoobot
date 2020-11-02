@@ -78,7 +78,11 @@ client.on("message", (message: Message) => {
     }
 
     commandHandler.handleMessage(message).then(() => {
-        beastiary.players.handleMessage(message).catch(error => {
+        beastiary.players.handleMessage(message).then(() => {
+            encounterHandler.handleMessage(message).catch(error => {
+                throw new Error(`There was an error handling a message through the encounter handler: ${error}`);
+            })
+        }).catch(error => {
             throw new Error(`There was an error handling a message through the player manager: ${error}`);
         });
     }).catch(error => {

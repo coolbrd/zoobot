@@ -1,7 +1,7 @@
 import { GuildCommandParser } from "../structures/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command";
-import { PlayerGuild } from "../models/Guild";
+import { PlayerGuild } from "../models/PlayerGuild";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
