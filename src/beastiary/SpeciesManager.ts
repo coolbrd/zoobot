@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
@@ -7,6 +7,41 @@ export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
 
     protected readonly cacheObjectTimeout = gameConfig.speciesCacheTimeout;
+
+    private _allSpeciesIds: Types.ObjectId[] = [];
+
+    public get allSpeciesIds(): Types.ObjectId[] {
+        return this._allSpeciesIds;
+    }
+
+    private async loadAllSpeciesIds(): Promise<void> {
+        let speciesDocuments: Document[];
+        try {
+            speciesDocuments = await SpeciesModel.find({});
+        }
+        catch (error) {
+            throw new Error(`There was an error getting a list of all species from the database: ${error}`);
+        }
+
+        speciesDocuments.sort((a: Document, b: Document) => {
+            return a.get("commonNamesLower")[0] > b.get("commonNamesLower")[0] ? 1 : -1;
+        });
+
+        this._allSpeciesIds = [];
+
+        speciesDocuments.forEach(speciesDocument => {
+            this.allSpeciesIds.push(speciesDocument._id);
+        });
+    }
+
+    public async init(): Promise<void> {
+        try {
+            await this.loadAllSpeciesIds();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading the ids of all species while initializing the species manager: ${error}`);
+        }
+    }
 
     protected documentToGameObject(document: Document): Species {
         return new Species(document);

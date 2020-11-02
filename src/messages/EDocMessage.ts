@@ -427,13 +427,6 @@ export default class EDocMessage extends InteractiveMessage {
                 break;
             }
         }
-
-        try {
-            await this.refreshEmbed();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing an eDoc message's embed: ${error}`);
-        }
     }
 
     private async takeUserInput(prompt: string, user: User): Promise<string | undefined> {

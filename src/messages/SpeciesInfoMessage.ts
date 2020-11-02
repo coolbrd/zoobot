@@ -8,15 +8,13 @@ import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
 
-// A message that displays a given species' information
 export default class SpeciesInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
 
     private readonly species: Species;
-    // The current card of the species that's being displayed by the info message
+    
     private cardIndex = 0;
-    // Whether the info message is displaying a large card, or the species' details
-    private cardMode = true;
+    private displayCard = true;
 
     constructor(channel: TextChannel | DMChannel, species: Species) {
         super(channel);
@@ -45,17 +43,13 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        // Determine the card to display
         const card = this.species.cards[this.cardIndex];
 
-        // Set the embed's color
         embed.setColor(getGuildUserDisplayColor(client.user, this.channel));
 
-        // When the info message is showing a large picture of the species (not details)
-        if (this.cardMode) {
+        if (this.displayCard) {
             buildSpeciesCard(embed, this.species, card);
         }
-        // When the info message is displaying the species' details
         else {
             buildSpeciesInfo(embed, this.species, card);
         }
@@ -65,7 +59,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    public async buttonPress(buttonName: string, user: User): Promise<void> {
+    public buttonPress(buttonName: string, user: User): void {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
@@ -78,16 +72,9 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
                 break;
             }
             case "info": {
-                this.cardMode = !this.cardMode;
+                this.displayCard = !this.displayCard;
                 break;
             }
-        }
-
-        try {
-            await this.refreshEmbed();
-        }
-        catch (error) {
-            throw new Error(`There was an error refreshing a species info message's embed: ${error}`);
         }
     }
 }

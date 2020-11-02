@@ -61,10 +61,14 @@ client.on("ready", () => {
         interactiveMessageHandler.init(client);
 
         beastiary.players.init().then(() => {
-            console.log("Handlers initialized");
+            beastiary.species.init().then(() => {
+                console.log("Handlers initialized");
 
-            preLoad.handlersInitialized = true;
-            complete();
+                preLoad.handlersInitialized = true;
+                complete();
+            }).catch(error => {
+                throw new Error(`There was an error initializing the species manager: ${error}`);
+            });
         }).catch(error => {
             throw new Error(`There was an error initializing the player manager: ${error}`);
         });

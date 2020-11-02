@@ -66,8 +66,7 @@ class InteractiveMessageHandler {
         }
 
         try {
-            // Activate the message's button that corresponds to the emoji reacted with
-            interactiveMessage.emojiPress(emojiString, user);
+            await interactiveMessage.pressButtonByEmojiAndRefresh(emojiString, user);
         }
         catch (error) {
             errorHandler.handleError(error, "Error activating an interactive message's button.");
