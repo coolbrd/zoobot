@@ -5,7 +5,6 @@ import { Species } from "../models/Species";
 import { EDoc } from "../structures/EDoc";
 import EDocMessage from "./EDocMessage";
 
-// A message that takes a pending species and allows for it to be edited and potentially approved
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpecies;
 
@@ -132,15 +131,12 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             }
         }
 
-        // Assign simple fields
         eDoc.setField(Species.fieldNames.scientificName, pendingSpeciesObject.scientificName);
         eDoc.setField(Species.fieldNames.description, pendingSpeciesObject.description);
         eDoc.setField(Species.fieldNames.naturalHabitat, pendingSpeciesObject.naturalHabitat);
         eDoc.setField(Species.fieldNames.wikiPage, pendingSpeciesObject.wikiPage);
 
-        // Get the user that made this submission
         const authorUser = client.users.resolve(pendingSpeciesObject.authorId);
-        // Name the top document accordingly
         let docName = "Submission";
         if (authorUser) {
             docName += ` by ${authorUser.tag}`;

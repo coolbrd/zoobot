@@ -1,4 +1,3 @@
-// Does pretty much what you'd expect it to
 export function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -25,7 +24,7 @@ export function joinIfArray(value: string | string[] | undefined, delimiter?: st
 // Get the number of occurrences of a given element in a given array
 export function arrayElementCount<T>(array: T[], element: T): number {
     let count = 0;
-    // Count all occurrences of the element
+
     for (const current of array) {
         if (current === element) {
             count++;
@@ -38,13 +37,9 @@ export function arrayElementCount<T>(array: T[], element: T): number {
 export function indexWhere<T>(list: T[], predicate: (element: T) => boolean): number {
     let indexInList = -1;
 
-    // Iterate over the list until the condition is met
     list.some((currentElement, currentIndex) => {
-        // If the condition is met
         if (predicate(currentElement)) {
-            // Assign the matching index
             indexInList = currentIndex;
-            // Don't test any more elements
             return true;
         }
     });

@@ -47,7 +47,6 @@ export default interface EDocSkeleton {
     [fieldName: string]: EDocFieldInfo
 }
 
-// Reduces an eDoc type hint to a simple string
 export function getEDocTypeString(fieldType: EDocTypeHint): "string" | "number" | "array" | "edoc" {
     switch (fieldType) {
         case String: {
@@ -56,7 +55,6 @@ export function getEDocTypeString(fieldType: EDocTypeHint): "string" | "number" 
         case Number: {
             return "number";
         }
-        // Consider possible general object types
         default: {
             if (Array.isArray(fieldType)) {
                 return "array";

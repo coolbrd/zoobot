@@ -7,7 +7,6 @@ import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
-// Displays the player's current capture availability, and the time remaining until the next capture reset
 export default class ViewCaptureResetCommand extends GuildCommand {
     public readonly commandNames = ["capturereset", "captureperiod", "cr", "cp"];
 

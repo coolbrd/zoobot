@@ -1,7 +1,6 @@
 import { UserResolvable, GuildResolvable, GuildMember } from "discord.js";
 import { client } from "..";
 
-// Gets a GuildMember instance from a given guild and user
 export default function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable): GuildMember {
     const user = client.users.resolve(userResolvable);
     if (!user) {

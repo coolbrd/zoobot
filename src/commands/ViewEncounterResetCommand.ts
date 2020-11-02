@@ -7,7 +7,6 @@ import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
-// Displays a player's current number of encounters stored, plus the amount of time until the next free encounter reset
 export default class ViewEncounterResetCommand extends GuildCommand {
     public readonly commandNames = ["encounterreset", "er", "encounterperiod", "ep"];
 

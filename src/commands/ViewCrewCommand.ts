@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
-// Displays a player's crew
 export default class ViewCrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];
 

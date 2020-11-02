@@ -13,10 +13,8 @@ class EncounterHandler {
     public get lastCaptureReset(): Date {
         const now = new Date();
 
-        // The number of milliseconds that have passed since the last capture reset
         const millisecondsSinceLastReset = todaysMilliseconds() % gameConfig.capturePeriod;
 
-        // The time of the last reset
         return new Date(now.valueOf() - millisecondsSinceLastReset);
     }
 
@@ -27,10 +25,8 @@ class EncounterHandler {
     public get lastEncounterReset(): Date {
         const now = new Date();
 
-        // The number of milliseconds that have passed since the last encounter reset
         const millisecondsSinceLastReset = todaysMilliseconds() % gameConfig.encounterPeriod;
 
-        // The time of the last reset
         return new Date(now.valueOf() - millisecondsSinceLastReset);
     }
 

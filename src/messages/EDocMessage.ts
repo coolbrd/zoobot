@@ -9,14 +9,11 @@ import { EDocFieldInfo } from "../structures/EDocSkeleton";
 import PointedArray from "../structures/PointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-// An interactive message containing an editable document that allows for the editing of said document
 export default class EDocMessage extends InteractiveMessage {
     protected readonly lifetime = 300000;
 
-    // The stack of selected nested fields
     private readonly selectionStack: EDocField<EDocValue>[] = [];
 
-    // Whether or not the bot is currently taking a user's input
     // Exists so multiple input prompts can't exist at once
     private takingInput = false;
 
@@ -66,7 +63,6 @@ export default class EDocMessage extends InteractiveMessage {
             }
         ]);
 
-        // Create an eDoc field based on the eDoc skeleton provided
         // This is done in here so declarations of top-level eDocs don't need to explicitly declare their type, as it's implicit
         const topFieldInfo: EDocFieldInfo = {
             type: eDoc.getSkeleton(),
@@ -81,13 +77,11 @@ export default class EDocMessage extends InteractiveMessage {
         this.selectionStack.push(topField);
     }
 
-    // Gets this message's currently selected field
     private getSelection(): EDocField<EDocValue> {
         return this.selectionStack[this.selectionStack.length - 1];
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
-        // The current eDoc field that's being displayed by the message
         const selectedField = this.getSelection();
 
         // The value of the currently selected field (an eDoc or an array)
@@ -100,14 +94,11 @@ export default class EDocMessage extends InteractiveMessage {
 
         const embed = new SmartEmbed();
 
-        // The label for the currently selected field
         let fieldTitle = "";
 
-        // Add the field's name
         fieldTitle += selectedField.getAlias();
-        // If the current field doesn't have a name
+
         if (!fieldTitle) {
-            // Assign an appropriate anonymous placeholder name
             if (selectedField.getTypeString() === "edoc") {
                 fieldTitle = "anonymous document";
             }
@@ -118,51 +109,40 @@ export default class EDocMessage extends InteractiveMessage {
 
         fieldTitle = capitalizeFirstLetter(fieldTitle);
 
-        // Underline document field names
         if (selectedField.getTypeString() === "edoc") {
             fieldTitle = `__${fieldTitle}__`;
         }
 
-        // Indicate whether or not this field is satisfied
         if (!selectedField.requirementsMet()) {
             fieldTitle += " (incomplete)"
         }
 
         embed.setTitle(`Now editing: ${fieldTitle}`);
 
-        // EDoc behavior
+        // eDoc behavior
         if (selectedFieldValue instanceof EDoc) {
             // Hide array buttons
             this.disableButton("new");
-
             this.setButtonHelpMessage("delete", "Clear field");
 
-            // Iterate over every field in the eDoc
             for (const [fieldName, field] of selectedFieldValue.getFields()) {
                 if (field.getHidden()) {
                     continue;
                 }
 
-                // The string that will represent the current field
                 let fieldLabel = "";
-
-                // Indicate if a field's requirements aren't met
                 if (!field.requirementsMet()) {
                     fieldLabel += "✗ "
                 }
 
-                // Add field name
                 fieldLabel += capitalizeFirstLetter(field.getAlias() || "anonymous field") + ": ";
 
-                // Draw the edit icon if the current field is the selected field
                 if (fieldName === selectedFieldValue.getSelectedFieldName()) {
                     fieldLabel += "✏️";
                 }
 
-                // Get the current field's string representation
                 const valueString = field.toString();
 
-                // Add a new field to the embed corresponding to the current field
                 embed.addField(fieldLabel, valueString);
             }
         }
@@ -170,7 +150,6 @@ export default class EDocMessage extends InteractiveMessage {
         else {
             // Show array buttons
             this.enableButton("new");
-
             this.setButtonHelpMessage("delete", "Delete entry");
 
             const arrayString = selectedField.toString({ arrayPointer: "✏️" });
@@ -178,22 +157,19 @@ export default class EDocMessage extends InteractiveMessage {
             embed.setDescription(arrayString);
         }
 
-        // If the top level is selected and the top document's requirements are met
-        if (this.selectionStack.length === 1 && this.selectionStack[0].requirementsMet()) {
-            // Allow the document to be submitted
+        const topLevelIsSelected = this.selectionStack.length === 1;
+        const allRequirementsMet = this.selectionStack[0].requirementsMet();
+
+        if (topLevelIsSelected && allRequirementsMet) {
             this.enableButton("submit");
         }
-        // Otherwise, hide and disable the submit button
         else {
             this.disableButton("submit");
         }
 
-        // If anything but the top document is selected
-        if (this.selectionStack.length > 1) {
-            // Show the back button
+        if (!topLevelIsSelected) {
             this.enableButton("back");
         }
-        // Otherwise, hide it
         else {
             this.disableButton("back");
         }
@@ -206,10 +182,7 @@ export default class EDocMessage extends InteractiveMessage {
     public async buttonPress(buttonName: string, user: User): Promise<void> {
         super.buttonPress(buttonName, user);
 
-        // Get the current field that's being displayed
         const selectedField = this.getSelection();
-
-        // Get the value of the currently displayed selection
         const selectedFieldValue = selectedField.getValue();
 
         // Make sure the selected field's value is either a document or an array
@@ -227,7 +200,6 @@ export default class EDocMessage extends InteractiveMessage {
             // Get the field that the pointer is currently selecting
             const selectedNestedField = selectedFieldValue.getSelectedField();
 
-            // Button behavior depends on the field's contained information
             const fieldType = selectedNestedField.getTypeString();
 
             switch (buttonName) {
@@ -240,9 +212,7 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case "edit": {
-                    // Edit button field type behavior
                     switch (fieldType) {
-                        // Get simple string or number input
                         case "string": 
                         case "number": {
                             let promptString: string;
@@ -266,7 +236,6 @@ export default class EDocMessage extends InteractiveMessage {
                                 return;
                             }
 
-                            // Set the value of the field to the user's response value
                             try {
                                 selectedNestedField.setValue(userInput);
                             }
@@ -289,7 +258,6 @@ export default class EDocMessage extends InteractiveMessage {
                     break;
                 }
                 case "delete": {
-                    // Allow all fields other than nested documents to be cleared
                     if (selectedNestedField.getTypeString() !== "edoc") {
                         selectedNestedField.clearValue();
                     }
@@ -312,14 +280,11 @@ export default class EDocMessage extends InteractiveMessage {
                 case "edit": {
                     const selectedElement = selectedFieldValue.selection;
 
-                    // Don't do anything if the array is empty
                     if (!selectedElement) {
                         break;
                     }
 
-                    // Edit behavior depends on the type of array
                     switch (selectedElement.getTypeString()) {
-                        // For simple types, ask the user for input to replace the selected element
                         case "string":
                         case "number": {
                             const promptString = selectedField.getPrompt() || "Enter your input to replace this list entry:";
@@ -356,11 +321,8 @@ export default class EDocMessage extends InteractiveMessage {
                     }
                     break;
                 }
-                // New array element behavior
                 case "new": {
-                    // Behavior depends on the type of element contained within the array
                     switch (selectedField.getNestedTypeString()) {
-                        // For strings and numbers, get user input and push it
                         case "string":
                         case "number": {
                             const promptString = selectedField.getPrompt() || "Enter your input for a new list entry:";
@@ -388,7 +350,6 @@ export default class EDocMessage extends InteractiveMessage {
                             }
                             break;
                         }
-                        // For arrays and eDocs, just add a new one to the array
                         case "array":
                         case "edoc": {
                             selectedField.push();
@@ -404,17 +365,14 @@ export default class EDocMessage extends InteractiveMessage {
             }
         }
 
-        // Universal button behavior
         switch (buttonName) {
             case "back": {
-                // Only go back if there's something to go back to
                 if (this.selectionStack.length > 1) {
                     this.selectionStack.pop();
                 }
                 break;
             }
             case "submit": {
-                // Only submit if the top level is selected
                 if (this.selectionStack.length === 1) {
                     this.emit("submit", this.selectionStack[0].getSimpleValue() as SimpleEDoc);
                     this.deactivate();

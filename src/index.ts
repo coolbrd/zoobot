@@ -1,7 +1,6 @@
 import Discord, { Message } from "discord.js";
 import mongoose from "mongoose";
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
-import { errorHandler } from "./structures/ErrorHandler";
 import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessageHandler";
 import { encounterHandler } from "./beastiary/EncounterHandler";
 import { commandHandler } from "./structures/CommandHandler";
@@ -57,23 +56,19 @@ client.on("ready", () => {
     preLoad.discordLoaded = true;
     complete();
 
-    errorHandler.init(client).then(() => {
-        interactiveMessageHandler.init(client);
+    interactiveMessageHandler.init(client);
 
-        beastiary.players.init().then(() => {
-            beastiary.species.init().then(() => {
-                console.log("Handlers initialized");
+    beastiary.players.init().then(() => {
+        beastiary.species.init().then(() => {
+            console.log("Handlers initialized");
 
-                preLoad.handlersInitialized = true;
-                complete();
-            }).catch(error => {
-                throw new Error(`There was an error initializing the species manager: ${error}`);
-            });
+            preLoad.handlersInitialized = true;
+            complete();
         }).catch(error => {
-            throw new Error(`There was an error initializing the player manager: ${error}`);
+            throw new Error(`There was an error initializing the species manager: ${error}`);
         });
     }).catch(error => {
-        throw new Error(`There was an error intiailizing the error handler (uh oh!): ${error}`);
+        throw new Error(`There was an error initializing the player manager: ${error}`);
     });
 });
 

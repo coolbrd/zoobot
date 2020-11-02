@@ -3,7 +3,6 @@ import Command from "../structures/Command";
 import CommandParser from "../structures/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
-// Initiates the exit process
 export default class ExitCommand extends Command {
     public readonly commandNames = ["exit"];
 

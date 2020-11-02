@@ -6,7 +6,6 @@ import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { Animal } from "../models/Animal";
 import { Player } from "../models/Player";
 
-// Displays a player's various stats
 export default class PlayerProfileMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
 
@@ -21,7 +20,6 @@ export default class PlayerProfileMessage extends InteractiveMessage {
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        // Get the player's first animal in their collection, if it exists
         let firstAnimal: Animal | undefined;
         if (this.player.collectionAnimalIds.length > 0) {
             try {

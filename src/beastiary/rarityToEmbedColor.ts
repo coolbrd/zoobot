@@ -1,4 +1,3 @@
-// The bundle of information that represents a species' rarity value
 interface RarityInfo {
     text: string,
     color: number

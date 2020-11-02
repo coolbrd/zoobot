@@ -6,7 +6,6 @@ import { CommandSection, GuildCommand } from "../structures/Command";
 import { Player } from "../models/Player";
 import { beastiary } from "../beastiary/Beastiary";
 
-// Moves animals in a player's collection to a specified position in a given order
 export default class MoveAnimalsCommand extends GuildCommand {
     public readonly commandNames = ["moveanimals", "ma"];
 
@@ -26,13 +25,11 @@ export default class MoveAnimalsCommand extends GuildCommand {
     }
 
     public async run(parsedUserCommand: GuildCommandParser): Promise<boolean> {
-        // If the command was used without any arguments
         if (parsedUserCommand.arguments.length < 1) {
             betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
             return false;
         }
 
-        // Get the player game object
         let playerObject: Player;
         try {
             playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.sender, parsedUserCommand.guild));
@@ -41,64 +38,49 @@ export default class MoveAnimalsCommand extends GuildCommand {
             throw new Error(`There was an error getting a player object in the move animals command: ${error}`);
         }
 
-        // The numeric positions of the animals to sort
         const positions: number[] = [];
         // Any errors encountered while parsing positions, if any
         const errors: string[] = [];
 
-        // Iterate over every argument provided by the user
         parsedUserCommand.arguments.forEach(arg => {
             const argText = arg.text;
-            // Parse the argument as a number and offset it for use as an index
+
             const numericPosition = Number(argText) - 1;
-            // If the current argument couldn't be converted int a number
             if (isNaN(numericPosition)) {
                 errors.push(`Not a number: \`${argText}\``);
             }
-            // If the current number is below the acceptable range
             else if (numericPosition < 0) {
                 errors.push(`Too low: \`${argText}\``);
             }
-            // If the current number is above the acceptable range
             else if (numericPosition >= playerObject.collectionAnimalIds.length) {
                 errors.push(`Out of range: \`${argText}\``);
             }
-            // If the current number is a repeat
             else if (positions.includes(numericPosition)) {
                 errors.push(`Duplicate: \`${argText}\``);
             }
-            // If the current number passes all tests
             else {
-                // Add it to the list of positions
                 positions.push(numericPosition);
             }
         });
 
-        // If there are any errors at all
         if (errors.length > 0) {
             betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your collection. Errors: ${errors.join(", ")}`);
-            // Don't run the command with errors
             return false;
         }
 
-        // If enough positions weren't provided
         if (positions.length < 2) {
             betterSend(parsedUserCommand.channel, `You need to specify at least one position of an animal to place after position \`${positions[0]}\`.`);
             return false;
         }
 
-        // Get the first position from the array and remove it
         const sortPosition = positions.shift() as number;
-        // Get the id of the animal that's acting as the anchor in the movement
+
         const baseAnimalId = playerObject.collectionAnimalIds[sortPosition];
 
-        // Remove the animal ids at the given positions and store them
         const movedAnimalIds = playerObject.removeAnimalIdsFromCollectionPositional(positions);
 
-        // After the animals have been removed, get the new position of the base animal to sort under
         const basePosition = playerObject.collectionAnimalIds.indexOf(baseAnimalId);
 
-        // Add all removed animals back to the player's collection under the base animal
         playerObject.addAnimalIdsToCollectionPositional(movedAnimalIds, basePosition + 1);
 
         return true;

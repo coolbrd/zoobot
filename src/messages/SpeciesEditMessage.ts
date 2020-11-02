@@ -4,10 +4,8 @@ import EDocMessage from "./EDocMessage";
 import { EDoc, } from "../structures/EDoc";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-// A message that allows an existing species to be edited and saved again
 export default class SpeciesEditMessage extends EDocMessage {
     constructor(channel: TextChannel | DMChannel, speciesObject: Species) {
-        // The eDoc that will represent the edited state of the species object
         const eDoc = new EDoc({
             [Species.fieldNames.commonNames]: {
                 type: [{
@@ -143,7 +141,6 @@ export default class SpeciesEditMessage extends EDocMessage {
             });
         });
 
-        // Assign simple fields
         eDoc.setField(Species.fieldNames.scientificName, speciesObject.scientificName);
         eDoc.setField(Species.fieldNames.description, speciesObject.description);
         eDoc.setField(Species.fieldNames.naturalHabitat, speciesObject.naturalHabitat);

@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
-// Adds an animal to a player's crew
 export default class CrewAddCommand extends GuildCommand {
     public readonly commandNames = ["crewadd", "cra"];
 

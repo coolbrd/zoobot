@@ -7,7 +7,6 @@ import { SimpleEDoc } from "../structures/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 
-// The command used to review, edit, and approve a pending species into a real species
 export default class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
 
@@ -20,7 +19,6 @@ export default class EditSpeciesCommand extends Command {
     }
 
     public async run(parsedMessage: CommandParser): Promise<void> {
-        // If the user provided no search term
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
@@ -28,7 +26,6 @@ export default class EditSpeciesCommand extends Command {
 
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
-        // Get a species whose first common name is the search term
         let species: Species | undefined;
         try {
             species = await beastiary.species.fetchByCommonName(fullSearchTerm);
@@ -37,13 +34,11 @@ export default class EditSpeciesCommand extends Command {
             throw new Error(`There was an error fetching a species in the edit species command: ${error}`);
         }
 
-        // If nothing was found by that name
         if (!species) {
             betterSend(parsedMessage.channel, `No species with the common name "${fullSearchTerm}" could be found.`);
             return;
         }
 
-        // Create a new species edit message from the species object and send it
         const editMessage = new SpeciesEditMessage(parsedMessage.channel, species);
         try {
             await editMessage.send();
@@ -52,17 +47,14 @@ export default class EditSpeciesCommand extends Command {
             throw new Error(`There was an error sending a species edit message: ${error}`);
         }
 
-        // When the message's time limit is reached
         editMessage.once("timeExpired", () => {
             betterSend(parsedMessage.channel, "Time limit expired.");
         });
 
-        // When the user presses the exit button
         editMessage.once("exit", () => {
             betterSend(parsedMessage.channel, "Edit process aborted.");
         });
 
-        // When the editing process is complete
         editMessage.once("submit", (finalDocument: SimpleEDoc) => {
             if (!species) {
                 throw new Error("Undefined species value somehow encountered after species edit document submission.");

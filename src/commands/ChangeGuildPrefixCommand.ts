@@ -5,7 +5,6 @@ import { PlayerGuild } from "../models/Guild";
 import { commandHandler } from "../structures/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
-// Changes the command prefix for a given guild
 export default class ChangeGuildPrefixCommand extends GuildCommand {
     public readonly commandNames = ["prefix", "changeprefix"];
 
@@ -18,16 +17,13 @@ export default class ChangeGuildPrefixCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
-        // Get the full text after the initial command text
         const prefix = parsedMessage.fullArguments;
 
-        // Make sure a prefix to use was provided
         if (!prefix) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return;
         }
 
-        // Get the target guild's document
         let guildObject: PlayerGuild;
         try {
             guildObject = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
@@ -36,10 +32,8 @@ export default class ChangeGuildPrefixCommand extends GuildCommand {
             throw new Error(`There was an error attempting to get a guild object from a guild id: ${error}`);
         }
 
-        // Set the guild's prefix
         guildObject.prefix = prefix;
 
-        // Update the guild's prefix in the command handler
         commandHandler.changeGuildPrefix(guildObject.guildId, prefix);
 
         betterSend(parsedMessage.channel, `Success. My prefix is now \`${prefix}\`.`);

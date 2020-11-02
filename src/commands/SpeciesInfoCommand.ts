@@ -5,7 +5,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
 
-// Sends an informational message about a given species
 export default class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
 
@@ -25,7 +24,6 @@ export default class SpeciesInfoCommand extends Command {
 
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
-        // Find a species by its common name
         let species: Species | undefined;
         try {
             species = await beastiary.species.fetchByCommonName(fullSearchTerm);
@@ -34,13 +32,11 @@ export default class SpeciesInfoCommand extends Command {
             throw new Error(`There was an error fetching a species by its common name in the species info comman: ${error}`);
         }
 
-        // If no species with the given name was found
         if (!species) {
             betterSend(parsedMessage.channel, `No animal by the name "${fullSearchTerm}" could be found.`);
             return;
         }
 
-        // Construct and send an informational message about the species
         const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species);
         try {
             await infoMessage.send();

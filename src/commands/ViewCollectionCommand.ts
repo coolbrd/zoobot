@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 
-// Sends a message containing a player's collection of animals
 export default class ViewCollectionCommand extends GuildCommand {
     public readonly commandNames = ["collection", "col", "c"];
 

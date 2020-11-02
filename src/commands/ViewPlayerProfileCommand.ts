@@ -6,7 +6,6 @@ import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
-// Sends a message containing the player profile of a given player, or the command sender
 export default class ViewPlayerProfileCommand extends GuildCommand {
     public readonly commandNames = ["profile", "p"];
 

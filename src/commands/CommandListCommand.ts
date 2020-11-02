@@ -24,8 +24,7 @@ export default class CommandListCommand extends Command {
         let animalManagementString = "";
         let guildManagementString = "";
         let getInvolvedString = "";
-
-        // Add the command info string of all non-admin commands
+        
         for (const command of commandHandler.commands) {
             if (!command.adminOnly) {
                 const infoString = `\`${command.commandNames[0]}\`: ${command.info}\n`;

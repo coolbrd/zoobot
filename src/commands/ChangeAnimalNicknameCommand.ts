@@ -5,7 +5,6 @@ import { GuildCommandParser } from "../structures/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../models/Animal";
 
-// Changes a user's animal's nickname
 export default class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly commandNames = ["nickname", "nick", "nn"];
 
@@ -20,19 +19,15 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<boolean> {
-        // If the user provided no arguments
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
             return false;
         }
 
-        // The string representing the animal the change the nickname of
         const animalIdentifier = parsedMessage.arguments[0].text;
 
-        // Get the guild user that initiated this command
         const guildMember = getGuildMember(parsedMessage.originalMessage.author, parsedMessage.channel);
 
-        // Find an animal that matches the given search identifier (number or nickname)
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
@@ -45,15 +40,12 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             throw new Error(`There as an error searching an animal by its nickname: ${error}`);
         }
 
-        // If no animal was found in that player's collection
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal by that number/nickname exists in your collection.");
             return false;
         }
 
-        // The nickname string that will be used
         let newNickname: string | undefined;
-        // If the user didn't provide a nickname to use
         if (parsedMessage.arguments.length < 2) {
             // Set the animal's nickname as nothing, resetting it
             newNickname = undefined;
@@ -62,10 +54,8 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
         else {
             newNickname = parsedMessage.arguments[1].text;
 
-            // The set of banned strings that cannot appear in animal nicknames
             const bannedSubStrings = ["*", "_", "`", "~", ">"];
 
-            // Check for all banned substrings in animal names
             for (const substring of bannedSubStrings) {
                 if (newNickname.includes(substring)) {
                     betterSend(parsedMessage.channel, `Animal nicknames can't contain any Discord-reserved formatting characters, such as: '${substring}'`);
@@ -74,10 +64,8 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             }
         }
 
-        // Set the animal's new nickname
         animal.nickname = newNickname;
 
-        // Indicate that the command executed its function successfully
         return true;
     }
 }
