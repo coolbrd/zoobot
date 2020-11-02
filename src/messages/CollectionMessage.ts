@@ -1,9 +1,8 @@
-import { TextChannel, MessageEmbed } from "discord.js";
+import { TextChannel, MessageEmbed, User } from "discord.js";
 import { Player } from "../models/Player";
 import { commandHandler } from "../structures/CommandHandler";
 import AnimalDisplayMessage, { AnimalDisplayMessageState } from "./AnimalDisplayMessage";
 
-// The message displaying a player's animal collection
 export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 90000;
 
@@ -19,7 +18,23 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         this.channel = channel;
     }
 
-    // Builds the current page of the collection's embed
+    public async build(): Promise<void> {
+        try {
+            await super.build();
+        }
+        catch (error) {
+            throw new Error(`There was an error building an animal display message's inherited information: ${error}`);
+        }
+
+        if (this.elements.length > 0) {
+            this.addButton({
+                emoji: "Ⓜ️",
+                name: "mode",
+                helpMessage: "View mode"
+            });
+        }
+    }
+
     protected async buildEmbed(): Promise<MessageEmbed> {
         let embed: MessageEmbed;
         try {
@@ -29,14 +44,12 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             throw new Error(`There was an error building a collection message's inherited embed information: ${error}`);
         }
 
-        // Make it more clear what we're working with here
         const collection = this.elements;
 
         const userAvatar = this.player.member.user.avatarURL() || undefined;
         embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
         embed.setFooter(`${collection.length} in collection (max ${this.player.collectionSizeLimit})\n${this.getButtonHelpString()}`);
 
-        // Don't try anything crazy if the user's collection is empty
         if (collection.length < 1) {
             embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getPrefixByGuild(this.channel.guild)}encounter\`!`);
             return embed;
@@ -47,5 +60,29 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         }
 
         return embed;
+    }
+
+    protected buttonPress(buttonName: string, user: User): void {
+        super.buttonPress(buttonName, user);
+
+        switch (buttonName) {
+            case "mode": {
+                switch (this.state) {
+                    case AnimalDisplayMessageState.page: {
+                        this.state = AnimalDisplayMessageState.info;
+                        break;
+                    }
+                    case AnimalDisplayMessageState.info: {
+                        this.state = AnimalDisplayMessageState.card;
+                        break;
+                    }
+                    case AnimalDisplayMessageState.card: {
+                        this.state = AnimalDisplayMessageState.page;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 }

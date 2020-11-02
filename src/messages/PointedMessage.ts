@@ -66,7 +66,7 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
         return this.page === this.pointerPage;
     }
 
-    public buttonPress(buttonName: string, user: User): void {
+    protected buttonPress(buttonName: string, user: User): void {
         super.buttonPress(buttonName, user);
 
         switch (buttonName) {
