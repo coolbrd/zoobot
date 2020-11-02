@@ -50,7 +50,7 @@ export default abstract class PagedMessage<ElementType> extends InteractiveMessa
         return this.page * this.elementsPerPage;
     }
 
-    protected buttonPress(buttonName: string, _user: User): void {
+    protected async buttonPress(buttonName: string, _user: User): Promise<void> {
         switch (buttonName) {
             case "leftArrow": {
                 this.setPage(this.page + 1);

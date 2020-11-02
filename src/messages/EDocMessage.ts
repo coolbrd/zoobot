@@ -180,7 +180,12 @@ export default class EDocMessage extends InteractiveMessage {
     }
 
     public async buttonPress(buttonName: string, user: User): Promise<void> {
-        super.buttonPress(buttonName, user);
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error performing inherited button press information in an eDoc message: ${error}`);
+        }
 
         const selectedField = this.getSelection();
         const selectedFieldValue = selectedField.getValue();

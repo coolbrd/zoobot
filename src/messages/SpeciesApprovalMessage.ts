@@ -154,7 +154,12 @@ export default class SpeciesApprovalMessage extends EDocMessage {
     }
 
     public async buttonPress(buttonName: string, user: User): Promise<void> {
-        super.buttonPress(buttonName, user);
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error performing inherited button press information in a species approval message: ${error}`);
+        }
 
         if (buttonName === "deny") {
             try {

@@ -59,8 +59,13 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    protected buttonPress(buttonName: string, user: User): void {
-        super.buttonPress(buttonName, user);
+    protected async buttonPress(buttonName: string, user: User): Promise<void> {
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error performing inherited button press behavior in a species info message: ${error}`);
+        }
 
         switch (buttonName) {
             case "rightArrow": {

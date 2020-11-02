@@ -62,8 +62,13 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         return embed;
     }
 
-    protected buttonPress(buttonName: string, user: User): void {
-        super.buttonPress(buttonName, user);
+    protected async buttonPress(buttonName: string, user: User): Promise<void> {
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error performing inherited button behavior in a collection message: ${error}`);
+        }
 
         switch (buttonName) {
             case "mode": {

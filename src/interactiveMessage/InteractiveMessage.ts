@@ -298,7 +298,12 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     public async pressButtonByEmojiAndRefresh(emoji: string, user: User): Promise<void> {
-        this.pressButtonByEmoji(emoji, user);
+        try {
+            await this.pressButtonByEmoji(emoji, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error pressing an interactive message's emoji button: ${error}`);
+        }
 
         try {
             await this.refreshEmbed();
@@ -308,11 +313,16 @@ export default abstract class InteractiveMessage extends EventEmitter {
         }
     }
 
-    protected pressButtonByEmoji(emoji: string, user: User): void {
-        this.buttonPress(this.getButtonByEmoji(emoji).name, user);
+    protected async pressButtonByEmoji(emoji: string, user: User): Promise<void> {
+        try {
+            await this.buttonPress(this.getButtonByEmoji(emoji).name, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error pressing an interactive message's button: ${error}`);
+        }
     }
 
-    protected buttonPress(_button: string, _user: User): void {
+    protected async buttonPress(_button: string, _user: User): Promise<void> {
         if (this.resetTimerOnButtonPress && this.timer) {
             clearTimeout(this.timer);
             this.timer = this.setTimer();

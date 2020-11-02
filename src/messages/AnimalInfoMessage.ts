@@ -68,7 +68,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         return embed;
     }
 
-    protected buttonPress(_buttonName: string, _user: User): void {
+    protected async buttonPress(_buttonName: string, _user: User): Promise<void> {
         this.cardMode = !this.cardMode;
     }
 }

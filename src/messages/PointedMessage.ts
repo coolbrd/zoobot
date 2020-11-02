@@ -66,8 +66,13 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
         return this.page === this.pointerPage;
     }
 
-    protected buttonPress(buttonName: string, user: User): void {
-        super.buttonPress(buttonName, user);
+    protected async buttonPress(buttonName: string, user: User): Promise<void> {
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(`There was an error performing inherited button press behavior in a pointed message: ${error}`);
+        }
 
         switch (buttonName) {
             case "upArrow": {
