@@ -47,15 +47,13 @@ export default class SpeciesRarityMessage extends PointedMessage<LoadableGameObj
 
         embed.setTitle("Rarity of all species");
 
-        const totalRarityWeight = encounterHandler.getTotalRarityWeight();
-
         let pageString = "";
         this.visibleElements.forEach(currentLoadableSpecies => {
             const currentSpecies = currentLoadableSpecies.gameObject;
 
-            const speciesRarity = ((currentSpecies.rarity / totalRarityWeight) * 100).toPrecision(2);
+            const speciesMinimumOccurrence = encounterHandler.getWeightedRarityMinimumOccurrence(currentSpecies.rarity);
 
-            pageString += `${capitalizeFirstLetter(currentSpecies.commonNames[0])}: ${speciesRarity}%\n`;
+            pageString += `${capitalizeFirstLetter(currentSpecies.commonNames[0])}: **${(speciesMinimumOccurrence * 100).toPrecision(4)}%**\n`;
         });
 
         embed.setDescription(pageString);

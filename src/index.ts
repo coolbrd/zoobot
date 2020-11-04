@@ -38,7 +38,7 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
         throw new Error(`There was an error loading all guild prefixes: ${error}`);
     });
 
-    encounterHandler.loadRarityTable().then(() => {
+    encounterHandler.loadRarityData().then(() => {
         console.log("Rarity table loaded");
     
         preLoad.rarityTableLoaded = true;

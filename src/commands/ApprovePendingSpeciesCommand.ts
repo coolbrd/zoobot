@@ -74,7 +74,7 @@ export default class ApprovePendingSpeciesCommand extends Command {
             speciesDocument.save().then(() => {
                 betterSend(parsedMessage.channel, "Species approved.");
 
-                encounterHandler.loadRarityTable().catch(error => {
+                encounterHandler.loadRarityData().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
                 });
 

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Types } from "mongoose";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
-import getWeightedRandom from "../utility/getWeightedRandom";
+import { getWeightedRandom } from "../utility/weightedRarity";
 
 export class Species extends GameObject {
     public readonly model = SpeciesModel;

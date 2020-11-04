@@ -2,7 +2,7 @@ import { Message, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { SpeciesModel, Species } from "../models/Species";
 import EncounterMessage from "../messages/Encountermessage";
-import getWeightedRandom from "../utility/getWeightedRandom";
+import { getWeightedRandom, getWeightedRarityMinimumOccurrence } from "../utility/weightedRarity";
 import { beastiary } from "./Beastiary";
 import { todaysMilliseconds } from "../utility/timeStuff";
 import gameConfig from "../config/gameConfig";
@@ -11,6 +11,7 @@ import { PlayerGuild } from "../models/PlayerGuild";
 
 class EncounterHandler {
     private rarityMap: Map<Types.ObjectId, number> = new Map();
+    private sortedRarityList: number[] = [];
 
     public get lastCaptureReset(): Date {
         const now = new Date();
@@ -39,27 +40,38 @@ class EncounterHandler {
     public getTotalRarityWeight(): number {
         let totalRarityWeight = 0;
 
-        for (const currentRarityWeight of this.rarityMap.values()) {
+        for (const currentRarityWeight of this.sortedRarityList) {
             totalRarityWeight += currentRarityWeight;
         }
 
         return totalRarityWeight;
     }
 
-    public async loadRarityTable(): Promise<void> {
-        let rarityList: Document[];
+    public async loadRarityData(): Promise<void> {
+        let speciesDocumentList: Document[];
         try {
-            rarityList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
+            speciesDocumentList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
         }
         catch (error) {
             throw new Error(`There was an error getting all species rarities from the database: ${error}`);
         }
 
         this.rarityMap = new Map();
+        const rarityList: number[] = [];
 
-        rarityList.forEach(species => {
-            this.rarityMap.set(species._id, species.get("rarity"));
+        speciesDocumentList.forEach(currentSpeciesDocument => {
+            this.rarityMap.set(currentSpeciesDocument._id, currentSpeciesDocument.get(Species.fieldNames.rarity));
+
+            rarityList.push(currentSpeciesDocument.get(Species.fieldNames.rarity));
         });
+
+        this.sortedRarityList = rarityList.sort((a: number, b: number) => {
+            return b - a;
+        });
+    }
+
+    public getWeightedRarityMinimumOccurrence(weightedRarity: number): number {
+        return getWeightedRarityMinimumOccurrence(weightedRarity, this.sortedRarityList);
     }
 
     public async spawnAnimal(channel: TextChannel): Promise<void> {

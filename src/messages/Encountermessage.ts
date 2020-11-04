@@ -6,7 +6,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesCard } from "../models/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { beastiary } from "../beastiary/Beastiary";
-import getRarityInfo from "../beastiary/rarityToEmbedColor";
+import getRarityInfo from "../beastiary/getRarityInfo";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
 import { commandHandler } from "../structures/CommandHandler";

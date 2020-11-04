@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import getRarityInfo from "../beastiary/rarityToEmbedColor";
+import getRarityInfo from "../beastiary/getRarityInfo";
 import { Species, SpeciesCard } from "../models/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
