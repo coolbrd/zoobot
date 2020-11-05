@@ -33,6 +33,7 @@ import ViewScrapsCommand from "../commands/ViewScrapsCommand";
 import FavoriteAnimalCommand from "../commands/FavoriteAnimalCommand";
 import SpeciesRarityCommand from '../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../commands/SetEncounterChannelCommand";
+import ShopCommand from "../commands/ShopCommand";
 
 class CommandHandler {
     public readonly commands: Command[];
@@ -50,6 +51,7 @@ class CommandHandler {
             AnimalInfoCommand,
             ChangeAnimalNicknameCommand,
             ViewScrapsCommand,
+            ShopCommand,
             CrewAddCommand,
             CrewRemoveCommand,
             ViewCrewCommand,
