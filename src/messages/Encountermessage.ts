@@ -6,7 +6,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesCard } from "../models/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { beastiary } from "../beastiary/Beastiary";
-import getRarityInfo from "../beastiary/getRarityInfo";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
 import { commandHandler } from "../structures/CommandHandler";
@@ -39,7 +38,7 @@ export default class EncounterMessage extends InteractiveMessage {
     public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
         
-        embed.setColor(getRarityInfo(this.species.rarity).color);
+        embed.setColor(encounterHandler.getRarityInfo(this.species.rarity).color);
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
         embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
         embed.setImage(this.card.url);
