@@ -26,9 +26,7 @@ export default class ViewPlayerProfileCommand extends GuildCommand {
             player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            if (handleUserError(parsedMessage.channel, error)) {
-                throw error;
-            }
+            handleUserError(parsedMessage.channel, error);
             return;
         }
 

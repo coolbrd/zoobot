@@ -9,6 +9,6 @@ export default function handleUserError(channel: TextChannel | DMChannel, error:
         return;
     }
     else {
-        return error;
+        throw error;
     }
 }

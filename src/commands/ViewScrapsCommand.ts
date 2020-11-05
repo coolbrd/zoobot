@@ -22,9 +22,7 @@ export default class ViewScrapsCommand extends GuildCommand {
             player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            if (handleUserError(parsedMessage.channel, error)) {
-                throw new Error(`There was an error fetching a player by a given command parser: ${error}`);
-            }
+            handleUserError(parsedMessage.channel, error);
             return;
         }
 
