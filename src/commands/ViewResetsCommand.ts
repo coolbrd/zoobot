@@ -32,7 +32,7 @@ export default class ViewResetsCommand extends GuildCommand {
         messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`
         messageString += `Next encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**\n\n`;
 
-        messageString += `You have **${player.capturesLeft}** captures${player.capturesLeft === 1 ? "" : "s"} left`;
+        messageString += `You have **${player.capturesLeft}** capture${player.capturesLeft === 1 ? "" : "s"} left`;
 
         messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n`
         messageString += `Next capture reset reset: **${remainingTimeString(encounterHandler.nextCaptureReset)}**`;
