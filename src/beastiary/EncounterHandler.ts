@@ -10,7 +10,7 @@ import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTex
 import { PlayerGuild } from "../models/PlayerGuild";
 
 interface RarityInfo {
-    tier: string,
+    tier: number,
     color: number
 }
 
@@ -158,12 +158,12 @@ class EncounterHandler {
         const rarityOccurrence = encounterHandler.getWeightedRarityMinimumOccurrence(rarity);
     
         let tier = 0;
-        while (tier <= tierColors.length) {
+        while (tier <= tierColors.length - 1) {
             const tierMinimumChance = 1/(Math.pow(2, tier + 1));
     
             if (rarityOccurrence >= tierMinimumChance) {
                 return {
-                    tier: tier.toString(),
+                    tier: tier,
                     color: tierColors[tier]
                 }
             }
@@ -172,8 +172,8 @@ class EncounterHandler {
         }
     
         return {
-            tier: "U",
-            color: tierColors[tier + 1]
+            tier: tier,
+            color: tierColors[tier]
         }
     }
 }

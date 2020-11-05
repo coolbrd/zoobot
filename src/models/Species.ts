@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
+import { encounterHandler } from "../beastiary/EncounterHandler";
 import GameObject from "../structures/GameObject";
 import { indexWhere } from "../utility/arraysAndSuch";
 import { getWeightedRandom } from "../utility/weightedRarity";
@@ -79,6 +80,14 @@ export class Species extends GameObject {
 
     public set rarity(rarity: number) {
         this.setDocumentField(Species.fieldNames.rarity, rarity);
+    }
+
+    public get baseValue(): number {
+        const rarityInfo = encounterHandler.getRarityInfo(this.rarity);
+
+        const baseValue = 2 + Math.floor(Math.pow(1.75, rarityInfo.tier + 1));
+
+        return baseValue;
     }
 
     public get commonNames(): string[] {

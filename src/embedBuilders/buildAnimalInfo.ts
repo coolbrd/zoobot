@@ -23,5 +23,5 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
     }
     
     embed.addField("Experience", animal.experience);
-    embed.addField("Value", animal.baseValue);
+    embed.addField("Value", `${animal.value} scraps`);
 }

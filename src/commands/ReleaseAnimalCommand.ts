@@ -91,7 +91,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(`There was an error editing a release confirmation message: ${error}`);
             }
 
-            betterSend(parsedMessage.channel, `${animal.displayName} was released. **+${animal.baseValue}** scraps.`);
+            betterSend(parsedMessage.channel, `${animal.displayName} was released. **+${animal.value}** scraps.`);
         }
         // If the user didn't respond, or responded with anything other than yes
         else {

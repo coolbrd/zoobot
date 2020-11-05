@@ -14,8 +14,7 @@ export class Animal extends GameObject {
         speciesId: "speciesId",
         cardId: "cardId",
         nickname: "nickname",
-        experience: "experience",
-        baseValue: "baseValue"
+        experience: "experience"
     };
 
     public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
@@ -24,8 +23,7 @@ export class Animal extends GameObject {
             [Animal.fieldNames.guildId]: owner.guild.id,
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
-            [Animal.fieldNames.experience]: 0,
-            [Animal.fieldNames.baseValue]: 10
+            [Animal.fieldNames.experience]: 0
         });
     }
 
@@ -64,12 +62,8 @@ export class Animal extends GameObject {
         this.setDocumentField(Animal.fieldNames.experience, experience);
     }
 
-    public get baseValue(): number {
-        return this.document.get(Animal.fieldNames.baseValue);
-    }
-
-    public set baseValue(value: number) {
-        this.setDocumentField(Animal.fieldNames.baseValue, value);
+    public get value(): number {
+        return this.species.baseValue;
     }
 
     public get displayName(): string {
@@ -146,10 +140,6 @@ const animalSchema = new Schema({
         required: false
     },
     [Animal.fieldNames.experience]: {
-        type: Number,
-        required: true
-    },
-    [Animal.fieldNames.baseValue]: {
         type: Number,
         required: true
     }
