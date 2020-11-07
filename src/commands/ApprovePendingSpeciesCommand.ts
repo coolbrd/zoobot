@@ -6,7 +6,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { commonNamesToLowerArray, CommonNameTemplate, SpeciesModel } from "../models/Species";
 import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
 import { SimpleEDoc } from "../structures/EDoc";
-import { encounterHandler } from "../beastiary/EncounterHandler";
+import { beastiary } from '../beastiary/Beastiary';
 
 export default class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
@@ -74,7 +74,7 @@ export default class ApprovePendingSpeciesCommand extends Command {
             speciesDocument.save().then(() => {
                 betterSend(parsedMessage.channel, "Species approved.");
 
-                encounterHandler.loadRarityData().catch(error => {
+                beastiary.species.refreshSpecies().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
                 });
 

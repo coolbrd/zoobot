@@ -5,7 +5,6 @@ import { CommonNameTemplate, SpeciesCardTemplate, Species } from "../models/Spec
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
-import { encounterHandler } from "../beastiary/EncounterHandler";
 
 export default class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
@@ -71,7 +70,7 @@ export default class EditSpeciesCommand extends Command {
             species.save().then(() => {
                 betterSend(parsedMessage.channel, "Edit successful.");
 
-                encounterHandler.loadRarityData().catch(error => {
+                beastiary.species.refreshSpecies().catch(error => {
                     throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
                 });
             }).catch(error => {

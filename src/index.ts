@@ -11,7 +11,6 @@ export const client = new Discord.Client();
 const preLoad = {
     discordLoaded: false,
     databaseLoaded: false,
-    rarityTableLoaded: false,
     guildPrefixesLoaded: false,
     handlersInitialized: false
 }
@@ -36,15 +35,6 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
         complete();
     }).catch(error => {
         throw new Error(`There was an error loading all guild prefixes: ${error}`);
-    });
-
-    encounterHandler.loadRarityData().then(() => {
-        console.log("Rarity table loaded");
-    
-        preLoad.rarityTableLoaded = true;
-        complete();
-    }).catch(error => {
-        throw new Error(`There was an error loading the species rarity table: ${error}`);
     });
 }).catch(error => {
     throw new Error(`MongoDB connection error: ${error}`);

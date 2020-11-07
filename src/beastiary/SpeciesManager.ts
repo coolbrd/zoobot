@@ -2,6 +2,7 @@ import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
+import { encounterHandler } from './EncounterHandler';
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -34,12 +35,28 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         });
     }
 
-    public async init(): Promise<void> {
+    public async refreshSpecies(): Promise<void> {
         try {
             await this.loadAllSpeciesIds();
         }
         catch (error) {
-            throw new Error(`There was an error loading the ids of all species while initializing the species manager: ${error}`);
+            throw new Error(`There was an error loading all the species ids within the species manager: ${error}`);
+        }
+
+        try {
+            await encounterHandler.loadRarityData();
+        }
+        catch (error) {
+            throw new Error(`There was an error loading the encounter handler's species rarity information: ${error}`);
+        }
+    }
+
+    public async init(): Promise<void> {
+        try {
+            await this.refreshSpecies();
+        }
+        catch (error) {
+            throw new Error(`There was an error refreshing all species information while initializing the species manager: ${error}`);
         }
     }
 
