@@ -2,6 +2,27 @@ export function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// Determines whether or not a string contains a substring that's either isolated by spaces, or at the beginning or end of the string
+export function containsIsolatedSubstring(searchString: string, substring: string): boolean {
+    const substringStartIndex = searchString.indexOf(substring);
+
+    const containsSubstring = substringStartIndex !== -1;
+
+    if (!containsSubstring) {
+        return false;
+    }
+
+    const substringEndIndex = substringStartIndex + substring.length - 1;
+
+    const leftSideAtBeginning = substringStartIndex === 0;
+    const rightSideAtEnd = substringEndIndex === searchString.length - 1;
+
+    const leftSideIsolated = leftSideAtBeginning || searchString[substringStartIndex - 1] === " ";
+    const rightSideIsolted = rightSideAtEnd || searchString[substringEndIndex + 1] === " ";
+
+    return leftSideIsolated && rightSideIsolted;
+}
+
 // Takes an array of strings and returns its fully lowercase equivalent
 export function arrayToLowerCase(array: string[]): string[] {
     const newArray: string[] = [];

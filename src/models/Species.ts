@@ -186,6 +186,8 @@ const speciesSchema = new Schema({
 
 export const SpeciesModel = mongoose.model("Species", speciesSchema);
 
+SpeciesModel.collection.createIndex({ [Species.fieldNames.commonNamesLower]: "text" });
+
 export interface SpeciesCardTemplate {
     _id?: Types.ObjectId,
     url: string,

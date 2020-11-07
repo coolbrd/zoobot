@@ -2,6 +2,7 @@ import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
+import { containsIsolatedSubstring } from "../utility/arraysAndSuch";
 import { encounterHandler } from './EncounterHandler';
 
 export default class SpeciesManager extends GameObjectCache<Species> {
@@ -25,7 +26,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         speciesDocuments.sort((a: Document, b: Document) => {
-            return a.get("commonNamesLower")[0] > b.get("commonNamesLower")[0] ? 1 : -1;
+            return a.get(Species.fieldNames.commonNamesLower)[0] > b.get(Species.fieldNames.commonNamesLower)[0] ? 1 : -1;
         });
 
         this._allSpeciesIds = [];
@@ -68,7 +69,9 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         name = name.toLowerCase();
 
         const cachedSpecies = this.getMatchingFromCache(species => {
-            const speciesHasCommonName = species.commonNamesLower.includes(name);
+            const speciesHasCommonName = species.commonNamesLower.some(commonName => {
+                return containsIsolatedSubstring(commonName, name);
+            });
 
             return speciesHasCommonName;
         });
@@ -79,7 +82,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
 
         let speciesDocument: Document | null;
         try {
-            speciesDocument = await SpeciesModel.findOne({ [Species.fieldNames.commonNamesLower]: name });
+            speciesDocument = await SpeciesModel.findOne({ $text: { $search: name } });
         }
         catch (error) {
             throw new Error(`There was an error finding a species by its common name: ${error}`);
