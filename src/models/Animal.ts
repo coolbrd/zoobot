@@ -148,4 +148,4 @@ const animalSchema = new Schema({
 export const AnimalModel = mongoose.model("Animal", animalSchema);
 
 // Index animals by their nickname so they can be easily searched by that
-AnimalModel.collection.createIndex({ nickname: "text" });
+AnimalModel.collection.createIndex({ [Animal.fieldNames.nickname]: "text" });
