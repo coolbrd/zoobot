@@ -40,6 +40,13 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
     }
 
     protected async addToCache(gameObject: GameObjectType): Promise<void> {
+        const existingCachedGameObject = this.cacheGet(gameObject.id);
+
+        if (existingCachedGameObject) {
+            console.log("Ignoring duplicate cache addition.")
+            return;
+        }
+
         try {
             await gameObject.loadFields();
         }
