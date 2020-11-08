@@ -91,10 +91,6 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     private set timer(timer: NodeJS.Timeout | undefined) {
-        if (this.deactivated) {
-            throw new Error("Tried to set an interactive message's timer after it was deactivated.");
-        }
-
         this._timer = timer;
     }
 
@@ -164,12 +160,9 @@ export default abstract class InteractiveMessage extends EventEmitter {
         interactiveMessageHandler.addMessage(this);
 
         for (const button of this.buttons.values()) {
-            try {
-                await this.message.react(button.emoji);
-            }
-            catch (error) {
+            this.message.react(button.emoji).catch(error => {
                 throw new Error(`Error trying to add reactions to an interactive message: ${error}`);
-            }
+            });
         }
 
         this.timer = this.setTimer();
@@ -292,6 +285,10 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     private setTimer(): NodeJS.Timer {
+        if (this.deactivated) {
+            throw new Error("Tried to set an interactive message's timer after it was deactivated.");
+        }
+
         return setTimeout(() => {
             this.timeExpired();
         }, this.lifetime);
