@@ -4,6 +4,8 @@ import { Species } from "../models/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
+import SpeciesDisplayMessage from "../messages/SpeciesDisplayMessage";
+import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 
 export default class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
@@ -26,14 +28,13 @@ export default class SpeciesInfoCommand extends Command {
 
         let species: Species | undefined;
         try {
-            species = await beastiary.species.fetchByCommonName(fullSearchTerm);
+            species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
             throw new Error(`There was an error fetching a species by its common name in the species info comman: ${error}`);
         }
 
-        if (!species) {
-            betterSend(parsedMessage.channel, `No animal by the name "${fullSearchTerm}" could be found.`);
+        if (species === undefined) {
             return;
         }
 

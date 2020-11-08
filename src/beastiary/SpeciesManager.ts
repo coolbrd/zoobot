@@ -1,5 +1,8 @@
+import { DMChannel, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
+import { betterSend } from "../discordUtility/messageMan";
+import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
 import { containsIsolatedSubstring } from "../utility/arraysAndSuch";
@@ -65,42 +68,91 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         return new Species(document);
     }
 
-    public async fetchByCommonName(name: string): Promise<Species | undefined> {
-        name = name.toLowerCase();
+    private async fetchSpeciesAndCheckForCommonNameMatch(speciesDocuments: Document[], searchedCommonName: string): Promise<Species[]> {
+        const speciesList: Species[] = [];
 
-        const cachedSpecies = this.getMatchingFromCache(species => {
-            const speciesHasCommonName = species.commonNamesLower.some(commonName => {
-                return containsIsolatedSubstring(commonName, name);
-            });
-
-            return speciesHasCommonName;
-        });
-
-        if (cachedSpecies) {
-            return cachedSpecies;
+        if (speciesDocuments.length < 1) {
+            return speciesList;
         }
 
-        let speciesDocument: Document | null;
         try {
-            speciesDocument = await SpeciesModel.findOne({ $text: { $search: name } });
+            await new Promise(resolve => {
+                let completed = 0;
+                speciesDocuments.forEach(currentSpeciesDocument => {
+                    this.fetchById(currentSpeciesDocument._id).then(currentSpecies => {
+                        speciesList.push(currentSpecies);
+
+                        if (++completed >= speciesDocuments.length) {
+                            resolve();
+                        }
+                    }).catch(error => {
+                        throw new Error(`There was an error fetching a species by its id after matching it by a common name substring: ${error}`);
+                    });
+                });
+            });
+        }
+        catch (error) {
+            throw new Error(`There was an error bulk fetching a set of matching species while searching for species by a common name substring: ${error}`);
+        }
+
+        for (const currentSpecies of speciesList) {
+            for (const currentCommonName of currentSpecies.commonNamesLower) {
+                if (currentCommonName === searchedCommonName) {
+                    return [currentSpecies];
+                }
+            }
+        }
+
+        return speciesList;
+    }
+
+    public async searchByCommonNameSubstring(searchTerm: string): Promise<Species[]> {
+        searchTerm = searchTerm.toLowerCase();
+
+        let matchingSpeciesDocuments: Document[];
+        try {
+            matchingSpeciesDocuments = await SpeciesModel.find({ $text: { $search: searchTerm } });
         }
         catch (error) {
             throw new Error(`There was an error finding a species by its common name: ${error}`);
         }
 
-        if (!speciesDocument) {
-            return;
-        }
-
-        const species = this.documentToGameObject(speciesDocument);
-        
+        let matchingSpecies: Species[];
         try {
-            await this.addToCache(species);
+            matchingSpecies = await this.fetchSpeciesAndCheckForCommonNameMatch(matchingSpeciesDocuments, searchTerm);
         }
         catch (error) {
-            throw new Error(`There was an error adding a species to the cache: ${error}`);
+            throw new Error(`There was an error fetching a list of species and checking for common name exact matches: ${error}`);
         }
 
-        return species;
+        return matchingSpecies;
+    }
+
+    public async searchSingleSpeciesByCommonNameAndHandleDisambiguation(searchTerm: string, channel: TextChannel | DMChannel): Promise<Species | undefined> {
+        let matchingSpecies: Species[];
+        try {
+            matchingSpecies = await this.searchByCommonNameSubstring(searchTerm);
+        }
+        catch (error) {
+            throw new Error(`There was an error searching a species by a common name substring: ${error}`);
+        }
+
+        if (matchingSpecies.length === 0) {
+            betterSend(channel, `No species by the name "${searchTerm}" exists.`);
+            return undefined;
+        }
+        else if (matchingSpecies.length === 1) {
+            return matchingSpecies[0];
+        }
+        else {
+            const disambiguationMessage = new SpeciesDisambiguationMessage(channel, matchingSpecies);
+            try {
+                await disambiguationMessage.send();
+            }
+            catch (error) {
+                throw new Error(`There was an error sending a species disambiguation message: ${error}`);
+            }
+            return undefined;
+        }
     }
 }

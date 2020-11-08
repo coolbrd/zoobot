@@ -27,14 +27,13 @@ export default class EditSpeciesCommand extends Command {
 
         let species: Species | undefined;
         try {
-            species = await beastiary.species.fetchByCommonName(fullSearchTerm);
+            species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
             throw new Error(`There was an error fetching a species in the edit species command: ${error}`);
         }
 
-        if (!species) {
-            betterSend(parsedMessage.channel, `No species with the common name "${fullSearchTerm}" could be found.`);
+        if (species === undefined) {
             return;
         }
 
