@@ -12,7 +12,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
     public readonly channel: TextChannel;
 
     constructor(channel: TextChannel, player: Player) {
-        super(channel, player.collectionAnimalIds);
+        super(channel, player.getCollectionAsLoadableAnimals());
 
         this.player = player;
         this.channel = channel;

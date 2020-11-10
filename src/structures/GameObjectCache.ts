@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import CachedGameObject from "./CachedGameObject";
 import GameObject from "./GameObject";
@@ -43,7 +44,10 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const existingCachedGameObject = this.cacheGet(gameObject.id);
 
         if (existingCachedGameObject) {
-            console.log(`Ignoring duplicate cache addition: ${existingCachedGameObject}`);
+            console.log(stripIndents`
+                Ignoring duplicate cache addition.
+                Id: ${existingCachedGameObject.gameObject.id}
+            `);
             return;
         }
 
@@ -88,7 +92,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         }
     }
 
-    public async fetchById(id: Types.ObjectId): Promise<GameObjectType> {
+    public async fetchById(id: Types.ObjectId): Promise<GameObjectType | undefined> {
         const cachedGameObject = this.cacheGet(id);
 
         if (cachedGameObject) {
@@ -104,7 +108,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         }
 
         if (!gameObjectDocument) {
-            throw new Error("An id with no matching document was fetched in a game object cache.");
+            return;
         }
 
         const gameObject = this.documentToGameObject(gameObjectDocument);

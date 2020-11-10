@@ -12,7 +12,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
     public readonly channel: TextChannel;
 
     constructor(channel: TextChannel, player: Player) {
-        super(channel, player.crewAnimalIds);
+        super(channel, player.getCrewAsLoadableAnimals());
 
         this.player = player;
         this.channel = channel;

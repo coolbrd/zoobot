@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { DMChannel, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
@@ -5,7 +6,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 import { Species, SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObjectCache";
-import { containsIsolatedSubstring } from "../utility/arraysAndSuch";
 import { encounterHandler } from './EncounterHandler';
 
 export default class SpeciesManager extends GameObjectCache<Species> {
@@ -80,6 +80,13 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                 let completed = 0;
                 speciesDocuments.forEach(currentSpeciesDocument => {
                     this.fetchById(currentSpeciesDocument._id).then(currentSpecies => {
+                        if (!currentSpecies) {
+                            throw new Error(stripIndents`
+                                An invalid species id was encountered during a common name match check.
+                                Id: ${currentSpeciesDocument._id}
+                            `);
+                        }
+
                         speciesList.push(currentSpecies);
 
                         if (++completed >= speciesDocuments.length) {

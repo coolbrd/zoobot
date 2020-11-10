@@ -3,18 +3,19 @@ import { beastiary } from '../beastiary/Beastiary';
 import { encounterHandler } from '../beastiary/EncounterHandler';
 import SmartEmbed from '../discordUtility/SmartEmbed';
 import { Species } from '../models/Species';
-import LoadableGameObject, { bulkLoad } from '../structures/LoadableGameObject';
+import LoadableCacheableGameObject from '../structures/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
+import { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import PointedMessage from './PointedMessage';
 
-export default class SpeciesRarityMessage extends PointedMessage<LoadableGameObject<Species>> {
+export default class SpeciesRarityMessage extends PointedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
 
     protected readonly elementsPerPage = 15;
 
     private async buildLoadableSpeciesList(): Promise<void> {
         beastiary.species.allSpeciesIds.forEach(currentSpeciesId => {
-            const loadableSpecies = new LoadableGameObject(currentSpeciesId, beastiary.species);
+            const loadableSpecies = new LoadableCacheableGameObject(currentSpeciesId, beastiary.species);
             this.elements.push(loadableSpecies);
         });
     }

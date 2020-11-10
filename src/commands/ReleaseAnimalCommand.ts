@@ -1,9 +1,11 @@
+import { stripIndents } from "common-tags";
 import { APIMessage, Message } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Animal } from "../models/Animal";
+import { Player } from "../models/Player";
 import { CommandSection, GuildCommand } from "../structures/Command";
 import { GuildCommandParser } from "../structures/CommandParser";
 
@@ -73,9 +75,21 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             throw new Error(`There was an error awaiting a user's next message in the release command: ${error}`);
         }
 
+        let player: Player;
+        try {
+            player = await beastiary.players.fetch(parsedMessage.member);
+        }
+        catch (error) {
+            throw new Error(stripIndents`
+                There was an error fetching a player in the release animal command.
+                Member: ${parsedMessage.member}
+                Error: ${error}
+            `);
+        }
+
         if (message && message.content.toLowerCase() === "yes") {
             try {
-                await beastiary.animals.releaseAnimal(animal.id);
+                await player.releaseAnimal(animal.id);
             }
             catch (error) {
                 throw new Error(`There was an error deleting an animal in the release command: ${error}`);

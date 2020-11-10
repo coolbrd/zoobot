@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { GuildMember } from "discord.js";
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { beastiary } from "../beastiary/Beastiary";
@@ -5,6 +6,7 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
 import GameObject from "../structures/GameObject";
+import LoadableOwnedAnimal from "../structures/LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
 import { indexWhere } from "../utility/arraysAndSuch";
 import { Animal } from "./Animal";
 
@@ -189,6 +191,26 @@ export class Player extends GameObject {
         return this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf();
     }
 
+    private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
+        const loadableAnimals: LoadableOwnedAnimal[] = [];
+
+        animalIds.forEach(currentAnimalId => {
+            const newLoadableAnimal = new LoadableOwnedAnimal(currentAnimalId, this);
+
+            loadableAnimals.push(newLoadableAnimal);
+        });
+
+        return loadableAnimals;
+    }
+
+    public getCollectionAsLoadableAnimals(): LoadableOwnedAnimal[] {
+        return this.animalIdsToLoadableAnimals(this.collectionAnimalIds);
+    }
+
+    public getCrewAsLoadableAnimals(): LoadableOwnedAnimal[] {
+        return this.animalIdsToLoadableAnimals(this.crewAnimalIds);
+    }
+
     public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
         if (position < 0 || position >= this.collectionAnimalIds.length) {
             return undefined;
@@ -336,13 +358,46 @@ export class Player extends GameObject {
         this.totalEncounters += 1;
     }
 
+    public async fetchAnimalById(id: Types.ObjectId): Promise<Animal | undefined> {
+        if (!this.collectionAnimalIds.includes(id)) {
+            throw new Error(stripIndents`
+                An animal id was attempted to be fetched from a player that didn't own an animal with the given id.
+                Id: ${id}
+                Player: ${this}
+            `);
+        }
+
+        let animal: Animal | undefined;
+        try {
+            animal = await beastiary.animals.fetchById(id);
+        }
+        catch (error) {
+            throw new Error(stripIndents`
+                There was an error fetching an animal by its id in a player's fetch method.
+                Player: ${this}
+                Error: ${error}
+            `);
+        }
+
+        if (!animal) {
+            this.removeAnimalIdFromCollection(id);
+            this.removeAnimalIdFromCrew(id);
+        }
+
+        return animal;
+    }
+
     public async awardCrewExperience(experienceAmount: number): Promise<void> {
         const crewAnimals: Animal[] = [];
         try {
             await new Promise(resolve => {
                 let completed = 0;
                 for (const currentCrewAnimalId of this.crewAnimalIds) {
-                    beastiary.animals.fetchById(currentCrewAnimalId).then(animal => {
+                    this.fetchAnimalById(currentCrewAnimalId).then(animal => {
+                        if (!animal) {
+                            return;
+                        }
+
                         crewAnimals.push(animal);
 
                         if (++completed >= this.crewAnimalIds.length) {
@@ -360,6 +415,39 @@ export class Player extends GameObject {
 
         for (const crewAnimal of crewAnimals) {
             crewAnimal.experience += experienceAmount;
+        }
+    }
+
+    public async releaseAnimal(animalId: Types.ObjectId): Promise<void> {
+        let animal: Animal | undefined;
+        try {
+            animal = await this.fetchAnimalById(animalId);
+        }
+        catch (error) {
+            throw new Error(`There was an error fetching an animal by its id in the animal mananger: ${error}`);
+        }
+
+        if (!animal) {
+            return;
+        }
+
+        this.removeAnimalIdFromCollection(animal.id);
+        this.removeAnimalIdFromCrew(animal.id);
+
+        this.scraps += animal.value;
+
+        try {
+            await beastiary.animals.removeFromCache(animal.id);
+        }
+        catch (error) {
+            throw new Error(`There was an error removing a deleted animal from the cache: ${error}`);
+        }
+
+        try {
+            await animal.delete();
+        }
+        catch (error) {
+            throw new Error(`There was an error deleting an animal object: ${error}`);
         }
     }
 }

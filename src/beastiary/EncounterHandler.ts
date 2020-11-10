@@ -8,6 +8,7 @@ import { todaysMilliseconds } from "../utility/timeStuff";
 import gameConfig from "../config/gameConfig";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../models/PlayerGuild";
+import { stripIndents } from "common-tags";
 
 interface RarityInfo {
     tier: number,
@@ -84,12 +85,27 @@ class EncounterHandler {
             throw new Error("Tried to spawn an animal before the encounter rarity map was formed.");
         }
 
-        let species: Species;
+        const randomSpeciesId = getWeightedRandom(this.rarityMap);
+
+        let species: Species | undefined;
         try {
-            species = await beastiary.species.fetchById(getWeightedRandom(this.rarityMap));
+            species = await beastiary.species.fetchById(randomSpeciesId);
         }
         catch (error) {
-            throw new Error(`There was an error getting a species by an id: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting a species by an id.
+                Id: ${randomSpeciesId}
+                Channel: ${channel}
+                Error: ${error}
+            `);
+        }
+
+        if (!species) {
+            throw new Error(stripIndents`
+                An invalid species id was chosen to be spawned randomly.
+                Id: ${randomSpeciesId}
+                Text channel: ${channel}
+            `);
         }
 
         const encounterMessage = new EncounterMessage(channel, species);

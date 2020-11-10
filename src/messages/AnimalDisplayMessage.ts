@@ -1,12 +1,10 @@
 import { MessageEmbed, TextChannel } from "discord.js";
-import { beastiary } from "../beastiary/Beastiary";
-import { Types } from "mongoose";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
-import LoadableGameObject, { bulkLoad } from '../structures/LoadableGameObject';
-import { Animal } from '../models/Animal';
+import LoadableGameObject, { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
+import { Animal } from "../models/Animal";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -17,35 +15,44 @@ export enum AnimalDisplayMessageState {
 export default abstract class AnimalDisplayMessage extends PointedMessage<LoadableGameObject<Animal>> {
     protected state: AnimalDisplayMessageState;
 
-    constructor(channel: TextChannel, animalIds: Types.ObjectId[]) {
+    constructor(channel: TextChannel, loadableAnimals: LoadableGameObject<Animal>[]) {
         super(channel);
 
         this.state = AnimalDisplayMessageState.page;
 
-        this.buildLoadableAnimalList(animalIds);
+        this.elements.push(...loadableAnimals);
     }
 
-    private buildLoadableAnimalList(animalIds: Types.ObjectId[]): void {
-        animalIds.forEach(currentAnimalId => {
-            const loadableAnimal = new LoadableGameObject(currentAnimalId, beastiary.animals);
-            this.elements.push(loadableAnimal);
+    private get allVisibleAnimalsLoaded(): boolean {
+        return this.visibleElements.every(animal => animal.loaded );
+    }
+
+    private pruneVisibleAnimalsThatFailedToLoad(): void {
+        this.visibleElements.forEach(animal => {
+            if (animal.loadFailed) {
+                const unloadableAnimalIndex = this.elements.indexOf(animal);
+
+                this.elements.splice(unloadableAnimalIndex, 1);
+            }
         });
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        const loadableAnimalsOnPage = this.visibleElements;
+        while (this.allVisibleAnimalsLoaded === false) {
+            try {
+                await bulkLoad(this.visibleElements);
+            }
+            catch (error) {
+                throw new Error(`There was an error bulk loading all the animals on a page of an animal display message: ${error}`);
+            }
 
-        if (loadableAnimalsOnPage.length === 0) {
+            this.pruneVisibleAnimalsThatFailedToLoad();
+        }
+
+        if (this.visibleElements.length === 0) {
             return embed;
-        }
-
-        try {
-            await bulkLoad(loadableAnimalsOnPage);
-        }
-        catch (error) {
-            throw new Error(`There was an error bulk loading all the animals on a page of an animal display message: ${error}`);
         }
 
         const selectedAnimal = this.selection.gameObject;
@@ -56,7 +63,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
 
                 let pageString = "";
                 let elementIndex = this.firstVisibleIndex;
-                loadableAnimalsOnPage.forEach(loadableAnimal => {
+                this.visibleElements.forEach(loadableAnimal => {
                     const currentAnimal = loadableAnimal.gameObject;
 
                     const card = currentAnimal.card;

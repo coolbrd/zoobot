@@ -104,43 +104,6 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         owner.addAnimalIdToCollection(animal.id);
     }
 
-    public async releaseAnimal(animalId: Types.ObjectId): Promise<void> {
-        let animal: Animal;
-        try {
-            animal = await this.fetchById(animalId);
-        }
-        catch (error) {
-            throw new Error(`There was an error fetching an animal by its id in the animal mananger: ${error}`);
-        }
-
-        let owner: Player;
-        try {
-            owner = await beastiary.players.fetch(getGuildMember(animal.ownerId, animal.guildId));
-        }
-        catch (error) {
-            throw new Error(`There was an error fetching a player from the player manager: ${error}`);
-        }
-
-        owner.removeAnimalIdFromCollection(animal.id);
-        owner.removeAnimalIdFromCrew(animal.id);
-
-        owner.scraps += animal.value;
-
-        try {
-            await this.removeFromCache(animal.id);
-        }
-        catch (error) {
-            throw new Error(`There was an error removing a deleted animal from the cache: ${error}`);
-        }
-
-        try {
-            await animal.delete();
-        }
-        catch (error) {
-            throw new Error(`There was an error deleting an animal object: ${error}`);
-        }
-    }
-
     public async searchAnimal(
         searchTerm: string,
         searchOptions?: {
@@ -207,7 +170,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             }
 
             if (animalId) {
-                let animalObject: Animal;
+                let animalObject: Animal | undefined;
                 try {
                     animalObject = await this.fetchById(animalId);
                 }
