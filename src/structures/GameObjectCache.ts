@@ -103,20 +103,19 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             throw new Error(`There was an error fetching a game object's document in a cache by its id: ${error}`);
         }
 
-        if (gameObjectDocument) {
-            const gameObject = this.documentToGameObject(gameObjectDocument);
-
-            try {
-                await this.addToCache(gameObject);
-            }
-            catch (error) {
-                throw new Error(`There was an error adding a game object to the cache after finding it by its id: ${error}`);
-            }
-
-            return gameObject;
-        }
-        else {
+        if (!gameObjectDocument) {
             throw new Error("An id with no matching document was fetched in a game object cache.");
         }
+
+        const gameObject = this.documentToGameObject(gameObjectDocument);
+
+        try {
+            await this.addToCache(gameObject);
+        }
+        catch (error) {
+            throw new Error(`There was an error adding a game object to the cache after finding it by its id: ${error}`);
+        }
+
+        return gameObject;
     }
 }
