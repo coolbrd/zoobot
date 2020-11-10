@@ -115,7 +115,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
     {
         const guildId = searchOptions && searchOptions.guildId;
         const userId = searchOptions && searchOptions.userId;
-        let playerObject = searchOptions && searchOptions.playerObject;
+        let player = searchOptions && searchOptions.playerObject;
         const searchList = searchOptions && searchOptions.searchList;
 
         if (!searchList) {
@@ -143,14 +143,14 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             }
         }
         else {
-            if (!playerObject) {
+            if (!player) {
                 // Make sure there's enough info provided to determine the player object
                 if (!guildId || !userId) {
                     throw new Error("Insufficient information was provided to searchAnimal for the purpose of searching by animal position.");
                 }
 
                 try {
-                    playerObject = await beastiary.players.fetch(getGuildMember(userId, guildId));
+                    player = await beastiary.players.fetch(getGuildMember(userId, guildId));
                 }
                 catch (error) {
                     throw new Error(`There was an error fetching a player object by a guild member while searching an animal: ${error}`);
@@ -160,11 +160,11 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             let animalId: Types.ObjectId | undefined;
             switch (searchList) {
                 case "collection": {
-                    animalId = playerObject.getCollectionIdPositional(searchNumber - 1);
+                    animalId = player.getCollectionIdPositional(searchNumber - 1);
                     break;
                 }
                 case "crew": {
-                    animalId = playerObject.getCrewIdPositional(searchNumber - 1);
+                    animalId = player.getCrewIdPositional(searchNumber - 1);
                     break;
                 }
             }
@@ -172,7 +172,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             if (animalId) {
                 let animalObject: Animal | undefined;
                 try {
-                    animalObject = await this.fetchById(animalId);
+                    animalObject = await player.fetchAnimalById(animalId);
                 }
                 catch (error) {
                     throw new Error(`There was an error fetching a searched animal from the cache: ${error}`);
