@@ -1,7 +1,7 @@
 const gameConfig = {
-    encounterPeriod: 1 * 60 * 1000,
+    encounterPeriod: 2 * 60 * 1000,
     freeEncountersPerPeriod: 5,
-    capturePeriod: 5 * 60 * 1000,
+    capturePeriod: 4 * 60 * 1000,
     freeCapturesPerPeriod: 1,
     experiencePerMessage: 1,
     animalCacheTimeout: 120000,
