@@ -27,11 +27,13 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         return this.cache.get(cacheKey);
     }
 
-    private cacheSet(gameObject: GameObjectType): void {
+    private cacheSet(gameObject: GameObjectType): CachedGameObject<GameObjectType> {
         const cacheKey = this.idToCacheKey(gameObject.id);
         const cacheObject = this.newCacheObject(gameObject);
 
         this.cache.set(cacheKey, cacheObject);
+
+        return cacheObject;
     }
 
     private cacheDelete(gameObjectId: Types.ObjectId): boolean {
@@ -40,15 +42,11 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         return this.cache.delete(cacheKey);
     }
 
-    protected async addToCache(gameObject: GameObjectType): Promise<void> {
+    protected async addToCache(gameObject: GameObjectType): Promise<CachedGameObject<GameObjectType>> {
         const existingCachedGameObject = this.cacheGet(gameObject.id);
 
         if (existingCachedGameObject) {
-            console.log(stripIndents`
-                Ignoring duplicate cache addition.
-                Id: ${existingCachedGameObject.gameObject.id}
-            `);
-            return;
+            return existingCachedGameObject;
         }
 
         try {
@@ -58,7 +56,9 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             throw new Error(`There was an error loading a cached value's information: ${error}`);
         }
 
-        this.cacheSet(gameObject);
+        const newCachedGameObject = this.cacheSet(gameObject);
+
+        return newCachedGameObject;
     }
 
     public async removeFromCache(gameObjectId: Types.ObjectId): Promise<void> {
