@@ -15,8 +15,8 @@ export class Player extends GameObject {
         userId: "userId",
         guildId: "guildId",
         scraps: "scraps",
+        collectionUpgradeLevel: "collectionUpgradeLevel",
         collectionAnimalIds: "collectionAnimalIds",
-        collectionSizeLimit: "collectionSizeLimit",
         crewAnimalIds: "crewAnimalIds",
         freeCapturesLeft: "freeCapturesLeft",
         extraCapturesLeft: "extraCapturesLeft",
@@ -33,7 +33,7 @@ export class Player extends GameObject {
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
             [Player.fieldNames.scraps]: 0,
-            [Player.fieldNames.collectionSizeLimit]: 5,
+            [Player.fieldNames.collectionUpgradeLevel]: 0,
             [Player.fieldNames.freeCapturesLeft]: 0,
             [Player.fieldNames.extraCapturesLeft]: 0,
             [Player.fieldNames.lastCaptureReset]: new Date(0),
@@ -69,12 +69,16 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.scraps, scraps);
     }
 
-    public get collectionAnimalIds(): Types.ObjectId[] {
-        return this.document.get(Player.fieldNames.collectionAnimalIds);
+    public get collectionUpgradeLevel(): number {
+        return this.document.get(Player.fieldNames.collectionUpgradeLevel);
     }
 
-    public get collectionSizeLimit(): number {
-        return this.document.get(Player.fieldNames.collectionSizeLimit);
+    public set collectionUpgradeLevel(collectionUpgradeLevel: number) {
+        this.setDocumentField(Player.fieldNames.collectionUpgradeLevel, collectionUpgradeLevel);
+    }
+
+    public get collectionAnimalIds(): Types.ObjectId[] {
+        return this.document.get(Player.fieldNames.collectionAnimalIds);
     }
 
     public get crewAnimalIds(): Types.ObjectId[] {
@@ -147,6 +151,10 @@ export class Player extends GameObject {
 
     public set totalEncounters(totalEncounters: number) {
         this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
+    }
+
+    public get collectionSizeLimit(): number {
+        return 5;
     }
 
     public get capturesLeft(): number {
@@ -369,12 +377,12 @@ const playerSchema = new Schema({
         type: Number,
         required: true
     },
-    [Player.fieldNames.collectionAnimalIds]: {
-        type: [Schema.Types.ObjectId],
+    [Player.fieldNames.collectionUpgradeLevel]: {
+        type: Number,
         required: true
     },
-    [Player.fieldNames.collectionSizeLimit]: {
-        type: Number,
+    [Player.fieldNames.collectionAnimalIds]: {
+        type: [Schema.Types.ObjectId],
         required: true
     },
     [Player.fieldNames.crewAnimalIds]: {

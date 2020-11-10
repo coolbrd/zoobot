@@ -12,7 +12,7 @@ export default function buildItemShopEmbed(embed: MessageEmbed, player: Player):
     let itemString = "";
     let itemNumber = 1;
     for (const item of itemShop.items) {
-        itemString += `\`${itemNumber})\` ${item.name}: ${item.price} scraps\n`;
+        itemString += `\`${itemNumber})\` ${item.getName(player)}: ${item.getPrice(player)} scraps\n`;
         itemNumber += 1;
     }
 

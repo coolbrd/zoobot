@@ -19,9 +19,13 @@ export default abstract class Shop {
         }
 
         const selectedItem = this.items[itemIndex];
-        const totalPrice = selectedItem.price * quantity;
 
-        const itemNameAndQuantity = `${selectedItem.name} (x${quantity})`;
+        const itemName = selectedItem.getName(player);
+        const itemPrice = selectedItem.getPrice(player);
+
+        const totalPrice = itemPrice * quantity;
+
+        const itemNameAndQuantity = `${itemName} (x${quantity})`;
 
         if (totalPrice > player.scraps) {
             throw new UserError(stripIndents`
@@ -35,7 +39,7 @@ export default abstract class Shop {
         selectedItem.purchaseAction(player, quantity);
 
         const purchaseReceipt: ShopReceipt = {
-            itemName: selectedItem.name,
+            itemName: itemName,
             quantity: quantity,
             nameAndQuantity: itemNameAndQuantity,
             totalPrice: totalPrice
