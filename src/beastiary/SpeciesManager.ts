@@ -25,6 +25,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         catch (error) {
             throw new Error(stripIndents`
                 There was an error fetching a species by its id.
+
                 Id: ${id}
             `);
         }
@@ -46,7 +47,11 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             speciesDocuments = await SpeciesModel.find({});
         }
         catch (error) {
-            throw new Error(`There was an error getting a list of all species from the database: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting a list of all species from the database.
+                
+                ${error}
+            `);
         }
 
         speciesDocuments.sort((a: Document, b: Document) => {
@@ -65,14 +70,22 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             await this.loadAllSpeciesIds();
         }
         catch (error) {
-            throw new Error(`There was an error loading all the species ids within the species manager: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading all the species ids within the species manager.
+                
+                ${error}
+            `);
         }
 
         try {
             await encounterHandler.loadRarityData();
         }
         catch (error) {
-            throw new Error(`There was an error loading the encounter handler's species rarity information: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading the encounter handler's species rarity information.
+                
+                ${error}
+            `);
         }
     }
 
@@ -81,7 +94,11 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             await this.refreshSpecies();
         }
         catch (error) {
-            throw new Error(`There was an error refreshing all species information while initializing the species manager: ${error}`);
+            throw new Error(stripIndents`
+                There was an error refreshing all species information while initializing the species manager.
+                
+                ${error}
+            `);
         }
     }
 
@@ -101,20 +118,20 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                 let completed = 0;
                 speciesDocuments.forEach(currentSpeciesDocument => {
                     this.fetchById(currentSpeciesDocument._id).then(currentSpecies => {
-                        if (!currentSpecies) {
-                            throw new Error(stripIndents`
-                                An invalid species id was encountered during a common name match check.
-                                Id: ${currentSpeciesDocument._id}
-                            `);
-                        }
-
                         speciesList.push(currentSpecies);
 
                         if (++completed >= speciesDocuments.length) {
                             resolve();
                         }
                     }).catch(error => {
-                        throw new Error(`There was an error fetching a species by its id after matching it by a common name substring: ${error}`);
+                        throw new Error(stripIndents`
+                            There was an error fetching a species by its id after matching it by a common name substring.
+
+                            Id: ${currentSpeciesDocument._id}
+                            Matched substring: ${searchedCommonName}
+                            
+                            ${error}
+                        `);
                     });
                 });
             });
@@ -142,7 +159,13 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpeciesDocuments = await SpeciesModel.find({ $text: { $search: searchTerm } });
         }
         catch (error) {
-            throw new Error(`There was an error finding a species by its common name: ${error}`);
+            throw new Error(stripIndents`
+                There was an error finding a species by its common name.
+
+                Search term: ${searchTerm}
+                
+                ${error}
+            `);
         }
 
         let matchingSpecies: Species[];
@@ -150,7 +173,13 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpecies = await this.fetchSpeciesAndCheckForCommonNameMatch(matchingSpeciesDocuments, searchTerm);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a list of species and checking for common name exact matches: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a list of species and checking for common name exact matches.
+                
+                Search term: ${searchTerm}
+                
+                ${error}
+            `);
         }
 
         return matchingSpecies;
@@ -162,7 +191,13 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpecies = await this.searchByCommonNameSubstring(searchTerm);
         }
         catch (error) {
-            throw new Error(`There was an error searching a species by a common name substring: ${error}`);
+            throw new Error(stripIndents`
+                There was an error searching a species by a common name substring.
+
+                Search term: ${searchTerm}
+                
+                ${error}
+            `);
         }
 
         if (matchingSpecies.length === 0) {
@@ -178,7 +213,14 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                 await disambiguationMessage.send();
             }
             catch (error) {
-                throw new Error(`There was an error sending a species disambiguation message: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error sending a species disambiguation message.
+
+                    Channel: ${JSON.stringify(channel)}
+                    Message: ${JSON.stringify(disambiguationMessage)}
+                    
+                    ${error}
+                `);
             }
             return undefined;
         }

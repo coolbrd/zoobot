@@ -8,6 +8,7 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { beastiary } from "./Beastiary";
+import { stripIndents } from "common-tags";
 
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
@@ -26,7 +27,11 @@ export default class PlayerManager extends GameObjectCache<Player> {
             playerDocuments = await PlayerModel.find({}, { [Player.fieldNames.userId]: 1 });
         }
         catch (error) {
-            throw new Error(`There was an error getting all player documents from the database: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting all player documents from the database.
+                
+                ${error}
+            `);
         }
 
         for (const playerDocument of playerDocuments) {
@@ -52,7 +57,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             });
         }
         catch (error) {
-            throw new Error(`There was an error finding an existing player document: ${error}`);
+            throw new Error(stripIndents`
+                There was an error finding an existing player document.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         return playerDocument;
@@ -70,7 +81,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             playerDocument = await this.getPlayerDocumentByGuildMember(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error getting a player document by a guild member: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting a player document by a guild member.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         if (!playerDocument) {
@@ -83,7 +100,14 @@ export default class PlayerManager extends GameObjectCache<Player> {
             await this.addToCache(player);
         }
         catch (error) {
-            throw new Error(`There was an error adding a player to the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error adding a player to the cache.
+
+                Player document: ${JSON.stringify(playerDocument)}
+                Player: ${JSON.stringify(player)}
+                
+                ${error}
+            `);
         }
 
         return player;
@@ -95,7 +119,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             player = await this.fetchExisting(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching an existing player from the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching an existing player from the cache.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         if (!player) {
@@ -103,7 +133,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 player = await this.createNewPlayer(guildMember);
             }
             catch (error) {
-                throw new Error(`There was an error creating a new player object: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error creating a new player object.
+
+                    Guild member: ${JSON.stringify(guildMember)}
+                    
+                    ${error}
+                `);
             }
         }
 
@@ -127,7 +163,14 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 existingPlayer = await beastiary.players.fetchExisting(targetGuildMember);
             }
             catch (error) {
-                throw new Error(`There was an error fetching an existing player by a guild member in the view collection command: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error fetching an existing player by a guild member in the view collection command.
+
+                    Guild member: ${JSON.stringify(targetGuildMember)}
+                    Parsed message: ${JSON.stringify(parsedMessage)}
+                    
+                    ${error}
+                `);
             }
 
             if (!existingPlayer) {
@@ -141,7 +184,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 player = await beastiary.players.fetch(parsedMessage.member);
             }
             catch (error) {
-                throw new Error(`There was an error fetching a player by the guild member of a message sender: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error fetching a player by the guild member of a message sender.
+
+                    Parsed message: ${JSON.stringify(parsedMessage)}
+                    
+                    ${error}
+                `);
             }
         }
 
@@ -155,7 +204,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             await playerDocument.save();
         }
         catch (error) {
-            throw new Error(`There was an error trying to save a new player document: ${error}`);
+            throw new Error(stripIndents`
+                There was an error trying to save a new player document.
+
+                Player document: ${JSON.stringify(playerDocument)}
+                
+                ${error}
+            `);
         }
 
         const player = this.documentToGameObject(playerDocument);
@@ -164,7 +219,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             await this.addToCache(player);
         }
         catch (error) {
-            throw new Error(`There was an error adding a player to the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error adding a player to the cache.
+
+                Player: ${JSON.stringify(player)}
+                
+                ${error}
+            `);
         }
 
         this.playerUserIds.add(guildMember.user.id);
@@ -183,19 +244,32 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
         const guild = message.guild as Guild;
 
+        const guildMember = getGuildMember(message.author, guild);
+
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(message.author, guild));
+            player = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player after they sent a message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player after they sent a message.
+                
+                Guild member: ${JSON.stringify(guildMember)}
+                Message: ${JSON.stringify(message)}
+
+                ${error}
+            `);
         }
 
         try {
             await player.awardCrewExperience(gameConfig.experiencePerMessage);
         }
         catch (error) {
-            throw new Error(`There was an error awarding a player's crew of animals some experience after a message was sent.`);
+            throw new Error(stripIndents`
+                There was an error awarding a player's crew of animals some experience after a message was sent.
+
+                Player: ${JSON.stringify(player)}
+            `);
         }
     }
 }

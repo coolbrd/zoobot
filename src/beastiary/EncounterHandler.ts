@@ -60,7 +60,11 @@ class EncounterHandler {
             speciesDocumentList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
         }
         catch (error) {
-            throw new Error(`There was an error getting all species rarities from the database: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting all species rarities from the database:
+                
+                ${error}
+            `);
         }
 
         this.rarityMap = new Map();
@@ -83,7 +87,11 @@ class EncounterHandler {
 
     public async spawnAnimal(channel: TextChannel): Promise<void> {
         if (this.rarityMap.size < 1) {
-            throw new Error("Tried to spawn an animal before the encounter rarity map was formed.");
+            throw new Error(stripIndents`
+                Tried to spawn an animal before the encounter rarity map was formed.
+
+                Channel: ${JSON.stringify(channel)}
+            `);
         }
 
         const randomSpeciesId = getWeightedRandom(this.rarityMap);
@@ -95,17 +103,20 @@ class EncounterHandler {
         catch (error) {
             throw new Error(stripIndents`
                 There was an error getting a species by an id.
+
                 Id: ${randomSpeciesId}
-                Channel: ${channel}
-                Error: ${error}
+                Channel: ${JSON.stringify(channel)}
+                
+                ${error}
             `);
         }
 
         if (!species) {
             throw new Error(stripIndents`
                 An invalid species id was chosen to be spawned randomly.
+
                 Id: ${randomSpeciesId}
-                Text channel: ${channel}
+                Text channel: ${JSON.stringify(channel)}
             `);
         }
 
@@ -114,7 +125,14 @@ class EncounterHandler {
             await encounterMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a new encounter message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a new encounter message.
+
+                Channel: ${JSON.stringify(channel)}
+                Species: ${JSON.stringify(species)}
+                
+                ${error}
+            `);
         }
     }
 
@@ -130,7 +148,13 @@ class EncounterHandler {
                 playerGuild = await beastiary.playerGuilds.fetchByGuildId(message.guild.id);
             }
             catch (error) {
-                throw new Error(`There was an error fetching a guild by its id: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error fetching a guild by its id.
+
+                    Message: ${JSON.stringify(message)}
+                    
+                    ${error}
+                `);
             }
 
             let encounterChannel: TextChannel;
@@ -140,7 +164,13 @@ class EncounterHandler {
                     encounterChannel = await encounterGuildChannel.fetch() as TextChannel;
                 }
                 catch (error) {
-                    throw new Error(`There was an error fetching a text channel from its guild channel: ${error}`);
+                    throw new Error(stripIndents`
+                        There was an error fetching a text channel from its guild channel.
+
+                        Encounter guild channel: ${JSON.stringify(encounterGuildChannel)}
+                        
+                        ${error}
+                    `);
                 }
             }
             else {
@@ -149,7 +179,13 @@ class EncounterHandler {
                     potentialEncounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
                 }
                 catch (error) {
-                    throw new Error(`There was an error getting the first available text channel in a guild before spawning an animal: ${error}`);
+                    throw new Error(stripIndents`
+                        There was an error getting the first available text channel in a guild before spawning an animal.
+
+                        Guild: ${JSON.stringify(playerGuild.guild)}
+                        
+                        ${error}
+                    `);
                 }
 
                 if (!potentialEncounterChannel) {
@@ -163,7 +199,13 @@ class EncounterHandler {
                 await this.spawnAnimal(encounterChannel);
             }
             catch (error) {
-                throw new Error(`There was an error spawning an animal after a message was sent: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error spawning an animal after a message was sent.
+
+                    Encounter channel: ${JSON.stringify(encounterChannel)}
+                    
+                    ${error}
+                `);
             }
         }
     }

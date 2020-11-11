@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
 import { client } from "../..";
 import getGuildMember from "../../discordUtility/getGuildMember";
@@ -97,7 +98,11 @@ export class GuildCommandParser extends CommandParser {
         super(message, prefixUsed);
 
         if (message.channel.type !== "text") {
-            throw new Error("A message within a non-text channel was given to a guild command parser.");
+            throw new Error(stripIndents`
+                A message within a non-text channel was given to a guild command parser.
+
+                Message: ${JSON.stringify(message)}
+            `);
         }
 
         this.channel = message.channel;

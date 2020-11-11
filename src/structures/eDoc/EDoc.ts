@@ -3,6 +3,7 @@ import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./EDocSkeleton";
 import PointedArray from "../PointedArray";
 import UserError from "../UserError";
+import { stripIndents } from "common-tags";
 
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
@@ -143,7 +144,11 @@ export class EDocField<ValueType extends EDocValue> {
             }
             case "array": {
                 if (!Array.isArray(input)) {
-                    throw new Error("Non-array type given to eDoc array field.");
+                    throw new Error(stripIndents`
+                        Non-array type given to eDoc array field.
+
+                        Input: ${JSON.stringify(input)}
+                    `);
                 }
 
                 (this.value as PointedArray<EDocField<EDocValue>>).clear();
@@ -153,15 +158,22 @@ export class EDocField<ValueType extends EDocValue> {
                         this.push(element);
                     }
                     catch (error) {
-                        console.error("There was an error trying to push a value from a set of values to an eDoc array field.");
-                        throw error;
+                        throw new Error(stripIndents`
+                            There was an error trying to push a value from a set of values to an eDoc array field.
+
+                            Element pushed: ${JSON.stringify(element)}
+                        `);
                     }
                 }
                 break;
             }
             case "edoc": {
                 if (typeof input !== "object") {
-                    throw new Error("Non-Object value given to the set function of an eDoc field.");
+                    throw new Error(stripIndents`
+                        Non-Object value given to the set function of an eDoc field.
+
+                        Input: ${JSON.stringify(input)}
+                    `);
                 }
 
                 // If this field was just given a pre-created eDoc
@@ -178,8 +190,14 @@ export class EDocField<ValueType extends EDocValue> {
                             newEDoc.setField(fieldName, fieldValue);
                         }
                         catch (error) {
-                            console.error("There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.");
-                            throw error;
+                            throw new Error(`
+                                There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.
+
+                                Field name: ${fieldName}
+                                Field value: ${JSON.stringify(fieldValue)}
+
+                                ${error}
+                            `);
                         }
                     }
 
@@ -212,7 +230,11 @@ export class EDocField<ValueType extends EDocValue> {
 
     public push(input?: SimpleEDocValue): void {
         if (this.getTypeString() !== "array") {
-            throw new Error("A non-array eDoc field was attempted to be used like an array field with the push method.");
+            throw new Error(stripIndents`
+                A non-array eDoc field was attempted to be used like an array field with the push method.
+
+                Field: ${JSON.stringify(this)}
+            `);
         }
 
         // Clone the array's info so its element type can be extracted
@@ -222,7 +244,12 @@ export class EDocField<ValueType extends EDocValue> {
         const arrayType = arrayInfo.type;
 
         if (!Array.isArray(arrayType) || !Array.isArray(this.value)) {
-            throw new Error("A non-array type was found in an eDoc array field.");
+            throw new Error(stripIndents`
+                A non-array type was found in an eDoc array field.
+
+                Field: ${JSON.stringify(this)}
+                Array type: ${JSON.stringify(arrayType)}
+            `);
         }
 
         const elementInfo = arrayType[0];
@@ -263,7 +290,11 @@ export class EDocField<ValueType extends EDocValue> {
                     minimumLength = this.info.arrayOptions.minimumLength;
 
                     if (minimumLength < 0) {
-                        throw new Error("Negative length given to an eDoc field's arrayOptions.minimumLength");
+                        throw new Error(stripIndents`
+                            Negative length given to an eDoc field's arrayOptions.minimumLength.
+                            
+                            Length: ${minimumLength}
+                        `);
                     }
                 }
 
@@ -368,7 +399,12 @@ export class EDocField<ValueType extends EDocValue> {
                     const displayFieldName = this.info.documentOptions.displayField;
 
                     if (!value.hasField(displayFieldName)) {
-                        throw new Error("Invalid field name found in eDocField.info.documentOptions.displayField");
+                        throw new Error(stripIndents`
+                            Invalid field name found in eDocField.info.documentOptions.displayField.
+
+                            Field name: ${displayFieldName}
+                            eDoc: ${JSON.stringify(this)}
+                        `);
                     }
 
                     const displayField = value.getField(displayFieldName);
@@ -412,7 +448,11 @@ export class EDoc {
         const field = this.fields.get(fieldName);
 
         if (!field) {
-            throw new RangeError('Attempted to get data from an EDoc field that doesn\'t exist.');
+            throw new RangeError(stripIndents`
+                Attempted to get data from an EDoc field that doesn't exist.
+
+                Field name: ${fieldName}
+            `);
         }
 
         return field;
@@ -426,7 +466,11 @@ export class EDoc {
         const selectedField = this.fields.get(this.fieldNames.selection);
 
         if (!selectedField) {
-            throw new Error('A field name that mapped to no field in an EDoc\'s fields was found.');
+            throw new Error(stripIndents`
+                A field name that mapped to no field in an EDoc's fields was found.
+
+                Selected field name: ${this.fieldNames.selection}
+            `);
         }
 
         return selectedField;
@@ -438,7 +482,11 @@ export class EDoc {
 
     public setField(fieldName: string, value: SimpleEDocValue): void {
         if (!this.hasField(fieldName)) {
-            throw new Error(`Attempted to set an eDoc's field by a name that doesn't map to any existing field. Invalid field: '${fieldName}'`);
+            throw new Error(stripIndents`
+                Attempted to set an eDoc's field by a name that doesn't map to any existing field.
+                
+                Field name: ${fieldName}
+            `);
         }
 
         this.getField(fieldName).setValue(value);

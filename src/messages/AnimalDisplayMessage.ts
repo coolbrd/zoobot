@@ -5,6 +5,7 @@ import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
 import LoadableGameObject, { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { stripIndents } from "common-tags";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -45,7 +46,13 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
                 await bulkLoad(this.visibleElements);
             }
             catch (error) {
-                throw new Error(`There was an error bulk loading all the animals on a page of an animal display message: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error bulk loading all the animals on a page of an animal display message.
+
+                    Animals on page: ${JSON.stringify(this.visibleElements)}
+                    
+                    ${error}
+                `);
             }
 
             this.pruneVisibleAnimalsThatFailedToLoad();

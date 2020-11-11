@@ -6,6 +6,7 @@ import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
 import SpeciesDisplayMessage from "../messages/SpeciesDisplayMessage";
 import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
+import { stripIndents } from "common-tags";
 
 export default class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
@@ -31,7 +32,13 @@ export default class SpeciesInfoCommand extends Command {
             species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a species by its common name in the species info comman: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a species by its common name in the species info command.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (species === undefined) {
@@ -43,7 +50,13 @@ export default class SpeciesInfoCommand extends Command {
             await infoMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a new species info message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a new species info message.
+
+                Info message: ${JSON.stringify(infoMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

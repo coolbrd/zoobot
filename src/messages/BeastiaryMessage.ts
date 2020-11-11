@@ -6,6 +6,7 @@ import LoadableCacheableGameObject from '../structures/LoadableGameObject/Loadab
 import { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from './PagedMessage';
+import { stripIndents } from "common-tags";
 
 export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
@@ -32,14 +33,22 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
             await this.buildLoadableSpeciesList();
         }
         catch (error) {
-            throw new Error(`There was an error getting the ids of all species in a Beastiary message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting the ids of all species in a Beastiary message.
+                
+                ${error}
+            `);
         }
 
         try {
             await super.build();
         }
         catch (error) {
-            throw new Error(`There was an error building the inherited information in a Beastiary message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error building the inherited information in a Beastiary message.
+                
+                ${error}
+            `);
         }
     }
     
@@ -48,7 +57,13 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
             await bulkLoad(this.visibleElements);
         }
         catch (error) {
-            throw new Error(`There was an error loading all the species on the current page of a Beastiary message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading all the species on the current page of a Beastiary message.
+
+                Species on page: ${JSON.stringify(this.visibleElements)}
+                
+                ${error}
+            `);
         }
 
         const embed = new SmartEmbed();

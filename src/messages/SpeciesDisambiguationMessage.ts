@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { MessageEmbed } from "discord.js";
 import SpeciesDisplayMessage from "./SpeciesDisplayMessage";
 
@@ -8,7 +9,11 @@ export default class SpeciesDisambiguationMessage extends SpeciesDisplayMessage 
             embed = await super.buildEmbed();
         }
         catch (error) {
-            throw new Error(`There was an error building a species disambiguation message's inherited information: ${error}`);
+            throw new Error(stripIndents`
+                There was an error building a species disambiguation message's inherited information.
+                
+                ${error}
+            `);
         }
 
         embed.setColor(0xFFFF00);

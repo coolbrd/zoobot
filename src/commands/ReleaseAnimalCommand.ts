@@ -39,7 +39,13 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(`There was an error searching an animal in the release command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error searching an animal in the release command.
+
+                Message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!animal) {
@@ -60,11 +66,21 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             confirmMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: releaseEmbed }));
         }
         catch (error) {
-            throw new Error(`There was an error sending a release command confirmation message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a release command confirmation message.
+
+                Message: ${JSON.stringify(confirmMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!confirmMessage) {
-            throw new Error("There was an error sending a release command confirmation message.");
+            throw new Error(stripIndents`
+                There was an error sending a release command confirmation message.
+
+                Channel: ${JSON.stringify(parsedMessage.channel)}
+            `);
         }
 
         let message: Message | undefined;
@@ -72,7 +88,13 @@ export default class ReleaseAnimalCommand extends GuildCommand {
             message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 6000);
         }
         catch (error) {
-            throw new Error(`There was an error awaiting a user's next message in the release command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error awaiting a user's next message in the release command.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         let player: Player;
@@ -82,8 +104,10 @@ export default class ReleaseAnimalCommand extends GuildCommand {
         catch (error) {
             throw new Error(stripIndents`
                 There was an error fetching a player in the release animal command.
+
                 Member: ${parsedMessage.member}
-                Error: ${error}
+
+                ${error}
             `);
         }
 
@@ -92,7 +116,14 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 await player.releaseAnimal(animal.id);
             }
             catch (error) {
-                throw new Error(`There was an error deleting an animal in the release command: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error deleting an animal in the release command.
+
+                    Player: ${JSON.stringify(player)}
+                    Animal: ${JSON.stringify(animal)}
+                    
+                    ${error}
+                `);
             }
 
             releaseEmbed.setDescription("Release confirmed.");
@@ -102,7 +133,13 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 await confirmMessage.edit(releaseEmbed);
             }
             catch (error) {
-                throw new Error(`There was an error editing a release confirmation message: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error editing a release confirmation message.
+
+                    Confirmation message: ${JSON.stringify(confirmMessage)}
+                    
+                    ${error}
+                `);
             }
 
             betterSend(parsedMessage.channel, `${animal.displayName} was released. **+${animal.value}** scraps.`);
@@ -115,7 +152,13 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 await confirmMessage.edit(releaseEmbed);
             }
             catch (error) {
-                throw new Error(`There was an error editing a release confirmation message: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error editing a release confirmation message.
+
+                    Confirmation message: ${JSON.stringify(confirmMessage)}
+                    
+                    ${error}
+                `);
             }
         }
     }

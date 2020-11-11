@@ -7,6 +7,7 @@ import LoadableCacheableGameObject from '../structures/LoadableGameObject/Loadab
 import { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';
 import PointedMessage from './PointedMessage';
+import { stripIndents } from "common-tags";
 
 export default class SpeciesRarityMessage extends PointedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
@@ -25,14 +26,22 @@ export default class SpeciesRarityMessage extends PointedMessage<LoadableCacheab
             await this.buildLoadableSpeciesList();
         }
         catch (error) {
-            throw new Error(`There was an error getting the ids of all species in a rarity viewing message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting the ids of all species in a rarity viewing message.
+                
+                ${error}
+            `);
         }
 
         try {
             await super.build();
         }
         catch (error) {
-            throw new Error(`There was an error building the inherited information in a rarity viewing message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error building the inherited information in a rarity viewing message.
+                
+                ${error}
+            `);
         }
     }
 
@@ -41,7 +50,13 @@ export default class SpeciesRarityMessage extends PointedMessage<LoadableCacheab
             await bulkLoad(this.visibleElements);
         }
         catch (error) {
-            throw new Error(`There was an error loading the species on the current page of a species rarity message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading the species on the current page of a species rarity message.
+
+                Species on page: ${JSON.stringify(this.visibleElements)}
+                
+                ${error}
+            `);
         }
 
         const embed = new SmartEmbed();

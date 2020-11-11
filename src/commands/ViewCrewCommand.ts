@@ -37,7 +37,13 @@ export default class ViewCrewCommand extends GuildCommand {
             await crewMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a crew message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a crew message.
+
+                Crew message: ${JSON.stringify(crewMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

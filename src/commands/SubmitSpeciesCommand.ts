@@ -40,7 +40,11 @@ export default class SubmitSpeciesCommand extends Command {
         const infoMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: infoEmbed }));
 
         if (!infoMessage) {
-            throw new Error("Unable to send the initial species submission message to a user through DMs.");
+            throw new Error(stripIndents`
+                Unable to send the initial species submission message.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+            `);
         }
 
         let reactionConfirmed: string | undefined;
@@ -48,7 +52,14 @@ export default class SubmitSpeciesCommand extends Command {
             reactionConfirmed = await reactionInput(infoMessage, 60000, ["✅"]);
         }
         catch (error) {
-            throw new Error(`There was an error getting the reaction input on a message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting the reaction input on a message.
+
+                Info message: ${JSON.stringify(infoMessage)}
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!reactionConfirmed) {
@@ -129,7 +140,13 @@ export default class SubmitSpeciesCommand extends Command {
             await submissionMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a new species submission message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a new species submission message.
+
+                Submission message: ${JSON.stringify(submissionMessage)}
+                
+                ${error}
+            `);
         }
 
         submissionMessage.once("timeExpired", () => {
@@ -157,7 +174,13 @@ export default class SubmitSpeciesCommand extends Command {
             pendingSpecies.save().then(() => {
                 betterSend(parsedMessage.channel, "Submission accepted. Thanks for contributing to The Beastiary!");
             }).catch(error => {
-                throw new Error(`There was an error saving a new pending species document: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error saving a new pending species document.
+
+                    Pending species document: ${JSON.stringify(pendingSpecies)}
+                    
+                    ${error}
+                `);
             });
         });
     }

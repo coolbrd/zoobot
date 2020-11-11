@@ -36,7 +36,13 @@ export default class ViewPlayerProfileCommand extends GuildCommand {
             await playerProfileMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a profile message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a profile message.
+
+                Profile message: ${JSON.stringify(playerProfileMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

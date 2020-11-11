@@ -2,6 +2,7 @@ import { TextChannel, MessageEmbed, User } from "discord.js";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import AnimalDisplayMessage, { AnimalDisplayMessageState } from "./AnimalDisplayMessage";
+import { stripIndents } from "common-tags";
 
 export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 90000;
@@ -23,7 +24,13 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             await super.build();
         }
         catch (error) {
-            throw new Error(`There was an error building an animal display message's inherited information: ${error}`);
+            throw new Error(stripIndents`
+                There was an error building an animal display message's inherited information.
+
+                Collection message: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         if (this.elements.length > 0) {
@@ -41,7 +48,13 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             embed = await super.buildEmbed();
         }
         catch (error) {
-            throw new Error(`There was an error building a collection message's inherited embed information: ${error}`);
+            throw new Error(stripIndents`
+                There was an error building a collection message's inherited embed information.
+
+                Collection message: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         const collection = this.elements;
@@ -67,7 +80,11 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             await super.buttonPress(buttonName, user);
         }
         catch (error) {
-            throw new Error(`There was an error performing inherited button behavior in a collection message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error performing inherited button behavior in a collection message.
+                
+                ${error}
+            `);
         }
 
         switch (buttonName) {

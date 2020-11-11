@@ -314,17 +314,29 @@ export class Player extends GameObject {
             this.extraCapturesLeft -= 1;
         }
         else {
-            throw new Error("A player's captures were decremented when the player had none left.");
+            throw new Error(stripIndents`
+                A player's captures were decremented when the player had none left.
+
+                Player: ${JSON.stringify(this)}
+            `);
         }
     }
 
     public captureAnimal(): void {
         if (!this.hasCaptures) {
-            throw new Error("A player's capture stats were updated as if they captured an animal without any remaining captures.");
+            throw new Error(stripIndents`
+                A player's capture stats were updated as if they captured an animal without any remaining captures.
+
+                Player: ${JSON.stringify(this)}
+            `);
         }
 
         if (this.collectionFull) {
-            throw new Error("A player's capture stats were updated as if they captured an animal when their collection was full. ");
+            throw new Error(stripIndents`
+                A player's capture stats were updated as if they captured an animal when their collection was full.
+
+                Player: ${JSON.stringify(this)}
+            `);
         }
 
         this.decrementCapturesLeft();
@@ -346,13 +358,21 @@ export class Player extends GameObject {
             this.extraEncountersLeft -= 1;
         }
         else {
-            throw new Error("A player's encounters were decremented when the player had none left.");
+            throw new Error(stripIndents`
+                A player's encounters were decremented when the player had none left.
+
+                Player: ${JSON.stringify(this)}
+            `);
         }
     }
 
     public encounterAnimal(): void {
         if (!this.hasEncounters) {
-            throw new Error("A player's encounter stats were updated as if it encountered an animal without any remaining encounters.");
+            throw new Error(stripIndents`
+                A player's encounter stats were updated as if it encountered an animal without any remaining encounters.
+
+                Player: ${JSON.stringify(this)}
+            `);
         }
 
         this.decrementEncountersLeft();
@@ -363,8 +383,9 @@ export class Player extends GameObject {
         if (!this.collectionAnimalIds.includes(id)) {
             throw new Error(stripIndents`
                 An animal id was attempted to be fetched from a player that didn't own an animal with the given id.
+
                 Id: ${id}
-                Player: ${this}
+                Player: ${JSON.stringify(this)}
             `);
         }
 
@@ -375,8 +396,10 @@ export class Player extends GameObject {
         catch (error) {
             throw new Error(stripIndents`
                 There was an error fetching an animal by its id in a player's fetch method.
-                Player: ${this}
-                Error: ${error}
+
+                Player: ${JSON.stringify(this)}
+
+                ${error}
             `);
         }
 
@@ -405,13 +428,26 @@ export class Player extends GameObject {
                             resolve();
                         }
                     }).catch(error => {
-                        throw new Error(`There was an error fetching a player's crew animal by its id: ${error}`);
+                        throw new Error(stripIndents`
+                            There was an error fetching a player's crew animal by its id.
+
+                            Id: ${currentCrewAnimalId}
+                            Player: ${JSON.stringify(this)}
+                            
+                            ${error}
+                        `);
                     });
                 }
             });
         }
         catch (error) {
-            throw new Error(`There was an error bulk fetching a player's crew animals: ${error}`);
+            throw new Error(stripIndents`
+                There was an error bulk fetching a player's crew animals.
+
+                Player: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         for (const crewAnimal of crewAnimals) {
@@ -425,7 +461,14 @@ export class Player extends GameObject {
             animal = await this.fetchAnimalById(animalId);
         }
         catch (error) {
-            throw new Error(`There was an error fetching an animal by its id in the animal mananger: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching an animal by its id in the animal mananger.
+
+                Id: ${animalId}
+                Player: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         if (!animal) {
@@ -441,14 +484,26 @@ export class Player extends GameObject {
             await beastiary.animals.removeFromCache(animal.id);
         }
         catch (error) {
-            throw new Error(`There was an error removing a deleted animal from the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error removing a deleted animal from the cache.
+
+                Animal: ${JSON.stringify(animal)}
+                
+                ${error}
+            `);
         }
 
         try {
             await animal.delete();
         }
         catch (error) {
-            throw new Error(`There was an error deleting an animal object: ${error}`);
+            throw new Error(stripIndents`
+                There was an error deleting an animal object.
+
+                Animal: ${JSON.stringify(animal)}
+                
+                ${error}
+            `);
         }
     }
 }

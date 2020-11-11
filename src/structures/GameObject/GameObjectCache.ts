@@ -53,7 +53,13 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await gameObject.loadFields();
         }
         catch (error) {
-            throw new Error(`There was an error loading a cached value's information: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading a cached value's information.
+
+                Game object: ${JSON.stringify(gameObject)}
+                
+                ${error}
+            `);
         }
 
         const newCachedGameObject = this.cacheSet(gameObject);
@@ -65,7 +71,11 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const cachedGameObject = this.cacheGet(gameObjectId);
 
         if (!cachedGameObject) {
-            throw new Error("Attempted to delete a value that isn't in the specified cache.");
+            throw new Error(stripIndents`
+                Attempted to delete a value that isn't in the specified cache.
+
+                Id: ${gameObjectId}
+            `);
         }
 
         cachedGameObject.stopTimer();
@@ -74,7 +84,13 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await cachedGameObject.gameObject.save();
         }
         catch (error) {
-            throw new Error(`There was an error saving a game object before it was removed from the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error saving a game object before it was removed from the cache.
+
+                Game object: ${JSON.stringify(cachedGameObject.gameObject)}
+                
+                ${error}
+            `);
         }
 
         this.cacheDelete(cachedGameObject.gameObject.id);
@@ -104,7 +120,14 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             gameObjectDocument = await this.model.findById(id);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a game object's document in a cache by its id: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a game object's document in a cache by its id.
+
+                Id: ${id}
+                Cache: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         if (!gameObjectDocument) {
@@ -117,7 +140,14 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await this.addToCache(gameObject);
         }
         catch (error) {
-            throw new Error(`There was an error adding a game object to the cache after finding it by its id: ${error}`);
+            throw new Error(stripIndents`
+                There was an error adding a game object to the cache after finding it by its id.
+
+                Game object: ${JSON.stringify(gameObject)}
+                Cache: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         return gameObject;

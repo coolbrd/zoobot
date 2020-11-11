@@ -1,7 +1,11 @@
+import { stripIndents } from "common-tags";
+
 // Selects a random item from a map of items and their respective weights
 export function getWeightedRandom<T>(items: Map<T, number>): T {
     if (items.size <= 0) {
-        throw new Error(`An empty map was given to getWeightedRandom.`);
+        throw new Error(stripIndents`
+            An empty map was given to getWeightedRandom.
+        `);
     }
 
     let totalWeight = 0;
@@ -19,7 +23,9 @@ export function getWeightedRandom<T>(items: Map<T, number>): T {
         currentSum += weight;
     }
 
-    throw new Error("No item selected from weighted random function. This shouldn't happen.");
+    throw new Error(stripIndents`
+        No item selected from weighted random function. This shouldn't happen.
+    `);
 }
 
 export function getWeightedRarityMinimumOccurrence(weightedRarity: number, descendingWeightedRarityList: number[]): number {

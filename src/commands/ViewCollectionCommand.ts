@@ -37,7 +37,13 @@ export default class ViewCollectionCommand extends GuildCommand {
             await collectionMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a collection message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a collection message.
+
+                Collection message: ${JSON.stringify(collectionMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

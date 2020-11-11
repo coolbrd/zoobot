@@ -9,6 +9,7 @@ import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from '../beastiary/Beastiary';
 import { commonNamesToLowerArray, CommonNameTemplate } from '../structures/GameObject/GameObjects/Species';
+import { stripIndents } from "common-tags";
 
 export default class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
@@ -34,7 +35,13 @@ export default class ApprovePendingSpeciesCommand extends Command {
             pendingSpeciesDocument = await PendingSpeciesModel.findOne({ [PendingSpecies.fieldNames.commonNamesLower]: fullSearchTerm });
         }
         catch (error) {
-            throw new Error(`There was an error trying to find a pending species document in the database: ${error}`);
+            throw new Error(stripIndents`
+                There was an error trying to find a pending species document in the database.
+
+                Search term: ${fullSearchTerm}
+                
+                ${error}
+            `);
         }
 
         if (!pendingSpeciesDocument) {
@@ -50,7 +57,13 @@ export default class ApprovePendingSpeciesCommand extends Command {
             await approvalMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error attempting to send a species approval message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error attempting to send a species approval message.
+
+                Message: ${JSON.stringify(approvalMessage)}
+                
+                ${error}
+            `);
         }
 
         approvalMessage.once("timeExpired", () => {
@@ -77,14 +90,30 @@ export default class ApprovePendingSpeciesCommand extends Command {
                 betterSend(parsedMessage.channel, "Species approved.");
 
                 beastiary.species.refreshSpecies().catch(error => {
-                    throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
+                    throw new Error(stripIndents`
+                        There was an error reloading the species rarity table after adding a new species.
+                        
+                        ${error}
+                    `);
                 });
 
                 pendingSpeciesObject.delete().catch(error => {
-                    throw new Error(`There was an error attempting to delete a newly approved pending species from the database: ${error}`);
+                    throw new Error(stripIndents`
+                        There was an error attempting to delete a newly approved pending species from the database.
+
+                        Pending species: ${JSON.stringify(pendingSpeciesObject)}
+                        
+                        ${error}
+                    `);
                 });
             }).catch(error => {
-                throw new Error(`There was an error attempting to save a newly approved species to the database: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error attempting to save a newly approved species to the database.
+
+                    Species document: ${JSON.stringify(speciesDocument)}
+                    
+                    ${error}
+                `);
             });
         });
     }

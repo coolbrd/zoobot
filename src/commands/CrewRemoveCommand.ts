@@ -5,6 +5,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { stripIndents } from "common-tags";
 
 export default class CrewRemoveCommand extends GuildCommand {
     public readonly commandNames = ["crewremove", "crr"];
@@ -29,12 +30,20 @@ export default class CrewRemoveCommand extends GuildCommand {
 
         const searchTerm = parsedMessage.fullArguments.toLowerCase();
 
+        const guildMember = getGuildMember(parsedMessage.sender, parsedMessage.channel);
+
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
+            player = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in the crew remove command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player in the crew remove command.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         let animal: Animal | undefined;
@@ -47,7 +56,14 @@ export default class CrewRemoveCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(`There was an error searching for an animal in a player's crew: ${error}`);
+            throw new Error(stripIndents`
+                There was an error searching for an animal in a player's crew.
+
+                Player: ${JSON.stringify(player)}
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!animal) {

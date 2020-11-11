@@ -4,6 +4,7 @@ import { client } from "../../..";
 import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
 import { GuildModel } from '../../../models/PlayerGuild';
+import { stripIndents } from "common-tags";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
@@ -29,7 +30,11 @@ export class PlayerGuild extends GameObject {
         const guild = client.guilds.resolve(this.guildId);
 
         if (!guild) {
-            throw new Error("A player guild with an invalid guild id tried to resolve its id to a guild.");
+            throw new Error(stripIndents`
+                A player guild with an invalid guild id tried to resolve its id to a guild.
+
+                Guild id: ${this.guildId}
+            `);
         }
 
         this.guild = guild;

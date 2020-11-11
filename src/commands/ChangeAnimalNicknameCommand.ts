@@ -4,6 +4,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { stripIndents } from "common-tags";
 
 export default class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly commandNames = ["nickname", "nick", "nn"];
@@ -37,7 +38,13 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(`There as an error searching an animal by its nickname: ${error}`);
+            throw new Error(stripIndents`
+                There as an error searching an animal by its nickname.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!animal) {

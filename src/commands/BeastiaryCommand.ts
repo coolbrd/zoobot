@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import BeastiaryMessage from "../messages/BeastiaryMessage";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -19,7 +20,13 @@ export default class BeastiaryCommand extends Command {
             await beastiaryMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a beastiary message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a beastiary message.
+
+                Message: ${JSON.stringify(beastiaryMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

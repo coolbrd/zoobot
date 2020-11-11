@@ -20,8 +20,9 @@ export default class LoadableOwnedAnimal extends LoadableGameObject<Animal> {
         catch (error) {
             throw new Error(stripIndents`
                 There was an error loading an owned animal from its owner's collection.
+
                 Id: ${this.id}
-                Owner: ${this.owner}
+                Owner: ${JSON.stringify(this.owner)}
 
                 ${error}
             `);

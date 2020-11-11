@@ -6,6 +6,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
+import { stripIndents } from "common-tags";
 
 export default class EncounterCommand extends GuildCommand {
     public readonly commandNames = ["encounter", "e"];
@@ -21,12 +22,20 @@ export default class EncounterCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
+        const guildMember = getGuildMember(parsedMessage.sender, parsedMessage.channel);
+
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
+            player = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player for use in the encounter command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player for use in the encounter command.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         if (!player.hasEncounters) {
@@ -40,7 +49,13 @@ export default class EncounterCommand extends GuildCommand {
             await encounterHandler.spawnAnimal(parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(`There was an error creating a new animal encounter: ${error}`);
+            throw new Error(stripIndents`
+                There was an error creating a new animal encounter.
+
+                Message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
     }
 }

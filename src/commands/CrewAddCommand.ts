@@ -5,6 +5,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { stripIndents } from "common-tags";
 
 export default class CrewAddCommand extends GuildCommand {
     public readonly commandNames = ["crewadd", "cra"];
@@ -38,7 +39,14 @@ export default class CrewAddCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(`There was an error searching for an animal when attempting to add an animal to a player's crew: ${error}`);
+            throw new Error(stripIndents`
+                There was an error searching for an animal when attempting to add an animal to a player's crew.
+
+                Search term: ${animalIdentifier}
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (!animal) {
@@ -46,12 +54,20 @@ export default class CrewAddCommand extends GuildCommand {
             return false;
         }
 
+        const guildMember = getGuildMember(parsedMessage.sender, parsedMessage.channel);
+
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.channel));
+            player = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in the animal add to crew command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player in the animal add to crew command.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         if (player.crewAnimalIds.includes(animal.id)) {

@@ -10,6 +10,7 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { Player } from "../structures/GameObject/GameObjects/Player";
+import { stripIndents } from "common-tags";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -64,7 +65,13 @@ export default class EncounterMessage extends InteractiveMessage {
             player = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in an encounter message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player in an encounter message.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         if (!player.canCapture) {
@@ -94,7 +101,15 @@ export default class EncounterMessage extends InteractiveMessage {
         catch (error) {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
 
-            throw new Error(`There was an error creating a new animal in an encounter message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error creating a new animal in an encounter message.
+
+                Player: ${JSON.stringify(player)}
+                Species: ${JSON.stringify(this.species)}
+                Card: ${JSON.stringify(this.card)}
+                
+                ${error}
+            `);
         }
 
         this.deactivate();

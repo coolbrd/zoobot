@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import gameConfig from "../../config/gameConfig";
 
@@ -29,7 +30,13 @@ export default abstract class GameObject {
             this.save().then(() => {
                 this.unmodify();
             }).catch(error => {
-                throw new Error(`There was an error saving a game object's document after it was modified: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error saving a game object's document after it was modified.
+
+                    Game object: ${JSON.stringify(this)}
+                    
+                    ${error}
+                `);
             });
         }, this.saveDelay);
     }
@@ -74,7 +81,13 @@ export default abstract class GameObject {
             await this.document.save();
         }
         catch (error) {
-            throw new Error(`There was an error saving a game object's document: ${error}`);
+            throw new Error(stripIndents`
+                There was an error saving a game object's document.
+
+                Document: ${JSON.stringify(this.document)}
+                
+                ${error}
+            `);
         }
     }
 
@@ -83,7 +96,11 @@ export default abstract class GameObject {
             await this.saveDocument();
         }
         catch (error) {
-            throw new Error(`There was an error saving a game object's document before unmodifying it: ${error}`);
+            throw new Error(stripIndents`
+                There was an error saving a game object's document before unmodifying it.
+                
+                ${error}
+            `);
         }
     }
 
@@ -95,7 +112,13 @@ export default abstract class GameObject {
             await this.document.deleteOne();
         }
         catch (error) {
-            throw new Error(`There was an error deleting a game object's document: ${error}`);
+            throw new Error(stripIndents`
+                There was an error deleting a game object's document.
+
+                Document: ${JSON.stringify(this.document)}
+                
+                ${error}
+            `);
         }
     }
 }

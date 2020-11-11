@@ -30,12 +30,20 @@ export default class MoveAnimalsCommand extends GuildCommand {
             return false;
         }
 
+        const guildMember = getGuildMember(parsedUserCommand.sender, parsedUserCommand.guild);
+
         let playerObject: Player;
         try {
-            playerObject = await beastiary.players.fetch(getGuildMember(parsedUserCommand.sender, parsedUserCommand.guild));
+            playerObject = await beastiary.players.fetch(guildMember);
         }
         catch (error) {
-            throw new Error(`There was an error getting a player object in the move animals command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting a player object in the move animals command.
+
+                Guild member: ${JSON.stringify(guildMember)}
+                
+                ${error}
+            `);
         }
 
         const positions: number[] = [];

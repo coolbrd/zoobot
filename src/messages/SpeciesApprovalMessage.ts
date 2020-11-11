@@ -4,6 +4,7 @@ import PendingSpecies from "../structures/GameObject/GameObjects/PendingSpecies"
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { EDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "./EDocMessage";
+import { stripIndents } from "common-tags";
 
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpecies;
@@ -158,7 +159,11 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             await super.buttonPress(buttonName, user);
         }
         catch (error) {
-            throw new Error(`There was an error performing inherited button press information in a species approval message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error performing inherited button press information in a species approval message.
+                
+                ${error}
+            `);
         }
 
         if (buttonName === "deny") {
@@ -166,7 +171,13 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 await this.pendingSpeciesObject.delete();
             }
             catch (error) {
-                throw new Error(`There was an error deleting a denied pending species: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error deleting a denied pending species.
+
+                    Pending species: ${JSON.stringify(this.pendingSpeciesObject)}
+                    
+                    ${error}
+                `);
             }
             
             this.emit("deny");

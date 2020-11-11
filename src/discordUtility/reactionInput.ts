@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { Message, MessageReaction, User } from "discord.js";
 
 // Adds reactions to a message and waits for a user to press one of them
@@ -9,7 +10,14 @@ export default async function reactionInput(message: Message, timeOut: number, e
         }
     }
     catch (error) {
-        throw new Error(`There was an error reacting to a message in reactionInput: ${error}`);
+        throw new Error(stripIndents`
+            There was an error reacting to a message in reactionInput.
+
+            Message: ${JSON.stringify(message)}
+            Emojis: ${emojis}
+            
+            ${error}
+        `);
     }
 
     const reactionCollectorFilter = (reaction: MessageReaction, user: User) => {

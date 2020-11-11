@@ -5,6 +5,7 @@ import { CommonNameTemplate, Species, SpeciesCardTemplate } from "../structures/
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
+import { stripIndents } from "common-tags";
 
 export default class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
@@ -30,7 +31,14 @@ export default class EditSpeciesCommand extends Command {
             species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a species in the edit species command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a species in the edit species command.
+
+                Search term: ${fullSearchTerm}
+                Channel: ${JSON.stringify(parsedMessage.channel)}
+                
+                ${error}
+            `);
         }
 
         if (species === undefined) {
@@ -42,7 +50,13 @@ export default class EditSpeciesCommand extends Command {
             await editMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending a species edit message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending a species edit message.
+
+                Message: ${JSON.stringify(editMessage)}
+                
+                ${error}
+            `);
         }
 
         editMessage.once("timeExpired", () => {
@@ -55,7 +69,11 @@ export default class EditSpeciesCommand extends Command {
 
         editMessage.once("submit", (finalDocument: SimpleEDoc) => {
             if (!species) {
-                throw new Error("Undefined species value somehow encountered after species edit document submission.");
+                throw new Error(stripIndents`
+                    Undefined species value somehow encountered after species edit document submission.
+
+                    Final document: ${JSON.stringify(finalDocument)}
+                `);
             }
 
             species.setCommonNameObjects(finalDocument[Species.fieldNames.commonNames] as unknown as CommonNameTemplate[]);
@@ -70,10 +88,20 @@ export default class EditSpeciesCommand extends Command {
                 betterSend(parsedMessage.channel, "Edit successful.");
 
                 beastiary.species.refreshSpecies().catch(error => {
-                    throw new Error(`There was an error reloading the species rarity table after adding a new species: ${error}`);
+                    throw new Error(stripIndents`
+                        There was an error reloading the species rarity table after adding a new species.
+                        
+                        ${error}
+                    `);
                 });
             }).catch(error => {
-                throw new Error(`There was an error saving a species after editing it: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error saving a species after editing it.
+
+                    Species: ${JSON.stringify(species)}
+                    
+                    ${error}
+                `);
             })
         });
     }

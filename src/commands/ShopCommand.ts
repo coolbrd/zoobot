@@ -10,6 +10,7 @@ import buildItemShopEmbed from "../embedBuilders/buildItemShop";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { parse } from "path";
 
 export default class ShopCommand extends GuildCommand {
     public readonly commandNames = ["shop", "s"];
@@ -40,7 +41,13 @@ export default class ShopCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player in the shop command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player in the shop command.
+
+                Guild member: ${JSON.stringify(parsedMessage.member)}
+                
+                ${error}
+            `);
         }
 
         if (parsedMessage.arguments.length < 1) {

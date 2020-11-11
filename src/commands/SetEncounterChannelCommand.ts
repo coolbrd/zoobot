@@ -5,6 +5,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { stripIndents } from "common-tags";
 
 export default class SetEncounterChannelCommand extends GuildCommand {
     public readonly commandNames = ["setencounterchannel"];
@@ -28,7 +29,13 @@ export default class SetEncounterChannelCommand extends GuildCommand {
             playerGuild = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player guild in the set encounter channel command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player guild in the set encounter channel command.
+
+                Guild id: ${parsedMessage.guild.id}
+                
+                ${error}
+            `);
         }
 
         betterSend(parsedMessage.channel, `Change pending, respond with "yes" to confirm ${parsedMessage.channel} as the new channel where random encounters will spawn.`);
@@ -38,7 +45,13 @@ export default class SetEncounterChannelCommand extends GuildCommand {
             userResponse = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 10000);
         }
         catch (error) {
-            throw new Error(`There was an error getting a user's response message when changing a guild's default encounter channel: ${error}`);
+            throw new Error(stripIndents`
+                There was an error getting a user's response message when changing a guild's default encounter channel.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+                
+                ${error}
+            `);
         }
 
         if (userResponse && userResponse.content.toLowerCase() === "yes") {

@@ -19,7 +19,11 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
 
     public get gameObject(): GameObjectType {
         if (!this.loaded) {
-            throw new Error("A loadable game object's object was attempted to be read before it was loaded.");
+            throw new Error(stripIndents`
+                A loadable game object's object was attempted to be read before it was loaded.
+
+                Game object: ${JSON.stringify(this)}
+            `);
         }
 
         return this._gameObject as GameObjectType;
@@ -36,6 +40,7 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
         catch (error) {
             throw new Error(stripIndents`
                 There was an error loading a loadable game object's game object.
+
                 Id: ${this.id}
 
                 ${error}
@@ -63,7 +68,9 @@ export function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]):
             }).catch(error => {
                 reject(stripIndents`
                     There was an error loading a game object from a loadable game object.
-                    LoadableGameObject: ${currentLoadableGameObject}
+
+                    LoadableGameObject: ${JSON.stringify(currentLoadableGameObject)}
+
                     ${error}
                 `);
             });

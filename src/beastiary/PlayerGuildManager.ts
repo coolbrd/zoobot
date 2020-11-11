@@ -5,6 +5,7 @@ import gameConfig from "../config/gameConfig";
 import { GuildModel } from "../models/PlayerGuild";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
+import { stripIndents } from "common-tags";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
@@ -29,7 +30,13 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             guildDocument = await GuildModel.findOne({ [PlayerGuild.fieldNames.guildId]: guildId });
         }
         catch (error) {
-            throw new Error(`There was an error finding an existing guild document: ${error}`);
+            throw new Error(stripIndents`
+                There was an error finding an existing guild document.
+
+                Guild id: ${guildId}
+                
+                ${error}
+            `);
         }
 
         if (!guildDocument) {
@@ -38,7 +45,13 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 guild = await client.guilds.fetch(guildId);
             }
             catch (error) {
-                throw new Error(`There was an error fetching a guild by its id when creating a new guild document: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error fetching a guild by its id when creating a new guild document.
+
+                    Guild id: ${guildId}
+                    
+                    ${error}
+                `);
             }
 
             guildDocument = PlayerGuild.newDocument(guild);
@@ -47,7 +60,13 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 await guildDocument.save();
             }
             catch (error) {
-                throw new Error(`There was an error saving a new guild document to the database: ${error}`);
+                throw new Error(stripIndents`
+                    There was an error saving a new guild document to the database.
+
+                    New guild document: ${JSON.stringify(guildDocument)}
+                    
+                    ${error}
+                `);
             }
         }
 
@@ -57,7 +76,13 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             await this.addToCache(playerGuild);
         }
         catch (error) {
-            throw new Error(`There was an error adding a guild to the cache: ${error}`);
+            throw new Error(stripIndents`
+                There was an error adding a guild to the cache.
+
+                Player guild: ${JSON.stringify(playerGuild)}
+                
+                ${error}
+            `);
         }
 
         return playerGuild;

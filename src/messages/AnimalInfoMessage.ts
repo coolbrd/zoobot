@@ -1,3 +1,4 @@
+import { stripIndents } from "common-tags";
 import { MessageEmbed, TextChannel, User } from "discord.js";
 import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -29,7 +30,11 @@ export default class AnimalInfoMessage extends InteractiveMessage {
 
     private get ownerUser(): User {
         if (!this._ownerUser) {
-            throw new Error("An animal info message attempted to access the animal's owner's user before it was found.");
+            throw new Error(stripIndents`
+                An animal info message attempted to access the animal's owner's user before it was found.
+
+                Info message: ${JSON.stringify(this)}
+            `);
         }
 
         return this._ownerUser;
@@ -44,7 +49,13 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             await this.animalObject.loadFields();
         }
         catch (error) {
-            throw new Error(`There was an error loading an animal object's data: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading an animal object's data.
+
+                Animal: ${JSON.stringify(this.animalObject)}
+                
+                ${error}
+            `);
         }
 
         this.ownerUser = getGuildMember(this.animalObject.ownerId, this.animalObject.guildId).user;

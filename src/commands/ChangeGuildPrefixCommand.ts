@@ -4,6 +4,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
+import { stripIndents } from "common-tags";
 
 export default class ChangeGuildPrefixCommand extends GuildCommand {
     public readonly commandNames = ["prefix", "changeprefix"];
@@ -29,7 +30,13 @@ export default class ChangeGuildPrefixCommand extends GuildCommand {
             guildObject = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
-            throw new Error(`There was an error attempting to get a guild object from a guild id: ${error}`);
+            throw new Error(stripIndents`
+                There was an error attempting to get a guild object from a guild id.
+
+                Guild id: ${parsedMessage.guild.id}
+                
+                ${error}
+            `);
         }
 
         guildObject.prefix = prefix;

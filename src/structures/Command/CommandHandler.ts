@@ -35,6 +35,7 @@ import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
 import SpeciesRarityCommand from '../../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import ShopCommand from "../../commands/ShopCommand";
+import { stripIndents } from "common-tags";
 
 class CommandHandler {
     public readonly commands: Command[];
@@ -165,7 +166,11 @@ class CommandHandler {
 
     private setUserLoadingCommand(userId: string): void {
         if (this.usersLoadingCommands.has(userId)) {
-            throw new Error("A user who was already loading a command was added to the users loading commands list again.");
+            throw new Error(stripIndents`
+                A user who was already loading a command was added to the users loading commands list again.
+
+                User id: ${userId}
+            `);
         }
 
         this.usersLoadingCommands.add(userId);
@@ -216,7 +221,11 @@ class CommandHandler {
             guildDocuments = await GuildModel.find({});
         }
         catch (error) {
-            throw new Error(`There was an error attempting to load guild prefixes from the database: ${error}`);
+            throw new Error(stripIndents`
+                There was an error attempting to load guild prefixes from the database.
+                
+                ${error}
+            `);
         }
 
         this.guildPrefixes.clear();

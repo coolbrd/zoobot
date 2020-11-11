@@ -6,6 +6,7 @@ import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Species, SpeciesCard } from "./Species";
 import { AnimalModel } from '../../../models/Animal';
 import { unknownCard } from './UnknownSpecies';
+import { stripIndents } from "common-tags";
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
@@ -74,7 +75,11 @@ export class Animal extends GameObject {
 
     public get species(): Species {
         if (!this._species) {
-            throw new Error("Tried to get an animal's species before it was loaded.");
+            throw new Error(stripIndents`
+                Tried to get an animal's species before it was loaded.
+
+                Animal: ${JSON.stringify(this)}
+            `);
         }
 
         return this._species;
@@ -82,7 +87,11 @@ export class Animal extends GameObject {
 
     public get card(): SpeciesCard {
         if (!this._card) {
-            throw new Error("Tried to get an animal's card before it was loaded.");
+            throw new Error(stripIndents`
+                Tried to get an animal's card before it was loaded.
+
+                Animal: ${JSON.stringify(this)}
+            `);
         }
 
         return this._card;
@@ -93,7 +102,13 @@ export class Animal extends GameObject {
             this._species = await beastiary.species.fetchById(this.speciesId);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a species by its id when loading an animal object: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a species by its id when loading an animal object.
+
+                Animal: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
     }
 
@@ -112,7 +127,13 @@ export class Animal extends GameObject {
             await this.loadSpecies();
         }
         catch (error) {
-            throw new Error(`There was an error loading an animal's species: ${error}`);
+            throw new Error(stripIndents`
+                There was an error loading an animal's species.
+
+                Animal: ${JSON.stringify(this)}
+                
+                ${error}
+            `);
         }
 
         this.loadCard();

@@ -6,6 +6,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
+import { stripIndents } from "common-tags";
 
 export default class ViewResetsCommand extends GuildCommand {
     public readonly commandNames = ["resets", "rs"];
@@ -21,10 +22,16 @@ export default class ViewResetsCommand extends GuildCommand {
     public async run(parsedMessage: GuildCommandParser): Promise<void> {
         let player: Player;
         try {
-            player = await beastiary.players.fetch(getGuildMember(parsedMessage.sender, parsedMessage.guild));
+            player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(`There was an error fetching a player from the cache in the resets command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error fetching a player from the cache in the resets command.
+
+                Guild member: ${JSON.stringify(parsedMessage.member)}
+                
+                ${error}
+            `);
         }
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;

@@ -4,6 +4,7 @@ import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { stripIndents } from "common-tags";
 
 export default class AnimalInfoCommand extends GuildCommand {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
@@ -33,7 +34,13 @@ export default class AnimalInfoCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(`There was an error attempting to search an animal for the info command: ${error}`);
+            throw new Error(stripIndents`
+                There was an error attempting to search an animal for the info command.
+
+                Parsed message: ${JSON.stringify(parsedMessage)}
+
+                ${error}
+            `);
         }
 
         if (!animalObject) {
@@ -47,7 +54,13 @@ export default class AnimalInfoCommand extends GuildCommand {
             await infoMessage.send();
         }
         catch (error) {
-            throw new Error(`There was an error sending an animal information message: ${error}`);
+            throw new Error(stripIndents`
+                There was an error sending an animal information message.
+
+                Message: ${infoMessage}
+                
+                ${error}
+            `);
         }
     }
 }
