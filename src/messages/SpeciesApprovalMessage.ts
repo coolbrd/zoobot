@@ -1,8 +1,8 @@
 import { DMChannel, TextChannel, User } from "discord.js";
 import { client } from "..";
-import { PendingSpecies } from "../models/PendingSpecies";
-import { Species } from "../models/Species";
-import { EDoc } from "../structures/EDoc";
+import PendingSpecies from "../structures/GameObject/GameObjects/PendingSpecies";
+import { Species } from "../structures/GameObject/GameObjects/Species";
+import { EDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "./EDocMessage";
 
 export default class SpeciesApprovalMessage extends EDocMessage {

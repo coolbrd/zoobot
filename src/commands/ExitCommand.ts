@@ -1,6 +1,6 @@
 import { exit } from "..";
-import Command from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import Command from "../structures/Command/Command";
+import CommandParser from "../structures/Command/CommandParser";
 import { errorHandler } from "../structures/ErrorHandler";
 
 export default class ExitCommand extends Command {

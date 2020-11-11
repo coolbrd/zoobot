@@ -1,8 +1,8 @@
 import clone from "clone";
-import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./EDocSkeleton";
-import PointedArray from "./PointedArray";
-import UserError from "./UserError";
+import PointedArray from "../PointedArray";
+import UserError from "../UserError";
 
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 

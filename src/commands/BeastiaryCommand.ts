@@ -1,6 +1,6 @@
 import BeastiaryMessage from "../messages/BeastiaryMessage";
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import Command, { CommandSection } from "../structures/Command/Command";
+import CommandParser from "../structures/Command/CommandParser";
 
 export default class BeastiaryCommand extends Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];

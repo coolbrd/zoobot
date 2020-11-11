@@ -1,6 +1,6 @@
-import Command, { CommandSection } from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
-import { Species } from "../models/Species";
+import Command, { CommandSection } from "../structures/Command/Command";
+import CommandParser from "../structures/Command/CommandParser";
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";

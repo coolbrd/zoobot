@@ -1,4 +1,4 @@
-import { Player } from "../../../models/Player";
+import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
 export default class EncounterItem extends ShopItem {

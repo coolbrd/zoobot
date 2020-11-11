@@ -1,6 +1,6 @@
 import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { Species } from "../models/Species";
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from "./PagedMessage";
 

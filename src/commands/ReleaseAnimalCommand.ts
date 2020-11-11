@@ -4,10 +4,10 @@ import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { Animal } from "../models/Animal";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];

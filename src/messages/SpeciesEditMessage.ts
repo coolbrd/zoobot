@@ -1,7 +1,7 @@
 import { DMChannel, TextChannel } from "discord.js";
-import { Species } from "../models/Species";
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import EDocMessage from "./EDocMessage";
-import { EDoc, } from "../structures/EDoc";
+import { EDoc, } from "../structures/eDoc/EDoc";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default class SpeciesEditMessage extends EDocMessage {

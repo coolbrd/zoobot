@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import itemShop from "../beastiary/shop/shops/ItemShop";
-import { Player } from "../models/Player";
-import { commandHandler } from "../structures/CommandHandler";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { commandHandler } from "../structures/Command/CommandHandler";
 
 export default function buildItemShopEmbed(embed: MessageEmbed, player: Player): MessageEmbed {
     embed.setAuthor(`Balance: ${player.scraps} scraps`, player.member.user.avatarURL() || undefined);

@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { Animal } from "../models/Animal";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): void {

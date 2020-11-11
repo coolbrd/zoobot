@@ -1,8 +1,8 @@
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { stripIndents } from "common-tags";
-import { Player } from "../models/Player";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 

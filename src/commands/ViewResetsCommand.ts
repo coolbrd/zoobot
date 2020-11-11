@@ -2,9 +2,9 @@ import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 
 export default class ViewResetsCommand extends GuildCommand {

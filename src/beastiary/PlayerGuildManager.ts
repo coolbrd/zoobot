@@ -2,8 +2,9 @@ import { Guild } from "discord.js";
 import { Document } from "mongoose";
 import { client } from "..";
 import gameConfig from "../config/gameConfig";
-import { GuildModel, PlayerGuild } from "../models/PlayerGuild";
-import GameObjectCache from "../structures/GameObjectCache";
+import { GuildModel } from "../models/PlayerGuild";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import GameObjectCache from "../structures/GameObject/GameObjectCache";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;

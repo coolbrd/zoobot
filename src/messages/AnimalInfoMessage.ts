@@ -4,7 +4,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { Animal } from "../models/Animal";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
 export default class AnimalInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;

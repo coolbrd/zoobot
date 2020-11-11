@@ -1,10 +1,10 @@
 import { beastiary } from "../beastiary/Beastiary";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Animal } from "../models/Animal";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class CrewAddCommand extends GuildCommand {
     public readonly commandNames = ["crewadd", "cra"];

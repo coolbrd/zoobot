@@ -1,9 +1,9 @@
-import Command from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
+import Command from "../structures/Command/Command";
+import CommandParser from "../structures/Command/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import { CommonNameTemplate, SpeciesCardTemplate, Species } from "../models/Species";
+import { CommonNameTemplate, Species, SpeciesCardTemplate } from "../structures/GameObject/GameObjects/Species";
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
-import { SimpleEDoc } from "../structures/EDoc";
+import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
 
 export default class EditSpeciesCommand extends Command {

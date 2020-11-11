@@ -1,7 +1,7 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { client } from "..";
-import { Species } from "../models/Species";
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";

@@ -2,9 +2,9 @@ import { Message } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
-import { PlayerGuild } from "../models/PlayerGuild";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class SetEncounterChannelCommand extends GuildCommand {
     public readonly commandNames = ["setencounterchannel"];

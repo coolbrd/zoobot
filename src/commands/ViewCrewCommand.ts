@@ -2,9 +2,9 @@ import { stripIndents } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 import CrewMessage from "../messages/CrewMessage";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class ViewCrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];

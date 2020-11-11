@@ -1,8 +1,8 @@
-import { GuildCommandParser } from "../structures/CommandParser";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { PlayerGuild } from "../models/PlayerGuild";
-import { commandHandler } from "../structures/CommandHandler";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import { commandHandler } from "../structures/Command/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 
 export default class ChangeGuildPrefixCommand extends GuildCommand {

@@ -4,8 +4,8 @@ import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/EDoc";
-import { EDocFieldInfo } from "../structures/EDocSkeleton";
+import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/eDoc/EDoc";
+import { EDocFieldInfo } from '../structures/eDoc/EDocSkeleton';
 import PointedArray from "../structures/PointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 

@@ -1,9 +1,9 @@
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class ViewScrapsCommand extends GuildCommand {
     public readonly commandNames = ["scraps", "scrap", "s"];

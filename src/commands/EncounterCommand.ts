@@ -1,10 +1,10 @@
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { Player } from "../models/Player";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
 
 export default class EncounterCommand extends GuildCommand {

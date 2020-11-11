@@ -1,6 +1,6 @@
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
-import { client } from "..";
-import getGuildMember from "../discordUtility/getGuildMember";
+import { client } from "../..";
+import getGuildMember from "../../discordUtility/getGuildMember";
 import { commandHandler } from "./CommandHandler";
 
 export interface Argument {

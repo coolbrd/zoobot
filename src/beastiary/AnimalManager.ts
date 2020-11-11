@@ -2,10 +2,11 @@ import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { AnimalModel, Animal } from "../models/Animal";
-import { Player } from "../models/Player";
-import { Species, SpeciesCard } from "../models/Species";
-import GameObjectCache from "../structures/GameObjectCache";
+import { AnimalModel } from "../models/Animal";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
+import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { beastiary } from "./Beastiary";
 
 export default class AnimalManager extends GameObjectCache<Animal> {

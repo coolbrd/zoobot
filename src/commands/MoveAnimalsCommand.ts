@@ -1,9 +1,9 @@
 import { stripIndents } from "common-tags";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { GuildCommandParser } from "../structures/CommandParser";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { Player } from "../models/Player";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
 
 export default class MoveAnimalsCommand extends GuildCommand {

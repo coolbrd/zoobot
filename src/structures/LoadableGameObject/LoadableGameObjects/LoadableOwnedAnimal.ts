@@ -1,7 +1,7 @@
 import { stripIndents } from "common-tags";
 import { Types } from "mongoose";
-import { Animal } from "../../../models/Animal";
-import { Player } from "../../../models/Player";
+import { Animal } from "../../GameObject/GameObjects/Animal";
+import { Player } from "../../GameObject/GameObjects/Player";
 import LoadableGameObject from "../LoadableGameObject";
 
 export default class LoadableOwnedAnimal extends LoadableGameObject<Animal> {

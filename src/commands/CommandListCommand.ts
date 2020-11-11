@@ -1,9 +1,9 @@
 import { APIMessage } from "discord.js";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import Command, { CommandSection } from "../structures/Command";
-import { commandHandler } from "../structures/CommandHandler";
-import CommandParser from "../structures/CommandParser";
+import Command, { CommandSection } from "../structures/Command/Command";
+import { commandHandler } from "../structures/Command/CommandHandler";
+import CommandParser from "../structures/Command/CommandParser";
 
 // Sends an embed containing a list of all non-admin commands and their basic functions
 export default class CommandListCommand extends Command {

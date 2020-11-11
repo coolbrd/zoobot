@@ -2,9 +2,10 @@ import { Guild, GuildMember, Message } from "discord.js";
 import { Document } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
-import { PlayerModel, Player } from "../models/Player";
-import { GuildCommandParser } from "../structures/CommandParser";
-import GameObjectCache from "../structures/GameObjectCache";
+import { PlayerModel } from "../models/Player";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
+import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { beastiary } from "./Beastiary";
 

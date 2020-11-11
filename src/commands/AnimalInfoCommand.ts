@@ -1,9 +1,9 @@
 import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
-import { Animal } from "../models/Animal";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class AnimalInfoCommand extends GuildCommand {
     public readonly commandNames = ["animalinfo", "ai", "stats"];

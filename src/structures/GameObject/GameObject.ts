@@ -1,5 +1,5 @@
 import { Document, Model, Types } from "mongoose";
-import gameConfig from "../config/gameConfig";
+import gameConfig from "../../config/gameConfig";
 
 export default abstract class GameObject {
     // The model in which the game object's representative documents are found

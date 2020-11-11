@@ -1,7 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import { encounterHandler } from "../beastiary/EncounterHandler";
-
-import { Species, SpeciesCard } from "../models/Species";
+import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildSpeciesCard(embed: MessageEmbed, species: Species, card: SpeciesCard): void {

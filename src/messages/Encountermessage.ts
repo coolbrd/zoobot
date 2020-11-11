@@ -3,13 +3,13 @@ import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Species, SpeciesCard } from "../models/Species";
+import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { beastiary } from "../beastiary/Beastiary";
 import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
-import { commandHandler } from "../structures/CommandHandler";
-import { Player } from "../models/Player";
+import { commandHandler } from "../structures/Command/CommandHandler";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;

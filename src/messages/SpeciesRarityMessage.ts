@@ -2,7 +2,7 @@ import { MessageEmbed } from 'discord.js';
 import { beastiary } from '../beastiary/Beastiary';
 import { encounterHandler } from '../beastiary/EncounterHandler';
 import SmartEmbed from '../discordUtility/SmartEmbed';
-import { Species } from '../models/Species';
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableCacheableGameObject from '../structures/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
 import { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
 import { capitalizeFirstLetter } from '../utility/arraysAndSuch';

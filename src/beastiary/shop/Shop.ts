@@ -1,5 +1,5 @@
 import { stripIndents } from "common-tags";
-import { Player } from "../../models/Player";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
 import ShopItem from "./ShopItem";
 

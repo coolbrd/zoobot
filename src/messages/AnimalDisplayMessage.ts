@@ -4,7 +4,7 @@ import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
 import LoadableGameObject, { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
-import { Animal } from "../models/Animal";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
 export enum AnimalDisplayMessageState {
     page,

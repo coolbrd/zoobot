@@ -1,13 +1,14 @@
 import { Message, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
-import { SpeciesModel, Species } from "../models/Species";
+import { SpeciesModel } from "../models/Species";
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import { getWeightedRandom, getWeightedRarityMinimumOccurrence } from "../utility/weightedRarity";
 import { beastiary } from "./Beastiary";
 import { todaysMilliseconds } from "../utility/timeStuff";
 import gameConfig from "../config/gameConfig";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
-import { PlayerGuild } from "../models/PlayerGuild";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndents } from "common-tags";
 
 interface RarityInfo {

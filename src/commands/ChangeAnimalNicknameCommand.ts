@@ -1,9 +1,9 @@
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
-import { Animal } from "../models/Animal";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
 export default class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly commandNames = ["nickname", "nick", "nn"];

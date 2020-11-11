@@ -2,8 +2,8 @@ import { stripIndents } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { Animal } from "../models/Animal";
-import { Player } from "../models/Player";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export default class PlayerProfileMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;

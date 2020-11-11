@@ -1,6 +1,6 @@
 import { TextChannel, MessageEmbed } from "discord.js";
-import { Player } from "../models/Player";
-import { commandHandler } from "../structures/CommandHandler";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { commandHandler } from "../structures/Command/CommandHandler";
 import AnimalDisplayMessage from "./AnimalDisplayMessage";
 
 export default class CrewMessage extends AnimalDisplayMessage {

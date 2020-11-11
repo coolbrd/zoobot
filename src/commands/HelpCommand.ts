@@ -1,7 +1,7 @@
 import { betterSend } from "../discordUtility/messageMan";
-import CommandParser from "../structures/CommandParser";
-import Command, { CommandSection } from "../structures/Command";
-import { commandHandler } from "../structures/CommandHandler";
+import CommandParser from "../structures/Command/CommandParser";
+import Command, { CommandSection } from "../structures/Command/Command";
+import { commandHandler } from "../structures/Command/CommandHandler";
 import { stripIndents } from "common-tags";
 
 export default class HelpCommand extends Command {

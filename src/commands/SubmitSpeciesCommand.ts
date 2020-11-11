@@ -1,12 +1,13 @@
 import { stripIndents } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
-import Command, { CommandSection } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import Command, { CommandSection } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
-import { PendingSpecies, PendingSpeciesModel } from "../models/PendingSpecies";
+import { PendingSpeciesModel } from "../models/PendingSpecies";
+import PendingSpecies from "../structures/GameObject/GameObjects/PendingSpecies";
 import reactionInput from "../discordUtility/reactionInput";
 import { arrayToLowerCase } from "../utility/arraysAndSuch";
-import { EDoc, SimpleEDoc } from "../structures/EDoc";
+import { EDoc, SimpleEDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "../messages/EDocMessage";
 
 export default class SubmitSpeciesCommand extends Command {

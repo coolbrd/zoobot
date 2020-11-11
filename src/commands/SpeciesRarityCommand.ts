@@ -1,6 +1,6 @@
 import SpeciesRarityMessage from '../messages/SpeciesRarityMessage';
-import Command from '../structures/Command';
-import CommandParser from '../structures/CommandParser';
+import Command from '../structures/Command/Command';
+import CommandParser from '../structures/Command/CommandParser';
 
 export default class SpeciesRarityCommand extends Command {
     public readonly commandNames = ["viewrarity", "vr"];

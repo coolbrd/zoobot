@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessageHandler";
 import { encounterHandler } from "./beastiary/EncounterHandler";
-import { commandHandler } from "./structures/CommandHandler";
+import { commandHandler } from "./structures/Command/CommandHandler";
 import { beastiary } from "./beastiary/Beastiary";
 
 export const client = new Discord.Client();

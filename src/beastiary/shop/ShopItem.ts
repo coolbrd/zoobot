@@ -1,4 +1,4 @@
-import { Player } from "../../models/Player";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 export default abstract class ShopItem {
     public abstract getName(player: Player): string;

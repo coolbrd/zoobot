@@ -4,8 +4,9 @@ import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
-import { Species, SpeciesModel } from "../models/Species";
-import GameObjectCache from "../structures/GameObjectCache";
+import { SpeciesModel } from "../models/Species";
+import { Species } from "../structures/GameObject/GameObjects/Species";
+import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { encounterHandler } from './EncounterHandler';
 
 export default class SpeciesManager extends GameObjectCache<Species> {

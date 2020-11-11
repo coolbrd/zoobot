@@ -7,9 +7,9 @@ import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildItemShopEmbed from "../embedBuilders/buildItemShop";
-import { Player } from "../models/Player";
-import { CommandSection, GuildCommand } from "../structures/Command";
-import { GuildCommandParser } from "../structures/CommandParser";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 
 export default class ShopCommand extends GuildCommand {
     public readonly commandNames = ["shop", "s"];

@@ -1,12 +1,14 @@
 import { Document } from "mongoose";
-import Command from "../structures/Command";
-import CommandParser from "../structures/CommandParser";
-import { PendingSpeciesModel, PendingSpecies } from "../models/PendingSpecies";
+import Command from "../structures/Command/Command";
+import CommandParser from "../structures/Command/CommandParser";
+import { PendingSpeciesModel } from "../models/PendingSpecies";
+import PendingSpecies from "../structures/GameObject/GameObjects/PendingSpecies";
 import { betterSend } from "../discordUtility/messageMan";
-import { commonNamesToLowerArray, CommonNameTemplate, SpeciesModel } from "../models/Species";
+import { SpeciesModel } from "../models/Species";
 import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
-import { SimpleEDoc } from "../structures/EDoc";
+import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from '../beastiary/Beastiary';
+import { commonNamesToLowerArray, CommonNameTemplate } from '../structures/GameObject/GameObjects/Species';
 
 export default class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
