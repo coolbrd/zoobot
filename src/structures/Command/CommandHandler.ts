@@ -26,9 +26,7 @@ import ViewResetsCommand from "../../commands/ViewResetsCommand";
 import ReleaseAnimalCommand from "../../commands/ReleaseAnimalCommand";
 import ExitCommand from "../../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../../commands/ViewPlayerProfileCommand";
-import CrewAddCommand from "../../commands/CrewAddCommand";
-import ViewCrewCommand from "../../commands/ViewCrewCommand";
-import CrewRemoveCommand from "../../commands/CrewRemoveCommand";
+import CrewCommand from "../../commands/CrewCommand";
 import { ADMIN_SERVER_ID } from "../../config/secrets";
 import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
 import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
@@ -54,9 +52,7 @@ class CommandHandler {
             ChangeAnimalNicknameCommand,
             ViewScrapsCommand,
             ShopCommand,
-            CrewAddCommand,
-            CrewRemoveCommand,
-            ViewCrewCommand,
+            CrewCommand,
             FavoriteAnimalCommand,
             MoveAnimalsCommand,
             ReleaseAnimalCommand,
