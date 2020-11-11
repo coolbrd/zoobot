@@ -8,6 +8,7 @@ import { SpeciesModel } from "../models/Species";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { encounterHandler } from './EncounterHandler';
+import UnknownSpecies from '../structures/GameObject/GameObjects/UnknownSpecies';
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -15,6 +16,25 @@ export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly cacheObjectTimeout = gameConfig.speciesCacheTimeout;
 
     private _allSpeciesIds: Types.ObjectId[] = [];
+
+    public async fetchById(id: Types.ObjectId): Promise<Species> {
+        let species: Species | undefined;
+        try {
+            species = await super.fetchById(id);
+        }
+        catch (error) {
+            throw new Error(stripIndents`
+                There was an error fetching a species by its id.
+                Id: ${id}
+            `);
+        }
+
+        if (!species) {
+            species = new UnknownSpecies();
+        }
+
+        return species;
+    }
 
     public get allSpeciesIds(): Types.ObjectId[] {
         return this._allSpeciesIds;

@@ -5,6 +5,7 @@ import GameObject from "../GameObject";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Species, SpeciesCard } from "./Species";
 import { AnimalModel } from '../../../models/Animal';
+import { unknownCard } from './UnknownSpecies';
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
@@ -101,8 +102,8 @@ export class Animal extends GameObject {
             return this.cardId.equals(speciesCard._id);
         });
 
-        if (!this.card) {
-            throw new Error("An animal's card couldn't be found in the card of its species.");
+        if (!this._card) {
+            this._card = unknownCard;
         }
     }
 
