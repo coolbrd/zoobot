@@ -12,11 +12,9 @@ class CommandListCommand extends Command {
 
     public readonly info = "View this message";
 
-    public readonly section = CommandSection.info;
+    public readonly helpUseString = "to get an overview of all commands and their functions.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` to get an overview of all commands and their functions.`;
-    }
+    public readonly section = CommandSection.info;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let infoCommandString = "";

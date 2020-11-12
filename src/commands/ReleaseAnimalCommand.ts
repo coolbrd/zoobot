@@ -15,17 +15,15 @@ class ReleaseAnimalCommand extends GuildCommand {
 
     public readonly info = "Release an animal from your collection in exchange for some scraps";
 
+    public readonly helpUseString = "`<animal name or number>` to release an animal from your collection`";
+
     public readonly section = CommandSection.animalManagement;
 
     public readonly blocksInput = true;
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to release an animal from your collection`;
-    }
-
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

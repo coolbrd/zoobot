@@ -12,15 +12,13 @@ class FavoriteAnimalCommand extends GuildCommand {
 
     public readonly info = "Select your favorite animal to put at the top of your collection";
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly helpUseString = "`<animal name or number>` to select your favorite animal, which will be displayed at the top of your collection and on your profile."
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to select your favorite animal, which will be displayed at the top of your collection and on your profile.`;
-    }
+    public readonly section = CommandSection.animalManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

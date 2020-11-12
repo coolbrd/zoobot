@@ -12,15 +12,13 @@ class CrewAddSubCommand extends GuildCommand {
 
     public readonly info = "Add an animal to your crew";
 
-    public readonly blocksInput = true;
+    public readonly helpUseString = "`<animal nickname or number>` to add an animal to your crew, allowing them to passively earn xp.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal nickname or number>\` to add an animal to your crew, allowing them to passively earn xp.`;
-    }
+    public readonly blocksInput = true;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

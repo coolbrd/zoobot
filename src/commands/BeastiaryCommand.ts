@@ -9,11 +9,9 @@ class BeastiaryCommand extends Command {
 
     public readonly info = "View the list of all species available in The Beastiary";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly helpUseString = "to view a list of every collectible species.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` to view a list of every collectible species.`;
-    }
+    public readonly section = CommandSection.gettingStarted;
 
     public async run(parsedUserCommand: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);

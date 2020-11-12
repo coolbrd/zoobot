@@ -12,24 +12,16 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 class CrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];
 
-    public readonly info = "Manage your crew of selected animals";
-
     public readonly subCommands = [
         CrewAddSubCommand,
         CrewRemoveSubCommand
     ];
 
+    public readonly info = "Manage your crew of selected animals";
+
+    public readonly helpUseString = "to view the animals currently earning xp in your crew.";
+
     public readonly section = CommandSection.animalManagement;
-
-    public help(displayPrefix: string): string {
-        return stripIndents`
-            Use \`${displayPrefix}${this.commandNames[0]}\` to view the animals currently earning xp in your crew.
-
-            You can also do \`${displayPrefix}${this.commandNames[0]}\` \`<user id or tag>\` to view another user's crew in this server.
-
-            Use \`${displayPrefix}${this.commandNames[0]} add/remove\` \`<animal identifier>\` to add or remove animals from your crew.
-        `;
-    }
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

@@ -19,15 +19,9 @@ class ViewShopCommand extends GuildCommand {
 
     public readonly info = "View and use the item shop";
 
+    public readonly helpUseString = "to view the item shop.";
+
     public readonly section = CommandSection.gettingStarted;
-
-    public help(displayPrefix: string): string {
-        return stripIndents`
-            Use \`${displayPrefix}${this.commandNames[0]}\` to view the item shop.
-
-            Use \`${displayPrefix}${this.commandNames[0]}\` \`buy\` \`<item number>\` \`<quantity>\` to buy items.
-        `;
-    }
 
     private buildAndSendShopMessage(channel: TextChannel, player: Player): void {
         const shopEmbed = new SmartEmbed();

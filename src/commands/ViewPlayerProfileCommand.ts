@@ -12,14 +12,9 @@ class ViewPlayerProfileCommand extends GuildCommand {
 
     public readonly info = "View you or another player's profile";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly helpUseString = "to view your profile.";
 
-    public help(displayPrefix: string): string {
-        return stripIndents`
-            Use \`${displayPrefix}${this.commandNames[0]}\` to view your profile.
-            You can also use \`${displayPrefix}${this.commandNames[0]}\` \`<user tag or id>\` to view another user's profile.
-        `;
-    }
+    public readonly section = CommandSection.playerInfo;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

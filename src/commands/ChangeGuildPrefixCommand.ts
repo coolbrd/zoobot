@@ -12,17 +12,15 @@ class ChangeGuildPrefixCommand extends GuildCommand {
 
     public readonly info = "Change the prefix I respond to";
 
-    public readonly section = CommandSection.guildManagement;
+    public readonly helpUseString = "`<new command prefix>` to change the prefix that I respond to.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<new command prefix>\` to change the prefix that I respond to.`;
-    }
+    public readonly section = CommandSection.guildManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const prefix = parsedMessage.fullArguments;
 
         if (!prefix) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

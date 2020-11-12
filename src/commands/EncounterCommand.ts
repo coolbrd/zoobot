@@ -13,13 +13,11 @@ class EncounterCommand extends GuildCommand {
 
     public readonly info = "Initiate an animal encounter";
 
+    public readonly helpUseString = "to initiate an animal encounter.";
+
     public readonly section = CommandSection.gettingStarted;
 
     public readonly blocksInput = true;
-
-    public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}${this.commandNames[0]}\` to initiate an animal encounter.`;
-    }
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

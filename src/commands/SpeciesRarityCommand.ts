@@ -9,11 +9,9 @@ class SpeciesRarityCommand extends Command {
 
     public readonly info = "View the rarity of all species and their images";
 
-    public readonly adminOnly = true;
+    public readonly helpUseString = "to view the Beastiary of animals with their rarity values displayed in percentage.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` to view the Beastiary of animals with their rarity values displayed in percentage.`;
-    }
+    public readonly adminOnly = true;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const rarityMessage = new SpeciesRarityMessage(parsedMessage.channel);

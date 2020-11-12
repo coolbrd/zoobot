@@ -13,15 +13,13 @@ class EditSpeciesCommand extends Command {
 
     public readonly info = "Edit an existing species";
 
-    public readonly adminOnly = true;
+    public readonly helpUseString = "`<species name>` to edit an existing species.";
 
-    public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species name>\` to edit an existing species.`;
-    }
+    public readonly adminOnly = true;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

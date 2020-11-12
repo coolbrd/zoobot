@@ -13,11 +13,9 @@ class SetEncounterChannelCommand extends GuildCommand {
 
     public readonly info = "Sets the channel that random encounters will appear in";
 
-    public readonly section = CommandSection.guildManagement;
+    public readonly helpUseString = "in the channel you want random encounters to spawn in.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` in the channel you want random encounters to spawn in.`;
-    }
+    public readonly section = CommandSection.guildManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.member.hasPermission("MANAGE_CHANNELS")) {

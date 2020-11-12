@@ -35,6 +35,7 @@ import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
 import ViewShopCommand from "../../commands/ViewShopCommand";
 import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
 import CommandReceipt from "./CommandReceipt";
+import CommandResolver from "./CommandResolver";
 
 class CommandHandler {
     public readonly baseCommands = [
@@ -70,21 +71,10 @@ class CommandHandler {
         return `<@!${(client.user as User).id}>`;
     }
 
-    public getCommand(commandName: string, message: Message): Command | undefined {
-        const matchedCommand = this.baseCommands.find(command => {
-            return command.commandNames.includes(commandName);
-        });
+    public getCommandByParser(parsedMessage: CommandParser): Command | undefined {
+        const resolver = new CommandResolver(parsedMessage, this.baseCommands);
 
-        if (matchedCommand) {
-            if (matchedCommand.adminOnly) {
-                if (message.guild && message.guild.id === ADMIN_SERVER_ID) {
-                    return matchedCommand;
-                }
-                return;
-            }
-        }
-
-        return matchedCommand;
+        return resolver.command;
     }
 
     public async handleMessage(message: Message): Promise<void> {
@@ -101,31 +91,33 @@ class CommandHandler {
             const sendInGuild = Boolean(message.guild);
 
             let parsedMessage: CommandParser | GuildCommandParser;
-            if (sendInGuild)
+            if (sendInGuild) {
                 parsedMessage = new GuildCommandParser(message, messagePrefix);
-            else
+            }
+            else {
                 parsedMessage = new CommandParser(message, messagePrefix);
+            }
 
             const displayPrefix = this.getDisplayPrefixByMessage(message);
 
-            if (!parsedMessage.commandName) {
+            if (parsedMessage.arguments.length === 0) {
                 betterSend(parsedMessage.channel, `Yes? Try using \`${displayPrefix}commands\` to see a list of all my commands.`);
                 return;
             }
 
-            const matchedCommand = this.getCommand(parsedMessage.commandName, parsedMessage.originalMessage);
+            const commandResolver = new CommandResolver(parsedMessage, this.baseCommands);
 
-            if (!matchedCommand) {
-                betterSend(parsedMessage.channel, `I don't recognize that command. Try \`${displayPrefix}help\`.`);
+            if (!commandResolver.command) {
+                betterSend(parsedMessage.channel, `I don't recognize that command. Try \`${displayPrefix}commands\`.`);
                 return;
             }
             else {
-                if (!parsedMessage.inGuild && matchedCommand.guildOnly) {
+                if (!parsedMessage.inGuild && commandResolver.command.guildOnly) {
                     betterSend(parsedMessage.channel, "That command can only be used in servers.");
                     return;
                 }
 
-                if (matchedCommand.blocksInput) {
+                if (commandResolver.command.blocksInput) {
                     if (this.userIsLoadingCommand(message.author.id)) {
                         betterSend(parsedMessage.channel, "You're going too fast, one of your last commands hasn't even loaded yet!");
                         return;
@@ -135,7 +127,7 @@ class CommandHandler {
 
                 let commandReceipt: CommandReceipt;
                 try {
-                    commandReceipt = await matchedCommand.parseAndRun(parsedMessage);
+                    commandReceipt = await commandResolver.command.execute(commandResolver.commandParser);
                 }
                 catch (error) {
                     errorHandler.handleError(error, "Command execution failed.");

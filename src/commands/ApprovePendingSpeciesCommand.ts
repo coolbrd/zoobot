@@ -17,17 +17,15 @@ class ApprovePendingSpeciesCommand extends Command {
 
     public readonly info = "Review and approve a pending species";
 
-    public readonly adminOnly = true;
+    public readonly helpUseString = "`<pending species name>` to begin the process of reviewing and approving a species submission.";
 
-    public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<pending species name>\` to begin the process of reviewing and approving a species submission.`;
-    }
+    public readonly adminOnly = true;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         if (!fullSearchTerm) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

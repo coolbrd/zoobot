@@ -16,6 +16,8 @@ export default abstract class Command {
 
     public abstract readonly info: string;
 
+    public abstract readonly helpUseString: string;
+
     public readonly subCommands: Command[] = [];
 
     public readonly section?: CommandSection;
@@ -26,50 +28,34 @@ export default abstract class Command {
 
     public readonly adminOnly?: boolean = false;
 
-    public abstract help(displayPrefix: string): string;
+    public help(displayPrefix: string, commandChain: string[]): string {
+        let helpString = `Use \`${displayPrefix}${commandChain.join(" ")}\` ${this.helpUseString}`;
+
+        if (this.subCommands) {
+            helpString += "\n\n__Options__\n";
+            this.subCommands.forEach(currentSubCommand => {
+                helpString += `\`${currentSubCommand.commandNames[0]}\`: ${currentSubCommand.info}\n`;
+            });
+        }
+
+        return helpString;
+    }
 
     protected async abstract run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt>;
 
-    private findMatchingSubCommand(commandName: string): Command | undefined {
-        return this.subCommands.find(currentSubCommand => {
-            const matchesCommandName = currentSubCommand.commandNames.includes(commandName);
-
-            return matchesCommandName;
-        });
-    }
-
-    public async parseAndRun(parsedMessage: CommandParser): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length > 0) {
-            const potentialSubCommandName = parsedMessage.arguments[0].text.toLowerCase();
-
-            const matchingSubCommand = this.findMatchingSubCommand(potentialSubCommandName);
-
-            if (matchingSubCommand) {
-                parsedMessage.shiftSubCommand();
-
-                try {
-                    return await matchingSubCommand.parseAndRun(parsedMessage);
-                }
-                catch (error) {
-                    throw new Error(stripIndents`
-                        There was an error parsing and running a parsed message within a subcommand of a command.
-
-                        Command: ${JSON.stringify(this)}
-                        Subcommand: ${JSON.stringify(matchingSubCommand)}
-                    `);
-                }
-            }
-        }
+    public async execute(parsedMessage: CommandParser): Promise<CommandReceipt> {
+        const receipt = new CommandReceipt();
 
         try {
-            return await this.run(parsedMessage, new CommandReceipt());
+            return await this.run(parsedMessage, receipt);
         }
         catch (error) {
             throw new Error(stripIndents`
                 There was an error running a command.
 
                 Command: ${JSON.stringify(this)}
-                Parsed message: ${JSON.stringify(parsedMessage)}
+
+                ${error}
             `);
         }
     }

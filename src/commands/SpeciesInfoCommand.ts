@@ -12,15 +12,13 @@ class SpeciesInfoCommand extends Command {
 
     public readonly info = "View a species' information and collectible cards";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly helpUseString = "`<species>` to view a species' traits and cards.";
 
-    public help(commandPrefix: string): string {
-        return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;
-    }
+    public readonly section = CommandSection.gettingStarted;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

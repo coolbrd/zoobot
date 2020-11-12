@@ -12,15 +12,13 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly info = "View the stats, info, and card of a captured animal";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly helpUseString = "`<animal number or nickname>` to view information about that animal.";
 
-    public help(prefix: string): string {
-        return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` to view information about that animal.`;
-    }
+    public readonly section = CommandSection.gettingStarted;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

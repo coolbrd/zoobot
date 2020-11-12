@@ -11,20 +11,15 @@ class MoveAnimalsCommand extends GuildCommand {
 
     public readonly info = "Rearrange animals in your collection";
 
+    public readonly helpUseString = "`<starting position>` `<animal number>` `<animal number>` `...` to move animals in your collection to a given position.";
+
     public readonly section = CommandSection.animalManagement;
 
     public readonly blocksInput = true;
 
-    public help(prefix: string): string {
-        return stripIndents`
-            Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your collection to a given position.
-            Example: \`${prefix}moveanimals 12 45 6 2 18\` will move the animals in your collection that are at positions 45, 6, 2, and 18 (in that order) to the position directly after animal 12 in your collection.
-        `;
-    }
-
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

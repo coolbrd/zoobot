@@ -11,11 +11,9 @@ class ViewScrapsCommand extends GuildCommand {
 
     public readonly info = "View your current balance of scraps";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly helpUseString = "to view your current balance of scraps.";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` to view your current balance of scraps.`;
-    }
+    public readonly section = CommandSection.playerInfo;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

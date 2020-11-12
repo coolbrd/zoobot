@@ -14,7 +14,7 @@ export default class CommandParser {
     public readonly commandPrefix: string;
     public readonly displayPrefix: string;
 
-    public commandName: string;
+    public readonly commandChain: string[] = [];
     public readonly arguments: Argument[] = [];
 
     public readonly originalMessage: Message;
@@ -45,9 +45,6 @@ export default class CommandParser {
         splitMessage = splitMessage.filter(element => {
             return element;
         });
-
-        const commandName = splitMessage.shift() || "";
-        this.commandName = commandName.toLowerCase();
 
         for (const argument of splitMessage) {
             let user: User | undefined;
@@ -104,7 +101,7 @@ export default class CommandParser {
             `);
         }
 
-        this.commandName = subCommandArgument.text.toLowerCase();
+        this.commandChain.push(subCommandArgument.text.toLowerCase());
     }
 }
 

@@ -13,11 +13,9 @@ class ViewResetsCommand extends GuildCommand {
 
     public readonly info = "View the time remaining until the next free encounter and capture resets";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly helpUseString = "to view the time until the next encounter and capture resets, along with the number of encounters and captures you have left.";
 
-    public help(displayPrefix: string): string {
-        return `Use ${displayPrefix}${this.commandNames[0]} to view the time until the next encounter and capture resets, along with the number of encounters and captures you have left`;
-    }
+    public readonly section = CommandSection.playerInfo;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

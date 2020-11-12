@@ -14,13 +14,11 @@ class ShopBuySubCommand extends GuildCommand {
 
     public readonly info = "Buy and item from a shop";
 
-    public help(displayPrefix: string): string {
-        return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<item name/number>\` \`<quantity>\` to buy an item from the shop.`;
-    }
+    public readonly helpUseString = "`<item name/number>` `<quantity>` to buy an item from the shop.";
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length === 0) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

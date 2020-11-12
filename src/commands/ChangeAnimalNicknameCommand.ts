@@ -11,15 +11,13 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
     public readonly info = "Change the nickname of one of your captured animals";
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly helpUseString = "`<animal number or nickname>` `<new nickname>` to change the nickname of an animal in your collection. Use quotation marks (\") for any names with spaces in them.";
 
-    public help(prefix: string): string {
-        return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` \`<new nickname>\` to change the nickname of an animal in your collection. Use quotation marks (") for any names with spaces in them.`;
-    }
+    public readonly section = CommandSection.animalManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 

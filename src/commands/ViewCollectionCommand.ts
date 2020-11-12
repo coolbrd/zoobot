@@ -12,15 +12,9 @@ class ViewCollectionCommand extends GuildCommand {
 
     public readonly info = "View you or another player's collection of animals";
 
+    public readonly helpUseString = "to see your collection of captured animals.";
+
     public readonly section = CommandSection.playerInfo;
-
-    public help(commandPrefix: string): string {
-        return stripIndents`
-            Use \`${commandPrefix}${this.commandNames[0]}\` to see your collection of captured animals.
-
-            You can also do \`${commandPrefix}${this.commandNames[0]}\` \`<user tag or id>\` to view somebody else's collection.
-        `;
-    }
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;

@@ -9,11 +9,9 @@ class ExitCommand extends Command {
 
     public readonly info = "Shuts down the bot";
 
-    public readonly adminOnly = true;
+    public readonly helpUseString = "to shut down to bot.";
 
-    public help(_displayPrefix: string): string {
-        return `Why do you need help with this? It's pretty straightforward.`;
-    }
+    public readonly adminOnly = true;
 
     public async run(_parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         console.log("Exiting...");
