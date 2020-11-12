@@ -1,6 +1,7 @@
 import { stripIndents } from "common-tags";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
+import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import ShopItem from "./ShopItem";
 
 export interface ShopReceipt {
@@ -20,7 +21,7 @@ export default abstract class Shop {
 
         const selectedItem = this.items[itemIndex];
 
-        const itemName = selectedItem.getName(player);
+        const itemName = capitalizeFirstLetter(selectedItem.getName(player));
         const itemPrice = selectedItem.getPrice(player);
 
         const totalPrice = itemPrice * quantity;

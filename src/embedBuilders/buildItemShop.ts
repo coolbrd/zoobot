@@ -2,6 +2,7 @@ import { MessageEmbed } from "discord.js";
 import itemShop from "../beastiary/shop/shops/ItemShop";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { commandHandler } from "../structures/Command/CommandHandler";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildItemShopEmbed(embed: MessageEmbed, player: Player): MessageEmbed {
     embed.setAuthor(`Balance: ${player.scraps} scraps`, player.member.user.avatarURL() || undefined);
@@ -12,7 +13,7 @@ export default function buildItemShopEmbed(embed: MessageEmbed, player: Player):
     let itemString = "";
     let itemNumber = 1;
     for (const item of itemShop.items) {
-        itemString += `\`${itemNumber})\` ${item.getName(player)}: ${item.getPrice(player)} scraps\n`;
+        itemString += `\`${itemNumber})\` ${capitalizeFirstLetter(item.getName(player))}: ${item.getPrice(player)} scraps\n`;
         itemNumber += 1;
     }
 
