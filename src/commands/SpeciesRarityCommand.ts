@@ -2,8 +2,9 @@ import { stripIndents } from "common-tags";
 import SpeciesRarityMessage from '../messages/SpeciesRarityMessage';
 import Command from '../structures/Command/Command';
 import CommandParser from '../structures/Command/CommandParser';
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class SpeciesRarityCommand extends Command {
+class SpeciesRarityCommand extends Command {
     public readonly commandNames = ["viewrarity", "vr"];
 
     public readonly info = "View the rarity of all species and their images";
@@ -14,7 +15,7 @@ export default class SpeciesRarityCommand extends Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view the Beastiary of animals with their rarity values displayed in percentage.`;
     }
 
-    public async run(parsedMessage: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const rarityMessage = new SpeciesRarityMessage(parsedMessage.channel);
 
         try {
@@ -29,5 +30,8 @@ export default class SpeciesRarityCommand extends Command {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new SpeciesRarityCommand();

@@ -5,8 +5,9 @@ import PlayerProfileMessage from "../messages/PlayerProfileMessage";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ViewPlayerProfileCommand extends GuildCommand {
+class ViewPlayerProfileCommand extends GuildCommand {
     public readonly commandNames = ["profile", "p"];
 
     public readonly info = "View you or another player's profile";
@@ -20,14 +21,14 @@ export default class ViewPlayerProfileCommand extends GuildCommand {
         `;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;
         try {
             player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);
-            return;
+            return commandReceipt;
         }
 
         const playerProfileMessage = new PlayerProfileMessage(parsedMessage.channel, player);
@@ -44,5 +45,8 @@ export default class ViewPlayerProfileCommand extends GuildCommand {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new ViewPlayerProfileCommand();

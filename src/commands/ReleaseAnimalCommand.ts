@@ -8,8 +8,9 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ReleaseAnimalCommand extends GuildCommand {
+class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
 
     public readonly info = "Release an animal from your collection in exchange for some scraps";
@@ -22,10 +23,10 @@ export default class ReleaseAnimalCommand extends GuildCommand {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<animal name or number>\` to release an animal from your collection`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
@@ -50,7 +51,7 @@ export default class ReleaseAnimalCommand extends GuildCommand {
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the nickname or number "${animalIdentifier}" exists in your collection.`);
-            return;
+            return commandReceipt;
         }
 
         const releaseEmbed = new SmartEmbed();
@@ -161,5 +162,8 @@ export default class ReleaseAnimalCommand extends GuildCommand {
                 `);
             }
         }
+
+        return commandReceipt;
     }
 }
+export default new ReleaseAnimalCommand();

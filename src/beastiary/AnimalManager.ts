@@ -62,7 +62,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
 
                 Searched nickname: ${nickname}
                 Searched guild id: ${guildId}
-                Search queary: ${JSON.stringify(searchQuery)}
+                Search query: ${JSON.stringify(searchQuery)}
 
                 ${error}
             `);
@@ -87,7 +87,6 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 ${error}
             `);
         }
-
         return animal;
     }
 

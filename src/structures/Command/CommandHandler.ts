@@ -21,62 +21,57 @@ import { errorHandler } from "../ErrorHandler";
 import BeastiaryCommand from "../../commands/BeastiaryCommand";
 import config from "../../config/BotConfig";
 import CommandListCommand from "../../commands/CommandListCommand";
-import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
 import ViewResetsCommand from "../../commands/ViewResetsCommand";
 import ReleaseAnimalCommand from "../../commands/ReleaseAnimalCommand";
 import ExitCommand from "../../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../../commands/ViewPlayerProfileCommand";
 import CrewCommand from "../../commands/CrewCommand";
 import { ADMIN_SERVER_ID } from "../../config/secrets";
-import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
-import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
 import SpeciesRarityCommand from '../../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
-import ShopCommand from "../../commands/ShopCommand";
 import { stripIndents } from "common-tags";
+import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
+import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
+import ViewShopCommand from "../../commands/ViewShopCommand";
+import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
+import CommandReceipt from "./CommandReceipt";
 
 class CommandHandler {
-    public readonly commands: Command[];
+    public readonly baseCommands = [
+        HelpCommand,
+        EncounterCommand,
+        BeastiaryCommand,
+        SpeciesInfoCommand,
+        ViewCollectionCommand,
+        ViewPlayerProfileCommand,
+        AnimalInfoCommand,
+        ChangeAnimalNicknameCommand,
+        ViewScrapsCommand,
+        ViewShopCommand,
+        CrewCommand,
+        FavoriteAnimalCommand,
+        MoveAnimalsCommand,
+        ReleaseAnimalCommand,
+        SetEncounterChannelCommand,
+        ChangeGuildPrefixCommand,
+        ViewResetsCommand,
+        CommandAliasesCommand,
+        CommandListCommand,
+        EditSpeciesCommand,
+        SubmitSpeciesCommand,
+        ApprovePendingSpeciesCommand,
+        SpeciesRarityCommand,
+        ExitCommand
+    ];
     private readonly usersLoadingCommands = new Set<string>();
     private readonly guildPrefixes: Map<string, string> = new Map();
-
-    constructor() {
-        const commandClasses = [
-            HelpCommand,
-            EncounterCommand,
-            BeastiaryCommand,
-            SpeciesInfoCommand,
-            ViewCollectionCommand,
-            ViewPlayerProfileCommand,
-            AnimalInfoCommand,
-            ChangeAnimalNicknameCommand,
-            ViewScrapsCommand,
-            ShopCommand,
-            CrewCommand,
-            FavoriteAnimalCommand,
-            MoveAnimalsCommand,
-            ReleaseAnimalCommand,
-            SetEncounterChannelCommand,
-            ChangeGuildPrefixCommand,
-            ViewResetsCommand,
-            CommandAliasesCommand,
-            CommandListCommand,
-            EditSpeciesCommand,
-            SubmitSpeciesCommand,
-            ApprovePendingSpeciesCommand,
-            SpeciesRarityCommand,
-            ExitCommand
-        ];
-
-        this.commands = commandClasses.map(commandClass => new commandClass());
-    }
 
     public get botTag(): string {
         return `<@!${(client.user as User).id}>`;
     }
 
     public getCommand(commandName: string, message: Message): Command | undefined {
-        const matchedCommand = this.commands.find(command => {
+        const matchedCommand = this.baseCommands.find(command => {
             return command.commandNames.includes(commandName);
         });
 
@@ -138,20 +133,21 @@ class CommandHandler {
                     this.setUserLoadingCommand(message.author.id);
                 }
 
-                let commandSuccessful: boolean | void;
+                let commandReceipt: CommandReceipt;
                 try {
-                    commandSuccessful = await matchedCommand.run(parsedMessage);
+                    commandReceipt = await matchedCommand.parseAndRun(parsedMessage);
                 }
                 catch (error) {
                     errorHandler.handleError(error, "Command execution failed.");
 
                     betterSend(parsedMessage.channel, "Something went wrong while performing that command. Please report this to the developer.");
+                    return;
                 }
                 finally {
                     this.unsetUserLoadingCommand(message.author.id);
                 }
 
-                if (commandSuccessful && matchedCommand.reactConfirm) {
+                if (commandReceipt.reactConfirm) {
                     parsedMessage.originalMessage.react("✅").catch(error => {
                         errorHandler.handleError(error, "There was an error attempting to react to a message after a command was completed.");
                     });

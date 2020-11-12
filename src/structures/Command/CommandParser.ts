@@ -14,9 +14,8 @@ export default class CommandParser {
     public readonly commandPrefix: string;
     public readonly displayPrefix: string;
 
-    public readonly commandName: string;
+    public commandName: string;
     public readonly arguments: Argument[] = [];
-    public readonly fullArguments: string;
 
     public readonly originalMessage: Message;
     public readonly channel: TextChannel | DMChannel;
@@ -31,14 +30,6 @@ export default class CommandParser {
         this.displayPrefix = commandHandler.getDisplayPrefixByMessage(message);
         
         const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
-
-        const startOfArgs = messageWithoutPrefix.indexOf(" ");
-        if (startOfArgs === -1) {
-            this.fullArguments = "";
-        }
-        else {
-            this.fullArguments = messageWithoutPrefix.slice(startOfArgs).trim();
-        }
 
         const splitByQuotes = messageWithoutPrefix.split("\"");
 
@@ -83,6 +74,37 @@ export default class CommandParser {
         this.originalMessage = message;
         this.channel = message.channel as TextChannel | DMChannel;
         this.sender = message.author;
+    }
+
+    public get fullArguments(): string {
+        let fullArguments = "";
+
+        let argumentIndex = 0;
+        this.arguments.forEach(currentArgument => {
+            fullArguments += currentArgument.text;
+
+            if (argumentIndex < this.arguments.length - 1) {
+                fullArguments += " ";
+            }
+
+            argumentIndex += 1;
+        });
+
+        return fullArguments;
+    }
+
+    public shiftSubCommand(): void {
+        const subCommandArgument = this.arguments.shift();
+
+        if (!subCommandArgument) {
+            throw new Error(stripIndents`
+                A command parser with no arguments was shifted as if it triggered a subcommand.
+
+                Parser: ${JSON.stringify(this)}
+            `);
+        }
+
+        this.commandName = subCommandArgument.text.toLowerCase();
     }
 }
 

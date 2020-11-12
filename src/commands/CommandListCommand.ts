@@ -4,9 +4,10 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import Command, { CommandSection } from "../structures/Command/Command";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import CommandParser from "../structures/Command/CommandParser";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
 // Sends an embed containing a list of all non-admin commands and their basic functions
-export default class CommandListCommand extends Command {
+class CommandListCommand extends Command {
     public readonly commandNames = ["commands", "commandlist", "listcommands", "command"];
 
     public readonly info = "View this message";
@@ -17,7 +18,7 @@ export default class CommandListCommand extends Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to get an overview of all commands and their functions.`;
     }
 
-    public async run(parsedMessage: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let infoCommandString = "";
         let gettingStartedString = "";
         let playerInfoString = "";
@@ -25,7 +26,7 @@ export default class CommandListCommand extends Command {
         let guildManagementString = "";
         let getInvolvedString = "";
         
-        for (const command of commandHandler.commands) {
+        for (const command of commandHandler.baseCommands) {
             if (!command.adminOnly) {
                 const infoString = `\`${command.commandNames[0]}\`: ${command.info}\n`;
                 switch (command.section) {
@@ -71,5 +72,8 @@ export default class CommandListCommand extends Command {
         embed.setColor(0x18476b);
         
         betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: embed }));
+
+        return commandReceipt;
     }
 }
+export default new CommandListCommand();

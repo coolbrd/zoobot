@@ -10,8 +10,9 @@ import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from '../beastiary/Beastiary';
 import { commonNamesToLowerArray, CommonNameTemplate } from '../structures/GameObject/GameObjects/Species';
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ApprovePendingSpeciesCommand extends Command {
+class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
 
     public readonly info = "Review and approve a pending species";
@@ -22,12 +23,12 @@ export default class ApprovePendingSpeciesCommand extends Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<pending species name>\` to begin the process of reviewing and approving a species submission.`;
     }
 
-    public async run(parsedMessage: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         if (!fullSearchTerm) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         let pendingSpeciesDocument: Document | null;
@@ -46,7 +47,7 @@ export default class ApprovePendingSpeciesCommand extends Command {
 
         if (!pendingSpeciesDocument) {
             betterSend(parsedMessage.channel, `No pending species submission with the common name "${fullSearchTerm}" could be found.`);
-            return;
+            return commandReceipt;
         }
 
         const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument);
@@ -116,5 +117,8 @@ export default class ApprovePendingSpeciesCommand extends Command {
                 `);
             });
         });
+
+        return commandReceipt;
     }
 }
+export default new ApprovePendingSpeciesCommand();

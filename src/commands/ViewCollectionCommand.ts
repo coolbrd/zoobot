@@ -5,8 +5,9 @@ import { stripIndents } from "common-tags";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ViewCollectionCommand extends GuildCommand {
+class ViewCollectionCommand extends GuildCommand {
     public readonly commandNames = ["collection", "col", "c"];
 
     public readonly info = "View you or another player's collection of animals";
@@ -21,14 +22,14 @@ export default class ViewCollectionCommand extends GuildCommand {
         `;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         let player: Player;
         try {
             player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);
-            return;
+            return commandReceipt;
         }
 
         const collectionMessage = new CollectionMessage(parsedMessage.channel, player);
@@ -45,5 +46,8 @@ export default class ViewCollectionCommand extends GuildCommand {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new ViewCollectionCommand();

@@ -5,8 +5,9 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class AnimalInfoCommand extends GuildCommand {
+class AnimalInfoCommand extends GuildCommand {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
 
     public readonly info = "View the stats, info, and card of a captured animal";
@@ -17,10 +18,10 @@ export default class AnimalInfoCommand extends GuildCommand {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` to view information about that animal.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
@@ -45,7 +46,7 @@ export default class AnimalInfoCommand extends GuildCommand {
 
         if (!animalObject) {
             betterSend(parsedMessage.channel, "No animal by that nickname/number could be found in this server.");
-            return;
+            return commandReceipt;
         }
 
         const infoMessage = new AnimalInfoMessage(parsedMessage.channel, animalObject);
@@ -62,5 +63,8 @@ export default class AnimalInfoCommand extends GuildCommand {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new AnimalInfoCommand();

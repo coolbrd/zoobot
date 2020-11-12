@@ -1,12 +1,12 @@
 import { stripIndents } from "common-tags";
-import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class MoveAnimalsCommand extends GuildCommand {
+class MoveAnimalsCommand extends GuildCommand {
     public readonly commandNames = ["moveanimals", "ma"];
 
     public readonly info = "Rearrange animals in your collection";
@@ -15,8 +15,6 @@ export default class MoveAnimalsCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public readonly reactConfirm = true;
-
     public help(prefix: string): string {
         return stripIndents`
             Use \`${prefix}${this.commandNames[0]}\` \`<starting position>\` \`<animal number>\` \`<animal number>\` \`...\` to move animals in your collection to a given position.
@@ -24,23 +22,21 @@ export default class MoveAnimalsCommand extends GuildCommand {
         `;
     }
 
-    public async run(parsedUserCommand: GuildCommandParser): Promise<boolean> {
-        if (parsedUserCommand.arguments.length < 1) {
-            betterSend(parsedUserCommand.channel, this.help(parsedUserCommand.displayPrefix));
-            return false;
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+        if (parsedMessage.arguments.length < 1) {
+            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
+            return commandReceipt;
         }
-
-        const guildMember = getGuildMember(parsedUserCommand.sender, parsedUserCommand.guild);
 
         let playerObject: Player;
         try {
-            playerObject = await beastiary.players.fetch(guildMember);
+            playerObject = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndents`
                 There was an error getting a player object in the move animals command.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${JSON.stringify(parsedMessage.member)}
                 
                 ${error}
             `);
@@ -50,7 +46,7 @@ export default class MoveAnimalsCommand extends GuildCommand {
         // Any errors encountered while parsing positions, if any
         const errors: string[] = [];
 
-        parsedUserCommand.arguments.forEach(arg => {
+        parsedMessage.arguments.forEach(arg => {
             const argText = arg.text;
 
             const numericPosition = Number(argText) - 1;
@@ -72,13 +68,13 @@ export default class MoveAnimalsCommand extends GuildCommand {
         });
 
         if (errors.length > 0) {
-            betterSend(parsedUserCommand.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your collection. Errors: ${errors.join(", ")}`);
-            return false;
+            betterSend(parsedMessage.channel, `All animal position arguments must be in number form, and be within the numeric bounds of your collection. Errors: ${errors.join(", ")}`);
+            return commandReceipt;
         }
 
         if (positions.length < 2) {
-            betterSend(parsedUserCommand.channel, `You need to specify at least one position of an animal to place after position \`${positions[0]}\`.`);
-            return false;
+            betterSend(parsedMessage.channel, `You need to specify at least one position of an animal to place after position \`${positions[0]}\`.`);
+            return commandReceipt;
         }
 
         const sortPosition = positions.shift() as number;
@@ -91,6 +87,8 @@ export default class MoveAnimalsCommand extends GuildCommand {
 
         playerObject.addAnimalIdsToCollectionPositional(movedAnimalIds, basePosition + 1);
 
-        return true;
+        commandReceipt.reactConfirm = true;
+        return commandReceipt;
     }
 }
+export default new MoveAnimalsCommand();

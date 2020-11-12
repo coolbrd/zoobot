@@ -9,8 +9,9 @@ import reactionInput from "../discordUtility/reactionInput";
 import { arrayToLowerCase } from "../utility/arraysAndSuch";
 import { EDoc, SimpleEDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "../messages/EDocMessage";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class SubmitSpeciesCommand extends Command {
+class SubmitSpeciesCommand extends Command {
     public readonly commandNames = ["submitspecies", "submit"];
 
     public readonly info = "Submit a new species to The Beastiary";
@@ -21,7 +22,7 @@ export default class SubmitSpeciesCommand extends Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` to begin the species submission process.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const infoEmbed = new MessageEmbed();
 
         infoEmbed.setTitle("New species submission");
@@ -64,7 +65,7 @@ export default class SubmitSpeciesCommand extends Command {
 
         if (!reactionConfirmed) {
             betterSend(parsedMessage.channel, "Your time to initiate the previous submission process has expired. Perform the submit command again to try again.");
-            return;
+            return commandReceipt;
         }
 
         safeDeleteMessage(infoMessage);
@@ -183,5 +184,8 @@ export default class SubmitSpeciesCommand extends Command {
                 `);
             });
         });
+
+        return commandReceipt;
     }
 }
+export default new SubmitSpeciesCommand();

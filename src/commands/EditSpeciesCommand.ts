@@ -6,8 +6,9 @@ import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class EditSpeciesCommand extends Command {
+class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
 
     public readonly info = "Edit an existing species";
@@ -18,10 +19,10 @@ export default class EditSpeciesCommand extends Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species name>\` to edit an existing species.`;
     }
 
-    public async run(parsedMessage: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
@@ -42,7 +43,7 @@ export default class EditSpeciesCommand extends Command {
         }
 
         if (species === undefined) {
-            return;
+            return commandReceipt;
         }
 
         const editMessage = new SpeciesEditMessage(parsedMessage.channel, species);
@@ -104,5 +105,8 @@ export default class EditSpeciesCommand extends Command {
                 `);
             })
         });
+
+        return commandReceipt;
     }
 }
+export default new EditSpeciesCommand();

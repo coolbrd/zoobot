@@ -6,8 +6,9 @@ import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class SetEncounterChannelCommand extends GuildCommand {
+class SetEncounterChannelCommand extends GuildCommand {
     public readonly commandNames = ["setencounterchannel"];
 
     public readonly info = "Sets the channel that random encounters will appear in";
@@ -18,10 +19,10 @@ export default class SetEncounterChannelCommand extends GuildCommand {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` in the channel you want random encounters to spawn in.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.member.hasPermission("MANAGE_CHANNELS")) {
             betterSend(parsedMessage.channel, "You need the `Manage Channels` permission to change the default encounter channel.");
-            return;
+            return commandReceipt;
         }
 
         let playerGuild: PlayerGuild;
@@ -62,5 +63,8 @@ export default class SetEncounterChannelCommand extends GuildCommand {
         else {
             betterSend(parsedMessage.channel, "Change canceled.");
         }
+
+        return commandReceipt;
     }
 }
+export default new SetEncounterChannelCommand();

@@ -4,11 +4,10 @@ import { Species } from "../structures/GameObject/GameObjects/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
-import SpeciesDisplayMessage from "../messages/SpeciesDisplayMessage";
-import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class SpeciesInfoCommand extends Command {
+class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
 
     public readonly info = "View a species' information and collectible cards";
@@ -19,10 +18,10 @@ export default class SpeciesInfoCommand extends Command {
         return `Use \`${commandPrefix}${this.commandNames[0]}\` \`<species>\` to view a species' traits and cards.`;
     }
 
-    public async run(parsedMessage: CommandParser): Promise<void> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
@@ -42,7 +41,7 @@ export default class SpeciesInfoCommand extends Command {
         }
 
         if (species === undefined) {
-            return;
+            return commandReceipt;
         }
 
         const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species);
@@ -58,5 +57,8 @@ export default class SpeciesInfoCommand extends Command {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new SpeciesInfoCommand();

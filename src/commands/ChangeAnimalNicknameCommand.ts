@@ -1,39 +1,35 @@
-import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ChangeAnimalNicknameCommand extends GuildCommand {
+class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly commandNames = ["nickname", "nick", "nn"];
 
     public readonly info = "Change the nickname of one of your captured animals";
 
     public readonly section = CommandSection.animalManagement;
 
-    public readonly reactConfirm = true;
-
     public help(prefix: string): string {
         return `Use \`${prefix}${this.commandNames[0]}\` \`<animal number or nickname>\` \`<new nickname>\` to change the nickname of an animal in your collection. Use quotation marks (") for any names with spaces in them.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<boolean> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return false;
+            return commandReceipt;
         }
 
         const animalIdentifier = parsedMessage.arguments[0].text;
 
-        const guildMember = getGuildMember(parsedMessage.originalMessage.author, parsedMessage.channel);
-
         let animal: Animal | undefined;
         try {
             animal = await beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: guildMember.guild.id,
-                userId: guildMember.user.id,
+                guildId: parsedMessage.member.guild.id,
+                userId: parsedMessage.member.user.id,
                 searchList: "collection"
             });
         }
@@ -49,7 +45,7 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal by that number/nickname exists in your collection.");
-            return false;
+            return commandReceipt;
         }
 
         let newNickname: string | undefined;
@@ -66,13 +62,15 @@ export default class ChangeAnimalNicknameCommand extends GuildCommand {
             for (const substring of bannedSubStrings) {
                 if (newNickname.includes(substring)) {
                     betterSend(parsedMessage.channel, `Animal nicknames can't contain any Discord-reserved formatting characters, such as: '${substring}'`);
-                    return false;
+                    return commandReceipt;
                 }
             }
         }
 
         animal.nickname = newNickname;
 
-        return true;
+        commandReceipt.reactConfirm = true;
+        return commandReceipt;
     }
 }
+export default new ChangeAnimalNicknameCommand();

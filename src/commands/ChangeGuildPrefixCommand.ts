@@ -5,8 +5,9 @@ import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import { stripIndents } from "common-tags";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class ChangeGuildPrefixCommand extends GuildCommand {
+class ChangeGuildPrefixCommand extends GuildCommand {
     public readonly commandNames = ["prefix", "changeprefix"];
 
     public readonly info = "Change the prefix I respond to";
@@ -17,12 +18,12 @@ export default class ChangeGuildPrefixCommand extends GuildCommand {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` \`<new command prefix>\` to change the prefix that I respond to.`;
     }
 
-    public async run(parsedMessage: GuildCommandParser): Promise<void> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const prefix = parsedMessage.fullArguments;
 
         if (!prefix) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix));
-            return;
+            return commandReceipt;
         }
 
         let guildObject: PlayerGuild;
@@ -44,5 +45,8 @@ export default class ChangeGuildPrefixCommand extends GuildCommand {
         commandHandler.changeGuildPrefix(guildObject.guildId, prefix);
 
         betterSend(parsedMessage.channel, `Success. My prefix is now \`${prefix}\`.`);
+
+        return commandReceipt;
     }
 }
+export default new ChangeGuildPrefixCommand();

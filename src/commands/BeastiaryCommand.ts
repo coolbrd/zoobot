@@ -2,8 +2,9 @@ import { stripIndents } from "common-tags";
 import BeastiaryMessage from "../messages/BeastiaryMessage";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
+import CommandReceipt from "../structures/Command/CommandReceipt";
 
-export default class BeastiaryCommand extends Command {
+class BeastiaryCommand extends Command {
     public readonly commandNames = ["beastiary", "bestiary", "b"];
 
     public readonly info = "View the list of all species available in The Beastiary";
@@ -14,7 +15,7 @@ export default class BeastiaryCommand extends Command {
         return `Use \`${displayPrefix}${this.commandNames[0]}\` to view a list of every collectible species.`;
     }
 
-    public async run(parsedUserCommand: CommandParser): Promise<void> {
+    public async run(parsedUserCommand: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
         try {
             await beastiaryMessage.send();
@@ -28,5 +29,8 @@ export default class BeastiaryCommand extends Command {
                 ${error}
             `);
         }
+
+        return commandReceipt;
     }
 }
+export default new BeastiaryCommand();
