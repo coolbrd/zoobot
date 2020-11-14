@@ -31,6 +31,33 @@ export class Player extends GameObject {
         totalEncounters: "totalEncounters"
     };
 
+    public readonly fieldRestrictions = {
+        [Player.fieldNames.scraps]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.collectionUpgradeLevel]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.freeCapturesLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.extraCapturesLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.totalCaptures]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.freeEncountersLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.extraEncountersLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.totalEncounters]: {
+            nonNegative: true
+        }
+    }
+
     public static newDocument(guildMember: GuildMember): Document {
         return new PlayerModel({
             [Player.fieldNames.userId]: guildMember.user.id,

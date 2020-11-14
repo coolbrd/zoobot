@@ -2,6 +2,10 @@ import { stripIndents } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import gameConfig from "../../config/gameConfig";
 
+export interface FieldRestriction {
+    nonNegative?: boolean;
+}
+
 export default abstract class GameObject {
     // The model in which the game object's representative documents are found
     public readonly abstract model: Model<Document>;
@@ -11,6 +15,8 @@ export default abstract class GameObject {
 
     // The set of field names that are used to access data within this object's document
     public static readonly fieldNames: {[fieldName: string]: string};
+
+    public readonly fieldRestrictions: {[fieldName: string]: FieldRestriction} = {};
 
     private modifiedSinceLastSave = false;
     private saveTimer: NodeJS.Timeout | undefined;
@@ -66,6 +72,30 @@ export default abstract class GameObject {
     }
 
     protected setDocumentField(fieldName: string, value: unknown): void {
+        if (fieldName in this.fieldRestrictions) {
+            const restrictions = this.fieldRestrictions[fieldName];
+
+            if (restrictions.nonNegative) {
+                if (typeof value !== "number") {
+                    throw new Error(stripIndents`
+                        A non-number value was given to a game object field that is marked as non-negative.
+
+                        Value: ${value}
+                        Game object: ${JSON.stringify(this)}
+                    `);
+                }
+
+                if (value < 0) {
+                    throw new Error(stripIndents`
+                        A negative number was given to a game object field that's supposed to be non-negative.
+
+                        Value: ${value}
+                        Game object: ${JSON.stringify(this)}
+                    `);
+                }
+            }
+        }
+
         this.modify();
 
         this.document.set(fieldName, value);

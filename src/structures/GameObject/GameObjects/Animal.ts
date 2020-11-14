@@ -20,6 +20,12 @@ export class Animal extends GameObject {
         experience: "experience"
     };
 
+    public readonly fieldRestrictions = {
+        [Animal.fieldNames.experience]: {
+            nonNegative: true
+        }
+    };
+
     public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
         return new AnimalModel({
             [Animal.fieldNames.ownerId]: owner.user.id,
