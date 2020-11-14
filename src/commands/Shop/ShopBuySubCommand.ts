@@ -1,13 +1,13 @@
 import { stripIndents } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
-import { ShopReceipt } from "../beastiary/shop/Shop";
-import itemShop from "../beastiary/shop/shops/ItemShop";
-import handleUserError from "../discordUtility/handleUserError";
-import { betterSend } from "../discordUtility/messageMan";
-import { GuildCommand } from "../structures/Command/Command";
-import { GuildCommandParser } from "../structures/Command/CommandParser";
-import CommandReceipt from "../structures/Command/CommandReceipt";
-import { Player } from "../structures/GameObject/GameObjects/Player";
+import { beastiary } from "../../beastiary/Beastiary";
+import { ShopReceipt } from "../../beastiary/shop/Shop";
+import itemShop from "../../beastiary/shop/shops/ItemShop";
+import handleUserError from "../../discordUtility/handleUserError";
+import { betterSend } from "../../discordUtility/messageMan";
+import { GuildCommand } from "../../structures/Command/Command";
+import { GuildCommandParser } from "../../structures/Command/CommandParser";
+import CommandReceipt from "../../structures/Command/CommandReceipt";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 class ShopBuySubCommand extends GuildCommand {
     public readonly commandNames = ["buy", "b"];
