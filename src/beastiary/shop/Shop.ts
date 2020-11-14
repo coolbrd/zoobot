@@ -21,6 +21,14 @@ export default abstract class Shop {
 
         const selectedItem = this.items[itemIndex];
 
+        if (!selectedItem.canBuyMultiple) {
+            quantity = 1;
+        }
+
+        if (quantity <= 0) {
+            throw new UserError("You can't buy less than one item from the shop!");
+        }
+
         const itemName = capitalizeFirstLetter(selectedItem.getName(player));
         const itemPrice = selectedItem.getPrice(player);
 

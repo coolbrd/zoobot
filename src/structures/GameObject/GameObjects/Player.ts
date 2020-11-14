@@ -157,7 +157,7 @@ export class Player extends GameObject {
     }
 
     public get collectionSizeLimit(): number {
-        return 5;
+        return (this.collectionUpgradeLevel + 1) * 5;
     }
 
     public get capturesLeft(): number {
