@@ -3,7 +3,7 @@ import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 import PlayerProfileMessage from "../messages/PlayerProfileMessage";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
@@ -13,6 +13,15 @@ class ViewPlayerProfileCommand extends GuildCommand {
     public readonly info = "View you or another player's profile";
 
     public readonly helpUseString = "to view your profile.";
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "user identifier",
+            info: "the tag or plain user id of the user you want to select",
+            optional: true,
+            default: "you"
+        }
+    ];
 
     public readonly section = CommandSection.playerInfo;
 

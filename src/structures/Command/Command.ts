@@ -1,4 +1,5 @@
 import { stripIndents } from "common-tags";
+import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import CommandParser, { GuildCommandParser } from "./CommandParser";
 import CommandReceipt from "./CommandReceipt";
 
@@ -11,12 +12,22 @@ export enum CommandSection {
     getInvolved
 }
 
+export interface CommandArgumentInfo {
+    name: string,
+    optional?: boolean,
+    info?: string,
+    default?: string,
+    continuous?: boolean
+}
+
 export default abstract class Command {
     public abstract readonly commandNames: string[];
 
     public abstract readonly info: string;
 
     public abstract readonly helpUseString: string;
+
+    public readonly arguments: CommandArgumentInfo[] = [];
 
     public readonly subCommands: Command[] = [];
 
@@ -31,7 +42,27 @@ export default abstract class Command {
     public help(displayPrefix: string, commandChain: string[]): string {
         let helpString = `Use \`${displayPrefix}${commandChain.join(" ")}\` ${this.helpUseString}`;
 
-        if (this.subCommands) {
+        if (this.arguments.length > 0) {
+            helpString += "\n\n__Arguments__\n";
+            this.arguments.forEach(currentArgument => {
+                let argumentString = `\`${currentArgument.name}\``;
+                if (currentArgument.info) {
+                    argumentString += `: ${capitalizeFirstLetter(currentArgument.info)}`;
+                }
+                if (currentArgument.optional) {
+                    argumentString += " (optional)";
+                }
+                if (currentArgument.default) {
+                    argumentString += ` (defaults to ${currentArgument.default})`;
+                }
+                if (currentArgument.continuous) {
+                    argumentString += "\n`...`";
+                }
+                helpString += `${argumentString}\n`;
+            });
+        }
+
+        if (this.subCommands.length > 0) {
             helpString += "\n\n__Options__\n";
             this.subCommands.forEach(currentSubCommand => {
                 helpString += `\`${currentSubCommand.commandNames[0]}\`: ${currentSubCommand.info}\n`;

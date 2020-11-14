@@ -1,5 +1,5 @@
 import { betterSend } from "../discordUtility/messageMan";
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
@@ -12,6 +12,19 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly info = "Change the nickname of one of your captured animals";
 
     public readonly helpUseString = "`<animal number or nickname>` `<new nickname>` to change the nickname of an animal in your collection. Use quotation marks (\") for any names with spaces in them.";
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "animal identifier",
+            info: "the nickname or number of the animal in your collection"
+        },
+        {
+            name: "nickname",
+            info: "the animal's new nickname",
+            optional: true,
+            default: "the animal's common name, if left out"
+        }
+    ];
 
     public readonly section = CommandSection.animalManagement;
 

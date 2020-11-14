@@ -1,4 +1,4 @@
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
 import { stripIndents } from "common-tags";
@@ -13,6 +13,15 @@ class ViewCollectionCommand extends GuildCommand {
     public readonly info = "View you or another player's collection of animals";
 
     public readonly helpUseString = "to see your collection of captured animals.";
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "user identifier",
+            info: "the tag or plain user id of the user you want to select",
+            optional: true,
+            default: "you"
+        }
+    ];
 
     public readonly section = CommandSection.playerInfo;
 

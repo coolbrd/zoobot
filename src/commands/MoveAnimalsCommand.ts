@@ -1,7 +1,7 @@
 import { stripIndents } from "common-tags";
 import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
 import CommandReceipt from "../structures/Command/CommandReceipt";
@@ -12,6 +12,18 @@ class MoveAnimalsCommand extends GuildCommand {
     public readonly info = "Rearrange animals in your collection";
 
     public readonly helpUseString = "`<starting position>` `<animal number>` `<animal number>` `...` to move animals in your collection to a given position.";
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "anchor position",
+            info: "the position of the animal to place all following animal numbers underneath"
+        },
+        {
+            name: "animal number",
+            info: "an animal number to place directly beneath the previous number",
+            continuous: true
+        }
+    ];
 
     public readonly section = CommandSection.animalManagement;
 

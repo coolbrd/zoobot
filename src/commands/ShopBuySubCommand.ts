@@ -4,7 +4,7 @@ import { ShopReceipt } from "../beastiary/shop/Shop";
 import itemShop from "../beastiary/shop/shops/ItemShop";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
-import { GuildCommand } from "../structures/Command/Command";
+import { CommandArgumentInfo, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -15,6 +15,17 @@ class ShopBuySubCommand extends GuildCommand {
     public readonly info = "Buy and item from a shop";
 
     public readonly helpUseString = "`<item name/number>` `<quantity>` to buy an item from the shop.";
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "item identifier",
+            info: "the name or number of the item you want to buy"
+        },{
+            name: "quantity",
+            optional: true,
+            default: "1"
+        }
+    ];
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length === 0) {
