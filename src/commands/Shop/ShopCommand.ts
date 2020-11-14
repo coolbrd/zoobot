@@ -1,16 +1,16 @@
 import { stripIndents } from "common-tags";
 import { APIMessage, TextChannel } from "discord.js";
-import { beastiary } from "../beastiary/Beastiary";
-import { betterSend } from "../discordUtility/messageMan";
-import SmartEmbed from "../discordUtility/SmartEmbed";
-import buildItemShopEmbed from "../embedBuilders/buildItemShop";
-import { Player } from "../structures/GameObject/GameObjects/Player";
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
-import { GuildCommandParser } from "../structures/Command/CommandParser";
-import CommandReceipt from "../structures/Command/CommandReceipt";
+import { beastiary } from "../../beastiary/Beastiary";
+import { betterSend } from "../../discordUtility/messageMan";
+import SmartEmbed from "../../discordUtility/SmartEmbed";
+import buildItemShopEmbed from "../../embedBuilders/buildItemShop";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../../structures/Command/Command";
+import { GuildCommandParser } from "../../structures/Command/CommandParser";
+import CommandReceipt from "../../structures/Command/CommandReceipt";
 import ShopBuySubCommand from "./ShopBuySubCommand";
 
-class ViewShopCommand extends GuildCommand {
+class ShopCommand extends GuildCommand {
     public readonly commandNames = ["shop"];
 
     public readonly subCommands = [
@@ -50,4 +50,4 @@ class ViewShopCommand extends GuildCommand {
         return commandReceipt;
     }
 }
-export default new ViewShopCommand();
+export default new ShopCommand();

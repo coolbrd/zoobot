@@ -25,14 +25,14 @@ import ViewResetsCommand from "../../commands/ViewResetsCommand";
 import ReleaseAnimalCommand from "../../commands/ReleaseAnimalCommand";
 import ExitCommand from "../../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../../commands/ViewPlayerProfileCommand";
-import CrewCommand from "../../commands/CrewCommand";
+import CrewCommand from "../../commands/Crew/CrewCommand";
 import { ADMIN_SERVER_ID } from "../../config/secrets";
 import SpeciesRarityCommand from '../../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import { stripIndents } from "common-tags";
 import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
 import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
-import ViewShopCommand from "../../commands/ViewShopCommand";
+import ShopCommand from "../../commands/Shop/ShopCommand";
 import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
 import CommandReceipt from "./CommandReceipt";
 import CommandResolver from "./CommandResolver";
@@ -48,7 +48,7 @@ class CommandHandler {
         AnimalInfoCommand,
         ChangeAnimalNicknameCommand,
         ViewScrapsCommand,
-        ViewShopCommand,
+        ShopCommand,
         CrewCommand,
         FavoriteAnimalCommand,
         MoveAnimalsCommand,

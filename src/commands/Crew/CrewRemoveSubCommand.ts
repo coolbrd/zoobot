@@ -1,11 +1,11 @@
 import { stripIndents } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
-import { betterSend } from "../discordUtility/messageMan";
-import { GuildCommand } from "../structures/Command/Command";
-import { GuildCommandParser } from "../structures/Command/CommandParser";
-import CommandReceipt from "../structures/Command/CommandReceipt";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
-import { Player } from "../structures/GameObject/GameObjects/Player";
+import { beastiary } from "../../beastiary/Beastiary";
+import { betterSend } from "../../discordUtility/messageMan";
+import { GuildCommand } from "../../structures/Command/Command";
+import { GuildCommandParser } from "../../structures/Command/CommandParser";
+import CommandReceipt from "../../structures/Command/CommandReceipt";
+import { Animal } from "../../structures/GameObject/GameObjects/Animal";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 class CrewRemoveSubCommand extends GuildCommand {
     public readonly commandNames = ["remove", "r"];

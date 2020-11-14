@@ -1,13 +1,13 @@
 import { stripIndents } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
-import handleUserError from "../discordUtility/handleUserError";
-import CrewMessage from "../messages/CrewMessage";
-import { Player } from "../structures/GameObject/GameObjects/Player";
-import { CommandSection, GuildCommand } from "../structures/Command/Command";
-import { GuildCommandParser } from "../structures/Command/CommandParser";
+import { beastiary } from "../../beastiary/Beastiary";
+import handleUserError from "../../discordUtility/handleUserError";
+import CrewMessage from "../../messages/CrewMessage";
+import { Player } from "../../structures/GameObject/GameObjects/Player";
+import { CommandSection, GuildCommand } from "../../structures/Command/Command";
+import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CrewAddSubCommand from "./CrewAddSubCommand";
 import CrewRemoveSubCommand from "./CrewRemoveSubCommand";
-import CommandReceipt from "../structures/Command/CommandReceipt";
+import CommandReceipt from "../../structures/Command/CommandReceipt";
 
 class CrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];
