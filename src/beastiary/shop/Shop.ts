@@ -14,12 +14,28 @@ export interface ShopReceipt {
 export default abstract class Shop {
     protected abstract readonly items: ShopItem[];
 
-    public attemptToPurchase(itemIndex: number, player: Player, quantity = 1): ShopReceipt {
-        if (itemIndex < 0 || itemIndex >= this.items.length) {
-            throw new UserError(`Invalid item number. This shop only has items from \`1\` to \`${this.items.length}\`.`);
+    private resolveStringToItem(itemString: string): ShopItem | undefined {
+        const itemNumber = Number(itemString);
+
+        if (!isNaN(itemNumber)) {
+            if (itemNumber < 0 || itemNumber >= this.items.length) {
+                return undefined;
+            }
+
+            return this.items[itemNumber];
         }
 
-        const selectedItem = this.items[itemIndex];
+        return this.items.find(currentItem => {
+            return currentItem.simpleName === itemString.toLowerCase();
+        });
+    }
+
+    public attemptToPurchase(itemString: string, player: Player, quantity = 1): ShopReceipt {
+        const selectedItem = this.resolveStringToItem(itemString);
+
+        if (!selectedItem) {
+            throw new UserError("No item with that name/number exists in this shop.");
+        }
 
         if (!selectedItem.canBuyMultiple) {
             quantity = 1;

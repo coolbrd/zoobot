@@ -2,6 +2,8 @@ import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
 export default class CaptureItem extends ShopItem {
+    public readonly simpleName = "capture";
+
     public getName(_player: Player): string {
         return "capture";
     }

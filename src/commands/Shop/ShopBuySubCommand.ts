@@ -33,12 +33,7 @@ class ShopBuySubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const shopIndex = Number(parsedMessage.arguments[0].text) - 1;
-
-        if (isNaN(shopIndex)) {
-            betterSend(parsedMessage.channel, "The item number you want to buy needs to be a number.");
-            return commandReceipt;
-        }
+        const itemIdentifier = parsedMessage.arguments[0].text.toLowerCase();
 
         let itemQuantity = 1;
         if (parsedMessage.arguments.length > 1) {
@@ -64,7 +59,7 @@ class ShopBuySubCommand extends GuildCommand {
 
         let purchaseReceipt: ShopReceipt;
         try {
-            purchaseReceipt = itemShop.attemptToPurchase(shopIndex, player, itemQuantity);
+            purchaseReceipt = itemShop.attemptToPurchase(itemIdentifier, player, itemQuantity);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);

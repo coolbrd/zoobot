@@ -2,6 +2,8 @@ import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
 export default class EncounterItem extends ShopItem {
+    public readonly simpleName = "encounter";
+
     public getName(_player: Player): string {
         return "encounter";
     }
