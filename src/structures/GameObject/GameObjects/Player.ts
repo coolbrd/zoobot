@@ -199,6 +199,10 @@ export class Player extends GameObject {
         return this.collectionAnimalIds.length >= this.collectionSizeLimit;
     }
 
+    public get crewFull(): boolean {
+        return this.crewAnimalIds.length >= gameConfig.maxCrewSize;
+    }
+
     public get hasCaptureReset(): boolean {
         return this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf();
     }

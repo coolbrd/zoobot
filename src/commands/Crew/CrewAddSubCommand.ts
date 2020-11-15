@@ -67,7 +67,7 @@ class CrewAddSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        if (player.crewAnimalIds.length >= 4) {
+        if (player.crewFull) {
             betterSend(parsedMessage.channel, "Your crew is full, remove an animal and try again.");
             return commandReceipt;
         }
