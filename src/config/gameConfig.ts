@@ -9,6 +9,7 @@ const gameConfig = {
     playerGuildCacheTimeout: 60000,
     playerCacheTimeout: 180000,
     speciesCacheTimeout: 300000,
-    gameObjectSaveDelay: 15000
+    gameObjectSaveDelay: 15000,
+    patreonLink: "https://www.patreon.com/coolbrd"
 };
 export default gameConfig;
