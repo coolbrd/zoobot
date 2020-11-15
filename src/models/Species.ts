@@ -49,7 +49,7 @@ const speciesSchema = new Schema({
     },
     [Species.fieldNames.naturalHabitat]: {
         type: String,
-        required: true
+        required: false
     },
     [Species.fieldNames.wikiPage]: {
         type: String,

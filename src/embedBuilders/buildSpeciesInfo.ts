@@ -11,8 +11,12 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
     embed.setThumbnail(card.url);
     embed.setDescription(`Commonly known as: ${species.commonNames.join(", ")}`);
 
-    embed.addField("Description", species.description);
-    embed.addField("Habitat", species.naturalHabitat);
+    embed.addField("Info", species.description);
+    
+    if (species.naturalHabitat) {
+        embed.addField("Habitat", species.naturalHabitat);
+    }
+
     embed.addField("Rarity", `T${speciesRarity.tier}`, true);
     embed.addField("Base value", `${species.baseValue} scraps`, true);
     embed.addField("More info", species.wikiPage, true);

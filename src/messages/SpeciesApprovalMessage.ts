@@ -94,7 +94,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
             },
             [Species.fieldNames.naturalHabitat]: {
                 type: String,
-                required: true,
+                required: false,
                 alias: "natural habitat",
                 prompt: "Enter a concise summary of where the animal is naturally found (see other animals for examples):"
             },

@@ -59,11 +59,11 @@ export class Species extends GameObject {
         this.setDocumentField(Species.fieldNames.description, description);
     }
 
-    public get naturalHabitat(): string {
+    public get naturalHabitat(): string | undefined {
         return this.document.get(Species.fieldNames.naturalHabitat);
     }
 
-    public set naturalHabitat(naturalHabitat: string) {
+    public set naturalHabitat(naturalHabitat: string | undefined) {
         this.setDocumentField(Species.fieldNames.naturalHabitat, naturalHabitat);
     }
 
