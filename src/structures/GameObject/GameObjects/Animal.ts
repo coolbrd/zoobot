@@ -1,12 +1,14 @@
-import { GuildMember } from "discord.js";
+import { GuildMember, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../../../beastiary/Beastiary";
 import GameObject from "../GameObject";
-import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Species, SpeciesCard } from "./Species";
 import { AnimalModel } from '../../../models/Animal';
 import { unknownCard } from './UnknownSpecies';
 import { stripIndents } from "common-tags";
+import { betterSend } from "../../../discordUtility/messageMan";
+import getGuildMember from "../../../discordUtility/getGuildMember";
+import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
@@ -36,8 +38,16 @@ export class Animal extends GameObject {
         });
     }
 
+    private owner: GuildMember;
+
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
+
+    constructor(document: Document) {
+        super(document);
+
+        this.owner = getGuildMember(this.ownerId, this.guildId);
+    }
 
     public get ownerId(): string {
         return this.document.get(Animal.fieldNames.ownerId);
@@ -67,8 +77,12 @@ export class Animal extends GameObject {
         return this.document.get(Animal.fieldNames.experience);
     }
 
-    public set experience(experience: number) {
-        this.setDocumentField(Animal.fieldNames.experience, experience);
+    public addExperienceInChannel(experience: number, channel: TextChannel): void {
+        const previousLevel = this.level;
+        this.setDocumentField(Animal.fieldNames.experience, this.experience + experience);
+        if (this.level > previousLevel) {
+            betterSend(channel, `Congratulations ${this.owner.user}, ${this.displayName} grew to level ${this.level}!`);
+        }
     }
 
     public get value(): number {
@@ -101,6 +115,10 @@ export class Animal extends GameObject {
         }
 
         return this._card;
+    }
+
+    public get level(): number {
+        return Math.floor(Math.sqrt(this.experience / 50)) + 1;
     }
 
     private async loadSpecies(): Promise<void> {

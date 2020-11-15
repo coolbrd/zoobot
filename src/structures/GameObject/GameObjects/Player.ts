@@ -1,5 +1,5 @@
 import { stripIndents } from "common-tags";
-import { GuildMember } from "discord.js";
+import { GuildMember, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../../../beastiary/Beastiary";
 import { encounterHandler } from "../../../beastiary/EncounterHandler";
@@ -438,7 +438,7 @@ export class Player extends GameObject {
         return animal;
     }
 
-    public async awardCrewExperience(experienceAmount: number): Promise<void> {
+    public async awardCrewExperienceInChannel(experienceAmount: number, channel: TextChannel): Promise<void> {
         const crewAnimals: Animal[] = [];
         try {
             await new Promise(resolve => {
@@ -478,7 +478,7 @@ export class Player extends GameObject {
         }
 
         for (const crewAnimal of crewAnimals) {
-            crewAnimal.experience += experienceAmount;
+            crewAnimal.addExperienceInChannel(experienceAmount, channel);
         }
     }
 

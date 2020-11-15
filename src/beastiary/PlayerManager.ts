@@ -234,6 +234,10 @@ export default class PlayerManager extends GameObjectCache<Player> {
     }
 
     public async handleMessage(message: Message): Promise<void> {
+        if (message.channel.type !== "text") {
+            return;
+        }
+
         const inGuild = Boolean(message.guild);
         const sentByBot = Boolean(message.author.bot);
         const isPlayer = this.playerUserIds.has(message.author.id);
@@ -262,7 +266,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
 
         try {
-            await player.awardCrewExperience(gameConfig.experiencePerMessage);
+            await player.awardCrewExperienceInChannel(gameConfig.experiencePerMessage, message.channel);
         }
         catch (error) {
             throw new Error(stripIndents`

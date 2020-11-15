@@ -22,6 +22,6 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
         embed.addField("Special", capitalizeFirstLetter(animal.card.special));
     }
     
-    embed.addField("Experience", animal.experience);
+    embed.addField("Level", animal.level);
     embed.addField("Value", `${animal.value} scraps`);
 }
