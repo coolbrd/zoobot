@@ -20,8 +20,8 @@ export default abstract class InteractiveMessage extends EventEmitter {
     // The method that uses this message's information in order to build its embed
     protected abstract async buildEmbed(): Promise<MessageEmbed>;
 
-    protected readonly resetTimerOnButtonPress = true;
-    protected readonly defaultDeactivationText = "(message deactivated)";
+    protected readonly resetTimerOnButtonPress: boolean = true;
+    protected deactivationText = "(message deactivated)";
 
     public readonly channel: TextChannel | DMChannel;
 
@@ -35,7 +35,6 @@ export default abstract class InteractiveMessage extends EventEmitter {
     private _timer: NodeJS.Timeout | undefined;
 
     private _deactivated = false;
-    private _deactivationText = this.defaultDeactivationText;
 
     constructor(channel: TextChannel | DMChannel) {
         super();
@@ -122,14 +121,6 @@ export default abstract class InteractiveMessage extends EventEmitter {
         }
 
         this._deactivated = true;
-    }
-
-    private get deactivationText(): string {
-        return this._deactivationText;
-    }
-
-    private set deactivationText(deactivationText: string) {
-        this._deactivationText = deactivationText;
     }
 
     protected getEmojiByName(buttonName: string): string {

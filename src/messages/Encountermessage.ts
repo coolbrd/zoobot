@@ -17,6 +17,8 @@ export default class EncounterMessage extends InteractiveMessage {
 
     public readonly channel: TextChannel;
 
+    protected deactivationText = "(fled)";
+
     private readonly species: Species;
     private readonly card: SpeciesCard;
 
