@@ -118,7 +118,7 @@ export class Animal extends GameObject {
     }
 
     public get level(): number {
-        return Math.floor(Math.sqrt(this.experience / 50)) + 1;
+        return Math.floor(Math.sqrt(this.experience / 25)) + 1;
     }
 
     private async loadSpecies(): Promise<void> {
