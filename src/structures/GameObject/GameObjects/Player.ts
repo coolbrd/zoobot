@@ -6,7 +6,7 @@ import { encounterHandler } from "../../../beastiary/EncounterHandler";
 import gameConfig from "../../../config/gameConfig";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import GameObject from "../GameObject";
-import LoadableOwnedAnimal from "../../LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
+import LoadableOwnedAnimal from "./LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { Animal } from "./Animal";
 import { PlayerModel } from '../../../models/Player';

@@ -1,6 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Types } from "mongoose";
-import GameObject from "../GameObject/GameObject";
+import GameObject from "../../GameObject";
 
 export default abstract class LoadableGameObject<GameObjectType extends GameObject> {
     public readonly id: Types.ObjectId;

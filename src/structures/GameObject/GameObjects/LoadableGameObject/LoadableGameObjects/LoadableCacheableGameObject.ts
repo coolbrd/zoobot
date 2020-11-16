@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
-import GameObject from '../../GameObject/GameObject';
-import GameObjectCache from '../../GameObject/GameObjectCache';
+import GameObject from '../../../GameObject';
+import GameObjectCache from '../../../GameObjectCache';
 import LoadableGameObject from "../LoadableGameObject";
 
 export default class LoadableCacheableGameObject<GameObjectType extends GameObject> extends LoadableGameObject<GameObjectType> {

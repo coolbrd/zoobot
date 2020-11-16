@@ -3,7 +3,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
-import LoadableGameObject, { bulkLoad } from "../structures/LoadableGameObject/LoadableGameObject";
+import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
 
