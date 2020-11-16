@@ -22,7 +22,7 @@ class BeastiaryCommand extends Command {
             throw new Error(stripIndents`
                 There was an error sending a beastiary message.
 
-                Message: ${JSON.stringify(beastiaryMessage)}
+                Message: ${beastiaryMessage.debugString}
                 
                 ${error}
             `);

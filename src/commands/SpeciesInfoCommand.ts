@@ -50,7 +50,7 @@ class SpeciesInfoCommand extends Command {
             throw new Error(stripIndents`
                 There was an error sending a new species info message.
 
-                Info message: ${JSON.stringify(infoMessage)}
+                Info message: ${infoMessage.debugString}
                 
                 ${error}
             `);

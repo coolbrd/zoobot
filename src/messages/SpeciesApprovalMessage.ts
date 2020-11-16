@@ -174,7 +174,7 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 throw new Error(stripIndents`
                     There was an error deleting a denied pending species.
 
-                    Pending species: ${JSON.stringify(this.pendingSpeciesObject)}
+                    Pending species: ${this.pendingSpeciesObject.debugString}
                     
                     ${error}
                 `);

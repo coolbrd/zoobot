@@ -348,7 +348,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 A player's captures were decremented when the player had none left.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
     }
@@ -358,7 +358,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 A player's capture stats were updated as if they captured an animal without any remaining captures.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
 
@@ -366,7 +366,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 A player's capture stats were updated as if they captured an animal when their collection was full.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
 
@@ -392,7 +392,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 A player's encounters were decremented when the player had none left.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
     }
@@ -402,7 +402,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 A player's encounter stats were updated as if it encountered an animal without any remaining encounters.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
 
@@ -416,7 +416,7 @@ export class Player extends GameObject {
                 An animal id was attempted to be fetched from a player that didn't own an animal with the given id.
 
                 Id: ${id}
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
             `);
         }
 
@@ -428,7 +428,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 There was an error fetching an animal by its id in a player's fetch method.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
 
                 ${error}
             `);
@@ -463,7 +463,7 @@ export class Player extends GameObject {
                             There was an error fetching a player's crew animal by its id.
 
                             Id: ${currentCrewAnimalId}
-                            Player: ${JSON.stringify(this)}
+                            Player: ${this.debugString}
                             
                             ${error}
                         `);
@@ -475,7 +475,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 There was an error bulk fetching a player's crew animals.
 
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
                 
                 ${error}
             `);
@@ -496,7 +496,7 @@ export class Player extends GameObject {
                 There was an error fetching an animal by its id in the animal mananger.
 
                 Id: ${animalId}
-                Player: ${JSON.stringify(this)}
+                Player: ${this.debugString}
                 
                 ${error}
             `);
@@ -518,7 +518,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 There was an error removing a deleted animal from the cache.
 
-                Animal: ${JSON.stringify(animal)}
+                Animal: ${animal.debugString}
                 
                 ${error}
             `);
@@ -531,7 +531,7 @@ export class Player extends GameObject {
             throw new Error(stripIndents`
                 There was an error deleting an animal object.
 
-                Animal: ${JSON.stringify(animal)}
+                Animal: ${animal.debugString}
                 
                 ${error}
             `);

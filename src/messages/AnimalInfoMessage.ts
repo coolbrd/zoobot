@@ -33,7 +33,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             throw new Error(stripIndents`
                 An animal info message attempted to access the animal's owner's user before it was found.
 
-                Info message: ${JSON.stringify(this)}
+                Info message: ${this.debugString}
             `);
         }
 
@@ -52,7 +52,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             throw new Error(stripIndents`
                 There was an error loading an animal object's data.
 
-                Animal: ${JSON.stringify(this.animalObject)}
+                Animal: ${this.animalObject.debugString}
                 
                 ${error}
             `);

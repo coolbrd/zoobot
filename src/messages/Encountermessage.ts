@@ -103,6 +103,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         try {
             await beastiary.animals.createAnimal(guildMember, this.species, this.card);
+            throw new Error("test");
         }
         catch (error) {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
@@ -110,8 +111,8 @@ export default class EncounterMessage extends InteractiveMessage {
             throw new Error(stripIndents`
                 There was an error creating a new animal in an encounter message.
 
-                Player: ${JSON.stringify(player)}
-                Species: ${JSON.stringify(this.species)}
+                Player: ${player.debugString}
+                Species: ${this.species.debugString}
                 Card: ${JSON.stringify(this.card)}
                 
                 ${error}

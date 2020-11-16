@@ -51,7 +51,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Attempted to set the content of a sent interactive message to nothing.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -63,7 +63,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Attempted to get the message of an interactive message that hasn't been sent yet.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -75,7 +75,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Tried to set an interactive message to a message after it had already been sent.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 Message: ${JSON.stringify(message)}
             `);
         }
@@ -116,7 +116,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Tried to redundantly set an interactive message's deactivation status.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -131,7 +131,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 Couldn't find an emoji in a map of button names by a given name.
 
                 Button name: ${buttonName}
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -146,7 +146,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 Couldn't find a button in a map of buttons by a given emoji.
 
                 Emoji: ${emoji}
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -168,7 +168,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Tried to send an interactive message with no content.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -178,7 +178,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 An interactive message's message was unable to be sent.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -191,7 +191,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 throw new Error(stripIndents`
                     Error trying to add reactions to an interactive message.
 
-                    Interactive message: ${JSON.stringify(this)}
+                    Interactive message: ${this.debugString}
                     
                     ${error}
                 `);
@@ -218,7 +218,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 There was an error initially building an interactive message's embed.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -231,7 +231,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 There was an error sending and adding buttons to an interactive message.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -259,7 +259,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 There was an error building an embed in an interactive message when refreshing it.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -297,7 +297,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 Attempted to add a button to an interactive message that already exists.
 
                 Button: ${JSON.stringify(button)}
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -345,7 +345,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 Tried to set an interactive message's timer after it was deactivated.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
             `);
         }
 
@@ -364,7 +364,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
                 Emoji: ${emoji}
                 User: ${JSON.stringify(user)}
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -377,7 +377,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndents`
                 There was an error refreshing an interactive message's embed after its button was pressed.
 
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -394,7 +394,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
                 Emoji: ${emoji}
                 User: ${JSON.stringify(user)}
-                Interactive message: ${JSON.stringify(this)}
+                Interactive message: ${this.debugString}
                 
                 ${error}
             `);
@@ -448,5 +448,12 @@ export default abstract class InteractiveMessage extends EventEmitter {
         setTimeout(() => {
            this.setRateLimited(false); 
         }, timeout);
+    }
+
+    public get debugString(): string {
+        return stripIndents`
+            Message: ${JSON.stringify(this._message)}
+            Deactivated: ${this.deactivated}
+        `;
     }
 }

@@ -44,7 +44,7 @@ class ViewCollectionCommand extends GuildCommand {
             throw new Error(stripIndents`
                 There was an error sending a collection message.
 
-                Collection message: ${JSON.stringify(collectionMessage)}
+                Collection message: ${collectionMessage.debugString}
                 
                 ${error}
             `);

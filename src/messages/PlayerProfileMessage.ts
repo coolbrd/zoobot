@@ -28,7 +28,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
                 throw new Error(stripIndents`
                     There was an error fetching a player's first animal for use in a profile message.
 
-                    Player: ${JSON.stringify(this.player)}
+                    Player: ${this.player.debugString}
                     
                     ${error}
                 `);

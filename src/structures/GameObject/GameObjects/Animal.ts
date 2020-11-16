@@ -98,7 +98,7 @@ export class Animal extends GameObject {
             throw new Error(stripIndents`
                 Tried to get an animal's species before it was loaded.
 
-                Animal: ${JSON.stringify(this)}
+                Animal: ${this.debugString}
             `);
         }
 
@@ -110,7 +110,7 @@ export class Animal extends GameObject {
             throw new Error(stripIndents`
                 Tried to get an animal's card before it was loaded.
 
-                Animal: ${JSON.stringify(this)}
+                Animal: ${this.debugString}
             `);
         }
 
@@ -129,7 +129,7 @@ export class Animal extends GameObject {
             throw new Error(stripIndents`
                 There was an error fetching a species by its id when loading an animal object.
 
-                Animal: ${JSON.stringify(this)}
+                Animal: ${this.debugString}
                 
                 ${error}
             `);
@@ -154,7 +154,7 @@ export class Animal extends GameObject {
             throw new Error(stripIndents`
                 There was an error loading an animal's species.
 
-                Animal: ${JSON.stringify(this)}
+                Animal: ${this.debugString}
                 
                 ${error}
             `);

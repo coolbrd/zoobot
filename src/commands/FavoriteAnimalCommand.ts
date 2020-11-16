@@ -50,7 +50,7 @@ class FavoriteAnimalCommand extends GuildCommand {
                 There was an error searching an animal in the favorite command.
 
                 Search term: ${searchTerm}
-                Player: ${JSON.stringify(player)}
+                Player: ${player.debugString}
                 
                 ${error}
             `);

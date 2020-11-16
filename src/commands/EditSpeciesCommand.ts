@@ -25,9 +25,9 @@ class EditSpeciesCommand extends Command {
 
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
-        let species: Species | undefined;
+        let potentialSpecies: Species | undefined;
         try {
-            species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
+            potentialSpecies = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
             throw new Error(stripIndents`
@@ -40,11 +40,13 @@ class EditSpeciesCommand extends Command {
             `);
         }
 
-        if (species === undefined) {
+        if (!potentialSpecies) {
             return commandReceipt;
         }
 
-        const editMessage = new SpeciesEditMessage(parsedMessage.channel, species);
+        const species = potentialSpecies;
+
+        const editMessage = new SpeciesEditMessage(parsedMessage.channel, potentialSpecies);
         try {
             await editMessage.send();
         }
@@ -52,7 +54,7 @@ class EditSpeciesCommand extends Command {
             throw new Error(stripIndents`
                 There was an error sending a species edit message.
 
-                Message: ${JSON.stringify(editMessage)}
+                Message: ${editMessage.debugString}
                 
                 ${error}
             `);
@@ -67,14 +69,6 @@ class EditSpeciesCommand extends Command {
         });
 
         editMessage.once("submit", (finalDocument: SimpleEDoc) => {
-            if (!species) {
-                throw new Error(stripIndents`
-                    Undefined species value somehow encountered after species edit document submission.
-
-                    Final document: ${JSON.stringify(finalDocument)}
-                `);
-            }
-
             species.setCommonNameObjects(finalDocument[Species.fieldNames.commonNames] as unknown as CommonNameTemplate[]);
             species.scientificName = finalDocument[Species.fieldNames.scientificName] as string;
             species.setCards(finalDocument[Species.fieldNames.cards] as unknown as SpeciesCardTemplate[]);
@@ -97,7 +91,7 @@ class EditSpeciesCommand extends Command {
                 throw new Error(stripIndents`
                     There was an error saving a species after editing it.
 
-                    Species: ${JSON.stringify(species)}
+                    Species: ${species.debugString}
                     
                     ${error}
                 `);

@@ -42,7 +42,7 @@ class CrewCommand extends GuildCommand {
             throw new Error(stripIndents`
                 There was an error sending a crew message.
 
-                Crew message: ${JSON.stringify(crewMessage)}
+                Crew message: ${crewMessage.debugString}
                 
                 ${error}
             `);

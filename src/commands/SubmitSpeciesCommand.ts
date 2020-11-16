@@ -142,7 +142,7 @@ class SubmitSpeciesCommand extends Command {
             throw new Error(stripIndents`
                 There was an error sending a new species submission message.
 
-                Submission message: ${JSON.stringify(submissionMessage)}
+                Submission message: ${submissionMessage.debugString}
                 
                 ${error}
             `);
@@ -176,7 +176,7 @@ class SubmitSpeciesCommand extends Command {
                 throw new Error(stripIndents`
                     There was an error saving a new pending species document.
 
-                    Pending species document: ${JSON.stringify(pendingSpecies)}
+                    Pending species document: ${pendingSpecies.toString()}
                     
                     ${error}
                 `);

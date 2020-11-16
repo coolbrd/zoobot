@@ -28,7 +28,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
             throw new Error(stripIndents`
                 There was an error building a crew message's inherited embed information.
 
-                Crew message: ${JSON.stringify(this)}
+                Crew message: ${this.debugString}
                 
                 ${error}
             `);

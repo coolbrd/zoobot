@@ -51,7 +51,7 @@ class CrewRemoveSubCommand extends GuildCommand {
             throw new Error(stripIndents`
                 There was an error searching for an animal in a player's crew.
 
-                Player: ${JSON.stringify(player)}
+                Player: ${player.debugString}
                 Parsed message: ${JSON.stringify(parsedMessage)}
                 
                 ${error}

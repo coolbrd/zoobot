@@ -118,8 +118,8 @@ class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(stripIndents`
                     There was an error deleting an animal in the release command.
 
-                    Player: ${JSON.stringify(player)}
-                    Animal: ${JSON.stringify(animal)}
+                    Player: ${player.debugString}
+                    Animal: ${animal.debugString}
                     
                     ${error}
                 `);

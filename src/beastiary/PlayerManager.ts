@@ -103,8 +103,8 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndents`
                 There was an error adding a player to the cache.
 
-                Player document: ${JSON.stringify(playerDocument)}
-                Player: ${JSON.stringify(player)}
+                Player document: ${playerDocument.toString()}
+                Player: ${player.debugString}
                 
                 ${error}
             `);
@@ -166,7 +166,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 throw new Error(stripIndents`
                     There was an error fetching an existing player by a guild member in the view collection command.
 
-                    Guild member: ${JSON.stringify(targetGuildMember)}
+                    Guild member: ${targetGuildMember.toString()}
                     Parsed message: ${JSON.stringify(parsedMessage)}
                     
                     ${error}
@@ -207,7 +207,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndents`
                 There was an error trying to save a new player document.
 
-                Player document: ${JSON.stringify(playerDocument)}
+                Player document: ${playerDocument.toString()}
                 
                 ${error}
             `);
@@ -222,7 +222,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndents`
                 There was an error adding a player to the cache.
 
-                Player: ${JSON.stringify(player)}
+                Player: ${player.debugString}
                 
                 ${error}
             `);
@@ -272,7 +272,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndents`
                 There was an error awarding a player's crew of animals some experience after a message was sent.
 
-                Player: ${JSON.stringify(player)}
+                Player: ${player.debugString}
             `);
         }
     }

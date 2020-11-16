@@ -23,7 +23,7 @@ class SpeciesRarityCommand extends Command {
             throw new Error(stripIndents`
                 There was an error sending a species rarity message.
 
-                Rarity message: ${JSON.stringify(rarityMessage)}
+                Rarity message: ${rarityMessage.debugString}
                 
                 ${error}
             `);

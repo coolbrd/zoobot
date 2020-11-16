@@ -22,7 +22,7 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
             throw new Error(stripIndents`
                 A loadable game object's object was attempted to be read before it was loaded.
 
-                Game object: ${JSON.stringify(this)}
+                Game object: ${this.gameObject.debugString}
             `);
         }
 

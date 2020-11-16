@@ -39,7 +39,7 @@ export default abstract class GameObject {
                 throw new Error(stripIndents`
                     There was an error saving a game object's document after it was modified.
 
-                    Game object: ${JSON.stringify(this)}
+                    Game object: ${this.debugString}
                     
                     ${error}
                 `);
@@ -81,7 +81,7 @@ export default abstract class GameObject {
                         A non-number value was given to a game object field that is marked as non-negative.
 
                         Value: ${value}
-                        Game object: ${JSON.stringify(this)}
+                        Game object: ${this.debugString}
                     `);
                 }
 
@@ -90,7 +90,7 @@ export default abstract class GameObject {
                         A negative number was given to a game object field that's supposed to be non-negative.
 
                         Value: ${value}
-                        Game object: ${JSON.stringify(this)}
+                        Game object: ${this.debugString}
                     `);
                 }
             }
@@ -114,7 +114,7 @@ export default abstract class GameObject {
             throw new Error(stripIndents`
                 There was an error saving a game object's document.
 
-                Document: ${JSON.stringify(this.document)}
+                Document: ${this.document.toString()}
                 
                 ${error}
             `);
@@ -145,10 +145,16 @@ export default abstract class GameObject {
             throw new Error(stripIndents`
                 There was an error deleting a game object's document.
 
-                Document: ${JSON.stringify(this.document)}
+                Document: ${this.document.toString()}
                 
                 ${error}
             `);
         }
+    }
+
+    public get debugString(): string {
+        return stripIndents`
+            Document: ${this.document.toString()}
+        `;
     }
 }

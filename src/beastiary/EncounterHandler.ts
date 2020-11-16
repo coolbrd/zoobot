@@ -129,7 +129,7 @@ class EncounterHandler {
                 There was an error sending a new encounter message.
 
                 Channel: ${JSON.stringify(channel)}
-                Species: ${JSON.stringify(species)}
+                Species: ${species.debugString}
                 
                 ${error}
             `);

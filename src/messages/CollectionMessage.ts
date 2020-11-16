@@ -27,7 +27,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             throw new Error(stripIndents`
                 There was an error building an animal display message's inherited information.
 
-                Collection message: ${JSON.stringify(this)}
+                Collection message: ${this.debugString}
                 
                 ${error}
             `);
@@ -51,7 +51,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             throw new Error(stripIndents`
                 There was an error building a collection message's inherited embed information.
 
-                Collection message: ${JSON.stringify(this)}
+                Collection message: ${this.debugString}
                 
                 ${error}
             `);

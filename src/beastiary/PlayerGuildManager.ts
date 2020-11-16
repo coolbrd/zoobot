@@ -63,7 +63,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 throw new Error(stripIndents`
                     There was an error saving a new guild document to the database.
 
-                    New guild document: ${JSON.stringify(guildDocument)}
+                    New guild document: ${guildDocument.toString()}
                     
                     ${error}
                 `);
@@ -79,7 +79,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             throw new Error(stripIndents`
                 There was an error adding a guild to the cache.
 
-                Player guild: ${JSON.stringify(playerGuild)}
+                Player guild: ${playerGuild.debugString}
                 
                 ${error}
             `);

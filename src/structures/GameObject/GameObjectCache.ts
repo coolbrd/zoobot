@@ -56,7 +56,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             throw new Error(stripIndents`
                 There was an error loading a cached value's information.
 
-                Game object: ${JSON.stringify(gameObject)}
+                Game object: ${gameObject.debugString}
                 
                 ${error}
             `);
@@ -87,7 +87,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             throw new Error(stripIndents`
                 There was an error saving a game object before it was removed from the cache.
 
-                Game object: ${JSON.stringify(cachedGameObject.gameObject)}
+                Game object: ${cachedGameObject.gameObject.debugString}
                 
                 ${error}
             `);
@@ -143,7 +143,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             throw new Error(stripIndents`
                 There was an error adding a game object to the cache after finding it by its id.
 
-                Game object: ${JSON.stringify(gameObject)}
+                Game object: ${gameObject.debugString}
                 Cache: ${JSON.stringify(this)}
                 
                 ${error}

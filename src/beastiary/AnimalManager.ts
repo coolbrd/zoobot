@@ -81,8 +81,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(stripIndents`
                 There was an error adding a searched animal to the cache.
 
-                Animal document: ${JSON.stringify(animalDocument)}
-                Animal: ${JSON.stringify(animal)}
+                Animal document: ${animalDocument.toString()}
+                Animal: ${animal.debugString}
                 
                 ${error}
             `);
@@ -114,7 +114,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(stripIndents`
                 There was an error saving a new animal.
                 
-                Animal document: ${JSON.stringify(animalDocument)}
+                Animal document: ${animalDocument.toString()}
 
                 ${error}
             `);
@@ -129,7 +129,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             throw new Error(stripIndents`
                 There was an error adding a new animal to the animal cache.
 
-                Animal: ${JSON.stringify(animal)}
+                Animal: ${animal.debugString}
                 
                 ${error}
             `);
@@ -240,7 +240,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                         There was an error fetching a searched animal from a player's collection.
 
                         Search options: ${searchOptions}
-                        Player: ${JSON.stringify(player)}
+                        Player: ${player.debugString}
                         
                         ${error}
                     `);

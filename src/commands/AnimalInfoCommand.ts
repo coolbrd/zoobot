@@ -56,7 +56,7 @@ class AnimalInfoCommand extends GuildCommand {
             throw new Error(stripIndents`
                 There was an error sending an animal information message.
 
-                Message: ${infoMessage}
+                Information message: ${infoMessage.debugString}
                 
                 ${error}
             `);

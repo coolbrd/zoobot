@@ -59,7 +59,7 @@ class ApprovePendingSpeciesCommand extends Command {
             throw new Error(stripIndents`
                 There was an error attempting to send a species approval message.
 
-                Message: ${JSON.stringify(approvalMessage)}
+                Message: ${approvalMessage.debugString}
                 
                 ${error}
             `);
@@ -100,7 +100,7 @@ class ApprovePendingSpeciesCommand extends Command {
                     throw new Error(stripIndents`
                         There was an error attempting to delete a newly approved pending species from the database.
 
-                        Pending species: ${JSON.stringify(pendingSpeciesObject)}
+                        Pending species: ${pendingSpeciesObject.debugString}
                         
                         ${error}
                     `);
@@ -109,7 +109,7 @@ class ApprovePendingSpeciesCommand extends Command {
                 throw new Error(stripIndents`
                     There was an error attempting to save a newly approved species to the database.
 
-                    Species document: ${JSON.stringify(speciesDocument)}
+                    Species document: ${speciesDocument.toString()}
                     
                     ${error}
                 `);
