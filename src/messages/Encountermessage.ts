@@ -59,6 +59,19 @@ export default class EncounterMessage extends InteractiveMessage {
         return embed;
     }
 
+    private warnPlayer(player: Player): void {
+        if (!this.warnedUserIds.includes(player.member.user.id)) {
+            if (player.collectionFull) {
+                betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
+            }
+            else {
+                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
+            }
+
+            this.warnedUserIds.push(player.member.user.id);
+        }
+    }
+
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
         const guildMember = getGuildMember(user, this.channel.guild);
 
@@ -77,16 +90,7 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         if (!player.canCapture) {
-            if (!this.warnedUserIds.includes(user.id)) {
-                if (player.collectionAnimalIds.length >= player.collectionSizeLimit) {
-                    betterSend(this.channel, `${user}, your collection is full! Either release some animals with \`${commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
-                }
-                else {
-                    betterSend(this.channel, `${user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
-                }
-
-                this.warnedUserIds.push(user.id);
-            }
+            this.warnPlayer(player);
             return;
         }
 
