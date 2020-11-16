@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
@@ -53,7 +53,7 @@ export default abstract class Shop {
         const itemNameAndQuantity = `${itemName} (x${quantity})`;
 
         if (totalPrice > player.scraps) {
-            throw new UserError(stripIndents`
+            throw new UserError(stripIndent`
                 You don't have enough scraps to buy **${itemNameAndQuantity}**.
                 Cost: **${totalPrice}** scraps. You have: **${player.scraps}** scraps.
             `);

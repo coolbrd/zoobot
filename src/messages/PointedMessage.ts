@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { User } from 'discord.js';
 import PointedArray from '../structures/PointedArray';
 import loopValue from '../utility/loopValue';
@@ -12,7 +12,7 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
             await super.build();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error building a pointed message's inherited structure.
                 
                 ${error}
@@ -76,7 +76,7 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
             await super.buttonPress(buttonName, user);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error performing inherited button press behavior in a pointed message.
                 
                 ${error}

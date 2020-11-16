@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { beastiary } from "../../beastiary/Beastiary";
 import handleUserError from "../../discordUtility/handleUserError";
 import CrewMessage from "../../messages/CrewMessage";
@@ -39,7 +39,7 @@ class CrewCommand extends GuildCommand {
             await crewMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a crew message.
 
                 Crew message: ${crewMessage.debugString}

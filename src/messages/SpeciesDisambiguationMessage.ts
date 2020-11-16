@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { MessageEmbed } from "discord.js";
 import SpeciesDisplayMessage from "./SpeciesDisplayMessage";
 
@@ -9,7 +9,7 @@ export default class SpeciesDisambiguationMessage extends SpeciesDisplayMessage 
             embed = await super.buildEmbed();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error building a species disambiguation message's inherited information.
                 
                 ${error}

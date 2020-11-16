@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { MessageEmbed, APIMessage } from "discord.js";
 import Command, { CommandSection } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
@@ -24,7 +24,7 @@ class SubmitSpeciesCommand extends Command {
         const infoEmbed = new MessageEmbed();
 
         infoEmbed.setTitle("New species submission");
-        infoEmbed.setDescription(stripIndents`
+        infoEmbed.setDescription(stripIndent`
             You're about to begin the process of submitting a new animal species to The Beastiary.
             Please read over the following fields and prepare your submissions for them in advance.
         `);
@@ -39,7 +39,7 @@ class SubmitSpeciesCommand extends Command {
         const infoMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: infoEmbed }));
 
         if (!infoMessage) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Unable to send the initial species submission message.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}
@@ -51,7 +51,7 @@ class SubmitSpeciesCommand extends Command {
             reactionConfirmed = await reactionInput(infoMessage, 60000, ["✅"]);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting the reaction input on a message.
 
                 Info message: ${JSON.stringify(infoMessage)}
@@ -139,7 +139,7 @@ class SubmitSpeciesCommand extends Command {
             await submissionMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a new species submission message.
 
                 Submission message: ${submissionMessage.debugString}
@@ -173,7 +173,7 @@ class SubmitSpeciesCommand extends Command {
             pendingSpecies.save().then(() => {
                 betterSend(parsedMessage.channel, "Submission accepted. Thanks for contributing to The Beastiary!");
             }).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error saving a new pending species document.
 
                     Pending species document: ${pendingSpecies.toString()}

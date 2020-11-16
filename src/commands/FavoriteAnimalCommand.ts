@@ -4,7 +4,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class FavoriteAnimalCommand extends GuildCommand {
@@ -29,7 +29,7 @@ class FavoriteAnimalCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member)
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting a player in the favorite animal command.
                 
                 Guild member: ${JSON.stringify(parsedMessage.member)}
@@ -46,7 +46,7 @@ class FavoriteAnimalCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error searching an animal in the favorite command.
 
                 Search term: ${searchTerm}

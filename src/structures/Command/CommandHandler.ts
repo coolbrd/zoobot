@@ -28,7 +28,7 @@ import ViewPlayerProfileCommand from "../../commands/ViewPlayerProfileCommand";
 import CrewCommand from "../../commands/Crew/CrewCommand";
 import SpeciesRarityCommand from '../../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
 import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
 import ShopCommand from "../../commands/Shop/ShopCommand";
@@ -151,7 +151,7 @@ class CommandHandler {
 
     private setUserLoadingCommand(userId: string): void {
         if (this.usersLoadingCommands.has(userId)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A user who was already loading a command was added to the users loading commands list again.
 
                 User id: ${userId}
@@ -206,7 +206,7 @@ class CommandHandler {
             guildDocuments = await GuildModel.find({});
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error attempting to load guild prefixes from the database.
                 
                 ${error}

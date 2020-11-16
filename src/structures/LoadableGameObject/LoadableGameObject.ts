@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Types } from "mongoose";
 import GameObject from "../GameObject/GameObject";
 
@@ -19,7 +19,7 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
 
     public get gameObject(): GameObjectType {
         if (!this.loaded) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A loadable game object's object was attempted to be read before it was loaded.
 
                 Game object: ${this.gameObject.debugString}
@@ -38,7 +38,7 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
             this._gameObject = await this.loadGameObject();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading a loadable game object's game object.
 
                 Id: ${this.id}
@@ -66,7 +66,7 @@ export function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]):
                     resolve();
                 }
             }).catch(error => {
-                reject(stripIndents`
+                reject(stripIndent`
                     There was an error loading a game object from a loadable game object.
 
                     LoadableGameObject: ${JSON.stringify(currentLoadableGameObject)}

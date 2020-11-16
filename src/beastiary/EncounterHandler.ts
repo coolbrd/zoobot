@@ -9,7 +9,7 @@ import { todaysMilliseconds } from "../utility/timeStuff";
 import gameConfig from "../config/gameConfig";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 interface RarityInfo {
     tier: number,
@@ -60,7 +60,7 @@ class EncounterHandler {
             speciesDocumentList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting all species rarities from the database:
                 
                 ${error}
@@ -87,7 +87,7 @@ class EncounterHandler {
 
     public async spawnAnimal(channel: TextChannel): Promise<void> {
         if (this.rarityMap.size < 1) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to spawn an animal before the encounter rarity map was formed.
 
                 Channel: ${JSON.stringify(channel)}
@@ -101,7 +101,7 @@ class EncounterHandler {
             species = await beastiary.species.fetchById(randomSpeciesId);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting a species by an id.
 
                 Id: ${randomSpeciesId}
@@ -112,7 +112,7 @@ class EncounterHandler {
         }
 
         if (!species) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 An invalid species id was chosen to be spawned randomly.
 
                 Id: ${randomSpeciesId}
@@ -125,7 +125,7 @@ class EncounterHandler {
             await encounterMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a new encounter message.
 
                 Channel: ${JSON.stringify(channel)}
@@ -148,7 +148,7 @@ class EncounterHandler {
                 playerGuild = await beastiary.playerGuilds.fetchByGuildId(message.guild.id);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error fetching a guild by its id.
 
                     Message: ${JSON.stringify(message)}
@@ -164,7 +164,7 @@ class EncounterHandler {
                     encounterChannel = await encounterGuildChannel.fetch() as TextChannel;
                 }
                 catch (error) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error fetching a text channel from its guild channel.
 
                         Encounter guild channel: ${JSON.stringify(encounterGuildChannel)}
@@ -179,7 +179,7 @@ class EncounterHandler {
                     potentialEncounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
                 }
                 catch (error) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error getting the first available text channel in a guild before spawning an animal.
 
                         Guild: ${JSON.stringify(playerGuild.guild)}
@@ -199,7 +199,7 @@ class EncounterHandler {
                 await this.spawnAnimal(encounterChannel);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error spawning an animal after a message was sent.
 
                     Encounter channel: ${JSON.stringify(encounterChannel)}

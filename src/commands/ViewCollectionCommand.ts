@@ -1,7 +1,7 @@
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CollectionMessage from "../messages/CollectionMessage";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
@@ -41,7 +41,7 @@ class ViewCollectionCommand extends GuildCommand {
             await collectionMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a collection message.
 
                 Collection message: ${collectionMessage.debugString}

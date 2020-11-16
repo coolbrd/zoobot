@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import CommandParser, { GuildCommandParser } from "./CommandParser";
 import CommandReceipt from "./CommandReceipt";
@@ -81,7 +81,7 @@ export default abstract class Command {
             return await this.run(parsedMessage, receipt);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error running a command.
 
                 Command: ${JSON.stringify(this)}

@@ -5,7 +5,7 @@ import gameConfig from "../config/gameConfig";
 import { GuildModel } from "../models/PlayerGuild";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
@@ -30,7 +30,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             guildDocument = await GuildModel.findOne({ [PlayerGuild.fieldNames.guildId]: guildId });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error finding an existing guild document.
 
                 Guild id: ${guildId}
@@ -45,7 +45,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 guild = await client.guilds.fetch(guildId);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error fetching a guild by its id when creating a new guild document.
 
                     Guild id: ${guildId}
@@ -60,7 +60,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 await guildDocument.save();
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error saving a new guild document to the database.
 
                     New guild document: ${guildDocument.toString()}
@@ -76,7 +76,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             await this.addToCache(playerGuild);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error adding a guild to the cache.
 
                 Player guild: ${playerGuild.debugString}

@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import SpeciesRarityMessage from '../messages/SpeciesRarityMessage';
 import Command from '../structures/Command/Command';
 import CommandParser from '../structures/Command/CommandParser';
@@ -20,7 +20,7 @@ class SpeciesRarityCommand extends Command {
             await rarityMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a species rarity message.
 
                 Rarity message: ${rarityMessage.debugString}

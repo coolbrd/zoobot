@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -40,7 +40,7 @@ class MoveAnimalsCommand extends GuildCommand {
             playerObject = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting a player object in the move animals command.
 
                 Guild member: ${JSON.stringify(parsedMessage.member)}

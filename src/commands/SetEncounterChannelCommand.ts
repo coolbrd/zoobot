@@ -5,7 +5,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class SetEncounterChannelCommand extends GuildCommand {
@@ -28,7 +28,7 @@ class SetEncounterChannelCommand extends GuildCommand {
             playerGuild = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player guild in the set encounter channel command.
 
                 Guild id: ${parsedMessage.guild.id}
@@ -44,7 +44,7 @@ class SetEncounterChannelCommand extends GuildCommand {
             userResponse = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 10000);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting a user's response message when changing a guild's default encounter channel.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}

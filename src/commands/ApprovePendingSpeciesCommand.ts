@@ -9,7 +9,7 @@ import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from '../beastiary/Beastiary';
 import { commonNamesToLowerArray, CommonNameTemplate } from '../structures/GameObject/GameObjects/Species';
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class ApprovePendingSpeciesCommand extends Command {
@@ -34,7 +34,7 @@ class ApprovePendingSpeciesCommand extends Command {
             pendingSpeciesDocument = await PendingSpeciesModel.findOne({ [PendingSpecies.fieldNames.commonNamesLower]: fullSearchTerm });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error trying to find a pending species document in the database.
 
                 Search term: ${fullSearchTerm}
@@ -56,7 +56,7 @@ class ApprovePendingSpeciesCommand extends Command {
             await approvalMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error attempting to send a species approval message.
 
                 Message: ${approvalMessage.debugString}
@@ -89,7 +89,7 @@ class ApprovePendingSpeciesCommand extends Command {
                 betterSend(parsedMessage.channel, "Species approved.");
 
                 beastiary.species.refreshSpecies().catch(error => {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error reloading the species rarity table after adding a new species.
                         
                         ${error}
@@ -97,7 +97,7 @@ class ApprovePendingSpeciesCommand extends Command {
                 });
 
                 pendingSpeciesObject.delete().catch(error => {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error attempting to delete a newly approved pending species from the database.
 
                         Pending species: ${pendingSpeciesObject.debugString}
@@ -106,7 +106,7 @@ class ApprovePendingSpeciesCommand extends Command {
                     `);
                 });
             }).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error attempting to save a newly approved species to the database.
 
                     Species document: ${speciesDocument.toString()}

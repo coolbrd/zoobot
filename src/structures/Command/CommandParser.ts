@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
 import { client } from "../..";
 import getGuildMember from "../../discordUtility/getGuildMember";
@@ -94,7 +94,7 @@ export default class CommandParser {
         const subCommandArgument = this.arguments.shift();
 
         if (!subCommandArgument) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A command parser with no arguments was shifted as if it triggered a subcommand.
 
                 Parser: ${JSON.stringify(this)}
@@ -117,7 +117,7 @@ export class GuildCommandParser extends CommandParser {
         super(message, prefixUsed);
 
         if (message.channel.type !== "text") {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A message within a non-text channel was given to a guild command parser.
 
                 Message: ${JSON.stringify(message)}

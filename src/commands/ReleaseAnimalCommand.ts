@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { APIMessage, Message } from "discord.js";
 import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
@@ -38,7 +38,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error searching an animal in the release command.
 
                 Message: ${JSON.stringify(parsedMessage)}
@@ -65,7 +65,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             confirmMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: releaseEmbed }));
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a release command confirmation message.
 
                 Message: ${JSON.stringify(confirmMessage)}
@@ -75,7 +75,7 @@ class ReleaseAnimalCommand extends GuildCommand {
         }
 
         if (!confirmMessage) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a release command confirmation message.
 
                 Channel: ${JSON.stringify(parsedMessage.channel)}
@@ -87,7 +87,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 6000);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error awaiting a user's next message in the release command.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}
@@ -101,7 +101,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player in the release animal command.
 
                 Member: ${parsedMessage.member}
@@ -115,7 +115,7 @@ class ReleaseAnimalCommand extends GuildCommand {
                 await player.releaseAnimal(animal.id);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error deleting an animal in the release command.
 
                     Player: ${player.debugString}
@@ -132,7 +132,7 @@ class ReleaseAnimalCommand extends GuildCommand {
                 await confirmMessage.edit(releaseEmbed);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error editing a release confirmation message.
 
                     Confirmation message: ${JSON.stringify(confirmMessage)}
@@ -151,7 +151,7 @@ class ReleaseAnimalCommand extends GuildCommand {
                 await confirmMessage.edit(releaseEmbed);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error editing a release confirmation message.
 
                     Confirmation message: ${JSON.stringify(confirmMessage)}

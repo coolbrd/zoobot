@@ -8,7 +8,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { beastiary } from "./Beastiary";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export default class AnimalManager extends GameObjectCache<Animal> {
     protected readonly model = AnimalModel;
@@ -57,7 +57,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             animalDocument = await AnimalModel.findOne(searchQuery);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error finding an animal by its nickname.
 
                 Searched nickname: ${nickname}
@@ -78,7 +78,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             await this.addToCache(animal);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error adding a searched animal to the cache.
 
                 Animal document: ${animalDocument.toString()}
@@ -96,7 +96,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             owner = await beastiary.players.fetch(ownerGuildMember);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player object by a guild member while creating an animal.
 
                 Owner member: ${JSON.stringify(ownerGuildMember)}
@@ -111,7 +111,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             await animalDocument.save();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error saving a new animal.
                 
                 Animal document: ${animalDocument.toString()}
@@ -126,7 +126,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             await this.addToCache(animal);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error adding a new animal to the animal cache.
 
                 Animal: ${animal.debugString}
@@ -157,7 +157,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error finding an animal by a given nickname in the search method.
 
                     Search term: ${searchTerm}
@@ -176,7 +176,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error finding an animal by its nickname.
 
                     Search term: ${searchTerm}
@@ -194,7 +194,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             if (!player) {
                 // Make sure there's enough info provided to determine the player object
                 if (!guildId || !userId) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         Insufficient information was provided to searchAnimal for the purpose of searching by animal position.
 
                         Search options: ${JSON.stringify(searchOptions)}
@@ -207,7 +207,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                     player = await beastiary.players.fetch(playerGuildMember);
                 }
                 catch (error) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error fetching a player object by a guild member while searching an animal.
                         
                         Guild member: ${JSON.stringify(playerGuildMember)}
@@ -236,7 +236,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                     animalObject = await player.fetchAnimalById(animalId);
                 }
                 catch (error) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error fetching a searched animal from a player's collection.
 
                         Search options: ${searchOptions}
@@ -257,7 +257,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 return await beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error finding an animal by its nickname.
 
                     Search term: ${searchTerm}

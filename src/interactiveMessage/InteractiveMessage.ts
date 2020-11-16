@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
 import { betterSend } from "../discordUtility/messageMan";
 import { interactiveMessageHandler } from "./InteractiveMessageHandler";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 interface EmojiButton {
     emoji: string,
@@ -48,7 +48,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private set content(content: APIMessage | undefined) {
         if (this.sent && !content) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Attempted to set the content of a sent interactive message to nothing.
 
                 Interactive message: ${this.debugString}
@@ -60,7 +60,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     public get message(): Message {
         if (!this._message) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Attempted to get the message of an interactive message that hasn't been sent yet.
 
                 Interactive message: ${this.debugString}
@@ -72,7 +72,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private setMessage(message: Message): void {
         if (this._message) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to set an interactive message to a message after it had already been sent.
 
                 Interactive message: ${this.debugString}
@@ -113,7 +113,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private setDeactivated(): void {
         if (this._deactivated) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to redundantly set an interactive message's deactivation status.
 
                 Interactive message: ${this.debugString}
@@ -127,7 +127,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         const targetEmoji = this.buttonNames.get(buttonName);
 
         if (!targetEmoji) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Couldn't find an emoji in a map of button names by a given name.
 
                 Button name: ${buttonName}
@@ -142,7 +142,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         const targetButton = this.buttons.get(emoji);
 
         if (!targetButton) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Couldn't find a button in a map of buttons by a given emoji.
 
                 Emoji: ${emoji}
@@ -165,7 +165,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private async sendAndAddButtons(): Promise<void> {
         if (!this.content) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to send an interactive message with no content.
 
                 Interactive message: ${this.debugString}
@@ -175,7 +175,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         const message = await betterSend(this.channel, this.content);
 
         if (!message) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 An interactive message's message was unable to be sent.
 
                 Interactive message: ${this.debugString}
@@ -188,7 +188,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
         for (const button of this.buttons.values()) {
             this.message.react(button.emoji).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     Error trying to add reactions to an interactive message.
 
                     Interactive message: ${this.debugString}
@@ -215,7 +215,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             await this.refreshEmbed();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error initially building an interactive message's embed.
 
                 Interactive message: ${this.debugString}
@@ -228,7 +228,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             await this.sendAndAddButtons();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending and adding buttons to an interactive message.
 
                 Interactive message: ${this.debugString}
@@ -256,7 +256,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             newEmbed = await this.buildEmbed();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error building an embed in an interactive message when refreshing it.
 
                 Interactive message: ${this.debugString}
@@ -293,7 +293,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     protected addButton(button: EmojiButton): void {
         if (this.hasSimilarButton(button)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Attempted to add a button to an interactive message that already exists.
 
                 Button: ${JSON.stringify(button)}
@@ -342,7 +342,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private setTimer(): NodeJS.Timer {
         if (this.deactivated) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to set an interactive message's timer after it was deactivated.
 
                 Interactive message: ${this.debugString}
@@ -359,7 +359,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             await this.pressButtonByEmoji(emoji, user);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error pressing an interactive message's emoji button.
 
                 Emoji: ${emoji}
@@ -374,7 +374,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             await this.refreshEmbed();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error refreshing an interactive message's embed after its button was pressed.
 
                 Interactive message: ${this.debugString}
@@ -389,7 +389,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             await this.buttonPress(this.getButtonByEmoji(emoji).name, user);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error pressing an interactive message's button.
 
                 Emoji: ${emoji}
@@ -451,7 +451,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     public get debugString(): string {
-        return stripIndents`
+        return stripIndent`
             Message: ${JSON.stringify(this._message)}
             Deactivated: ${this.deactivated}
         `;

@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { GuildMember, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../../../beastiary/Beastiary";
@@ -345,7 +345,7 @@ export class Player extends GameObject {
             this.extraCapturesLeft -= 1;
         }
         else {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A player's captures were decremented when the player had none left.
 
                 Player: ${this.debugString}
@@ -355,7 +355,7 @@ export class Player extends GameObject {
 
     public captureAnimal(): void {
         if (!this.hasCaptures) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A player's capture stats were updated as if they captured an animal without any remaining captures.
 
                 Player: ${this.debugString}
@@ -363,7 +363,7 @@ export class Player extends GameObject {
         }
 
         if (this.collectionFull) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A player's capture stats were updated as if they captured an animal when their collection was full.
 
                 Player: ${this.debugString}
@@ -389,7 +389,7 @@ export class Player extends GameObject {
             this.extraEncountersLeft -= 1;
         }
         else {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A player's encounters were decremented when the player had none left.
 
                 Player: ${this.debugString}
@@ -399,7 +399,7 @@ export class Player extends GameObject {
 
     public encounterAnimal(): void {
         if (!this.hasEncounters) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A player's encounter stats were updated as if it encountered an animal without any remaining encounters.
 
                 Player: ${this.debugString}
@@ -412,7 +412,7 @@ export class Player extends GameObject {
 
     public async fetchAnimalById(id: Types.ObjectId): Promise<Animal | undefined> {
         if (!this.collectionAnimalIds.includes(id)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 An animal id was attempted to be fetched from a player that didn't own an animal with the given id.
 
                 Id: ${id}
@@ -425,7 +425,7 @@ export class Player extends GameObject {
             animal = await beastiary.animals.fetchById(id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching an animal by its id in a player's fetch method.
 
                 Player: ${this.debugString}
@@ -459,7 +459,7 @@ export class Player extends GameObject {
                             resolve();
                         }
                     }).catch(error => {
-                        throw new Error(stripIndents`
+                        throw new Error(stripIndent`
                             There was an error fetching a player's crew animal by its id.
 
                             Id: ${currentCrewAnimalId}
@@ -472,7 +472,7 @@ export class Player extends GameObject {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error bulk fetching a player's crew animals.
 
                 Player: ${this.debugString}
@@ -492,7 +492,7 @@ export class Player extends GameObject {
             animal = await this.fetchAnimalById(animalId);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching an animal by its id in the animal mananger.
 
                 Id: ${animalId}
@@ -515,7 +515,7 @@ export class Player extends GameObject {
             await beastiary.animals.removeFromCache(animal.id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error removing a deleted animal from the cache.
 
                 Animal: ${animal.debugString}
@@ -528,7 +528,7 @@ export class Player extends GameObject {
             await animal.delete();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error deleting an animal object.
 
                 Animal: ${animal.debugString}

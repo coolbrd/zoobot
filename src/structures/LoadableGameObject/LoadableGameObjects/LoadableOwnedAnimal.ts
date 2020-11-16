@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Types } from "mongoose";
 import { Animal } from "../../GameObject/GameObjects/Animal";
 import { Player } from "../../GameObject/GameObjects/Player";
@@ -18,7 +18,7 @@ export default class LoadableOwnedAnimal extends LoadableGameObject<Animal> {
             return await this.owner.fetchAnimalById(this.id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading an owned animal from its owner's collection.
 
                 Id: ${this.id}

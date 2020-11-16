@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
@@ -25,7 +25,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
                 firstAnimal = await this.player.fetchAnimalById(this.player.collectionAnimalIds[0]);
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error fetching a player's first animal for use in a profile message.
 
                     Player: ${this.player.debugString}
@@ -40,7 +40,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         }
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
-        embed.setDescription(stripIndents`
+        embed.setDescription(stripIndent`
             Scraps: **${this.player.scraps}**
             Encounters remaining: **${this.player.encountersLeft}**
             Captures remaining: **${this.player.capturesLeft}**

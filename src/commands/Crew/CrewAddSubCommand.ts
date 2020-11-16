@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { beastiary } from "../../beastiary/Beastiary";
 import { betterSend } from "../../discordUtility/messageMan";
 import { GuildCommand } from "../../structures/Command/Command";
@@ -33,7 +33,7 @@ class CrewAddSubCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error searching for an animal when attempting to add an animal to a player's crew.
 
                 Search term: ${animalIdentifier}
@@ -53,7 +53,7 @@ class CrewAddSubCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player in the animal add to crew command.
 
                 Guild member: ${JSON.stringify(parsedMessage.member)}

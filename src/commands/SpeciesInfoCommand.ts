@@ -4,7 +4,7 @@ import { Species } from "../structures/GameObject/GameObjects/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class SpeciesInfoCommand extends Command {
@@ -29,7 +29,7 @@ class SpeciesInfoCommand extends Command {
             species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a species by its common name in the species info command.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}
@@ -47,7 +47,7 @@ class SpeciesInfoCommand extends Command {
             await infoMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a new species info message.
 
                 Info message: ${infoMessage.debugString}

@@ -7,7 +7,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
@@ -65,7 +65,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             await super.buttonPress(buttonName, user);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error performing inherited button press behavior in a species info message.
                 
                 ${error}

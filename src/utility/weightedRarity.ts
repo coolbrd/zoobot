@@ -1,9 +1,9 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 // Selects a random item from a map of items and their respective weights
 export function getWeightedRandom<T>(items: Map<T, number>): T {
     if (items.size <= 0) {
-        throw new Error(stripIndents`
+        throw new Error(stripIndent`
             An empty map was given to getWeightedRandom.
         `);
     }
@@ -23,7 +23,7 @@ export function getWeightedRandom<T>(items: Map<T, number>): T {
         currentSum += weight;
     }
 
-    throw new Error(stripIndents`
+    throw new Error(stripIndent`
         No item selected from weighted random function. This shouldn't happen.
     `);
 }

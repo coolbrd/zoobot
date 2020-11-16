@@ -5,7 +5,7 @@ import { encounterHandler } from "../beastiary/EncounterHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class EncounterCommand extends GuildCommand {
@@ -25,7 +25,7 @@ class EncounterCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player for use in the encounter command.
 
                 Guild member: ${JSON.stringify(parsedMessage.member)}
@@ -45,7 +45,7 @@ class EncounterCommand extends GuildCommand {
             await encounterHandler.spawnAnimal(parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error creating a new animal encounter.
 
                 Message: ${JSON.stringify(parsedMessage)}

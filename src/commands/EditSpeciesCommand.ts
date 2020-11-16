@@ -5,7 +5,7 @@ import { CommonNameTemplate, Species, SpeciesCardTemplate } from "../structures/
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { beastiary } from "../beastiary/Beastiary";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class EditSpeciesCommand extends Command {
@@ -30,7 +30,7 @@ class EditSpeciesCommand extends Command {
             potentialSpecies = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a species in the edit species command.
 
                 Search term: ${fullSearchTerm}
@@ -51,7 +51,7 @@ class EditSpeciesCommand extends Command {
             await editMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a species edit message.
 
                 Message: ${editMessage.debugString}
@@ -81,14 +81,14 @@ class EditSpeciesCommand extends Command {
                 betterSend(parsedMessage.channel, "Edit successful.");
 
                 beastiary.species.refreshSpecies().catch(error => {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         There was an error reloading the species rarity table after adding a new species.
                         
                         ${error}
                     `);
                 });
             }).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error saving a species after editing it.
 
                     Species: ${species.debugString}

@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import CachedGameObject from "./CachedGameObject";
 import GameObject from "./GameObject";
@@ -53,7 +53,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await gameObject.loadFields();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading a cached value's information.
 
                 Game object: ${gameObject.debugString}
@@ -71,7 +71,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const cachedGameObject = this.cacheGet(gameObjectId);
 
         if (!cachedGameObject) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Attempted to delete a value that isn't in the specified cache.
 
                 Id: ${gameObjectId}
@@ -84,7 +84,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await cachedGameObject.gameObject.save();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error saving a game object before it was removed from the cache.
 
                 Game object: ${cachedGameObject.gameObject.debugString}
@@ -120,7 +120,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             gameObjectDocument = await this.model.findById(id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a game object's document in a cache by its id.
 
                 Id: ${id}
@@ -140,7 +140,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             await this.addToCache(gameObject);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error adding a game object to the cache after finding it by its id.
 
                 Game object: ${gameObject.debugString}

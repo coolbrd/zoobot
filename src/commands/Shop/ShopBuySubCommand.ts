@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { beastiary } from "../../beastiary/Beastiary";
 import { ShopReceipt } from "../../beastiary/shop/Shop";
 import itemShop from "../../beastiary/shop/shops/ItemShop";
@@ -50,7 +50,7 @@ class ShopBuySubCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player in the shop buy command.
 
                 ${error}

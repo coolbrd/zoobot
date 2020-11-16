@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { DMChannel, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
@@ -23,7 +23,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             species = await super.fetchById(id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a species by its id.
 
                 Id: ${id}
@@ -47,7 +47,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             speciesDocuments = await SpeciesModel.find({});
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error getting a list of all species from the database.
                 
                 ${error}
@@ -70,7 +70,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             await this.loadAllSpeciesIds();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading all the species ids within the species manager.
                 
                 ${error}
@@ -81,7 +81,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             await encounterHandler.loadRarityData();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading the encounter handler's species rarity information.
                 
                 ${error}
@@ -94,7 +94,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             await this.refreshSpecies();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error refreshing all species information while initializing the species manager.
                 
                 ${error}
@@ -124,7 +124,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                             resolve();
                         }
                     }).catch(error => {
-                        throw new Error(stripIndents`
+                        throw new Error(stripIndent`
                             There was an error fetching a species by its id after matching it by a common name substring.
 
                             Id: ${currentSpeciesDocument._id}
@@ -159,7 +159,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpeciesDocuments = await SpeciesModel.find({ $text: { $search: searchTerm } });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error finding a species by its common name.
 
                 Search term: ${searchTerm}
@@ -173,7 +173,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpecies = await this.fetchSpeciesAndCheckForCommonNameMatch(matchingSpeciesDocuments, searchTerm);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a list of species and checking for common name exact matches.
                 
                 Search term: ${searchTerm}
@@ -191,7 +191,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             matchingSpecies = await this.searchByCommonNameSubstring(searchTerm);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error searching a species by a common name substring.
 
                 Search term: ${searchTerm}
@@ -213,7 +213,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                 await disambiguationMessage.send();
             }
             catch (error) {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error sending a species disambiguation message.
 
                     Channel: ${JSON.stringify(channel)}

@@ -4,7 +4,7 @@ import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class AnimalInfoCommand extends GuildCommand {
@@ -33,7 +33,7 @@ class AnimalInfoCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error attempting to search an animal for the info command.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}
@@ -53,7 +53,7 @@ class AnimalInfoCommand extends GuildCommand {
             await infoMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending an animal information message.
 
                 Information message: ${infoMessage.debugString}

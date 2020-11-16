@@ -2,7 +2,7 @@ import { TextChannel, MessageEmbed } from "discord.js";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import AnimalDisplayMessage from "./AnimalDisplayMessage";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export default class CrewMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 30000;
@@ -25,7 +25,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
             embed = await super.buildEmbed();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error building a crew message's inherited embed information.
 
                 Crew message: ${this.debugString}

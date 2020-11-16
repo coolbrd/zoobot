@@ -5,7 +5,7 @@ import GameObject from "../GameObject";
 import { Species, SpeciesCard } from "./Species";
 import { AnimalModel } from '../../../models/Animal';
 import { unknownCard } from './UnknownSpecies';
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { betterSend } from "../../../discordUtility/messageMan";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
@@ -95,7 +95,7 @@ export class Animal extends GameObject {
 
     public get species(): Species {
         if (!this._species) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to get an animal's species before it was loaded.
 
                 Animal: ${this.debugString}
@@ -107,7 +107,7 @@ export class Animal extends GameObject {
 
     public get card(): SpeciesCard {
         if (!this._card) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Tried to get an animal's card before it was loaded.
 
                 Animal: ${this.debugString}
@@ -126,7 +126,7 @@ export class Animal extends GameObject {
             this._species = await beastiary.species.fetchById(this.speciesId);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a species by its id when loading an animal object.
 
                 Animal: ${this.debugString}
@@ -151,7 +151,7 @@ export class Animal extends GameObject {
             await this.loadSpecies();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error loading an animal's species.
 
                 Animal: ${this.debugString}

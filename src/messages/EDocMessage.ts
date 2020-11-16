@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
@@ -90,7 +90,7 @@ export default class EDocMessage extends InteractiveMessage {
 
         // If the field's value isn't a supported selected type
         if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Unexpected value type selected in eDoc.
 
                 Selected field value: ${JSON.stringify(selectedFieldValue)}
@@ -189,7 +189,7 @@ export default class EDocMessage extends InteractiveMessage {
             await super.buttonPress(buttonName, user);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error performing inherited button press information in an eDoc message.
                 
                 ${error}
@@ -201,7 +201,7 @@ export default class EDocMessage extends InteractiveMessage {
 
         // Make sure the selected field's value is either a document or an array
         if (!(selectedFieldValue instanceof EDoc) && !(selectedFieldValue instanceof PointedArray)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Unexpected value type selected in eDoc.
 
                 Selected field value: ${JSON.stringify(selectedFieldValue)}
@@ -246,7 +246,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 userInput = await this.takeUserInput(promptString, user);
                             }
                             catch (error) {
-                                throw new Error(stripIndents`
+                                throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
                                     Selected nested field: ${JSON.stringify(selectedNestedField)}
@@ -316,7 +316,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 userInput = await this.takeUserInput(promptString, user);
                             }
                             catch (error) {
-                                throw new Error(stripIndents`
+                                throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
                                     Selected element: ${JSON.stringify(selectedElement)}
@@ -358,7 +358,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 userInput = await this.takeUserInput(promptString, user);
                             }
                             catch (error) {
-                                throw new Error(stripIndents`
+                                throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
                                     Selected field: ${JSON.stringify(selectedField)}

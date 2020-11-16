@@ -3,7 +3,7 @@ import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class ChangeAnimalNicknameCommand extends GuildCommand {
@@ -45,7 +45,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
             });
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There as an error searching an animal by its nickname.
 
                 Parsed message: ${JSON.stringify(parsedMessage)}

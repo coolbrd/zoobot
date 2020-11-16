@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 import PlayerProfileMessage from "../messages/PlayerProfileMessage";
@@ -41,7 +41,7 @@ class ViewPlayerProfileCommand extends GuildCommand {
             await playerProfileMessage.send();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error sending a profile message.
 
                 Profile message: ${JSON.stringify(playerProfileMessage)}

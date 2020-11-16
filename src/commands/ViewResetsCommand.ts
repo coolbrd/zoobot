@@ -5,7 +5,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class ViewResetsCommand extends GuildCommand {
@@ -23,7 +23,7 @@ class ViewResetsCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player from the cache in the resets command.
 
                 Guild member: ${JSON.stringify(parsedMessage.member)}

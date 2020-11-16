@@ -5,7 +5,7 @@ import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessa
 import { encounterHandler } from "./beastiary/EncounterHandler";
 import { commandHandler } from "./structures/Command/CommandHandler";
 import { beastiary } from "./beastiary/Beastiary";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export const client = new Discord.Client();
 
@@ -35,14 +35,14 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
         preLoad.guildPrefixesLoaded = true;
         complete();
     }).catch(error => {
-        throw new Error(stripIndents`
+        throw new Error(stripIndent`
             There was an error loading all guild prefixes.
             
             ${error}
         `);
     });
 }).catch(error => {
-    throw new Error(stripIndents`
+    throw new Error(stripIndent`
         MongoDB connection error.
         
         ${error}
@@ -64,14 +64,14 @@ client.on("ready", () => {
             preLoad.handlersInitialized = true;
             complete();
         }).catch(error => {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error initializing the species manager.
                 
                 ${error}
             `);
         });
     }).catch(error => {
-        throw new Error(stripIndents`
+        throw new Error(stripIndent`
             There was an error initializing the player manager.
             
             ${error}
@@ -87,21 +87,21 @@ client.on("message", (message: Message) => {
     commandHandler.handleMessage(message).then(() => {
         beastiary.players.handleMessage(message).then(() => {
             encounterHandler.handleMessage(message).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error handling a message through the encounter handler.
                     
                     ${error}
                 `);
             })
         }).catch(error => {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error handling a message through the player manager.
                 
                 ${error}
             `);
         });
     }).catch(error => {
-        throw new Error(stripIndents`
+        throw new Error(stripIndent`
             There was an error handling a message as a command.
             
             ${error}
@@ -120,7 +120,7 @@ export async function exit(): Promise<void> {
         await mongoose.disconnect();
     }
     catch (error) {
-        throw new Error(stripIndents`
+        throw new Error(stripIndent`
             There was an error disconnecting from the active MongoDB instance.
             
             ${error}

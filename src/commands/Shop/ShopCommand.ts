@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { APIMessage, TextChannel } from "discord.js";
 import { beastiary } from "../../beastiary/Beastiary";
 import { betterSend } from "../../discordUtility/messageMan";
@@ -37,7 +37,7 @@ class ShopCommand extends GuildCommand {
             player = await beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error fetching a player in the shop command.
 
                 Guild member: ${JSON.stringify(parsedMessage.member)}

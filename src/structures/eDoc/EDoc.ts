@@ -3,7 +3,7 @@ import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./EDocSkeleton";
 import PointedArray from "../PointedArray";
 import UserError from "../UserError";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
@@ -144,7 +144,7 @@ export class EDocField<ValueType extends EDocValue> {
             }
             case "array": {
                 if (!Array.isArray(input)) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         Non-array type given to eDoc array field.
 
                         Input: ${JSON.stringify(input)}
@@ -158,7 +158,7 @@ export class EDocField<ValueType extends EDocValue> {
                         this.push(element);
                     }
                     catch (error) {
-                        throw new Error(stripIndents`
+                        throw new Error(stripIndent`
                             There was an error trying to push a value from a set of values to an eDoc array field.
 
                             Element pushed: ${JSON.stringify(element)}
@@ -169,7 +169,7 @@ export class EDocField<ValueType extends EDocValue> {
             }
             case "edoc": {
                 if (typeof input !== "object") {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         Non-Object value given to the set function of an eDoc field.
 
                         Input: ${JSON.stringify(input)}
@@ -230,7 +230,7 @@ export class EDocField<ValueType extends EDocValue> {
 
     public push(input?: SimpleEDocValue): void {
         if (this.getTypeString() !== "array") {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A non-array eDoc field was attempted to be used like an array field with the push method.
 
                 Field: ${JSON.stringify(this)}
@@ -244,7 +244,7 @@ export class EDocField<ValueType extends EDocValue> {
         const arrayType = arrayInfo.type;
 
         if (!Array.isArray(arrayType) || !Array.isArray(this.value)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A non-array type was found in an eDoc array field.
 
                 Field: ${JSON.stringify(this)}
@@ -290,7 +290,7 @@ export class EDocField<ValueType extends EDocValue> {
                     minimumLength = this.info.arrayOptions.minimumLength;
 
                     if (minimumLength < 0) {
-                        throw new Error(stripIndents`
+                        throw new Error(stripIndent`
                             Negative length given to an eDoc field's arrayOptions.minimumLength.
                             
                             Length: ${minimumLength}
@@ -399,7 +399,7 @@ export class EDocField<ValueType extends EDocValue> {
                     const displayFieldName = this.info.documentOptions.displayField;
 
                     if (!value.hasField(displayFieldName)) {
-                        throw new Error(stripIndents`
+                        throw new Error(stripIndent`
                             Invalid field name found in eDocField.info.documentOptions.displayField.
 
                             Field name: ${displayFieldName}
@@ -448,7 +448,7 @@ export class EDoc {
         const field = this.fields.get(fieldName);
 
         if (!field) {
-            throw new RangeError(stripIndents`
+            throw new RangeError(stripIndent`
                 Attempted to get data from an EDoc field that doesn't exist.
 
                 Field name: ${fieldName}
@@ -466,7 +466,7 @@ export class EDoc {
         const selectedField = this.fields.get(this.fieldNames.selection);
 
         if (!selectedField) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 A field name that mapped to no field in an EDoc's fields was found.
 
                 Selected field name: ${this.fieldNames.selection}
@@ -482,7 +482,7 @@ export class EDoc {
 
     public setField(fieldName: string, value: SimpleEDocValue): void {
         if (!this.hasField(fieldName)) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 Attempted to set an eDoc's field by a name that doesn't map to any existing field.
                 
                 Field name: ${fieldName}

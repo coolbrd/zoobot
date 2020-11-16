@@ -1,4 +1,4 @@
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import gameConfig from "../../config/gameConfig";
 
@@ -36,7 +36,7 @@ export default abstract class GameObject {
             this.save().then(() => {
                 this.unmodify();
             }).catch(error => {
-                throw new Error(stripIndents`
+                throw new Error(stripIndent`
                     There was an error saving a game object's document after it was modified.
 
                     Game object: ${this.debugString}
@@ -77,7 +77,7 @@ export default abstract class GameObject {
 
             if (restrictions.nonNegative) {
                 if (typeof value !== "number") {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         A non-number value was given to a game object field that is marked as non-negative.
 
                         Value: ${value}
@@ -86,7 +86,7 @@ export default abstract class GameObject {
                 }
 
                 if (value < 0) {
-                    throw new Error(stripIndents`
+                    throw new Error(stripIndent`
                         A negative number was given to a game object field that's supposed to be non-negative.
 
                         Value: ${value}
@@ -111,7 +111,7 @@ export default abstract class GameObject {
             await this.document.save();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error saving a game object's document.
 
                 Document: ${this.document.toString()}
@@ -126,7 +126,7 @@ export default abstract class GameObject {
             await this.saveDocument();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error saving a game object's document before unmodifying it.
                 
                 ${error}
@@ -142,7 +142,7 @@ export default abstract class GameObject {
             await this.document.deleteOne();
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error deleting a game object's document.
 
                 Document: ${this.document.toString()}
@@ -153,7 +153,7 @@ export default abstract class GameObject {
     }
 
     public get debugString(): string {
-        return stripIndents`
+        return stripIndent`
             Document: ${this.document.toString()}
         `;
     }

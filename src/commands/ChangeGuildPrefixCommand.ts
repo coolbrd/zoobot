@@ -4,7 +4,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { beastiary } from "../beastiary/Beastiary";
-import { stripIndents } from "common-tags";
+import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class ChangeGuildPrefixCommand extends GuildCommand {
@@ -29,7 +29,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
             guildObject = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
-            throw new Error(stripIndents`
+            throw new Error(stripIndent`
                 There was an error attempting to get a guild object from a guild id.
 
                 Guild id: ${parsedMessage.guild.id}
