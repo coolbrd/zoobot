@@ -36,6 +36,7 @@ import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
 import CommandReceipt from "./CommandReceipt";
 import CommandResolver from "./CommandResolver";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
+import GiveXpCommand from "../../commands/GiveXpCommand";
 
 class CommandHandler {
     public readonly baseCommands = [
@@ -53,6 +54,7 @@ class CommandHandler {
         FavoriteAnimalCommand,
         MoveAnimalsCommand,
         ReleaseAnimalCommand,
+        GiveXpCommand,
         SetEncounterChannelCommand,
         ChangeGuildPrefixCommand,
         ViewResetsCommand,

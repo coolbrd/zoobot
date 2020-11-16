@@ -2,7 +2,6 @@ import { stripIndent } from "common-tags";
 import { GuildMember, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../../../beastiary/Beastiary";
-import { encounterHandler } from "../../../beastiary/EncounterHandler";
 import gameConfig from "../../../config/gameConfig";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import GameObject from "../GameObject";
@@ -28,7 +27,11 @@ export class Player extends GameObject {
         freeEncountersLeft: "freeEncountersLeft",
         extraEncountersLeft: "extraEncountersLeft",
         lastEncounterReset: "lastEncounterReset",
-        totalEncounters: "totalEncounters"
+        totalEncounters: "totalEncounters",
+        freeXpBoostsLeft: "freeXpBoostsLeft",
+        extraXpBoostsLeft: "extraXpBoostsLeft",
+        lastXpBoostReset: "lastXpBoostReset",
+        totalXpBoosts: "totalXpBoosts"
     };
 
     public readonly fieldRestrictions = {
@@ -55,6 +58,15 @@ export class Player extends GameObject {
         },
         [Player.fieldNames.totalEncounters]: {
             nonNegative: true
+        },
+        [Player.fieldNames.freeXpBoostsLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.extraXpBoostsLeft]: {
+            nonNegative: true
+        },
+        [Player.fieldNames.totalXpBoosts]: {
+            nonNegative: true
         }
     }
 
@@ -71,7 +83,11 @@ export class Player extends GameObject {
             [Player.fieldNames.freeEncountersLeft]: 0,
             [Player.fieldNames.extraEncountersLeft]: 0,
             [Player.fieldNames.lastEncounterReset]: new Date(0),
-            [Player.fieldNames.totalEncounters]: 0
+            [Player.fieldNames.totalEncounters]: 0,
+            [Player.fieldNames.freeXpBoostsLeft]: 0,
+            [Player.fieldNames.extraXpBoostsLeft]: 0,
+            [Player.fieldNames.lastXpBoostReset]: new Date(0),
+            [Player.fieldNames.totalXpBoosts]: 0
         });
     }
 
@@ -183,6 +199,40 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
+    public get freeXpBoostsLeft(): number {
+        this.applyXpBoostReset();
+
+        return this.document.get(Player.fieldNames.freeXpBoostsLeft);
+    }
+
+    public set freeXpBoostsLeft(freeXpBoostsLeft: number) {
+        this.setDocumentField(Player.fieldNames.freeXpBoostsLeft, freeXpBoostsLeft);
+    }
+
+    public get extraXpBoostsLeft(): number {
+        return this.document.get(Player.fieldNames.extraXpBoostsLeft);
+    }
+
+    public set extraXpBoostsLeft(extraXpBoostsLeft: number) {
+        this.setDocumentField(Player.fieldNames.extraXpBoostsLeft, extraXpBoostsLeft);
+    }
+
+    public get lastXpBoostReset(): Date {
+        return this.document.get(Player.fieldNames.lastXpBoostReset);
+    }
+
+    public set lastXpBoostReset(lastXpBoostReset: Date) {
+        this.setDocumentField(Player.fieldNames.lastXpBoostReset, lastXpBoostReset);
+    }
+
+    public get totalXpBoosts(): number {
+        return this.document.get(Player.fieldNames.totalXpBoosts);
+    }
+
+    public set totalXpBoosts(totalXpBoosts: number) {
+        this.setDocumentField(Player.fieldNames.totalXpBoosts, totalXpBoosts);
+    }
+
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -204,7 +254,7 @@ export class Player extends GameObject {
     }
 
     public get hasCaptureReset(): boolean {
-        return this.lastCaptureReset.valueOf() < encounterHandler.lastCaptureReset.valueOf();
+        return this.lastCaptureReset.valueOf() < beastiary.resets.lastCaptureReset.valueOf();
     }
 
     public get canCapture(): boolean {
@@ -220,7 +270,19 @@ export class Player extends GameObject {
     }
 
     public get hasEncounterReset(): boolean {
-        return this.lastEncounterReset.valueOf() < encounterHandler.lastEncounterReset.valueOf();
+        return this.lastEncounterReset.valueOf() < beastiary.resets.lastEncounterReset.valueOf();
+    }
+
+    public get xpBoostsLeft(): number {
+        return this.freeXpBoostsLeft + this.extraXpBoostsLeft;
+    }
+
+    public get hasXpBoost(): boolean {
+        return this.xpBoostsLeft > 0;
+    }
+
+    public get hasXpBoostReset(): boolean {
+        return this.lastXpBoostReset.valueOf() < beastiary.resets.lastXpBoostReset.valueOf();
     }
 
     private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
@@ -408,6 +470,41 @@ export class Player extends GameObject {
 
         this.decrementEncountersLeft();
         this.totalEncounters += 1;
+    }
+
+    public applyXpBoostReset(): void {
+        if (this.hasXpBoostReset) {
+            this.freeXpBoostsLeft = gameConfig.xpBoostsPerPeriod;
+            this.lastXpBoostReset = new Date();
+        }
+    }
+
+    public decrementXpBoostsLeft(): void {
+        if (this.freeXpBoostsLeft > 0) {
+            this.freeXpBoostsLeft -= 1;
+        }
+        else if (this.extraXpBoostsLeft > 0) {
+            this.extraXpBoostsLeft -= 1;
+        }
+        else {
+            throw new Error(stripIndent`
+                A player's xp boosts were decremented when the player had none left.
+
+                Player: ${this.debugString}
+            `);
+        }
+    }
+
+    public useXpBoost(): void {
+        if (!this.hasXpBoost) {
+            throw new Error(stripIndent`
+                A player's xp boost stats were updated as if they used an xp boost without having any.
+
+                Player: ${this.debugString}
+            `);
+        }
+
+        this.decrementXpBoostsLeft();
     }
 
     public async fetchAnimalById(id: Types.ObjectId): Promise<Animal | undefined> {

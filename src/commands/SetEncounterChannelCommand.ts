@@ -11,7 +11,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 class SetEncounterChannelCommand extends GuildCommand {
     public readonly commandNames = ["setencounterchannel"];
 
-    public readonly info = "Sets the channel that random encounters will appear in";
+    public readonly info = "Set the channel that random encounters will appear in";
 
     public readonly helpUseString = "in the channel you want random encounters to spawn in.";
 

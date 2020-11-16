@@ -1,7 +1,6 @@
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
-import { encounterHandler } from "../beastiary/EncounterHandler";
 import { beastiary } from "../beastiary/Beastiary";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
@@ -35,14 +34,14 @@ class EncounterCommand extends GuildCommand {
         }
 
         if (!player.hasEncounters) {
-            betterSend(parsedMessage.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**.`);
+            betterSend(parsedMessage.channel, `You don't have any encounters left.\n\nNext encounter reset: **${remainingTimeString(beastiary.resets.nextEncounterReset)}**.`);
             return commandReceipt;
         }
 
         player.encounterAnimal();
 
         try {
-            await encounterHandler.spawnAnimal(parsedMessage.channel);
+            await beastiary.encounters.spawnAnimal(parsedMessage.channel);
         }
         catch (error) {
             throw new Error(stripIndent`

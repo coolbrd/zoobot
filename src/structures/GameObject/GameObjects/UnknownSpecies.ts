@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { SpeciesModel } from '../../../models/Species';
 import { CommonName, CommonNameTemplate, Species, SpeciesCard, SpeciesCardTemplate } from "./Species";
 
-export default class UnknownSpecies extends Species {
+class UnknownSpecies extends Species {
     constructor() {
         const fakeDocument = new SpeciesModel();
 
@@ -81,6 +81,7 @@ export default class UnknownSpecies extends Species {
         return ["unknown species"];
     }
 }
+export const unknownSpecies = new UnknownSpecies();
 
 export const unknownCard: SpeciesCard = {
     _id: new Types.ObjectId(),

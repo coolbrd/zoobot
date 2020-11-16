@@ -1,10 +1,9 @@
 import Discord, { Message } from "discord.js";
 import mongoose from "mongoose";
+import { beastiary } from "./beastiary/Beastiary";
 import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import { interactiveMessageHandler } from "./interactiveMessage/InteractiveMessageHandler";
-import { encounterHandler } from "./beastiary/EncounterHandler";
 import { commandHandler } from "./structures/Command/CommandHandler";
-import { beastiary } from "./beastiary/Beastiary";
 import { stripIndent } from "common-tags";
 
 export const client = new Discord.Client();
@@ -86,7 +85,7 @@ client.on("message", (message: Message) => {
 
     commandHandler.handleMessage(message).then(() => {
         beastiary.players.handleMessage(message).then(() => {
-            encounterHandler.handleMessage(message).catch(error => {
+            beastiary.encounters.handleMessage(message).catch(error => {
                 throw new Error(stripIndent`
                     There was an error handling a message through the encounter handler.
                     

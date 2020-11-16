@@ -1,3 +1,4 @@
+import { Species } from "../structures/GameObject/GameObjects/Species";
 import { stripIndent } from "common-tags";
 import { DMChannel, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
@@ -5,10 +6,9 @@ import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 import { SpeciesModel } from "../models/Species";
-import { Species } from "../structures/GameObject/GameObjects/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
-import { encounterHandler } from './EncounterHandler';
-import UnknownSpecies from '../structures/GameObject/GameObjects/UnknownSpecies';
+import { beastiary } from "./Beastiary";
+import { unknownSpecies } from "../structures/GameObject/GameObjects/UnknownSpecies";
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -31,7 +31,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         if (!species) {
-            species = new UnknownSpecies();
+            species = unknownSpecies;
         }
 
         return species;
@@ -78,7 +78,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         try {
-            await encounterHandler.loadRarityData();
+            await beastiary.encounters.loadRarityData();
         }
         catch (error) {
             throw new Error(stripIndent`

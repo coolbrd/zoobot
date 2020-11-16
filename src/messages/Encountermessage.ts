@@ -6,7 +6,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { beastiary } from "../beastiary/Beastiary";
-import { encounterHandler } from "../beastiary/EncounterHandler";
 import { remainingTimeString } from "../utility/timeStuff";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -41,7 +40,7 @@ export default class EncounterMessage extends InteractiveMessage {
     public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
         
-        embed.setColor(encounterHandler.getRarityInfo(this.species.rarity).color);
+        embed.setColor(beastiary.encounters.getRarityInfo(this.species.rarity).color);
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
         embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
         embed.setImage(this.card.url);
@@ -65,7 +64,7 @@ export default class EncounterMessage extends InteractiveMessage {
                 betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
             }
             else {
-                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(encounterHandler.nextCaptureReset)}**.`);
+                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(beastiary.resets.nextCaptureReset)}**.`);
             }
 
             this.warnedUserIds.push(player.member.user.id);

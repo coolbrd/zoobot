@@ -1,6 +1,5 @@
 import { MessageEmbed } from 'discord.js';
 import { beastiary } from '../beastiary/Beastiary';
-import { encounterHandler } from '../beastiary/EncounterHandler';
 import SmartEmbed from '../discordUtility/SmartEmbed';
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableCacheableGameObject from '../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
@@ -67,7 +66,7 @@ export default class SpeciesRarityMessage extends PointedMessage<LoadableCacheab
         this.visibleElements.forEach(currentLoadableSpecies => {
             const currentSpecies = currentLoadableSpecies.gameObject;
 
-            const speciesMinimumOccurrence = encounterHandler.getWeightedRarityMinimumOccurrence(currentSpecies.rarity);
+            const speciesMinimumOccurrence = beastiary.encounters.getWeightedRarityMinimumOccurrence(currentSpecies.rarity);
 
             pageString += `${capitalizeFirstLetter(currentSpecies.commonNames[0])}: **${(speciesMinimumOccurrence * 100).toPrecision(4)}%**\n`;
         });

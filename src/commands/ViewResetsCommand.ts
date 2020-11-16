@@ -1,5 +1,4 @@
 import { beastiary } from "../beastiary/Beastiary";
-import { encounterHandler } from "../beastiary/EncounterHandler";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -33,14 +32,16 @@ class ViewResetsCommand extends GuildCommand {
         }
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
-
         messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`
-        messageString += `Next encounter reset: **${remainingTimeString(encounterHandler.nextEncounterReset)}**\n\n`;
+        messageString += `Next encounter reset: **${remainingTimeString(beastiary.resets.nextEncounterReset)}**\n\n`;
 
         messageString += `You have **${player.capturesLeft}** capture${player.capturesLeft === 1 ? "" : "s"} left`;
-
         messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n`
-        messageString += `Next capture reset reset: **${remainingTimeString(encounterHandler.nextCaptureReset)}**`;
+        messageString += `Next capture reset: **${remainingTimeString(beastiary.resets.nextCaptureReset)}**\n\n`;
+
+        messageString += `You have **${player.xpBoostsLeft}** xp boost${player.freeXpBoostsLeft === 1 ? "" : "s"} left`;
+        messageString += ` (**${player.freeXpBoostsLeft}** free, **${player.extraXpBoostsLeft}** extra)\n`;
+        messageString += `Next xp boost reset: **${remainingTimeString(beastiary.resets.nextXpBoostReset)}**`
 
         betterSend(parsedMessage.channel, messageString);
 

@@ -5,8 +5,6 @@ import { Species } from "../structures/GameObject/GameObjects/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import { getWeightedRandom, getWeightedRarityMinimumOccurrence } from "../utility/weightedRarity";
 import { beastiary } from "./Beastiary";
-import { todaysMilliseconds } from "../utility/timeStuff";
-import gameConfig from "../config/gameConfig";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndent } from "common-tags";
@@ -16,33 +14,9 @@ interface RarityInfo {
     color: number
 }
 
-class EncounterHandler {
+export default class EncounterManager {
     private rarityMap: Map<Types.ObjectId, number> = new Map();
     private sortedRarityList: number[] = [];
-
-    public get lastCaptureReset(): Date {
-        const now = new Date();
-
-        const millisecondsSinceLastReset = todaysMilliseconds() % gameConfig.capturePeriod;
-
-        return new Date(now.valueOf() - millisecondsSinceLastReset);
-    }
-
-    public get nextCaptureReset(): Date {
-        return new Date(this.lastCaptureReset.valueOf() + gameConfig.capturePeriod);
-    }
-
-    public get lastEncounterReset(): Date {
-        const now = new Date();
-
-        const millisecondsSinceLastReset = todaysMilliseconds() % gameConfig.encounterPeriod;
-
-        return new Date(now.valueOf() - millisecondsSinceLastReset);
-    }
-
-    public get nextEncounterReset(): Date {
-        return new Date(this.lastEncounterReset.valueOf() + gameConfig.encounterPeriod);
-    }
 
     public getTotalRarityWeight(): number {
         let totalRarityWeight = 0;
@@ -214,7 +188,7 @@ class EncounterHandler {
     public getRarityInfo(rarity: number): RarityInfo {
         const tierColors = [0x557480, 0x49798b, 0x3e6297, 0x2c67a9, 0x1a97bb, 0x0fc6c6, 0x07cd9c, 0x17bd52, 0x417c36, 0xbbae13, 0xf9da04, 0xf3850a, 0xef0e3a, 0xda23c8, 0xff80ff, 0xFFFFFF];
     
-        const rarityOccurrence = encounterHandler.getWeightedRarityMinimumOccurrence(rarity);
+        const rarityOccurrence = this.getWeightedRarityMinimumOccurrence(rarity);
     
         let tier = 0;
         while (tier <= tierColors.length - 1) {
@@ -236,4 +210,3 @@ class EncounterHandler {
         }
     }
 }
-export const encounterHandler = new EncounterHandler();

@@ -1,10 +1,10 @@
 import { MessageEmbed } from "discord.js";
-import { encounterHandler } from "../beastiary/EncounterHandler";
+import { beastiary } from "../beastiary/Beastiary";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard): void {
-    const speciesRarity = encounterHandler.getRarityInfo(species.rarity);
+    const speciesRarity = beastiary.encounters.getRarityInfo(species.rarity);
 
     embed.setColor(speciesRarity.color);
     embed.setTitle(capitalizeFirstLetter(species.scientificName));

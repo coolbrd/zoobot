@@ -57,6 +57,22 @@ const playerSchema = new Schema({
     [Player.fieldNames.totalEncounters]: {
         type: Number,
         required: true
+    },
+    [Player.fieldNames.freeXpBoostsLeft]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.extraXpBoostsLeft]: {
+        type: Number,
+        required: true
+    },
+    [Player.fieldNames.lastXpBoostReset]: {
+        type: Schema.Types.Date,
+        required: true
+    },
+    [Player.fieldNames.totalXpBoosts]: {
+        type: Number,
+        required: true
     }
 });
 
