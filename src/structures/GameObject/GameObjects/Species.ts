@@ -16,7 +16,8 @@ export class Species extends GameObject {
         description: "description",
         naturalHabitat: "naturalHabitat",
         wikiPage: "wikiPage",
-        rarity: "rarity"
+        rarity: "rarity",
+        token: "token"
     };
 
     public get commonNameObjects(): CommonName[] {
@@ -81,6 +82,14 @@ export class Species extends GameObject {
 
     public set rarity(rarity: number) {
         this.setDocumentField(Species.fieldNames.rarity, rarity);
+    }
+
+    public get token(): string {
+        return this.document.get(Species.fieldNames.token);
+    }
+
+    public set token(token: string) {
+        this.setDocumentField(Species.fieldNames.token, token);
     }
 
     public get baseValue(): number {

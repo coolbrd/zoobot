@@ -115,6 +115,12 @@ export default class SpeciesEditMessage extends EDocMessage {
                 required: true,
                 alias: "rarity",
                 prompt: "Enter this animal's weighted rarity:"
+            },
+            [Species.fieldNames.token]: {
+                type: String,
+                required: true,
+                alias: "token",
+                prompt: "Enter the item that this species can drop:"
             }
         });
 
@@ -146,6 +152,7 @@ export default class SpeciesEditMessage extends EDocMessage {
         eDoc.setField(Species.fieldNames.naturalHabitat, speciesObject.naturalHabitat);
         eDoc.setField(Species.fieldNames.wikiPage, speciesObject.wikiPage);
         eDoc.setField(Species.fieldNames.rarity, speciesObject.rarity);
+        eDoc.setField(Species.fieldNames.token, speciesObject.token);
 
         super(channel, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));
     }

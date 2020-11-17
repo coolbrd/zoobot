@@ -76,6 +76,7 @@ class EditSpeciesCommand extends Command {
             species.naturalHabitat = finalDocument[Species.fieldNames.naturalHabitat] as string;
             species.wikiPage = finalDocument[Species.fieldNames.wikiPage] as string;
             species.rarity = finalDocument[Species.fieldNames.rarity] as number;
+            species.token = finalDocument[Species.fieldNames.token] as string;
             
             species.save().then(() => {
                 betterSend(parsedMessage.channel, "Edit successful.");

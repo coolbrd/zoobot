@@ -58,6 +58,10 @@ const speciesSchema = new Schema({
     [Species.fieldNames.rarity]: {
         type: Number,
         required: true
+    },
+    [Species.fieldNames.token]: {
+        type: String,
+        required: true
     }
 });
 

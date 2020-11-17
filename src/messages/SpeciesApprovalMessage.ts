@@ -109,6 +109,12 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 required: true,
                 alias: "rarity",
                 prompt: "Enter this animal's weighted rarity:"
+            },
+            [Species.fieldNames.token]: {
+                type: String,
+                required: true,
+                alias: "token",
+                prompt: "Enter the item that this species can drop:"
             }
         });
 
