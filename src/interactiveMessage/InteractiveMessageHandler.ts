@@ -36,7 +36,7 @@ class InteractiveMessageHandler {
 
         const messageHasEmojiButton = interactiveMessage.getActiveButtonEmojis().includes(emojiString);
 
-        if (!messageHasEmojiButton || interactiveMessage.rateLimited) {
+        if (!messageHasEmojiButton) {
             return;
         }
 

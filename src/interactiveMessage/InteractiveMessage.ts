@@ -31,6 +31,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
     private _message: Message | undefined;
     private _content: APIMessage | undefined;
     private _rateLimited = false;
+    private pendingContent: APIMessage | undefined;
 
     private _timer: NodeJS.Timeout | undefined;
 
@@ -239,14 +240,28 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     private setEmbed(newEmbed: MessageEmbed): void {
-        if (this.deactivated || this.rateLimited) {
+        if (this.deactivated) {
             return;
         }
 
-        this.content = new APIMessage(this.channel, { embed: newEmbed });
+        const newContent = new APIMessage(this.channel, { embed: newEmbed });
+
+        if (this.rateLimited) {
+            this.pendingContent = newContent;
+            return;
+        }
+
+        this.content = newContent;
 
         if (this.sent) {
             this.message.edit(this.content);
+        }
+    }
+
+    private applyPendingContent(): void {
+        if (this.pendingContent) {
+            this.message.edit(this.pendingContent);
+            this.pendingContent = undefined;
         }
     }
 
@@ -442,11 +457,20 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.removeAllListeners();
     }
 
-    public applyRateLimit(timeout: number): void {
+    private beginRateLimit(): void {
         this.setRateLimited(true);
+    }
+
+    private endRateLimit(): void {
+        this.setRateLimited(false);
+        this.applyPendingContent();
+    }
+
+    public applyRateLimit(timeout: number): void {
+        this.beginRateLimit();
 
         setTimeout(() => {
-           this.setRateLimited(false); 
+           this.endRateLimit();
         }, timeout);
     }
 
