@@ -11,7 +11,7 @@
     "prebuild": "rimraf ./build",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "pm2 start build/sharding.js"
+    "start": "pm2 start build/sharding.js -n zoobot"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.10.1",
