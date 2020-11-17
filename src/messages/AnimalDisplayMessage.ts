@@ -6,6 +6,7 @@ import PointedMessage from './PointedMessage';
 import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
+import { beastiary } from "../beastiary/Beastiary";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -67,6 +68,10 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
         switch (this.state) {
             case AnimalDisplayMessageState.page: {
                 embed.setThumbnail(selectedAnimal.card.url);
+
+                const animalRarity = beastiary.encounters.getRarityInfo(selectedAnimal.species.rarity);
+
+                embed.setColor(animalRarity.color);
 
                 let pageString = "";
                 let elementIndex = this.firstVisibleIndex;

@@ -1,10 +1,15 @@
 import { MessageEmbed } from "discord.js";
+import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): void {
     embed.setThumbnail(animal.card.url);
     embed.setTitle(`${animal.displayName}`);
+
+    const animalRarity = beastiary.encounters.getRarityInfo(animal.species.rarity);
+
+    embed.setColor(animalRarity.color);
 
     if (animal.nickname) {
         embed.setDescription(capitalizeFirstLetter(animal.species.commonNames[0]));

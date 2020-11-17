@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
+import { beastiary } from "../beastiary/Beastiary";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
@@ -37,6 +38,10 @@ export default class PlayerProfileMessage extends InteractiveMessage {
 
         if (firstAnimal) {
             embed.setThumbnail(firstAnimal.card.url);
+
+            const animalRarity = beastiary.encounters.getRarityInfo(firstAnimal.species.rarity);
+
+            embed.setColor(animalRarity.color);
         }
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
