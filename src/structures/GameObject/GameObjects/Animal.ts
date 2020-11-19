@@ -132,6 +132,10 @@ export class Animal extends GameObject {
         return this.ownerId === player.member.user.id && this.guildId === player.member.guild.id;
     }
 
+    private get ownerHasToken(): boolean {
+        return this.owner.tokenSpeciesIds.includes(this.species.id);
+    }
+
     private addExperienceAndCheckForLevelUp(experience: number): boolean {
         const previousLevel = this.level;
 
@@ -145,15 +149,13 @@ export class Animal extends GameObject {
 
     private tokenDropChance(target: number): boolean {
         const tokenChance = Math.random() * gameConfig.tokenDropChance;
+
+        console.log(`Chance: ${tokenChance} Target: ${target}`);
         
         if (tokenChance <= target) {
             return true;
         }
         return false;
-    }
-
-    private ownerHasToken(): boolean {
-        return this.owner.tokenSpeciesIds.includes(this.species.id);
     }
 
     private giveOwnerToken(): void {
