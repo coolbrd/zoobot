@@ -8,16 +8,18 @@ import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
 import { stripIndent } from "common-tags";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
 
     private readonly species: Species;
+    private readonly player?: Player;
     
     private cardIndex = 0;
     private displayCard = true;
 
-    constructor(channel: TextChannel | DMChannel, species: Species) {
+    constructor(channel: TextChannel | DMChannel, species: Species, player?: Player) {
         super(channel);
 
         this.addButtons([
@@ -39,6 +41,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         ]);
 
         this.species = species;
+        this.player = player;
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
@@ -52,7 +55,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             buildSpeciesCard(embed, this.species, card);
         }
         else {
-            buildSpeciesInfo(embed, this.species, card);
+            buildSpeciesInfo(embed, this.species, card, this.player);
         }
 
         embed.appendToFooter("\n" + this.getButtonHelpString());

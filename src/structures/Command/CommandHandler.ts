@@ -37,6 +37,7 @@ import CommandReceipt from "./CommandReceipt";
 import CommandResolver from "./CommandResolver";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
+import ViewTokensCommand from "../../commands/ViewTokensCommand";
 
 class CommandHandler {
     public readonly baseCommands = [
@@ -58,6 +59,7 @@ class CommandHandler {
         SetEncounterChannelCommand,
         ChangeGuildPrefixCommand,
         ViewResetsCommand,
+        ViewTokensCommand,
         CommandAliasesCommand,
         CommandListCommand,
         EditSpeciesCommand,

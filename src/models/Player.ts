@@ -73,6 +73,10 @@ const playerSchema = new Schema({
     [Player.fieldNames.totalXpBoosts]: {
         type: Number,
         required: true
+    },
+    [Player.fieldNames.tokenSpeciesIds]: {
+        type: [Schema.Types.ObjectId],
+        required: true
     }
 });
 

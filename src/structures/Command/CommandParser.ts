@@ -22,9 +22,11 @@ export default class CommandParser {
     public readonly sender: User;
 
     public readonly inGuild: boolean;
+    public readonly guild?: Guild;
 
     constructor(message: Message, prefixUsed: string) {
         this.inGuild = Boolean(message.guild);
+        this.guild = message.guild || undefined;
 
         this.commandPrefix = prefixUsed;
         this.displayPrefix = commandHandler.getDisplayPrefixByMessage(message);

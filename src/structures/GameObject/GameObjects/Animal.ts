@@ -9,6 +9,8 @@ import { stripIndent } from "common-tags";
 import { betterSend } from "../../../discordUtility/messageMan";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
+import { Player } from "./Player";
+import gameConfig from "../../../config/gameConfig";
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
@@ -38,15 +40,12 @@ export class Animal extends GameObject {
         });
     }
 
-    private owner: GuildMember;
-
+    private _owner: Player | undefined;
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
 
     constructor(document: Document) {
         super(document);
-
-        this.owner = getGuildMember(this.ownerId, this.guildId);
     }
 
     public get ownerId(): string {
@@ -77,11 +76,57 @@ export class Animal extends GameObject {
         return this.document.get(Animal.fieldNames.experience);
     }
 
-    public addExperienceInChannel(experience: number, channel: TextChannel): void {
+    public set experience(experience: number) {
+        this.setDocumentField(Animal.fieldNames.experience, experience);
+    }
+
+    private addExperienceAndCheckForLevelUp(experience: number): boolean {
         const previousLevel = this.level;
-        this.setDocumentField(Animal.fieldNames.experience, this.experience + experience);
+
+        this.experience += experience;
+
         if (this.level > previousLevel) {
-            betterSend(channel, `Congratulations ${this.owner.user}, ${this.displayName} grew to level ${this.level}!`);
+            return true;
+        }
+        return false;
+    }
+
+    private tokenDropChance(target: number): boolean {
+        const tokenChance = Math.random() * gameConfig.tokenDropChance;
+        
+        if (tokenChance <= target) {
+            return true;
+        }
+        return false;
+    }
+
+    private ownerHasToken(): boolean {
+        return this.owner.tokenSpeciesIds.includes(this.species.id);
+    }
+
+    private giveOwnerToken(): void {
+        this.owner.giveToken(this.species.id);
+    }
+
+    public addExperienceInChannel(experience: number, channel: TextChannel): void {
+        const levelUp = this.addExperienceAndCheckForLevelUp(experience);
+
+        if (levelUp) {
+            betterSend(channel, `Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!`);
+        }
+
+        if (!this.ownerHasToken) {
+            const dropToken = this.tokenDropChance(experience);
+
+            if (dropToken) {
+                this.giveOwnerToken();
+
+                betterSend(channel, stripIndent`
+                    Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
+
+                    **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
+                `);
+            }
         }
     }
 
@@ -91,6 +136,18 @@ export class Animal extends GameObject {
 
     public get displayName(): string {
         return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
+    }
+
+    public get owner(): Player {
+        if (!this._owner) {
+            throw new Error(stripIndent`
+                Tried to get an animal's owner before it was loaded.
+
+                Animal: ${this.debugString}
+            `);
+        }
+
+        return this._owner;
     }
 
     public get species(): Species {
@@ -121,6 +178,23 @@ export class Animal extends GameObject {
         return Math.ceil(Math.max(0, Math.log2(this.experience / 25))) + 1;
     }
 
+    private async loadOwner(): Promise<void> {
+        const ownerGuildMember = getGuildMember(this.ownerId, this.guildId);
+        try {
+            this._owner = await beastiary.players.fetch(ownerGuildMember);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching an animal's owner.
+
+                Animal: ${this.debugString}
+                Owner member: ${JSON.stringify(ownerGuildMember)}
+
+                ${error}
+            `);
+        }
+    }
+
     private async loadSpecies(): Promise<void> {
         try {
             this._species = await beastiary.species.fetchById(this.speciesId);
@@ -147,6 +221,19 @@ export class Animal extends GameObject {
     }
 
     public async loadFields(): Promise<void> {
+        try {
+            await this.loadOwner();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error loading an animal's owner.
+
+                Animal: ${this.debugString}
+                
+                ${error}
+            `);
+        }
+
         try {
             await this.loadSpecies();
         }

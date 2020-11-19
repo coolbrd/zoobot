@@ -6,6 +6,8 @@ import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { beastiary } from "../beastiary/Beastiary";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import { Player } from "../structures/GameObject/GameObjects/Player";
+import getGuildMember from "../discordUtility/getGuildMember";
 
 class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
@@ -42,7 +44,24 @@ class SpeciesInfoCommand extends Command {
             return commandReceipt;
         }
 
-        const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species);
+        let player: Player | undefined;
+        if (parsedMessage.guild) {
+            const guildMember = getGuildMember(parsedMessage.sender.id, parsedMessage.guild.id);
+            try {
+                player = await beastiary.players.fetch(guildMember);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching a player by a guild member in the species info command.
+
+                    Guild member: ${JSON.stringify(guildMember)}
+
+                    ${error}
+                `);
+            }
+        }
+
+        const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species, player);
         try {
             await infoMessage.send();
         }

@@ -9,6 +9,8 @@ import LoadableOwnedAnimal from "./LoadableGameObject/LoadableGameObjects/Loadab
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { Animal } from "./Animal";
 import { PlayerModel } from '../../../models/Player';
+import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
+import { Species } from "./Species";
 
 export class Player extends GameObject {
     public readonly model = PlayerModel;
@@ -31,7 +33,8 @@ export class Player extends GameObject {
         freeXpBoostsLeft: "freeXpBoostsLeft",
         extraXpBoostsLeft: "extraXpBoostsLeft",
         lastXpBoostReset: "lastXpBoostReset",
-        totalXpBoosts: "totalXpBoosts"
+        totalXpBoosts: "totalXpBoosts",
+        tokenSpeciesIds: "tokenSpeciesIds"
     };
 
     public readonly fieldRestrictions = {
@@ -233,6 +236,10 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalXpBoosts, totalXpBoosts);
     }
 
+    public get tokenSpeciesIds(): Types.ObjectId[] {
+        return this.document.get(Player.fieldNames.tokenSpeciesIds);
+    }
+
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -285,6 +292,10 @@ export class Player extends GameObject {
         return this.lastXpBoostReset.valueOf() < beastiary.resets.lastXpBoostReset.valueOf();
     }
 
+    public hasToken(speciesId: Types.ObjectId): boolean {
+        return this.tokenSpeciesIds.includes(speciesId);
+    }
+
     private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
         const loadableAnimals: LoadableOwnedAnimal[] = [];
 
@@ -305,34 +316,59 @@ export class Player extends GameObject {
         return this.animalIdsToLoadableAnimals(this.crewAnimalIds);
     }
 
-    public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
-        if (position < 0 || position >= this.collectionAnimalIds.length) {
+    public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
+        const loadableSpecies: LoadableCacheableGameObject<Species>[] = [];
+
+        this.tokenSpeciesIds.forEach(currentTokenSpecies => {
+            const newLoadableSpecies = new LoadableCacheableGameObject<Species>(currentTokenSpecies, beastiary.species);
+
+            loadableSpecies.push(newLoadableSpecies);
+        });
+
+        return loadableSpecies;
+    }
+
+    private getIdFromList(baseList: Types.ObjectId[], position: number): Types.ObjectId | undefined {
+        if (position < 0 || position >= baseList.length) {
             return undefined;
         }
 
-        return this.collectionAnimalIds[position];
+        return baseList[position];
+    }
+
+    public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
+        return this.getIdFromList(this.collectionAnimalIds, position);
     }
 
     public getCrewIdPositional(position: number): Types.ObjectId | undefined {
-        if (position < 0 || position >= this.crewAnimalIds.length) {
-            return undefined;
-        }
-
-        return this.crewAnimalIds[position];
+        return this.getIdFromList(this.crewAnimalIds, position);
     }
 
-    private addAnimalIdToList(baseList: Types.ObjectId[], animalId: Types.ObjectId): void {
+    private addIdToList(baseList: Types.ObjectId[], id: Types.ObjectId): void {
         this.modify();
 
-        baseList.push(animalId);
+        baseList.push(id);
     }
 
     public addAnimalIdToCollection(animalId: Types.ObjectId): void {
-        this.addAnimalIdToList(this.collectionAnimalIds, animalId);
+        this.addIdToList(this.collectionAnimalIds, animalId);
     }
 
     public addAnimalIdToCrew(animalId: Types.ObjectId): void {
-        this.addAnimalIdToList(this.crewAnimalIds, animalId);
+        this.addIdToList(this.crewAnimalIds, animalId);
+    }
+
+    public giveToken(speciesId: Types.ObjectId): void {
+        if (this.hasToken(speciesId)) {
+            throw new Error(stripIndent`
+                Attempted to give a player a token they already owned.
+
+                Player: ${this.debugString}
+                Species id: ${speciesId}
+            `);
+        }
+
+        this.addIdToList(this.tokenSpeciesIds, speciesId);
     }
 
     private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
@@ -503,6 +539,8 @@ export class Player extends GameObject {
                 Player: ${this.debugString}
             `);
         }
+
+        this.totalXpBoosts += 1;
 
         this.decrementXpBoostsLeft();
     }
