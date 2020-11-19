@@ -18,6 +18,8 @@ class GiveXpCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
+    public readonly blocksInput = true;
+
     public readonly arguments: CommandArgumentInfo[] = [
         {
             name: "animal name or number"
