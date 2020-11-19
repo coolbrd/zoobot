@@ -178,6 +178,10 @@ export class Animal extends GameObject {
         return Math.ceil(Math.max(0, Math.log2(this.experience / 25))) + 1;
     }
 
+    public playerIsOwner(player: Player): boolean {
+        return this.ownerId === player.member.user.id && this.guildId === player.member.guild.id;
+    }
+
     private async loadOwner(): Promise<void> {
         const ownerGuildMember = getGuildMember(this.ownerId, this.guildId);
         try {

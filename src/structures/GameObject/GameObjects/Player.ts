@@ -644,32 +644,15 @@ export class Player extends GameObject {
         this.removeAnimalIdFromCollection(animal.id);
         this.removeAnimalIdFromCrew(animal.id);
 
+        if (!animal.playerIsOwner(this)) {
+            throw new Error(stripIndent`
+                A player somehow attempted to release an animal that doesn't belong to them.
+
+                Player: ${this.debugString}
+                Animal: ${animal.debugString}
+            `);
+        }
+
         this.scraps += animal.value;
-
-        try {
-            await beastiary.animals.removeFromCache(animal.id);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error removing a deleted animal from the cache.
-
-                Animal: ${animal.debugString}
-                
-                ${error}
-            `);
-        }
-
-        try {
-            await animal.delete();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error deleting an animal object.
-
-                Animal: ${animal.debugString}
-                
-                ${error}
-            `);
-        }
     }
 }

@@ -125,6 +125,32 @@ class ReleaseAnimalCommand extends GuildCommand {
                 `);
             }
 
+            try {
+                await beastiary.animals.removeFromCache(animal.id);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error removing a deleted animal from the cache.
+    
+                    Animal: ${animal.debugString}
+                    
+                    ${error}
+                `);
+            }
+
+            try {
+                await animal.delete();
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error deleting an animal object.
+    
+                    Animal: ${animal.debugString}
+                    
+                    ${error}
+                `);
+            }
+
             releaseEmbed.setDescription("Release confirmed.");
             releaseEmbed.setFooter("");
 
