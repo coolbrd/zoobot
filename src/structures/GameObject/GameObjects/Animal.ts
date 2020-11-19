@@ -80,56 +80,6 @@ export class Animal extends GameObject {
         this.setDocumentField(Animal.fieldNames.experience, experience);
     }
 
-    private addExperienceAndCheckForLevelUp(experience: number): boolean {
-        const previousLevel = this.level;
-
-        this.experience += experience;
-
-        if (this.level > previousLevel) {
-            return true;
-        }
-        return false;
-    }
-
-    private tokenDropChance(target: number): boolean {
-        const tokenChance = Math.random() * gameConfig.tokenDropChance;
-        
-        if (tokenChance <= target) {
-            return true;
-        }
-        return false;
-    }
-
-    private ownerHasToken(): boolean {
-        return this.owner.tokenSpeciesIds.includes(this.species.id);
-    }
-
-    private giveOwnerToken(): void {
-        this.owner.giveToken(this.species.id);
-    }
-
-    public addExperienceInChannel(experience: number, channel: TextChannel): void {
-        const levelUp = this.addExperienceAndCheckForLevelUp(experience);
-
-        if (levelUp) {
-            betterSend(channel, `Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!`);
-        }
-
-        if (!this.ownerHasToken) {
-            const dropToken = this.tokenDropChance(experience);
-
-            if (dropToken) {
-                this.giveOwnerToken();
-
-                betterSend(channel, stripIndent`
-                    Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
-
-                    **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
-                `);
-            }
-        }
-    }
-
     public get value(): number {
         return this.species.baseValue;
     }
@@ -180,6 +130,56 @@ export class Animal extends GameObject {
 
     public playerIsOwner(player: Player): boolean {
         return this.ownerId === player.member.user.id && this.guildId === player.member.guild.id;
+    }
+
+    private addExperienceAndCheckForLevelUp(experience: number): boolean {
+        const previousLevel = this.level;
+
+        this.experience += experience;
+
+        if (this.level > previousLevel) {
+            return true;
+        }
+        return false;
+    }
+
+    private tokenDropChance(target: number): boolean {
+        const tokenChance = Math.random() * gameConfig.tokenDropChance;
+        
+        if (tokenChance <= target) {
+            return true;
+        }
+        return false;
+    }
+
+    private ownerHasToken(): boolean {
+        return this.owner.tokenSpeciesIds.includes(this.species.id);
+    }
+
+    private giveOwnerToken(): void {
+        this.owner.giveToken(this.species.id);
+    }
+
+    public addExperienceInChannel(experience: number, channel: TextChannel): void {
+        const levelUp = this.addExperienceAndCheckForLevelUp(experience);
+
+        if (levelUp) {
+            betterSend(channel, `Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!`);
+        }
+
+        if (!this.ownerHasToken) {
+            const dropToken = this.tokenDropChance(experience);
+
+            if (dropToken) {
+                this.giveOwnerToken();
+
+                betterSend(channel, stripIndent`
+                    Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
+
+                    **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
+                `);
+            }
+        }
     }
 
     private async loadOwner(): Promise<void> {
