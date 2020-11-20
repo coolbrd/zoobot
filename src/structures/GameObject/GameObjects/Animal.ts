@@ -1,4 +1,4 @@
-import { GuildMember, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { beastiary } from "../../../beastiary/Beastiary";
 import GameObject from "../GameObject";
@@ -7,7 +7,6 @@ import { AnimalModel } from '../../../models/Animal';
 import { unknownCard } from './UnknownSpecies';
 import { stripIndent } from "common-tags";
 import { betterSend } from "../../../discordUtility/messageMan";
-import getGuildMember from "../../../discordUtility/getGuildMember";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
@@ -16,10 +15,11 @@ export class Animal extends GameObject {
     public readonly model = AnimalModel;
 
     public static readonly fieldNames = {
-        ownerId: "ownerId",
-        guildId: "guildId",
         speciesId: "speciesId",
         cardId: "cardId",
+        userId: "userId",
+        guildId: "guildId",
+        ownerId: "ownerId",
         nickname: "nickname",
         experience: "experience"
     };
@@ -30,30 +30,23 @@ export class Animal extends GameObject {
         }
     };
 
-    public static newDocument(owner: GuildMember, species: Species, card: SpeciesCard): Document {
+    public static newDocument(owner: Player, species: Species, card: SpeciesCard): Document {
         return new AnimalModel({
-            [Animal.fieldNames.ownerId]: owner.user.id,
-            [Animal.fieldNames.guildId]: owner.guild.id,
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
+            [Animal.fieldNames.userId]: owner.member.user.id,
+            [Animal.fieldNames.guildId]: owner.member.guild.id,
+            [Animal.fieldNames.ownerId]: owner.id,
             [Animal.fieldNames.experience]: 0
         });
     }
 
-    private _owner: Player | undefined;
     private _species: Species | undefined;
     private _card: SpeciesCard | undefined;
+    private _owner: Player | undefined;
 
     constructor(document: Document) {
         super(document);
-    }
-
-    public get ownerId(): string {
-        return this.document.get(Animal.fieldNames.ownerId);
-    }
-
-    public get guildId(): string {
-        return this.document.get(Animal.fieldNames.guildId);
     }
 
     public get speciesId(): Types.ObjectId {
@@ -62,6 +55,18 @@ export class Animal extends GameObject {
 
     public get cardId(): Types.ObjectId {
         return this.document.get(Animal.fieldNames.cardId);
+    }
+
+    public get userId(): string {
+        return this.document.get(Animal.fieldNames.userId);
+    }
+
+    public get guildId(): string {
+        return this.document.get(Animal.fieldNames.guildId);
+    }
+
+    public get ownerId(): Types.ObjectId {
+        return this.document.get(Animal.fieldNames.ownerId);
     }
 
     public get nickname(): string | undefined {
@@ -129,7 +134,7 @@ export class Animal extends GameObject {
     }
 
     public playerIsOwner(player: Player): boolean {
-        return this.ownerId === player.member.user.id && this.guildId === player.member.guild.id;
+        return this.userId === player.member.user.id && this.guildId === player.member.guild.id;
     }
 
     private get ownerHasToken(): boolean {
@@ -183,16 +188,14 @@ export class Animal extends GameObject {
     }
 
     private async loadOwner(): Promise<void> {
-        const ownerGuildMember = getGuildMember(this.ownerId, this.guildId);
         try {
-            this._owner = await beastiary.players.fetch(ownerGuildMember);
+            this._owner = await beastiary.players.fetchById(this.ownerId);
         }
         catch (error) {
             throw new Error(stripIndent`
                 There was an error fetching an animal's owner.
 
                 Animal: ${this.debugString}
-                Owner member: ${JSON.stringify(ownerGuildMember)}
 
                 ${error}
             `);

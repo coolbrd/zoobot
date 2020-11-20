@@ -1,4 +1,3 @@
-import { GuildMember } from "discord.js";
 import { Document, Types } from "mongoose";
 import gameConfig from "../config/gameConfig";
 import getGuildMember from "../discordUtility/getGuildMember";
@@ -90,22 +89,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         return animal;
     }
 
-    public async createAnimal(ownerGuildMember: GuildMember, species: Species, card: SpeciesCard): Promise<void> {
-        let owner: Player;
-        try {
-            owner = await beastiary.players.fetch(ownerGuildMember);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player object by a guild member while creating an animal.
-
-                Owner member: ${JSON.stringify(ownerGuildMember)}
-                
-                ${error}
-            `);
-        }
-
-        const animalDocument = Animal.newDocument(ownerGuildMember, species, card);
+    public async createAnimal(owner: Player, species: Species, card: SpeciesCard): Promise<void> {
+        const animalDocument = Animal.newDocument(owner, species, card);
 
         try {
             await animalDocument.save();

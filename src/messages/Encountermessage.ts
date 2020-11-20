@@ -101,7 +101,7 @@ export default class EncounterMessage extends InteractiveMessage {
         player.captureAnimal();
 
         try {
-            await beastiary.animals.createAnimal(guildMember, this.species, this.card);
+            await beastiary.animals.createAnimal(player, this.species, this.card);
         }
         catch (error) {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");

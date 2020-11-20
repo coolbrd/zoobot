@@ -2,7 +2,15 @@ import mongoose, { Schema } from "mongoose";
 import { Animal } from '../structures/GameObject/GameObjects/Animal';
 
 const animalSchema = new Schema({
-    [Animal.fieldNames.ownerId]: {
+    [Animal.fieldNames.speciesId]: {
+        type: Schema.Types.ObjectId,
+        required: true
+    },
+    [Animal.fieldNames.cardId]: {
+        type: Schema.Types.ObjectId,
+        required: true
+    },
+    [Animal.fieldNames.userId]: {
         type: String,
         required: true
     },
@@ -10,12 +18,7 @@ const animalSchema = new Schema({
         type: String,
         required: true
     },
-    [Animal.fieldNames.speciesId]: {
-        type: Schema.Types.ObjectId,
-        ref: "Species",
-        required: true
-    },
-    [Animal.fieldNames.cardId]: {
+    [Animal.fieldNames.ownerId]: {
         type: Schema.Types.ObjectId,
         required: true
     },
