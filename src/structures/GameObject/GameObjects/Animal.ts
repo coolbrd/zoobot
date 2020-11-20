@@ -149,8 +149,6 @@ export class Animal extends GameObject {
 
     private tokenDropChance(target: number): boolean {
         const tokenChance = Math.random() * gameConfig.tokenDropChance;
-
-        console.log(`Chance: ${tokenChance} Target: ${target}`);
         
         if (tokenChance <= target) {
             return true;
