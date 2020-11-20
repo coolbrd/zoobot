@@ -14,6 +14,7 @@ const gameConfig = {
     playerCacheTimeout: 180000,
     speciesCacheTimeout: 300000,
     gameObjectSaveDelay: 15000,
-    patreonLink: "https://www.patreon.com/coolbrd"
+    patreonLink: "https://www.patreon.com/coolbrd",
+    supportServerInviteLink: "https://discord.gg/875FPDdRQk"
 };
 export default gameConfig;
