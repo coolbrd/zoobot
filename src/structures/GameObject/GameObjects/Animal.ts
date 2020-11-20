@@ -30,6 +30,18 @@ export class Animal extends GameObject {
         }
     };
 
+    protected referenceNames = {
+        species: "species",
+        owner: "owner"
+    }
+
+    protected references = {
+        [this.referenceNames.species]: {
+            cache: beastiary.species,
+            id: this.speciesId
+        }
+    }
+
     public static newDocument(owner: Player, species: Species, card: SpeciesCard): Document {
         return new AnimalModel({
             [Animal.fieldNames.speciesId]: species.id,
@@ -40,10 +52,6 @@ export class Animal extends GameObject {
             [Animal.fieldNames.experience]: 0
         });
     }
-
-    private _species: Species | undefined;
-    private _card: SpeciesCard | undefined;
-    private _owner: Player | undefined;
 
     constructor(document: Document) {
         super(document);
@@ -93,40 +101,23 @@ export class Animal extends GameObject {
         return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
     }
 
-    public get owner(): Player {
-        if (!this._owner) {
-            throw new Error(stripIndent`
-                Tried to get an animal's owner before it was loaded.
-
-                Animal: ${this.debugString}
-            `);
-        }
-
-        return this._owner;
-    }
-
     public get species(): Species {
-        if (!this._species) {
-            throw new Error(stripIndent`
-                Tried to get an animal's species before it was loaded.
-
-                Animal: ${this.debugString}
-            `);
-        }
-
-        return this._species;
+        return this.getReference(this.referenceNames.species);
     }
 
     public get card(): SpeciesCard {
-        if (!this._card) {
-            throw new Error(stripIndent`
-                Tried to get an animal's card before it was loaded.
+        const card = this.species.cards.find(speciesCard => {
+            return this.cardId.equals(speciesCard._id);
+        });
 
-                Animal: ${this.debugString}
-            `);
+        if (!card) {
+            return unknownCard;
         }
+        return card;
+    }
 
-        return this._card;
+    public get owner(): Player {
+        return this.getReference(this.referenceNames.owner);
     }
 
     public get level(): number {
@@ -185,75 +176,5 @@ export class Animal extends GameObject {
                 `);
             }
         }
-    }
-
-    private async loadOwner(): Promise<void> {
-        try {
-            this._owner = await beastiary.players.fetchById(this.ownerId);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching an animal's owner.
-
-                Animal: ${this.debugString}
-
-                ${error}
-            `);
-        }
-    }
-
-    private async loadSpecies(): Promise<void> {
-        try {
-            this._species = await beastiary.species.fetchById(this.speciesId);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a species by its id when loading an animal object.
-
-                Animal: ${this.debugString}
-                
-                ${error}
-            `);
-        }
-    }
-
-    private loadCard(): void {
-        this._card = this.species.cards.find(speciesCard => {
-            return this.cardId.equals(speciesCard._id);
-        });
-
-        if (!this._card) {
-            this._card = unknownCard;
-        }
-    }
-
-    public async loadFields(): Promise<void> {
-        try {
-            await this.loadOwner();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error loading an animal's owner.
-
-                Animal: ${this.debugString}
-                
-                ${error}
-            `);
-        }
-
-        try {
-            await this.loadSpecies();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error loading an animal's species.
-
-                Animal: ${this.debugString}
-                
-                ${error}
-            `);
-        }
-
-        this.loadCard();
     }
 }

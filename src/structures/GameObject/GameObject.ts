@@ -1,9 +1,16 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import gameConfig from "../../config/gameConfig";
+import GameObjectCache from "./GameObjectCache";
 
 export interface FieldRestriction {
     nonNegative?: boolean;
+}
+
+export interface ReferencedObject<GameObjectType extends GameObject> {
+    cache: GameObjectCache<GameObjectType>,
+    id: Types.ObjectId,
+    gameObject?: GameObjectType
 }
 
 export default abstract class GameObject {
@@ -15,8 +22,10 @@ export default abstract class GameObject {
 
     // The set of field names that are used to access data within this object's document
     public static readonly fieldNames: {[fieldName: string]: string};
-
     public readonly fieldRestrictions: {[fieldName: string]: FieldRestriction} = {};
+
+    protected static readonly referenceNames: {[referenceName: string]: string};
+    protected readonly references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
 
     private modifiedSinceLastSave = false;
     private saveTimer: NodeJS.Timeout | undefined;
@@ -101,9 +110,50 @@ export default abstract class GameObject {
         this.document.set(fieldName, value);
     }
 
-    // Placeholder for optionally extensible field loader method
     public async loadFields(): Promise<void> {
-        return;
+        return new Promise((resolve, reject) => {
+            const references = Object.values(this.references);
+            if (references.length === 0) {
+                resolve();
+            }
+
+            let completed = 0;
+            for (const reference of references) {
+                reference.cache.fetchById(reference.id).then(gameObject => {
+                    reference.gameObject = gameObject;
+
+                    if (++completed >= references.length) {
+                        resolve();
+                    }
+                }).catch(error => {
+                    reject(error);
+                });
+            }
+        });
+    }
+
+    protected getReference<GameObjectType>(referenceName: string): GameObjectType {
+        if (!(referenceName in this.references)) {
+            throw new Error(stripIndent`
+                A reference field name that does not exist in a game object's references was attempted to be read.
+
+                Invalid reference field name: ${referenceName}
+                Game object: ${this.debugString}
+            `);
+        }
+
+        const reference = this.references[referenceName];
+
+        if (!reference.gameObject) {
+            throw new Error(stripIndent`
+                A game object's reference was attempted to be read before it was loaded.
+
+                Reference field name: ${referenceName}
+                Game object: ${this.debugString}
+            `);
+        }
+
+        return reference.gameObject as unknown as GameObjectType;
     }
 
     private async saveDocument(): Promise<void> {
