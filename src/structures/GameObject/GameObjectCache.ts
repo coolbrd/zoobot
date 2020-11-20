@@ -24,7 +24,13 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
     private cacheGet(gameObjectId: Types.ObjectId): CachedGameObject<GameObjectType> | undefined {
         const cacheKey = this.idToCacheKey(gameObjectId);
 
-        return this.cache.get(cacheKey);
+        const cachedGameObject = this.cache.get(cacheKey);
+
+        if (cachedGameObject) {
+            cachedGameObject.resetTimer();
+        }
+
+        return cachedGameObject;
     }
 
     private cacheSet(gameObject: GameObjectType): CachedGameObject<GameObjectType> {
