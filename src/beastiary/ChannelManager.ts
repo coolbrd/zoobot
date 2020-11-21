@@ -1,24 +1,18 @@
 import { stripIndent } from "common-tags";
-import { TextChannel } from "discord.js";
+import { APIMessage, TextChannel } from "discord.js";
 import { client } from "..";
 import { ADMIN_SERVER_ID, FEEDBACK_CHANNEL_ID } from "../config/secrets";
+import { betterSend } from "../discordUtility/messageMan";
+import SmartEmbed from "../discordUtility/SmartEmbed";
 
 export default class ChannelManager {
-    private _feedbackChannel: TextChannel | undefined;
+    public feedbackChannel: TextChannel | undefined;
 
     public async init(): Promise<void> {
         const adminGuild = client.guilds.resolve(ADMIN_SERVER_ID);
 
         if (!adminGuild) {
             return;
-        }
-
-        if (!adminGuild) {
-            throw new Error(stripIndent`
-                Could not find the admin server.
-
-                Id: ${ADMIN_SERVER_ID}
-            `);
         }
 
         const feedbackChannel = adminGuild.channels.resolve(FEEDBACK_CHANNEL_ID);
@@ -43,16 +37,23 @@ export default class ChannelManager {
             `);
         }
 
-        this._feedbackChannel = textChannel;
+        this.feedbackChannel = textChannel;
     }
 
-    public get feedbackChannel(): TextChannel {
-        if (!this._feedbackChannel) {
+    public sendFeedbackMessage(userTag: string, userAvatarUrl: string, content: string): void {
+        if (!this.feedbackChannel) {
             throw new Error(stripIndent`
-                The feedback channel was attempted to be accessed before it was loaded.
+                A feedback message was attempted to be sent in a channel manager that doesn't have access to the channel.
             `);
         }
 
-        return this._feedbackChannel;
+        const feedbackEmbed = new SmartEmbed();
+
+        feedbackEmbed.setAuthor(`Feedback from ${userTag}`, userAvatarUrl);
+        feedbackEmbed.setDescription(content);
+
+        const feedbackMessage = new APIMessage(this.feedbackChannel, { embed: feedbackEmbed });
+
+        betterSend(this.feedbackChannel, feedbackMessage);
     }
 }

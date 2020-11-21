@@ -1,10 +1,6 @@
 import { stripIndent } from "common-tags";
-import { APIMessage, TextChannel, User } from "discord.js";
 import { client } from "..";
-import { beastiary } from "../beastiary/Beastiary";
-import { ADMIN_SERVER_ID, FEEDBACK_CHANNEL_ID } from "../config/secrets";
 import { betterSend } from "../discordUtility/messageMan";
-import SmartEmbed from "../discordUtility/SmartEmbed";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
@@ -26,24 +22,21 @@ class FeedbackCommand extends Command {
         }
     ];
 
-    private createFeedbackMessage(parsedMessage: CommandParser): APIMessage {
-        const feedbackEmbed = new SmartEmbed();
-
-        feedbackEmbed.setAuthor(`Feedback from ${parsedMessage.sender.tag}`, parsedMessage.sender.avatarURL() || undefined);
-        feedbackEmbed.setDescription(parsedMessage.fullArguments);
-
-        return new APIMessage(beastiary.channels.feedbackChannel, { embed: feedbackEmbed });
-    }
-
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, "You have to include a message as your feedback!");
             return commandReceipt;
         }
 
-        const feedbackMessage = this.createFeedbackMessage(parsedMessage);
+        if (!client.shard) {
+            throw new Error(stripIndent`
+                Client shard value undefined.
+            `);
+        }
 
-        betterSend(beastiary.channels.feedbackChannel, feedbackMessage);
+        client.shard.broadcastEval(`
+            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", "${parsedMessage.fullArguments}");
+        `);
 
         betterSend(parsedMessage.channel, "Feedback sent!");
 

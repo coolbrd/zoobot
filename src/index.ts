@@ -116,9 +116,15 @@ client.on("message", (message: Message) => {
     });
 });
 
-client.on("error", error => console.error("Discord client error: ", error));
+client.on("feedbackmessage", (userTag: string, avatarUrl: string, content: string) => {
+    if (!beastiary.channels.feedbackChannel) {
+        return;
+    }
 
-client.login(DISCORD_TOKEN);
+    beastiary.channels.sendFeedbackMessage(userTag, avatarUrl, content);
+});
+
+client.on("error", error => console.error("Discord client error: ", error));
 
 client.on("exit", () => {
     beastiary.exit().then(() => {
@@ -131,6 +137,8 @@ client.on("exit", () => {
         `);
     });
 });
+
+client.login(DISCORD_TOKEN);
 
 export async function exit(): Promise<void> {
     client.destroy();
