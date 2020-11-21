@@ -10,6 +10,10 @@ export default class ChannelManager {
         const adminGuild = client.guilds.resolve(ADMIN_SERVER_ID);
 
         if (!adminGuild) {
+            return;
+        }
+
+        if (!adminGuild) {
             throw new Error(stripIndent`
                 Could not find the admin server.
 

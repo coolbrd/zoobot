@@ -158,4 +158,31 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
 
         return gameObject;
     }
+
+    public async dumpCache(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (this.cache.size === 0) {
+                resolve();
+            }
+
+            let completed = 0;
+            const originalSize = this.cache.size;
+
+            for (const cachedGameObject of this.cache.values()) {
+                this.removeFromCache(cachedGameObject.gameObject.id).then(() => {
+                    if (++completed >= originalSize) {
+                        resolve();
+                    }
+                }).catch(error => {
+                    reject(stripIndent`
+                        There was an error removing a game object from a cache during a cache dump operation.
+
+                        Game object id: ${cachedGameObject.gameObject.id}
+
+                        ${error}
+                    `);
+                });
+            }
+        });
+    }
 }

@@ -120,6 +120,18 @@ client.on("error", error => console.error("Discord client error: ", error));
 
 client.login(DISCORD_TOKEN);
 
+client.on("exit", () => {
+    beastiary.exit().then(() => {
+        console.log("Exit successful.");
+    }).catch(error => {
+        throw new Error(stripIndent`
+            There was an error performing Beastiary exit cleanup.
+
+            ${error}
+        `);
+    });
+});
+
 export async function exit(): Promise<void> {
     client.destroy();
 

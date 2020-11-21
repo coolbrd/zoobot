@@ -1,8 +1,8 @@
-import { exit } from "..";
+import { stripIndent } from "common-tags";
+import { client } from "..";
 import Command from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
-import { errorHandler } from "../structures/ErrorHandler";
 
 class ExitCommand extends Command {
     public readonly commandNames = ["exit"];
@@ -16,13 +16,15 @@ class ExitCommand extends Command {
     public async run(_parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         console.log("Exiting...");
 
-        try {
-            await exit();
+        if (!client.shard) {
+            throw new Error(stripIndent`
+                Client shard value undefined.
+            `);
         }
-        catch (error) {
-            errorHandler.handleError(error, "There was an error exiting the bot process in the exit command.");
-            return commandReceipt;
-        }
+
+        client.shard.broadcastEval(`
+            this.emit("exit");
+        `);
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;
