@@ -1,4 +1,5 @@
 import AnimalManager from "./AnimalManager";
+import ChannelManager from "./ChannelManager";
 import EncounterManager from "./EncounterManager";
 import PlayerGuildManager from "./PlayerGuildManager";
 import PlayerManager from "./PlayerManager";
@@ -13,5 +14,6 @@ class Beastiary {
     public readonly species = new SpeciesManager();
     public readonly encounters = new EncounterManager();
     public readonly resets = new ResetManager();
+    public readonly channels = new ChannelManager();
 }
 export const beastiary = new Beastiary();

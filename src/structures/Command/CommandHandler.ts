@@ -39,6 +39,7 @@ import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
 import SuppportServerInviteCommand from "../../commands/SuppportServerInviteCommand";
+import FeedbackCommand from "../../commands/FeedbackCommand";
 
 class CommandHandler {
     public readonly baseCommands = [
@@ -65,6 +66,7 @@ class CommandHandler {
         CommandListCommand,
         EditSpeciesCommand,
         SendPatreonLinkCommand,
+        FeedbackCommand,
         SuppportServerInviteCommand,
         SubmitSpeciesCommand,
         ApprovePendingSpeciesCommand,

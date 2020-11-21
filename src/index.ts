@@ -58,10 +58,18 @@ client.on("ready", () => {
 
     beastiary.players.init().then(() => {
         beastiary.species.init().then(() => {
-            console.log("Handlers initialized");
+            beastiary.channels.init().then(() => {
+                console.log("Handlers initialized");
 
-            preLoad.handlersInitialized = true;
-            complete();
+                preLoad.handlersInitialized = true;
+                complete();
+            }).catch(error => {
+                throw new Error(stripIndent`
+                    There was an error initializing the channel manager.
+
+                    ${error}
+                `);
+            });
         }).catch(error => {
             throw new Error(stripIndent`
                 There was an error initializing the species manager.
