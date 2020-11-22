@@ -30,7 +30,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
     embed.addField("Level", animal.level);
     embed.addField("Value", `${animal.value} scraps`);
 
-    const showToken = animal.owner.hasToken(animal.species.id);
+    const showToken = animal.owner.hasToken(animal.species);
     let tokenString = "*Unknown*";
     if (showToken) {
         tokenString = animal.species.token;

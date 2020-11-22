@@ -157,7 +157,7 @@ export class Animal extends GameObject {
     }
 
     private giveOwnerToken(): void {
-        this.owner.giveToken(this.species.id);
+        this.owner.giveToken(this.species);
     }
 
     public addExperienceInChannel(experience: number, channel: TextChannel): void {

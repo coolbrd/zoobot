@@ -306,8 +306,8 @@ export class Player extends GameObject {
         return this.lastXpBoostReset.valueOf() < beastiary.resets.lastXpBoostReset.valueOf();
     }
 
-    public hasToken(speciesId: Types.ObjectId): boolean {
-        return this.tokenSpeciesIds.includes(speciesId);
+    public hasToken(species: Species): boolean {
+        return this.tokenSpeciesIds.includes(species.id);
     }
 
     private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
@@ -372,17 +372,17 @@ export class Player extends GameObject {
         this.addIdToList(this.crewAnimalIds, animalId);
     }
 
-    public giveToken(speciesId: Types.ObjectId): void {
-        if (this.hasToken(speciesId)) {
+    public giveToken(species: Species): void {
+        if (this.hasToken(species)) {
             throw new Error(stripIndent`
                 Attempted to give a player a token they already owned.
 
                 Player: ${this.debugString}
-                Species id: ${speciesId}
+                Species id: ${species.id}
             `);
         }
 
-        this.addIdToList(this.tokenSpeciesIds, speciesId);
+        this.addIdToList(this.tokenSpeciesIds, species.id);
     }
 
     private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {

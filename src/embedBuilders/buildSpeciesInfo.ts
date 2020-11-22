@@ -23,7 +23,7 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
     embed.addField("More info", species.wikiPage, true);
 
     if (player) {
-        const showToken = player.hasToken(species.id);
+        const showToken = player.hasToken(species);
         let tokenString = "*Unknown*";
         if (showToken) {
             tokenString = species.token;
