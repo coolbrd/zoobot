@@ -72,6 +72,10 @@ export default abstract class Command {
         return helpString;
     }
 
+    public primaryName(): string {
+        return this.commandNames[0];
+    }
+
     protected async abstract run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt>;
 
     public async execute(parsedMessage: CommandParser): Promise<CommandReceipt> {
