@@ -36,6 +36,10 @@ export class Animal extends GameObject {
     }
 
     protected references = {
+        [this.referenceNames.owner]: {
+            cache: beastiary.players,
+            id: this.ownerId
+        },
         [this.referenceNames.species]: {
             cache: beastiary.species,
             id: this.speciesId
@@ -101,6 +105,10 @@ export class Animal extends GameObject {
         return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
     }
 
+    public get owner(): Player {
+        return this.getReference(this.referenceNames.owner);
+    }
+
     public get species(): Species {
         return this.getReference(this.referenceNames.species);
     }
@@ -114,10 +122,6 @@ export class Animal extends GameObject {
             return unknownCard;
         }
         return card;
-    }
-
-    public get owner(): Player {
-        return this.getReference(this.referenceNames.owner);
     }
 
     public get level(): number {
