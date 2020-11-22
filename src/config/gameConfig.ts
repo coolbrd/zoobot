@@ -1,4 +1,5 @@
 const gameConfig = {
+    dailyCurrencyPeriod: 22 * 60 * 1000,
     encounterPeriod: 2 * 60 * 1000,
     freeEncountersPerPeriod: 5,
     capturePeriod: 4 * 60 * 1000,

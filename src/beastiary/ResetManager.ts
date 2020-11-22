@@ -14,6 +14,14 @@ export default class ResetManager {
         return new Date(this.getLastResetByPeriod(period).valueOf() + period);
     }
 
+    public get lastDailyCurrencyReset(): Date {
+        return this.getLastResetByPeriod(gameConfig.dailyCurrencyPeriod);
+    }
+
+    public get nextDailyCurrencyReset(): Date {
+        return this.getNextResetByPeriod(gameConfig.dailyCurrencyPeriod);
+    }
+
     public get lastCaptureReset(): Date {
         return this.getLastResetByPeriod(gameConfig.capturePeriod);
     }

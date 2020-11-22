@@ -22,6 +22,7 @@ export class Player extends GameObject {
         collectionUpgradeLevel: "collectionUpgradeLevel",
         collectionAnimalIds: "collectionAnimalIds",
         crewAnimalIds: "crewAnimalIds",
+        lastDailyCurrencyReset: "lastDailyCurrencyReset",
         freeCapturesLeft: "freeCapturesLeft",
         extraCapturesLeft: "extraCapturesLeft",
         lastCaptureReset: "lastCaptureReset",
@@ -78,6 +79,7 @@ export class Player extends GameObject {
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
             [Player.fieldNames.scraps]: 0,
+            [Player.fieldNames.lastDailyCurrencyReset]: new Date(0),
             [Player.fieldNames.collectionUpgradeLevel]: 0,
             [Player.fieldNames.freeCapturesLeft]: 0,
             [Player.fieldNames.extraCapturesLeft]: 0,
@@ -132,6 +134,14 @@ export class Player extends GameObject {
 
     public get crewAnimalIds(): Types.ObjectId[] {
         return this.document.get(Player.fieldNames.crewAnimalIds);
+    }
+
+    public get lastDailyCurrencyReset(): Date {
+        return this.document.get(Player.fieldNames.lastDailyCurrencyReset);
+    }
+
+    public set lastDailyCurrencyReset(lastDailyCurrencyReset: Date) {
+        this.setDocumentField(Player.fieldNames.lastDailyCurrencyReset, lastDailyCurrencyReset);
     }
 
     public get freeCapturesLeft(): number {
@@ -258,6 +268,10 @@ export class Player extends GameObject {
 
     public get crewFull(): boolean {
         return this.crewAnimalIds.length >= gameConfig.maxCrewSize;
+    }
+
+    public get hasDailyCurrencyReset(): boolean {
+        return this.lastDailyCurrencyReset.valueOf() < beastiary.resets.lastDailyCurrencyReset.valueOf();
     }
 
     public get hasCaptureReset(): boolean {
@@ -426,6 +440,18 @@ export class Player extends GameObject {
 
     public removeAnimalIdsFromCrewPositional(positions: number[]): Types.ObjectId[] {
         return this.removeAnimalIdsFromListPositional(this.crewAnimalIds, positions);
+    }
+
+    public claimDailyCurrency(): void {
+        if (!this.hasDailyCurrencyReset) {
+            throw new Error(stripIndent`
+                A player somehow attempted to claim daily currency when they didn't have a reset available.
+
+                Player: ${this.debugString}
+            `);
+        }
+
+        this.lastDailyCurrencyReset = new Date();
     }
 
     private applyCaptureReset(): void {

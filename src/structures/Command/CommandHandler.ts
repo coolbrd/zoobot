@@ -40,6 +40,7 @@ import GiveXpCommand from "../../commands/GiveXpCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
 import SuppportServerInviteCommand from "../../commands/SuppportServerInviteCommand";
 import FeedbackCommand from "../../commands/FeedbackCommand";
+import DailyCurrencyCommand from "../../commands/DailyCurrencyCommand";
 
 class CommandHandler {
     public readonly baseCommands = [
@@ -52,6 +53,7 @@ class CommandHandler {
         AnimalInfoCommand,
         ChangeAnimalNicknameCommand,
         ViewScrapsCommand,
+        DailyCurrencyCommand,
         ShopCommand,
         CrewCommand,
         FavoriteAnimalCommand,

@@ -26,6 +26,10 @@ const playerSchema = new Schema({
         type: [Schema.Types.ObjectId],
         required: false
     },
+    [Player.fieldNames.lastDailyCurrencyReset]: {
+        type: Schema.Types.Date,
+        required: true
+    },
     [Player.fieldNames.freeCapturesLeft]: {
         type: Number,
         required: true
