@@ -41,16 +41,16 @@ import ViewTokensCommand from "../../commands/ViewTokensCommand";
 import SuppportServerInviteCommand from "../../commands/SuppportServerInviteCommand";
 import FeedbackCommand from "../../commands/FeedbackCommand";
 import DailyCurrencyCommand from "../../commands/DailyCurrencyCommand";
+import GameInfoCommand from "../../commands/GameInfoCommand";
 
 class CommandHandler {
     public readonly baseCommands = [
         HelpCommand,
+        GameInfoCommand,
         EncounterCommand,
         BeastiaryCommand,
-        SpeciesInfoCommand,
         ViewCollectionCommand,
         ViewPlayerProfileCommand,
-        AnimalInfoCommand,
         ChangeAnimalNicknameCommand,
         ViewScrapsCommand,
         DailyCurrencyCommand,
@@ -65,6 +65,8 @@ class CommandHandler {
         ViewResetsCommand,
         ViewTokensCommand,
         CommandAliasesCommand,
+        SpeciesInfoCommand,
+        AnimalInfoCommand,
         CommandListCommand,
         EditSpeciesCommand,
         SendPatreonLinkCommand,
