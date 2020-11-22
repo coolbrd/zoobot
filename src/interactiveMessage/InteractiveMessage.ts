@@ -429,7 +429,10 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     protected deactivate(): void {
-        if (this.sent && this.message.embeds.length > 0 && this.deactivationText) {
+        const hasButtons = this.buttons.size > 0;
+        const hasEmbed = this.message.embeds.length > 0;
+
+        if (hasButtons && this.deactivationText && this.sent && hasEmbed) {
             const embed = this.message.embeds[0];
             const currentFooter = embed.footer;
 
