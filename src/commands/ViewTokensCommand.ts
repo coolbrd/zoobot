@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { beastiary } from "../beastiary/Beastiary";
+import handleUserError from "../discordUtility/handleUserError";
 import TokenDisplayMessage from "../messages/TokenDisplayMessage";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
@@ -29,13 +30,8 @@ class ViewTokensCommand extends GuildCommand {
             player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in the token view command.
-
-                Parsed message: ${JSON.stringify(parsedMessage)}
-
-                ${error}
-            `);
+            handleUserError(parsedMessage.channel, error);
+            return commandReceipt;
         }
 
         const tokenMessage = new TokenDisplayMessage(parsedMessage.channel, player);
