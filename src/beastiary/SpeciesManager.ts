@@ -156,7 +156,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
 
         let matchingSpeciesDocuments: Document[];
         try {
-            matchingSpeciesDocuments = await SpeciesModel.find({ $text: { $search: searchTerm } });
+            matchingSpeciesDocuments = await SpeciesModel.find({ $text: { $search: `"${searchTerm}"` } });
         }
         catch (error) {
             throw new Error(stripIndent`
