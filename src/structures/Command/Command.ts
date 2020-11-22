@@ -72,7 +72,7 @@ export default abstract class Command {
         return helpString;
     }
 
-    public primaryName(): string {
+    public get primaryName(): string {
         return this.commandNames[0];
     }
 
