@@ -14,7 +14,7 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly helpUseString = "`<animal number or nickname>` to view information about that animal.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly section = CommandSection.info;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {

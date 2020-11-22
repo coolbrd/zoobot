@@ -16,7 +16,7 @@ class SpeciesInfoCommand extends Command {
 
     public readonly helpUseString = "`<species>` to view a species' traits and cards.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly section = CommandSection.info;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
