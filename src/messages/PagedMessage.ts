@@ -1,3 +1,4 @@
+import { stripIndent } from 'common-tags';
 import { DMChannel, TextChannel, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import loopValue from "../utility/loopValue";
@@ -50,7 +51,18 @@ export default abstract class PagedMessage<ElementType> extends InteractiveMessa
         return this.page * this.elementsPerPage;
     }
 
-    protected async buttonPress(buttonName: string, _user: User): Promise<void> {
+    protected async buttonPress(buttonName: string, user: User): Promise<void> {
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error performing a paged message's inherited button press behavior.
+
+                ${error}
+            `);
+        }
+
         switch (buttonName) {
             case "leftArrow": {
                 this.setPage(this.page - 1);
