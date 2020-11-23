@@ -26,7 +26,7 @@ export default abstract class Shop {
         }
 
         return this.items.find(currentItem => {
-            return currentItem.simpleName === itemString.toLowerCase();
+            return currentItem.simpleNames.includes(itemString.toLowerCase());
         });
     }
 

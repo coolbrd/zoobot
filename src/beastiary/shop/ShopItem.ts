@@ -1,7 +1,7 @@
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 export default abstract class ShopItem {
-    public abstract readonly simpleName: string;
+    public abstract readonly simpleNames: string[];
 
     public readonly canBuyMultiple: boolean = true;
 

@@ -1,18 +1,18 @@
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
-export default class EncounterItem extends ShopItem {
-    public readonly simpleNames = ["encounter", "e"];
+export default class XpBoostItem extends ShopItem {
+    public readonly simpleNames = ["xp boost", "xp", "xp booster"];
 
     public getName(_player: Player): string {
-        return "encounter";
+        return "xp boost";
     }
 
     public getPrice(_player: Player): number {
-        return 3;
+        return 5;
     }
 
     public purchaseAction(player: Player, quantity: number): void {
-        player.extraEncountersLeft += quantity;
+        player.extraXpBoostsLeft += quantity;
     }
 }

@@ -2,7 +2,7 @@ import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
 export default class CollectionExpander extends ShopItem {
-    public readonly simpleName = "collection expander";
+    public readonly simpleNames = ["collection expander", "expander", "collection"];
 
     public readonly canBuyMultiple = false;
 
