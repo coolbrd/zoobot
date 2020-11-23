@@ -10,6 +10,7 @@ import { remainingTimeString } from "../utility/timeStuff";
 import { commandHandler } from "../structures/Command/CommandHandler";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { stripIndent } from "common-tags";
+import gameConfig from "../config/gameConfig";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -99,6 +100,8 @@ export default class EncounterMessage extends InteractiveMessage {
         this.setDeactivationText("(caught)");
 
         player.captureAnimal();
+
+        player.awardCrewExperienceInChannel(gameConfig.xpPerCapture, this.channel);
 
         try {
             await beastiary.animals.createAnimal(player, this.species, this.card);

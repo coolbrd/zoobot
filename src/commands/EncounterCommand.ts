@@ -6,6 +6,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import gameConfig from "../config/gameConfig";
 
 class EncounterCommand extends GuildCommand {
     public readonly commandNames = ["encounter", "e"];
@@ -39,6 +40,8 @@ class EncounterCommand extends GuildCommand {
         }
 
         player.encounterAnimal();
+
+        player.awardCrewExperienceInChannel(gameConfig.xpPerEncounter, parsedMessage.channel);
 
         try {
             await beastiary.encounters.spawnAnimal(parsedMessage.channel);
