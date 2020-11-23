@@ -1,4 +1,4 @@
-import { Message, TextChannel } from "discord.js";
+import { Guild, Message, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import { SpeciesModel } from "../models/Species";
 import { Species } from "../structures/GameObject/GameObjects/Species";
@@ -8,6 +8,7 @@ import { beastiary } from "./Beastiary";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndent } from "common-tags";
+import gameConfig from "../config/gameConfig";
 
 interface RarityInfo {
     tier: number,
@@ -17,6 +18,8 @@ interface RarityInfo {
 export default class EncounterManager {
     private rarityMap: Map<Types.ObjectId, number> = new Map();
     private sortedRarityList: number[] = [];
+
+    private readonly guildsOnRandomEncounterCooldown = new Set<string>();
 
     public getTotalRarityWeight(): number {
         let totalRarityWeight = 0;
@@ -110,63 +113,102 @@ export default class EncounterManager {
         }
     }
 
-    public async handleMessage(message: Message): Promise<void> {
-        if (!message.guild || message.author.bot) {
-            return;
+    private async fetchGuildEncounterChannel(guild: Guild): Promise<TextChannel | undefined> {
+        let playerGuild: PlayerGuild;
+        try {
+            playerGuild = await beastiary.playerGuilds.fetchByGuildId(guild.id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a guild by its id.
+
+                Guild id: ${guild.id}
+                
+                ${error}
+            `);
         }
 
-        const spawnChance = Math.random();
-        if (spawnChance < 0.1) {
-            let playerGuild: PlayerGuild;
+        const encounterGuildChannel = playerGuild.encounterGuildChannel;
+
+        let encounterChannel: TextChannel;
+        if (encounterGuildChannel) {
             try {
-                playerGuild = await beastiary.playerGuilds.fetchByGuildId(message.guild.id);
+                encounterChannel = await encounterGuildChannel.fetch() as TextChannel;
             }
             catch (error) {
                 throw new Error(stripIndent`
-                    There was an error fetching a guild by its id.
+                    There was an error fetching a text channel from its guild channel.
 
-                    Message: ${JSON.stringify(message)}
+                    Encounter guild channel: ${JSON.stringify(encounterGuildChannel)}
+                    
+                    ${error}
+                `);
+            }
+        }
+        else {
+            let potentialEncounterChannel: TextChannel | undefined
+            try {
+                potentialEncounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error getting the first available text channel in a guild before spawning an animal.
+
+                    Guild: ${JSON.stringify(playerGuild.guild)}
                     
                     ${error}
                 `);
             }
 
-            let encounterChannel: TextChannel;
-            const encounterGuildChannel = playerGuild.encounterGuildChannel;
-            if (encounterGuildChannel) {
-                try {
-                    encounterChannel = await encounterGuildChannel.fetch() as TextChannel;
-                }
-                catch (error) {
-                    throw new Error(stripIndent`
-                        There was an error fetching a text channel from its guild channel.
-
-                        Encounter guild channel: ${JSON.stringify(encounterGuildChannel)}
-                        
-                        ${error}
-                    `);
-                }
+            if (!potentialEncounterChannel) {
+                return;
             }
-            else {
-                let potentialEncounterChannel: TextChannel | undefined
-                try {
-                    potentialEncounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
-                }
-                catch (error) {
-                    throw new Error(stripIndent`
-                        There was an error getting the first available text channel in a guild before spawning an animal.
 
-                        Guild: ${JSON.stringify(playerGuild.guild)}
-                        
-                        ${error}
-                    `);
-                }
+            encounterChannel = potentialEncounterChannel;
+        }
 
-                if (!potentialEncounterChannel) {
-                    return;
-                }
+        return encounterChannel;
+    }
 
-                encounterChannel = potentialEncounterChannel;
+    private applyGuildRandomEncounterCooldown(guild: Guild): void {
+        this.guildsOnRandomEncounterCooldown.add(guild.id);
+
+        setTimeout(() => {
+            this.guildsOnRandomEncounterCooldown.delete(guild.id);
+        }, gameConfig.randomEncounterGuildCooldown);
+    }
+
+    public async handleMessage(message: Message): Promise<void> {
+        if (!message.guild || message.author.bot) {
+            return;
+        }
+
+        const guildId = message.guild.id;
+        const guildOnCooldown = this.guildsOnRandomEncounterCooldown.has(guildId);
+
+        if (guildOnCooldown) {
+            return;
+        }
+
+        const spawnChance = Math.random();
+
+        if (spawnChance < gameConfig.randomEncounterChanceOnMessage) {
+            let encounterChannel: TextChannel | undefined;
+            try {
+                encounterChannel = await this.fetchGuildEncounterChannel(message.guild);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching a guild's random encounter channel.
+
+                    Guild id: ${message.guild.id}
+
+                    ${error}
+                `);
+            }
+
+            if (!encounterChannel) {
+                return;
             }
 
             try {
@@ -181,6 +223,8 @@ export default class EncounterManager {
                     ${error}
                 `);
             }
+
+            this.applyGuildRandomEncounterCooldown(message.guild);
         }
     }
     
