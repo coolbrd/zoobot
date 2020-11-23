@@ -125,7 +125,7 @@ export class Animal extends GameObject {
     }
 
     public get level(): number {
-        return Math.ceil(Math.max(0, Math.log2(this.experience / 25))) + 1;
+        return Math.ceil(Math.max(0, Math.log2(this.experience / 50))) + 1;
     }
 
     public playerIsOwner(player: Player): boolean {
