@@ -14,6 +14,20 @@ export default class ResetManager {
         return new Date(this.getLastResetByPeriod(period).valueOf() + period);
     }
 
+    public getPeriodsSinceLastReset(lastReset: Date, lastGlobalReset: Date, period: number): number {
+        const lastResetMS = lastReset.valueOf();
+        const globalLastResetMS = lastGlobalReset.valueOf();
+
+        if (lastResetMS >= globalLastResetMS) {
+            return 0;
+        }
+
+        const timeSinceLastResetMS = globalLastResetMS - lastResetMS;
+        const periodsPassedSinceLastReset = Math.ceil(timeSinceLastResetMS / period);
+
+        return periodsPassedSinceLastReset;
+    }
+
     public get lastDailyCurrencyReset(): Date {
         return this.getLastResetByPeriod(gameConfig.dailyCurrencyPeriod);
     }
@@ -23,26 +37,26 @@ export default class ResetManager {
     }
 
     public get lastCaptureReset(): Date {
-        return this.getLastResetByPeriod(gameConfig.capturePeriod);
+        return this.getLastResetByPeriod(gameConfig.freeCapturePeriod);
     }
 
     public get nextCaptureReset(): Date {
-        return this.getNextResetByPeriod(gameConfig.capturePeriod);
+        return this.getNextResetByPeriod(gameConfig.freeCapturePeriod);
     }
 
     public get lastEncounterReset(): Date {
-        return this.getLastResetByPeriod(gameConfig.encounterPeriod);
+        return this.getLastResetByPeriod(gameConfig.freeEncounterPeriod);
     }
 
     public get nextEncounterReset(): Date {
-        return this.getNextResetByPeriod(gameConfig.encounterPeriod)
+        return this.getNextResetByPeriod(gameConfig.freeEncounterPeriod)
     }
 
     public get lastXpBoostReset(): Date {
-        return this.getLastResetByPeriod(gameConfig.xpBoostPeriod);
+        return this.getLastResetByPeriod(gameConfig.freeXpBoostPeriod);
     }
 
     public get nextXpBoostReset(): Date {
-        return this.getNextResetByPeriod(gameConfig.xpBoostPeriod);
+        return this.getNextResetByPeriod(gameConfig.freeXpBoostPeriod);
     }
 }

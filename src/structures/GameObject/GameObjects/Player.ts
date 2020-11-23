@@ -178,10 +178,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalCaptures, totalCaptures);
     }
 
+    private get freeEncountersLeftNoReset(): number {
+        return this.document.get(Player.fieldNames.freeEncountersLeft);
+    }
+
     public get freeEncountersLeft(): number {
         this.applyEncounterReset();
 
-        return this.document.get(Player.fieldNames.freeEncountersLeft);
+        return this.freeEncountersLeftNoReset;
     }
 
     public set freeEncountersLeft(freeEncountersLeft: number) {
@@ -212,10 +216,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
+    private get freeXpBoostsLeftNoReset(): number {
+        return this.document.get(Player.fieldNames.freeXpBoostsLeft);
+    }
+
     public get freeXpBoostsLeft(): number {
         this.applyXpBoostReset();
 
-        return this.document.get(Player.fieldNames.freeXpBoostsLeft);
+        return this.freeXpBoostsLeftNoReset;
     }
 
     public set freeXpBoostsLeft(freeXpBoostsLeft: number) {
@@ -290,8 +298,12 @@ export class Player extends GameObject {
         return this.encountersLeft > 0;
     }
 
+    public get periodsSinceLastEncounterReset(): number {
+        return beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, beastiary.resets.lastEncounterReset, gameConfig.freeEncounterPeriod);
+    }
+
     public get hasEncounterReset(): boolean {
-        return this.lastEncounterReset.valueOf() < beastiary.resets.lastEncounterReset.valueOf();
+        return this.periodsSinceLastEncounterReset > 0;
     }
 
     public get xpBoostsLeft(): number {
@@ -302,8 +314,12 @@ export class Player extends GameObject {
         return this.xpBoostsLeft > 0;
     }
 
+    public get periodsSinceLastXpBoostReset(): number {
+        return beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, beastiary.resets.lastXpBoostReset, gameConfig.freeXpBoostPeriod);
+    }
+
     public get hasXpBoostReset(): boolean {
-        return this.lastXpBoostReset.valueOf() < beastiary.resets.lastXpBoostReset.valueOf();
+        return this.periodsSinceLastXpBoostReset > 0;
     }
 
     public hasToken(species: Species): boolean {
@@ -499,8 +515,13 @@ export class Player extends GameObject {
     }
 
     private applyEncounterReset(): void {
-        if (this.hasEncounterReset) {
-            this.freeEncountersLeft = gameConfig.freeEncountersPerPeriod;
+        const freePeriodsPassed = this.periodsSinceLastEncounterReset;
+
+        if (freePeriodsPassed > 0) {
+            const encountersToAdd = freePeriodsPassed * gameConfig.freeEncountersPerPeriod;
+
+            this.freeEncountersLeft = Math.min(this.freeEncountersLeftNoReset + encountersToAdd, gameConfig.freeEncounterMaxStack);
+
             this.lastEncounterReset = new Date();
         }
     }
@@ -535,8 +556,13 @@ export class Player extends GameObject {
     }
 
     public applyXpBoostReset(): void {
-        if (this.hasXpBoostReset) {
-            this.freeXpBoostsLeft = gameConfig.xpBoostsPerPeriod;
+        const freePeriodsPassed = this.periodsSinceLastXpBoostReset;
+        
+        if (freePeriodsPassed > 0) {
+            const xpBoostsToAdd = freePeriodsPassed * gameConfig.freeXpBoostsPerPeriod;
+
+            this.freeXpBoostsLeft = Math.min(this.freeXpBoostsLeftNoReset + xpBoostsToAdd, gameConfig.freeXpBoostMaxStack);
+
             this.lastXpBoostReset = new Date();
         }
     }
