@@ -266,7 +266,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
 
         try {
-            await player.awardCrewExperienceInChannel(gameConfig.experiencePerMessage, message.channel);
+            await player.awardCrewExperienceInChannel(gameConfig.xpPerMessage, message.channel);
         }
         catch (error) {
             throw new Error(stripIndent`

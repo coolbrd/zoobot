@@ -12,7 +12,7 @@ const gameConfig = {
     freeXpBoostsPerPeriod: 1,
     freeXpBoostMaxStack: 3,
     xpPerBoost: 25,
-    experiencePerMessage: 1,
+    xpPerMessage: 1,
     maxCrewSize: 2,
     animalCacheTimeout: 120000,
     playerGuildCacheTimeout: 180000,
