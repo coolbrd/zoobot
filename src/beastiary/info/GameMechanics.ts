@@ -55,11 +55,11 @@ const mechanics: GameMechanicInfo[] = [
     {
         names: ["experience", "xp", "leveling"],
         info: oneLine`
-            Experience is the main way to distinguish how much cooler your animals are compared to everybody else's. Starting at level 1,
-            you can start gaining experience for your animals by adding them to your crew, which gives them some experience when you do
-            things in your server! Each animal in your crew gets a little xp for every message you send in the server, and even more xp
-            when you do things like using encounters or captures. You also get some free xp boosts every 3 hours, which you can give to 
-            any of your animals with \`${GiveXpCommand.primaryName}\`.
+            Experience is the main way to distinguish how much cooler your animals are compared to everybody else's, and the way towards
+            earning an animal's token. Starting at level 1, you can start gaining experience for your animals by adding them to your crew,
+            which gives them some experience when you do things in your server! Each animal in your crew gets a little xp for every
+            message you send in the server, and even more xp when you do things like using encounters or captures. You also get some free
+            xp boosts every 3 hours, which you can give to any of your animals with \`${GiveXpCommand.primaryName}\`.
         `
     },
     {
