@@ -7,7 +7,7 @@ const gameConfig = {
     freeEncounterMaxStack: 5,
     freeCapturePeriod: 4 * 60 * 1000,
     freeCapturesPerPeriod: 1,
-    tokenDropChance: 1000,
+    tokenDropChance: 5000,
     freeXpBoostPeriod: 1 * 60 * 1000,
     freeXpBoostsPerPeriod: 1,
     freeXpBoostMaxStack: 3,
