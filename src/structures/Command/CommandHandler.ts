@@ -201,11 +201,13 @@ class CommandHandler {
     private getMessagePrefixUsed(message: Message): string | undefined {
         const normalPrefix = this.getDisplayPrefixByMessage(message);
 
-        if (message.content.startsWith(normalPrefix)) {
+        const messageContent = message.content.toLowerCase();
+
+        if (messageContent.startsWith(normalPrefix)) {
             return normalPrefix;
         }
 
-        if (message.content.startsWith(this.botTag)) {
+        if (messageContent.startsWith(this.botTag)) {
             return this.botTag;
         }
 
