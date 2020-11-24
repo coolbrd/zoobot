@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
@@ -18,8 +19,8 @@ export default class EDocMessage extends InteractiveMessage {
     // Exists so multiple input prompts can't exist at once
     private takingInput = false;
 
-    constructor(channel: TextChannel | DMChannel, eDoc: EDoc, docName?: string) {
-        super(channel);
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, eDoc: EDoc, docName?: string) {
+        super(channel, beastiaryClient);
 
         this.addButtons([
             {

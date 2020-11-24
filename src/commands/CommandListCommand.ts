@@ -1,8 +1,8 @@
 import { APIMessage } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import Command, { CommandSection } from "../structures/Command/Command";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
@@ -16,7 +16,7 @@ class CommandListCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let infoCommandString = "";
         let gettingStartedString = "";
         let playerInfoString = "";
@@ -24,7 +24,7 @@ class CommandListCommand extends Command {
         let guildManagementString = "";
         let getInvolvedString = "";
         
-        for (const command of commandHandler.baseCommands) {
+        for (const command of beastiaryClient.commandHandler.baseCommands) {
             if (!command.adminOnly) {
                 const infoString = `\`${command.commandNames[0]}\`: ${command.info}\n`;
                 switch (command.section) {
@@ -66,7 +66,7 @@ class CommandListCommand extends Command {
         embed.addField("Animal management", animalManagementString, true);
         embed.addField("Server management", guildManagementString, true);
         embed.addField("Get involved!", getInvolvedString, true);
-        embed.setFooter(`Prefix commands with "${commandHandler.getDisplayPrefixByMessage(parsedMessage.originalMessage)}", or by pinging me!`);
+        embed.setFooter(`Prefix commands with "${beastiaryClient.commandHandler.getDisplayPrefixByMessage(parsedMessage.originalMessage)}", or by pinging me!`);
         embed.setColor(0x18476b);
         
         betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: embed }));

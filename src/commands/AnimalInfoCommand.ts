@@ -1,4 +1,3 @@
-import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import AnimalInfoMessage from "../messages/AnimalInfoMessage";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
@@ -6,6 +5,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class AnimalInfoCommand extends GuildCommand {
     public readonly commandNames = ["animalinfo", "ai", "stats"];
@@ -16,7 +16,7 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -26,7 +26,7 @@ class AnimalInfoCommand extends GuildCommand {
 
         let animalObject: Animal | undefined;
         try {
-            animalObject = await beastiary.animals.searchAnimal(animalIdentifier, {
+            animalObject = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.guild.id,
                 userId: parsedMessage.sender.id,
                 searchList: "collection"
@@ -47,7 +47,7 @@ class AnimalInfoCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const infoMessage = new AnimalInfoMessage(parsedMessage.channel, animalObject);
+        const infoMessage = new AnimalInfoMessage(parsedMessage.channel, beastiaryClient, animalObject);
         
         try {
             await infoMessage.send();

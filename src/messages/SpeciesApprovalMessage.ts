@@ -1,15 +1,15 @@
 import { DMChannel, TextChannel, User } from "discord.js";
-import { client } from "..";
 import PendingSpecies from "../structures/GameObject/GameObjects/PendingSpecies";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { EDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "./EDocMessage";
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpecies;
 
-    constructor(channel: TextChannel | DMChannel, pendingSpeciesObject: PendingSpecies) {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, pendingSpeciesObject: PendingSpecies) {
         const eDoc = new EDoc({
             [Species.fieldNames.commonNames]: {
                 type: [{
@@ -143,13 +143,13 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         eDoc.setField(Species.fieldNames.naturalHabitat, pendingSpeciesObject.naturalHabitat);
         eDoc.setField(Species.fieldNames.wikiPage, pendingSpeciesObject.wikiPage);
 
-        const authorUser = client.users.resolve(pendingSpeciesObject.authorId);
+        const authorUser = beastiaryClient.discordClient.users.resolve(pendingSpeciesObject.authorId);
         let docName = "Submission";
         if (authorUser) {
             docName += ` by ${authorUser.tag}`;
         }
 
-        super(channel, eDoc, docName);
+        super(channel, beastiaryClient, eDoc, docName);
 
         this.pendingSpeciesObject = pendingSpeciesObject;
 

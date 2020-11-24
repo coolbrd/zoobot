@@ -1,5 +1,6 @@
 import { stripIndents } from "common-tags";
 import mechanics from "../beastiary/info/GameMechanics";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import Command, { CommandArgumentInfo, CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -22,7 +23,7 @@ class GameInfoCommand extends Command {
         }
     ];
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length === 0) {
             const gameMechanicNames: string[] = [];
             mechanics.forEach(mechanic => {

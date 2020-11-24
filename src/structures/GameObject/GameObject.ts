@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import gameConfig from "../../config/gameConfig";
 import GameObjectCache from "./GameObjectCache";
 
@@ -17,6 +18,8 @@ export default abstract class GameObject {
     // The model in which the game object's representative documents are found
     public readonly abstract model: Model<Document>;
 
+    protected readonly beastiaryClient: BeastiaryClient;
+
     protected readonly document: Document;
     public readonly id: Types.ObjectId;
 
@@ -25,13 +28,14 @@ export default abstract class GameObject {
     public readonly fieldRestrictions: {[fieldName: string]: FieldRestriction} = {};
 
     protected static readonly referenceNames: {[referenceName: string]: string};
-    protected readonly references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
+    protected references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
 
     private modifiedSinceLastSave = false;
     private saveTimer: NodeJS.Timeout | undefined;
     private saveDelay = gameConfig.gameObjectSaveDelay;
 
-    constructor(document: Document) {
+    constructor(document: Document, beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
         this.document = document;
         this.id = document._id;
     }

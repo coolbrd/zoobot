@@ -4,9 +4,9 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommonNameTemplate, Species, SpeciesCardTemplate } from "../structures/GameObject/GameObjects/Species";
 import SpeciesEditMessage from "../messages/SpeciesEditMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
-import { beastiary } from "../beastiary/Beastiary";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class EditSpeciesCommand extends Command {
     public readonly commandNames = ["edit", "editspecies"];
@@ -17,7 +17,7 @@ class EditSpeciesCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -27,7 +27,7 @@ class EditSpeciesCommand extends Command {
 
         let potentialSpecies: Species | undefined;
         try {
-            potentialSpecies = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
+            potentialSpecies = await beastiaryClient.beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -46,7 +46,7 @@ class EditSpeciesCommand extends Command {
 
         const species = potentialSpecies;
 
-        const editMessage = new SpeciesEditMessage(parsedMessage.channel, potentialSpecies);
+        const editMessage = new SpeciesEditMessage(parsedMessage.channel, beastiaryClient, potentialSpecies);
         try {
             await editMessage.send();
         }
@@ -81,7 +81,7 @@ class EditSpeciesCommand extends Command {
             species.save().then(() => {
                 betterSend(parsedMessage.channel, "Edit successful.");
 
-                beastiary.species.refreshSpecies().catch(error => {
+                beastiaryClient.beastiary.species.refreshSpecies().catch(error => {
                     throw new Error(stripIndent`
                         There was an error reloading the species rarity table after adding a new species.
                         

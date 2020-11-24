@@ -6,7 +6,7 @@ import PointedMessage from './PointedMessage';
 import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -17,8 +17,8 @@ export enum AnimalDisplayMessageState {
 export default abstract class AnimalDisplayMessage extends PointedMessage<LoadableGameObject<Animal>> {
     protected state: AnimalDisplayMessageState;
 
-    constructor(channel: TextChannel, loadableAnimals: LoadableGameObject<Animal>[]) {
-        super(channel);
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, loadableAnimals: LoadableGameObject<Animal>[]) {
+        super(channel, beastiaryClient);
 
         this.state = AnimalDisplayMessageState.page;
 
@@ -69,7 +69,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             case AnimalDisplayMessageState.page: {
                 embed.setThumbnail(selectedAnimal.card.url);
 
-                const animalRarity = beastiary.encounters.getRarityInfo(selectedAnimal.species.rarity);
+                const animalRarity = this.beastiaryClient.beastiary.encounters.getRarityInfo(selectedAnimal.species.rarity);
 
                 embed.setColor(animalRarity.color);
 
@@ -106,11 +106,11 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
                 break;
             }
             case AnimalDisplayMessageState.info: {
-                buildAnimalInfo(embed, selectedAnimal);
+                buildAnimalInfo(embed, selectedAnimal, this.beastiaryClient);
                 break;
             }
             case AnimalDisplayMessageState.card: {
-                buildAnimalCard(embed, selectedAnimal);
+                buildAnimalCard(embed, selectedAnimal, this.beastiaryClient);
                 break;
             }
         }

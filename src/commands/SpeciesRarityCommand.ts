@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import SpeciesRarityMessage from '../messages/SpeciesRarityMessage';
 import Command from '../structures/Command/Command';
 import CommandParser from '../structures/Command/CommandParser';
@@ -13,8 +14,8 @@ class SpeciesRarityCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
-        const rarityMessage = new SpeciesRarityMessage(parsedMessage.channel);
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const rarityMessage = new SpeciesRarityMessage(parsedMessage.channel, beastiaryClient);
 
         try {
             await rarityMessage.send();

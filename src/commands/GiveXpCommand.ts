@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -26,7 +26,7 @@ class GiveXpCommand extends GuildCommand {
         }
     ];
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -36,7 +36,7 @@ class GiveXpCommand extends GuildCommand {
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -47,13 +47,13 @@ class GiveXpCommand extends GuildCommand {
         }
 
         if (player.xpBoostsLeft <= 0) {
-            betterSend(parsedMessage.channel, `You don't have any xp boosts left. Next xp boost reset: **${remainingTimeString(beastiary.resets.nextXpBoostReset)}**`);
+            betterSend(parsedMessage.channel, `You don't have any xp boosts left. Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**`);
             return commandReceipt;
         }
 
         let animal: Animal | undefined;
         try {
-            animal = await beastiary.animals.searchAnimal(animalIdentifier, {
+            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
                 playerObject: player,
                 searchList: "collection"
             });

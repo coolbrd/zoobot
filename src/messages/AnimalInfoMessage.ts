@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel, User } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
@@ -14,8 +15,8 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     private _ownerUser: User | undefined;
     private cardMode = false;
 
-    constructor(channel: TextChannel, animalObject: Animal) {
-        super(channel);
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animalObject: Animal) {
+        super(channel, beastiaryClient);
 
         this.addButtons([
             {
@@ -58,7 +59,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             `);
         }
 
-        this.ownerUser = getGuildMember(this.animalObject.userId, this.animalObject.guildId).user;
+        this.ownerUser = getGuildMember(this.animalObject.userId, this.animalObject.guildId, this.beastiaryClient).user;
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
@@ -68,10 +69,10 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         embed.setAuthor(`Belongs to ${this.ownerUser.username}`, userAvatar);
         
         if (!this.cardMode) {
-            buildAnimalInfo(embed, this.animalObject);
+            buildAnimalInfo(embed, this.animalObject, this.beastiaryClient);
         }
         else {
-            buildAnimalCard(embed, this.animalObject);
+            buildAnimalCard(embed, this.animalObject, this.beastiaryClient);
         }
 
         embed.setFooter(this.getButtonHelpString());

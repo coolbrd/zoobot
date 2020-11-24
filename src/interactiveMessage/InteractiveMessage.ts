@@ -1,8 +1,8 @@
 import { EventEmitter } from "events";
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
 import { betterSend } from "../discordUtility/messageMan";
-import { interactiveMessageHandler } from "./InteractiveMessageHandler";
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 interface EmojiButton {
     emoji: string,
@@ -13,6 +13,8 @@ interface EmojiButton {
 
 // A message with pressable reaction buttons
 export default abstract class InteractiveMessage extends EventEmitter {
+    protected readonly beastiaryClient: BeastiaryClient;
+
     // The number of milliseconds that this message will be active for
     // This number is used as an inactivity cooldown that gets reset on each button press by default
     protected readonly abstract lifetime: number;
@@ -37,8 +39,10 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private _deactivated = false;
 
-    constructor(channel: TextChannel | DMChannel) {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient) {
         super();
+
+        this.beastiaryClient = beastiaryClient;
 
         this.channel = channel;
     }
@@ -185,7 +189,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
         this.setMessage(message);
 
-        interactiveMessageHandler.addMessage(this);
+        this.beastiaryClient.interactiveMessageHandler.addMessage(this);
 
         for (const button of this.buttons.values()) {
             this.message.react(button.emoji).catch(error => {
@@ -455,7 +459,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             clearTimeout(this.timer);
         }
 
-        interactiveMessageHandler.removeMessage(this);
+        this.beastiaryClient.interactiveMessageHandler.removeMessage(this);
 
         this.removeAllListeners();
     }

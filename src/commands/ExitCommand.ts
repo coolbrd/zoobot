@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { client } from "..";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import Command from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
@@ -13,16 +13,16 @@ class ExitCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(_parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(_parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         console.log("Exiting...");
 
-        if (!client.shard) {
+        if (!beastiaryClient.discordClient.shard) {
             throw new Error(stripIndent`
                 Client shard value undefined.
             `);
         }
 
-        client.shard.broadcastEval(`
+        beastiaryClient.discordClient.shard.broadcastEval(`
             this.emit("exit");
         `);
 

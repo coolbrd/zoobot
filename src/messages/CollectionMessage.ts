@@ -1,8 +1,8 @@
 import { TextChannel, MessageEmbed, User } from "discord.js";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import AnimalDisplayMessage, { AnimalDisplayMessageState } from "./AnimalDisplayMessage";
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 90000;
@@ -12,8 +12,8 @@ export default class CollectionMessage extends AnimalDisplayMessage {
     private readonly player: Player;
     public readonly channel: TextChannel;
 
-    constructor(channel: TextChannel, player: Player) {
-        super(channel, player.getCollectionAsLoadableAnimals());
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player) {
+        super(channel, beastiaryClient, player.getCollectionAsLoadableAnimals());
 
         this.player = player;
         this.channel = channel;
@@ -64,7 +64,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         embed.setFooter(`${collection.length} in collection (max ${this.player.collectionSizeLimit})\n${this.getButtonHelpString()}`);
 
         if (collection.length < 1) {
-            embed.setDescription(`It's empty in here. Try catching an animal with \`${commandHandler.getPrefixByGuild(this.channel.guild)}encounter\`!`);
+            embed.setDescription(`It's empty in here. Try catching an animal with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}encounter\`!`);
             return embed;
         }
 

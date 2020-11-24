@@ -1,3 +1,4 @@
+import BeastiaryClient from "../bot/BeastiaryClient";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -13,7 +14,7 @@ class SupportServerInviteCommand extends GuildCommand {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         betterSend(parsedMessage.channel, gameConfig.supportServerInviteLink);
 
         return commandReceipt;

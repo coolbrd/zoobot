@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../../beastiary/Beastiary";
 import { ShopReceipt } from "../../beastiary/shop/Shop";
 import itemShop from "../../beastiary/shop/shops/ItemShop";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import handleUserError from "../../discordUtility/handleUserError";
 import { betterSend } from "../../discordUtility/messageMan";
 import { CommandArgumentInfo, GuildCommand } from "../../structures/Command/Command";
@@ -27,7 +27,7 @@ class ShopBuySubCommand extends GuildCommand {
         }
     ];
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length === 0) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -47,7 +47,7 @@ class ShopBuySubCommand extends GuildCommand {
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`

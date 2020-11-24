@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
@@ -15,8 +16,8 @@ export default class TokenDisplayMessage extends PagedMessage<LoadableCacheableG
 
     private readonly player: Player;
 
-    constructor(channel: TextChannel, player: Player) {
-        super(channel);
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player) {
+        super(channel, beastiaryClient);
 
         this.player = player;
         this.elements = player.getTokenLoadableSpecies();

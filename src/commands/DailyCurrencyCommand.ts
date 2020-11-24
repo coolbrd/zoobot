@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
@@ -18,10 +18,10 @@ class DailyCurrencyCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -34,7 +34,7 @@ class DailyCurrencyCommand extends GuildCommand {
         }
 
         if (!player.hasDailyCurrencyReset) {
-            betterSend(parsedMessage.channel, `You've already claimed your daily currency today. Next reset: **${remainingTimeString(beastiary.resets.nextDailyCurrencyReset)}**`);
+            betterSend(parsedMessage.channel, `You've already claimed your daily currency today. Next reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextDailyCurrencyReset)}**`);
             return commandReceipt;
         }
 

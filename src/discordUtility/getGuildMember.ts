@@ -1,9 +1,9 @@
 import { stripIndent } from "common-tags";
 import { UserResolvable, GuildResolvable, GuildMember } from "discord.js";
-import { client } from "..";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
-export default function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable): GuildMember {
-    const user = client.users.resolve(userResolvable);
+export default function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable, beastiaryClient: BeastiaryClient): GuildMember {
+    const user = beastiaryClient.discordClient.users.resolve(userResolvable);
     if (!user) {
         throw new Error(stripIndent`
             getGuildMember was given a UserResolvable that couldn't be resolved.
@@ -12,7 +12,7 @@ export default function getGuildMember(userResolvable: UserResolvable, guildReso
         `);
     }
 
-    const guild = client.guilds.resolve(guildResolvable);
+    const guild = beastiaryClient.discordClient.guilds.resolve(guildResolvable);
     if (!guild) {
         throw new Error(stripIndent`
             getGuildMember was given a GuildResolvable that couldn't be resolved.

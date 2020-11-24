@@ -3,8 +3,8 @@ import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import { beastiary } from "../beastiary/Beastiary";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class MoveAnimalsCommand extends GuildCommand {
     public readonly commandNames = ["moveanimals", "ma"];
@@ -29,7 +29,7 @@ class MoveAnimalsCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -37,7 +37,7 @@ class MoveAnimalsCommand extends GuildCommand {
 
         let playerObject: Player;
         try {
-            playerObject = await beastiary.players.fetch(parsedMessage.member);
+            playerObject = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`

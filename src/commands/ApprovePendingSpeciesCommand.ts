@@ -7,10 +7,10 @@ import { betterSend } from "../discordUtility/messageMan";
 import { SpeciesModel } from "../models/Species";
 import SpeciesApprovalMessage from "../messages/SpeciesApprovalMessage";
 import { SimpleEDoc } from "../structures/eDoc/EDoc";
-import { beastiary } from '../beastiary/Beastiary';
 import { commonNamesToLowerArray, CommonNameTemplate } from '../structures/GameObject/GameObjects/Species';
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ApprovePendingSpeciesCommand extends Command {
     public readonly commandNames = ["approve", "approvespecies"];
@@ -21,7 +21,7 @@ class ApprovePendingSpeciesCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
 
         if (!fullSearchTerm) {
@@ -48,9 +48,9 @@ class ApprovePendingSpeciesCommand extends Command {
             return commandReceipt;
         }
 
-        const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument);
+        const pendingSpeciesObject = new PendingSpecies(pendingSpeciesDocument, beastiaryClient);
 
-        const approvalMessage = new SpeciesApprovalMessage(parsedMessage.channel, pendingSpeciesObject);
+        const approvalMessage = new SpeciesApprovalMessage(parsedMessage.channel, beastiaryClient, pendingSpeciesObject);
 
         try {
             await approvalMessage.send();
@@ -88,7 +88,7 @@ class ApprovePendingSpeciesCommand extends Command {
             speciesDocument.save().then(() => {
                 betterSend(parsedMessage.channel, "Species approved.");
 
-                beastiary.species.refreshSpecies().catch(error => {
+                beastiaryClient.beastiary.species.refreshSpecies().catch(error => {
                     throw new Error(stripIndent`
                         There was an error reloading the species rarity table after adding a new species.
                         

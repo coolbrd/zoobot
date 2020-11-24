@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../../beastiary/Beastiary";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import { betterSend } from "../../discordUtility/messageMan";
 import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
@@ -16,7 +16,7 @@ class CrewAddSubCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -26,7 +26,7 @@ class CrewAddSubCommand extends GuildCommand {
 
         let animal: Animal | undefined;
         try {
-            animal = await beastiary.animals.searchAnimal(animalIdentifier, {
+            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.guild.id,
                 userId: parsedMessage.sender.id,
                 searchList: "collection"
@@ -50,7 +50,7 @@ class CrewAddSubCommand extends GuildCommand {
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`

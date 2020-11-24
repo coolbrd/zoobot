@@ -1,8 +1,8 @@
 import { TextChannel, MessageEmbed } from "discord.js";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import AnimalDisplayMessage from "./AnimalDisplayMessage";
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class CrewMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 30000;
@@ -12,8 +12,8 @@ export default class CrewMessage extends AnimalDisplayMessage {
     private readonly player: Player;
     public readonly channel: TextChannel;
 
-    constructor(channel: TextChannel, player: Player) {
-        super(channel, player.getCrewAsLoadableAnimals());
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player) {
+        super(channel, beastiaryClient, player.getCrewAsLoadableAnimals());
 
         this.player = player;
         this.channel = channel;
@@ -41,7 +41,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
         embed.setFooter(`${crew.length} in crew\n${this.getButtonHelpString()}`);
 
         if (crew.length < 1) {
-            embed.setDescription(`It's empty in here. Add animals to your crew with \`${commandHandler.getPrefixByGuild(this.channel.guild)}crewadd\`!`);
+            embed.setDescription(`It's empty in here. Add animals to your crew with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}crewadd\`!`);
             return embed;
         }
 

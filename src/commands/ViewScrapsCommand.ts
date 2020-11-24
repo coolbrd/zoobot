@@ -1,10 +1,10 @@
-import { beastiary } from "../beastiary/Beastiary";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ViewScrapsCommand extends GuildCommand {
     public readonly commandNames = ["scraps", "scrap", "s"];
@@ -15,10 +15,10 @@ class ViewScrapsCommand extends GuildCommand {
 
     public readonly section = CommandSection.playerInfo;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let player: Player;
         try {
-            player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
+            player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);

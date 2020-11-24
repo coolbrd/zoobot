@@ -3,11 +3,11 @@ import { betterSend } from "../discordUtility/messageMan";
 import { errorHandler } from "../structures/ErrorHandler";
 import InteractiveMessage from "./InteractiveMessage";
 
-class InteractiveMessageHandler {
+export default class InteractiveMessageHandler {
     // The map of all interactive messages that this handler is currently managing
     private readonly activeMessages = new Map<string, InteractiveMessage>();
 
-    public init(client: Client): void {
+    constructor(client: Client) {
         client.on("messageReactionAdd", (messageReaction, user) => {
             this.handleReaction(messageReaction, user);
         });
@@ -75,4 +75,3 @@ class InteractiveMessageHandler {
         this.activeMessages.delete(interactiveMessage.message.id);
     }
 }
-export const interactiveMessageHandler = new InteractiveMessageHandler();

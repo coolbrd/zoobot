@@ -5,12 +5,11 @@ import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { beastiary } from "../beastiary/Beastiary";
 import { remainingTimeString } from "../utility/timeStuff";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -24,8 +23,8 @@ export default class EncounterMessage extends InteractiveMessage {
 
     private readonly warnedUserIds: string[] = [];
 
-    constructor(channel: TextChannel, species: Species) {
-        super(channel);
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, species: Species) {
+        super(channel, beastiaryClient);
 
         this.addButton({
             name: "capture",
@@ -41,7 +40,7 @@ export default class EncounterMessage extends InteractiveMessage {
     public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
         
-        embed.setColor(beastiary.encounters.getRarityInfo(this.species.rarity).color);
+        embed.setColor(this.beastiaryClient.beastiary.encounters.getRarityInfo(this.species.rarity).color);
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
         embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
         embed.setImage(this.card.url);
@@ -62,10 +61,10 @@ export default class EncounterMessage extends InteractiveMessage {
     private warnPlayer(player: Player): void {
         if (!this.warnedUserIds.includes(player.member.user.id)) {
             if (player.collectionFull) {
-                betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
+                betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
             }
             else {
-                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(beastiary.resets.nextCaptureReset)}**.`);
+                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(this.beastiaryClient.beastiary.resets.nextCaptureReset)}**.`);
             }
 
             this.warnedUserIds.push(player.member.user.id);
@@ -73,11 +72,11 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
-        const guildMember = getGuildMember(user, this.channel.guild);
+        const guildMember = getGuildMember(user, this.channel.guild, this.beastiaryClient);
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(guildMember);
+            player = await this.beastiaryClient.beastiary.players.fetch(guildMember);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -104,7 +103,7 @@ export default class EncounterMessage extends InteractiveMessage {
         player.awardCrewExperienceInChannel(gameConfig.xpPerCapture, this.channel);
 
         try {
-            await beastiary.animals.createAnimal(player, this.species, this.card);
+            await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
         }
         catch (error) {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");

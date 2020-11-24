@@ -1,9 +1,9 @@
 import { betterSend } from "../discordUtility/messageMan";
 import CommandParser from "../structures/Command/CommandParser";
 import Command, { CommandSection } from "../structures/Command/Command";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import CommandResolver from "../structures/Command/CommandResolver";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class HelpCommand extends Command {
     public readonly commandNames = ["help", "h"];
@@ -14,7 +14,7 @@ class HelpCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandName = parsedMessage.fullArguments.toLowerCase();
 
         if (!commandName) {
@@ -22,7 +22,7 @@ class HelpCommand extends Command {
             return commandReceipt;
         }
 
-        const commandResolver = new CommandResolver(parsedMessage, commandHandler.baseCommands);
+        const commandResolver = new CommandResolver(parsedMessage, beastiaryClient.commandHandler.baseCommands);
 
         if (!commandResolver.command) {
             betterSend(parsedMessage.channel, `No command by the name "${commandName}" exists.`);

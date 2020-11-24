@@ -1,7 +1,6 @@
 import { stripIndent } from "common-tags";
 import { GuildMember, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
-import { beastiary } from "../../../beastiary/Beastiary";
 import gameConfig from "../../../config/gameConfig";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import GameObject from "../GameObject";
@@ -11,6 +10,7 @@ import { Animal } from "./Animal";
 import { PlayerModel } from '../../../models/Player';
 import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 import { Species } from "./Species";
+import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class Player extends GameObject {
     public readonly model = PlayerModel;
@@ -98,10 +98,10 @@ export class Player extends GameObject {
 
     public readonly member: GuildMember;
 
-    constructor(document: Document) {
-        super(document);
+    constructor(document: Document, beastiaryClient: BeastiaryClient) {
+        super(document, beastiaryClient);
 
-        this.member = getGuildMember(this.userId, this.guildId);
+        this.member = getGuildMember(this.userId, this.guildId, beastiaryClient);
     }
 
     public get userId(): string {
@@ -279,11 +279,11 @@ export class Player extends GameObject {
     }
 
     public get hasDailyCurrencyReset(): boolean {
-        return this.lastDailyCurrencyReset.valueOf() < beastiary.resets.lastDailyCurrencyReset.valueOf();
+        return this.lastDailyCurrencyReset.valueOf() < this.beastiaryClient.beastiary.resets.lastDailyCurrencyReset.valueOf();
     }
 
     public get hasCaptureReset(): boolean {
-        return this.lastCaptureReset.valueOf() < beastiary.resets.lastCaptureReset.valueOf();
+        return this.lastCaptureReset.valueOf() < this.beastiaryClient.beastiary.resets.lastCaptureReset.valueOf();
     }
 
     public get canCapture(): boolean {
@@ -299,7 +299,7 @@ export class Player extends GameObject {
     }
 
     public get periodsSinceLastEncounterReset(): number {
-        return beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, beastiary.resets.lastEncounterReset, gameConfig.freeEncounterPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, this.beastiaryClient.beastiary.resets.lastEncounterReset, gameConfig.freeEncounterPeriod);
     }
 
     public get hasEncounterReset(): boolean {
@@ -315,7 +315,7 @@ export class Player extends GameObject {
     }
 
     public get periodsSinceLastXpBoostReset(): number {
-        return beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, beastiary.resets.lastXpBoostReset, gameConfig.freeXpBoostPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, this.beastiaryClient.beastiary.resets.lastXpBoostReset, gameConfig.freeXpBoostPeriod);
     }
 
     public get hasXpBoostReset(): boolean {
@@ -350,7 +350,7 @@ export class Player extends GameObject {
         const loadableSpecies: LoadableCacheableGameObject<Species>[] = [];
 
         this.tokenSpeciesIds.forEach(currentTokenSpecies => {
-            const newLoadableSpecies = new LoadableCacheableGameObject<Species>(currentTokenSpecies, beastiary.species);
+            const newLoadableSpecies = new LoadableCacheableGameObject<Species>(currentTokenSpecies, this.beastiaryClient.beastiary.species);
 
             loadableSpecies.push(newLoadableSpecies);
         });
@@ -609,7 +609,7 @@ export class Player extends GameObject {
 
         let animal: Animal | undefined;
         try {
-            animal = await beastiary.animals.fetchById(id);
+            animal = await this.beastiaryClient.beastiary.animals.fetchById(id);
         }
         catch (error) {
             throw new Error(stripIndent`

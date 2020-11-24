@@ -1,6 +1,6 @@
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import Command, { CommandSection } from "../structures/Command/Command";
-import { commandHandler } from "../structures/Command/CommandHandler";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
@@ -13,7 +13,7 @@ class CommandAliasesCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandName = parsedMessage.fullArguments.toLowerCase();
 
         if (!commandName) {
@@ -21,7 +21,7 @@ class CommandAliasesCommand extends Command {
             return commandReceipt;
         }
 
-        const command = commandHandler.getCommandByParser(parsedMessage);
+        const command = beastiaryClient.commandHandler.getCommandByParser(parsedMessage);
 
         if (!command) {
             betterSend(parsedMessage.channel, `No command by the name "${commandName}" exists.`);

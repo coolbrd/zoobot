@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../beastiary/Beastiary";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import handleUserError from "../discordUtility/handleUserError";
 import TokenDisplayMessage from "../messages/TokenDisplayMessage";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -24,17 +24,17 @@ class ViewTokensCommand extends GuildCommand {
         }
     ];
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let player: Player;
         try {
-            player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
+            player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);
             return commandReceipt;
         }
 
-        const tokenMessage = new TokenDisplayMessage(parsedMessage.channel, player);
+        const tokenMessage = new TokenDisplayMessage(parsedMessage.channel, beastiaryClient, player);
         try {
             await tokenMessage.send();
         }

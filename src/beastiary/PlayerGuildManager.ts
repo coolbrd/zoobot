@@ -1,6 +1,5 @@
 import { Guild } from "discord.js";
 import { Document } from "mongoose";
-import { client } from "..";
 import gameConfig from "../config/gameConfig";
 import { GuildModel } from "../models/PlayerGuild";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
@@ -13,7 +12,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly cacheObjectTimeout = gameConfig.playerGuildCacheTimeout;
 
     protected documentToGameObject(document: Document): PlayerGuild {
-        return new PlayerGuild(document);
+        return new PlayerGuild(document, this.beastiaryClient);
     }
 
     public async fetchByGuildId(guildId: string): Promise<PlayerGuild> {
@@ -42,7 +41,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         if (!guildDocument) {
             let guild: Guild;
             try {
-                guild = await client.guilds.fetch(guildId);
+                guild = await this.beastiaryClient.discordClient.guilds.fetch(guildId);
             }
             catch (error) {
                 throw new Error(stripIndent`

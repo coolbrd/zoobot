@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import CommandParser, { GuildCommandParser } from "./CommandParser";
 import CommandReceipt from "./CommandReceipt";
@@ -76,13 +77,13 @@ export default abstract class Command {
         return this.commandNames[0];
     }
 
-    protected async abstract run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt>;
+    protected async abstract run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 
-    public async execute(parsedMessage: CommandParser): Promise<CommandReceipt> {
+    public async execute(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const receipt = new CommandReceipt();
 
         try {
-            return await this.run(parsedMessage, receipt);
+            return await this.run(parsedMessage, receipt, beastiaryClient);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -99,5 +100,5 @@ export default abstract class Command {
 export abstract class GuildCommand extends Command {
     public readonly guildOnly = true;
 
-    protected abstract run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt>;
+    protected abstract run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 }

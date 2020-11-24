@@ -1,5 +1,4 @@
 import { stripIndent } from "common-tags";
-import { beastiary } from "../../beastiary/Beastiary";
 import handleUserError from "../../discordUtility/handleUserError";
 import CrewMessage from "../../messages/CrewMessage";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
@@ -8,6 +7,7 @@ import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CrewAddSubCommand from "./CrewAddSubCommand";
 import CrewRemoveSubCommand from "./CrewRemoveSubCommand";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 
 class CrewCommand extends GuildCommand {
     public readonly commandNames = ["crew"];
@@ -23,17 +23,17 @@ class CrewCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let player: Player;
         try {
-            player = await beastiary.players.fetchByGuildCommandParser(parsedMessage);
+            player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);
             return commandReceipt;
         }
 
-        const crewMessage = new CrewMessage(parsedMessage.channel, player);
+        const crewMessage = new CrewMessage(parsedMessage.channel, beastiaryClient, player);
 
         try {
             await crewMessage.send();

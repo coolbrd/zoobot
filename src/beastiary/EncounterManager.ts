@@ -4,11 +4,11 @@ import { SpeciesModel } from "../models/Species";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import EncounterMessage from "../messages/Encountermessage";
 import { getWeightedRandom, getWeightedRarityMinimumOccurrence } from "../utility/weightedRarity";
-import { beastiary } from "./Beastiary";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 interface RarityInfo {
     tier: number,
@@ -20,6 +20,12 @@ export default class EncounterManager {
     private sortedRarityList: number[] = [];
 
     private readonly guildsOnRandomEncounterCooldown = new Set<string>();
+
+    private readonly beastiaryClient: BeastiaryClient;
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+    }
 
     public getTotalRarityWeight(): number {
         let totalRarityWeight = 0;
@@ -75,7 +81,7 @@ export default class EncounterManager {
 
         let species: Species | undefined;
         try {
-            species = await beastiary.species.fetchById(randomSpeciesId);
+            species = await this.beastiaryClient.beastiary.species.fetchById(randomSpeciesId);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -97,7 +103,7 @@ export default class EncounterManager {
             `);
         }
 
-        const encounterMessage = new EncounterMessage(channel, species);
+        const encounterMessage = new EncounterMessage(channel, this.beastiaryClient, species);
         try {
             await encounterMessage.send();
         }
@@ -116,7 +122,7 @@ export default class EncounterManager {
     private async fetchGuildEncounterChannel(guild: Guild): Promise<TextChannel | undefined> {
         let playerGuild: PlayerGuild;
         try {
-            playerGuild = await beastiary.playerGuilds.fetchByGuildId(guild.id);
+            playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(guild.id);
         }
         catch (error) {
             throw new Error(stripIndent`

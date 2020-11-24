@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import CachedGameObject from "./CachedGameObject";
 import GameObject from "./GameObject";
 
@@ -12,6 +13,12 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
     protected abstract documentToGameObject(document: Document): GameObjectType;
 
     private readonly cache = new Map<string, CachedGameObject<GameObjectType>>();
+
+    protected readonly beastiaryClient: BeastiaryClient;
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+    }
 
     private newCacheObject(gameObject: GameObjectType): CachedGameObject<GameObjectType> {
         return new CachedGameObject(gameObject, this.cacheObjectTimeout, this);

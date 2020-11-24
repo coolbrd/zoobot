@@ -3,9 +3,10 @@ import { Species } from "../structures/GameObject/GameObjects/Species";
 import EDocMessage from "./EDocMessage";
 import { EDoc, } from "../structures/eDoc/EDoc";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class SpeciesEditMessage extends EDocMessage {
-    constructor(channel: TextChannel | DMChannel, speciesObject: Species) {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, speciesObject: Species) {
         const eDoc = new EDoc({
             [Species.fieldNames.commonNames]: {
                 type: [{
@@ -154,6 +155,6 @@ export default class SpeciesEditMessage extends EDocMessage {
         eDoc.setField(Species.fieldNames.rarity, speciesObject.rarity);
         eDoc.setField(Species.fieldNames.token, speciesObject.token);
 
-        super(channel, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));
+        super(channel, beastiaryClient, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));
     }
 }

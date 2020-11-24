@@ -1,6 +1,5 @@
 import { stripIndent } from "common-tags";
-import { exit } from "..";
-import { errorHandler } from "../structures/ErrorHandler";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import AnimalManager from "./AnimalManager";
 import ChannelManager from "./ChannelManager";
 import EncounterManager from "./EncounterManager";
@@ -10,23 +9,71 @@ import ResetManager from "./ResetManager";
 import SpeciesManager from "./SpeciesManager";
 
 // The central cache holder/manager for all game object managers within The Beastiary
-class Beastiary {
-    public readonly players = new PlayerManager();
-    public readonly animals = new AnimalManager();
-    public readonly playerGuilds = new PlayerGuildManager();
-    public readonly species = new SpeciesManager();
-    public readonly encounters = new EncounterManager();
-    public readonly resets = new ResetManager();
-    public readonly channels = new ChannelManager();
+export default class Beastiary {
+    public readonly players: PlayerManager;
+    public readonly animals: AnimalManager;
+    public readonly playerGuilds: PlayerGuildManager;
+    public readonly species: SpeciesManager;
+    public readonly encounters: EncounterManager;
+    public readonly channels: ChannelManager;
+    public readonly resets: ResetManager;
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.players = new PlayerManager(beastiaryClient);
+        this.animals = new AnimalManager(beastiaryClient);
+        this.playerGuilds = new PlayerGuildManager(beastiaryClient);
+        this.species = new SpeciesManager(beastiaryClient);
+        this.encounters = new EncounterManager(beastiaryClient);
+        this.channels = new ChannelManager(beastiaryClient);
+        this.resets = new ResetManager();
+    }
+
+    public async init(): Promise<void> {
+        try {
+            await this.players.init();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There as an error initializing a Beastiary's player manager.
+
+                ${error}
+            `);
+        }
+        
+        try {
+            await this.species.init();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error initializing a Beastiary's species manager.
+
+                ${error}
+            `);
+        }
+
+        try {
+            await this.channels.init();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error initializing a Beastiary's channel manager.
+
+                ${error}
+            `);
+        }
+    }
 
     public async exit(): Promise<void> {
         try {
             await this.animals.dumpCache();
             console.log("Animal cache dumped.");
+
             await this.playerGuilds.dumpCache();
             console.log("Guild cache dumped.");
+
             await this.players.dumpCache();
             console.log("Player cache dumped.");
+
             await this.species.dumpCache();
             console.log("Species cache dumped.");
         }
@@ -37,14 +84,5 @@ class Beastiary {
                 ${error}
             `);
         }
-
-        try {
-            await exit();
-        }
-        catch (error) {
-            errorHandler.handleError(error, "There was an error exiting the bot process in the exit command.");
-            return;
-        }
     }
 }
-export const beastiary = new Beastiary();

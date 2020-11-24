@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import Command, { CommandSection } from "../structures/Command/Command";
@@ -14,7 +15,7 @@ class SendPatreonLinkCommand extends Command {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         betterSend(parsedMessage.channel, stripIndent`
             Show your support by donating, it would mean a lot!
             Donating can also get you exclusive premium features. Learn more with \`${parsedMessage.displayPrefix}premium\`.

@@ -1,11 +1,11 @@
 import { MessageEmbed } from "discord.js";
-import { beastiary } from "../beastiary/Beastiary";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard, player?: Player): void {
-    const speciesRarity = beastiary.encounters.getRarityInfo(species.rarity);
+export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard, beastiaryClient: BeastiaryClient, player?: Player): void {
+    const speciesRarity = beastiaryClient.beastiary.encounters.getRarityInfo(species.rarity);
 
     embed.setColor(speciesRarity.color);
     embed.setTitle(capitalizeFirstLetter(species.scientificName));

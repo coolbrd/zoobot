@@ -1,10 +1,10 @@
 import { Guild, GuildChannel } from "discord.js";
 import { Document } from "mongoose";
-import { client } from "../../..";
 import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
 import { GuildModel } from '../../../models/PlayerGuild';
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
@@ -24,10 +24,10 @@ export class PlayerGuild extends GameObject {
 
     public readonly guild: Guild;
 
-    constructor(guildDocument: Document) {
-        super(guildDocument);
+    constructor(guildDocument: Document, beastiaryClient: BeastiaryClient) {
+        super(guildDocument, beastiaryClient);
 
-        const guild = client.guilds.resolve(this.guildId);
+        const guild = beastiaryClient.discordClient.guilds.resolve(this.guildId);
 
         if (!guild) {
             throw new Error(stripIndent`

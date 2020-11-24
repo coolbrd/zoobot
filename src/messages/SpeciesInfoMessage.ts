@@ -1,6 +1,5 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
-import { client } from "..";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -9,6 +8,7 @@ import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
 import loopValue from "../utility/loopValue";
 import { stripIndent } from "common-tags";
 import { Player } from "../structures/GameObject/GameObjects/Player";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class SpeciesInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
@@ -19,8 +19,8 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
     private cardIndex = 0;
     private displayCard = true;
 
-    constructor(channel: TextChannel | DMChannel, species: Species, player?: Player) {
-        super(channel);
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, species: Species, player?: Player) {
+        super(channel, beastiaryClient);
 
         this.addButtons([
             {
@@ -49,13 +49,13 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         const card = this.species.cards[this.cardIndex];
 
-        embed.setColor(getGuildUserDisplayColor(client.user, this.channel));
+        embed.setColor(getGuildUserDisplayColor(this.beastiaryClient.discordClient.user, this.channel, this.beastiaryClient));
 
         if (this.displayCard) {
-            buildSpeciesCard(embed, this.species, card);
+            buildSpeciesCard(embed, this.species, card, this.beastiaryClient);
         }
         else {
-            buildSpeciesInfo(embed, this.species, card, this.player);
+            buildSpeciesInfo(embed, this.species, card, this.beastiaryClient, this.player);
         }
 
         embed.appendToFooter("\n" + this.getButtonHelpString());

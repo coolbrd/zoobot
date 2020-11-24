@@ -1,10 +1,10 @@
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { beastiary } from "../beastiary/Beastiary";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly commandNames = ["nickname", "nick", "nn"];
@@ -28,7 +28,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -38,7 +38,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
         let animal: Animal | undefined;
         try {
-            animal = await beastiary.animals.searchAnimal(animalIdentifier, {
+            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.member.guild.id,
                 userId: parsedMessage.member.user.id,
                 searchList: "collection"

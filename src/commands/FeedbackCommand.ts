@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { client } from "..";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -22,19 +22,19 @@ class FeedbackCommand extends Command {
         }
     ];
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, "You have to include a message as your feedback!");
             return commandReceipt;
         }
 
-        if (!client.shard) {
+        if (!beastiaryClient.discordClient.shard) {
             throw new Error(stripIndent`
                 Client shard value undefined.
             `);
         }
 
-        client.shard.broadcastEval(`
+        beastiaryClient.discordClient.shard.broadcastEval(`
             this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", "${parsedMessage.fullArguments}");
         `);
 

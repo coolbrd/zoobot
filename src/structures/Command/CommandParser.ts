@@ -1,8 +1,7 @@
 import { stripIndent } from "common-tags";
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
-import { client } from "../..";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import getGuildMember from "../../discordUtility/getGuildMember";
-import { commandHandler } from "./CommandHandler";
 
 export interface Argument {
     text: string,
@@ -24,12 +23,12 @@ export default class CommandParser {
     public readonly inGuild: boolean;
     public readonly guild?: Guild;
 
-    constructor(message: Message, prefixUsed: string) {
+    constructor(message: Message, prefixUsed: string, beastiaryClient: BeastiaryClient) {
         this.inGuild = Boolean(message.guild);
         this.guild = message.guild || undefined;
 
         this.commandPrefix = prefixUsed;
-        this.displayPrefix = commandHandler.getDisplayPrefixByMessage(message);
+        this.displayPrefix = beastiaryClient.commandHandler.getDisplayPrefixByMessage(message);
         
         const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
 
@@ -61,7 +60,7 @@ export default class CommandParser {
                     userId = argument;
                 }
 
-                user = client.users.resolve(userId) || undefined;
+                user = beastiaryClient.discordClient.users.resolve(userId) || undefined;
             }
 
             this.arguments.push({
@@ -115,8 +114,8 @@ export class GuildCommandParser extends CommandParser {
 
     public readonly member: GuildMember;
 
-    constructor(message: Message, prefixUsed: string) {
-        super(message, prefixUsed);
+    constructor(message: Message, prefixUsed: string, beastiaryClient: BeastiaryClient) {
+        super(message, prefixUsed, beastiaryClient);
 
         if (message.channel.type !== "text") {
             throw new Error(stripIndent`
@@ -129,7 +128,7 @@ export class GuildCommandParser extends CommandParser {
         this.channel = message.channel;
         this.guild = this.channel.guild;
 
-        this.member = getGuildMember(this.sender, this.guild);
+        this.member = getGuildMember(this.sender, this.guild, beastiaryClient);
 
         this.arguments.forEach(argument => {
             if (argument.user) {

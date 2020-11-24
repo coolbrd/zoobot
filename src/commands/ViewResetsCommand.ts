@@ -1,4 +1,3 @@
-import { beastiary } from "../beastiary/Beastiary";
 import { betterSend } from "../discordUtility/messageMan";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -6,6 +5,7 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ViewResetsCommand extends GuildCommand {
     public readonly commandNames = ["resets", "rs"];
@@ -16,10 +16,10 @@ class ViewResetsCommand extends GuildCommand {
 
     public readonly section = CommandSection.playerInfo;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -33,21 +33,21 @@ class ViewResetsCommand extends GuildCommand {
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`
-        messageString += `Next encounter reset: **${remainingTimeString(beastiary.resets.nextEncounterReset)}**\n\n`;
+        messageString += `Next encounter reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextEncounterReset)}**\n\n`;
 
         messageString += `You have **${player.capturesLeft}** capture${player.capturesLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n`
-        messageString += `Next capture reset: **${remainingTimeString(beastiary.resets.nextCaptureReset)}**\n\n`;
+        messageString += `Next capture reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextCaptureReset)}**\n\n`;
 
         messageString += `You have **${player.xpBoostsLeft}** xp boost${player.freeXpBoostsLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeXpBoostsLeft}** free, **${player.extraXpBoostsLeft}** extra)\n`;
-        messageString += `Next xp boost reset: **${remainingTimeString(beastiary.resets.nextXpBoostReset)}**\n\n`;
+        messageString += `Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**\n\n`;
 
         if (player.hasDailyCurrencyReset) {
             messageString += `You can claim your daily scraps right now!`;
         }
         else {
-            messageString += `You've claimed your daily scraps today. Next daily reset: **${remainingTimeString(beastiary.resets.nextDailyCurrencyReset)}**`;
+            messageString += `You've claimed your daily scraps today. Next daily reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextDailyCurrencyReset)}**`;
         }
 
         betterSend(parsedMessage.channel, messageString);

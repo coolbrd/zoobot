@@ -1,6 +1,5 @@
 import { stripIndent } from "common-tags";
 import { APIMessage, Message } from "discord.js";
-import { beastiary } from "../beastiary/Beastiary";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -9,6 +8,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
@@ -21,7 +21,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (parsedMessage.arguments.length < 1) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -31,7 +31,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
         let animal: Animal | undefined;
         try {
-            animal = await beastiary.animals.searchAnimal(animalIdentifier, {
+            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
                 guildId: parsedMessage.channel.guild.id,
                 userId: parsedMessage.originalMessage.author.id,
                 searchList: "collection"
@@ -98,7 +98,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(parsedMessage.member);
+            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -126,7 +126,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             }
 
             try {
-                await beastiary.animals.removeFromCache(animal.id);
+                await beastiaryClient.beastiary.animals.removeFromCache(animal.id);
             }
             catch (error) {
                 throw new Error(stripIndent`

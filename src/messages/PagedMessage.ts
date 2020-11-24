@@ -1,5 +1,6 @@
 import { stripIndent } from 'common-tags';
 import { DMChannel, TextChannel, User } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import loopValue from "../utility/loopValue";
 
@@ -9,8 +10,8 @@ export default abstract class PagedMessage<ElementType> extends InteractiveMessa
     protected elements: ElementType[] = [];
     private _page = 0;
 
-    constructor(channel: TextChannel | DMChannel) {
-        super(channel);
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient) {
+        super(channel, beastiaryClient);
     }
 
     public async build(): Promise<void> {

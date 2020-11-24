@@ -2,10 +2,9 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
-import { commandHandler } from "../structures/Command/CommandHandler";
-import { beastiary } from "../beastiary/Beastiary";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ChangeGuildPrefixCommand extends GuildCommand {
     public readonly commandNames = ["prefix", "changeprefix"];
@@ -16,7 +15,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
 
     public readonly section = CommandSection.guildManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const prefix = parsedMessage.fullArguments;
 
         if (!prefix) {
@@ -26,7 +25,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
 
         let guildObject: PlayerGuild;
         try {
-            guildObject = await beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
+            guildObject = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -40,7 +39,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
 
         guildObject.prefix = prefix;
 
-        commandHandler.changeGuildPrefix(guildObject.guildId, prefix);
+        beastiaryClient.commandHandler.changeGuildPrefix(guildObject.guildId, prefix);
 
         betterSend(parsedMessage.channel, `Success. My prefix is now \`${prefix}\`.`);
 

@@ -10,6 +10,7 @@ import { arrayToLowerCase } from "../utility/arraysAndSuch";
 import { EDoc, SimpleEDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "../messages/EDocMessage";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class SubmitSpeciesCommand extends Command {
     public readonly commandNames = ["submitspecies", "submit"];
@@ -20,7 +21,7 @@ class SubmitSpeciesCommand extends Command {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const infoEmbed = new MessageEmbed();
 
         infoEmbed.setTitle("New species submission");
@@ -134,7 +135,7 @@ class SubmitSpeciesCommand extends Command {
             }
         });
 
-        const submissionMessage = new EDocMessage(parsedMessage.channel, submissionDocument, "new submission");
+        const submissionMessage = new EDocMessage(parsedMessage.channel, beastiaryClient, submissionDocument, "new submission");
         try {
             await submissionMessage.send();
         }

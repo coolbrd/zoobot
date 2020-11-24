@@ -1,6 +1,5 @@
 import { TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
-import { beastiary } from "../../../beastiary/Beastiary";
 import GameObject from "../GameObject";
 import { Species, SpeciesCard } from "./Species";
 import { AnimalModel } from '../../../models/Animal';
@@ -10,6 +9,7 @@ import { betterSend } from "../../../discordUtility/messageMan";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
+import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
@@ -35,17 +35,6 @@ export class Animal extends GameObject {
         owner: "owner"
     }
 
-    protected references = {
-        [this.referenceNames.owner]: {
-            cache: beastiary.players,
-            id: this.ownerId
-        },
-        [this.referenceNames.species]: {
-            cache: beastiary.species,
-            id: this.speciesId
-        }
-    }
-
     public static newDocument(owner: Player, species: Species, card: SpeciesCard): Document {
         return new AnimalModel({
             [Animal.fieldNames.speciesId]: species.id,
@@ -57,8 +46,19 @@ export class Animal extends GameObject {
         });
     }
 
-    constructor(document: Document) {
-        super(document);
+    constructor(document: Document, beastiaryClient: BeastiaryClient) {
+        super(document, beastiaryClient);
+
+        this.references = {
+            [this.referenceNames.owner]: {
+                cache: beastiaryClient.beastiary.players,
+                id: this.ownerId
+            },
+            [this.referenceNames.species]: {
+                cache: beastiaryClient.beastiary.species,
+                id: this.speciesId
+            }
+        }
     }
 
     public get speciesId(): Types.ObjectId {

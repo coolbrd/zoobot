@@ -7,7 +7,6 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
-import { beastiary } from "./Beastiary";
 import { stripIndent } from "common-tags";
 
 export default class PlayerManager extends GameObjectCache<Player> {
@@ -18,7 +17,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     private readonly playerUserIds = new Set<string>();
 
     protected documentToGameObject(document: Document): Player {
-        return new Player(document);
+        return new Player(document, this.beastiaryClient);
     }
 
     public async init(): Promise<void> {
@@ -160,7 +159,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
             let existingPlayer: Player | undefined;
             try {
-                existingPlayer = await beastiary.players.fetchExisting(targetGuildMember);
+                existingPlayer = await this.beastiaryClient.beastiary.players.fetchExisting(targetGuildMember);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -181,7 +180,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
         else {
             try {
-                player = await beastiary.players.fetch(parsedMessage.member);
+                player = await this.beastiaryClient.beastiary.players.fetch(parsedMessage.member);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -248,11 +247,11 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
         const guild = message.guild as Guild;
 
-        const guildMember = getGuildMember(message.author, guild);
+        const guildMember = getGuildMember(message.author, guild, this.beastiaryClient);
 
         let player: Player;
         try {
-            player = await beastiary.players.fetch(guildMember);
+            player = await this.beastiaryClient.beastiary.players.fetch(guildMember);
         }
         catch (error) {
             throw new Error(stripIndent`

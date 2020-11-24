@@ -1,5 +1,4 @@
 import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
-import { beastiary } from '../beastiary/Beastiary';
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableCacheableGameObject from '../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
@@ -7,6 +6,7 @@ import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObjec
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from './PagedMessage';
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
@@ -15,15 +15,15 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
 
     private readonly user: User;
 
-    constructor(channel: TextChannel | DMChannel, user: User) {
-        super(channel);
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, user: User) {
+        super(channel, beastiaryClient);
 
         this.user = user;
     }
 
     private async buildLoadableSpeciesList(): Promise<void> {
-        beastiary.species.allSpeciesIds.forEach(currentSpeciesId => {
-            const loadableSpecies = new LoadableCacheableGameObject(currentSpeciesId, beastiary.species);
+        this.beastiaryClient.beastiary.species.allSpeciesIds.forEach(currentSpeciesId => {
+            const loadableSpecies = new LoadableCacheableGameObject(currentSpeciesId, this.beastiaryClient.beastiary.species);
             this.elements.push(loadableSpecies);
         });
     }

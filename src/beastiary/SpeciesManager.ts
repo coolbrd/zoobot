@@ -7,8 +7,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessage";
 import { SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
-import { beastiary } from "./Beastiary";
-import { unknownSpecies } from "../structures/GameObject/GameObjects/UnknownSpecies";
+import UnknownSpecies from "../structures/GameObject/GameObjects/UnknownSpecies";
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -31,7 +30,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         if (!species) {
-            species = unknownSpecies;
+            species = new UnknownSpecies(this.beastiaryClient);
         }
 
         return species;
@@ -78,7 +77,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         try {
-            await beastiary.encounters.loadRarityData();
+            await this.beastiaryClient.beastiary.encounters.loadRarityData();
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -103,7 +102,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
     }
 
     protected documentToGameObject(document: Document): Species {
-        return new Species(document);
+        return new Species(document, this.beastiaryClient);
     }
 
     private async fetchSpeciesAndCheckForCommonNameMatch(speciesDocuments: Document[], searchedCommonName: string): Promise<Species[]> {
@@ -208,7 +207,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             return matchingSpecies[0];
         }
         else {
-            const disambiguationMessage = new SpeciesDisambiguationMessage(channel, matchingSpecies);
+            const disambiguationMessage = new SpeciesDisambiguationMessage(channel, this.beastiaryClient, matchingSpecies);
             try {
                 await disambiguationMessage.send();
             }

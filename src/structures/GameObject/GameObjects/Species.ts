@@ -3,7 +3,6 @@ import GameObject from "../GameObject";
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { getWeightedRandom } from "../../../utility/weightedRarity";
 import { SpeciesModel } from '../../../models/Species';
-import { beastiary } from "../../../beastiary/Beastiary";
 
 export class Species extends GameObject {
     public readonly model = SpeciesModel;
@@ -93,7 +92,7 @@ export class Species extends GameObject {
     }
 
     public get baseValue(): number {
-        const rarityInfo = beastiary.encounters.getRarityInfo(this.rarity);
+        const rarityInfo = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.rarity);
 
         const baseValue = 2 + Math.floor(Math.pow(1.75, rarityInfo.tier + 1));
 

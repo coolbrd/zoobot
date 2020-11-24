@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import BeastiaryMessage from "../messages/BeastiaryMessage";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -13,8 +14,8 @@ class BeastiaryCommand extends Command {
 
     public readonly section = CommandSection.gettingStarted;
 
-    public async run(parsedUserCommand: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
-        const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, parsedUserCommand.originalMessage.author);
+    public async run(parsedUserCommand: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, beastiaryClient, parsedUserCommand.originalMessage.author);
         try {
             await beastiaryMessage.send();
         }

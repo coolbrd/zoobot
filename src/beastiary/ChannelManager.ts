@@ -1,6 +1,6 @@
 import { stripIndent } from "common-tags";
 import { APIMessage, TextChannel } from "discord.js";
-import { client } from "..";
+import BeastiaryClient from "../bot/BeastiaryClient";
 import { ADMIN_SERVER_ID, FEEDBACK_CHANNEL_ID } from "../config/secrets";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -8,8 +8,14 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 export default class ChannelManager {
     public feedbackChannel: TextChannel | undefined;
 
+    private beastiaryClient: BeastiaryClient;
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+    }
+
     public async init(): Promise<void> {
-        const adminGuild = client.guilds.resolve(ADMIN_SERVER_ID);
+        const adminGuild = this.beastiaryClient.discordClient.guilds.resolve(ADMIN_SERVER_ID);
 
         if (!adminGuild) {
             return;

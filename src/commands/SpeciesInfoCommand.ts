@@ -3,11 +3,11 @@ import CommandParser from "../structures/Command/CommandParser";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
-import { beastiary } from "../beastiary/Beastiary";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import getGuildMember from "../discordUtility/getGuildMember";
+import BeastiaryClient from "../bot/BeastiaryClient";
 
 class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
@@ -18,7 +18,7 @@ class SpeciesInfoCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (!parsedMessage.fullArguments) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
@@ -28,7 +28,7 @@ class SpeciesInfoCommand extends Command {
 
         let species: Species | undefined;
         try {
-            species = await beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
+            species = await beastiaryClient.beastiary.species.searchSingleSpeciesByCommonNameAndHandleDisambiguation(fullSearchTerm, parsedMessage.channel);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -46,9 +46,9 @@ class SpeciesInfoCommand extends Command {
 
         let player: Player | undefined;
         if (parsedMessage.guild) {
-            const guildMember = getGuildMember(parsedMessage.sender.id, parsedMessage.guild.id);
+            const guildMember = getGuildMember(parsedMessage.sender.id, parsedMessage.guild.id, beastiaryClient);
             try {
-                player = await beastiary.players.fetch(guildMember);
+                player = await beastiaryClient.beastiary.players.fetch(guildMember);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -61,7 +61,7 @@ class SpeciesInfoCommand extends Command {
             }
         }
 
-        const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, species, player);
+        const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, beastiaryClient, species, player);
         try {
             await infoMessage.send();
         }

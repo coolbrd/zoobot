@@ -11,7 +11,6 @@ import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ChangeGuildPrefixCommand from "../../commands/ChangeGuildPrefixCommand";
 import { GuildModel } from "../../models/PlayerGuild";
 import { PlayerGuild } from "../GameObject/GameObjects/PlayerGuild";
-import { client } from "../..";
 import HelpCommand from "../../commands/HelpCommand";
 import MoveAnimalsCommand from "../../commands/MoveAnimalsCommand";
 import ChangeAnimalNicknameCommand from "../../commands/ChangeAnimalNicknameCommand";
@@ -42,8 +41,9 @@ import SuppportServerInviteCommand from "../../commands/SuppportServerInviteComm
 import FeedbackCommand from "../../commands/FeedbackCommand";
 import DailyCurrencyCommand from "../../commands/DailyCurrencyCommand";
 import GameInfoCommand from "../../commands/GameInfoCommand";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 
-class CommandHandler {
+export default class CommandHandler {
     public readonly baseCommands = [
         HelpCommand,
         GameInfoCommand,
@@ -79,9 +79,15 @@ class CommandHandler {
     ];
     private readonly usersLoadingCommands = new Set<string>();
     private readonly guildPrefixes: Map<string, string> = new Map();
+    
+    private readonly beastiaryClient: BeastiaryClient;
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+    }
 
     public get botTag(): string {
-        return `<@!${(client.user as User).id}>`;
+        return `<@!${(this.beastiaryClient.discordClient.user as User).id}>`;
     }
 
     public getCommandByParser(parsedMessage: CommandParser): Command | undefined {
@@ -105,10 +111,10 @@ class CommandHandler {
 
             let parsedMessage: CommandParser | GuildCommandParser;
             if (sendInGuild) {
-                parsedMessage = new GuildCommandParser(message, messagePrefix);
+                parsedMessage = new GuildCommandParser(message, messagePrefix, this.beastiaryClient);
             }
             else {
-                parsedMessage = new CommandParser(message, messagePrefix);
+                parsedMessage = new CommandParser(message, messagePrefix, this.beastiaryClient);
             }
 
             const displayPrefix = this.getDisplayPrefixByMessage(message);
@@ -140,7 +146,7 @@ class CommandHandler {
 
                 let commandReceipt: CommandReceipt;
                 try {
-                    commandReceipt = await commandResolver.command.execute(commandResolver.commandParser);
+                    commandReceipt = await commandResolver.command.execute(commandResolver.commandParser, this.beastiaryClient);
                 }
                 catch (error) {
                     errorHandler.handleError(error, "Command execution failed.");
@@ -240,4 +246,3 @@ class CommandHandler {
         this.guildPrefixes.set(guildId, newPrefix);
     }
 }
-export const commandHandler = new CommandHandler();

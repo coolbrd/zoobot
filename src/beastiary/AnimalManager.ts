@@ -6,7 +6,6 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
-import { beastiary } from "./Beastiary";
 import { stripIndent } from "common-tags";
 
 export default class AnimalManager extends GameObjectCache<Animal> {
@@ -15,7 +14,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
     protected readonly cacheObjectTimeout = gameConfig.animalCacheTimeout;
 
     protected documentToGameObject(document: Document): Animal {
-        return new Animal(document);
+        return new Animal(document, this.beastiaryClient);
     }
 
     public async fetchByNickName(nickname: string, guildId?: string): Promise<Animal | undefined> {
@@ -139,7 +138,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
 
         if (!searchList) {
             try {
-                return await beastiary.animals.fetchByNickName(searchTerm, guildId);
+                return await this.beastiaryClient.beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -158,7 +157,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         if (isNaN(searchNumber)) {
             let animalObject: Animal | undefined;
             try {
-                animalObject = await beastiary.animals.fetchByNickName(searchTerm, guildId);
+                animalObject = await this.beastiaryClient.beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -186,10 +185,10 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                     `);
                 }
 
-                const playerGuildMember = getGuildMember(userId, guildId);
+                const playerGuildMember = getGuildMember(userId, guildId, this.beastiaryClient);
 
                 try {
-                    player = await beastiary.players.fetch(playerGuildMember);
+                    player = await this.beastiaryClient.beastiary.players.fetch(playerGuildMember);
                 }
                 catch (error) {
                     throw new Error(stripIndent`
@@ -239,7 +238,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         if (!isNaN(searchNumber)) {
             // Search the number as a nickname (last resort)
             try {
-                return await beastiary.animals.fetchByNickName(searchTerm, guildId);
+                return await this.beastiaryClient.beastiary.animals.fetchByNickName(searchTerm, guildId);
             }
             catch (error) {
                 throw new Error(stripIndent`

@@ -5,6 +5,8 @@ import { MONGODB_PATH } from "./config/secrets";
 import DatabaseIntegrityChecker from "./structures/DatabaseIntegrityChecker";
 
 mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log("Beginning database integrity check");
+
     const integrityChecker = new DatabaseIntegrityChecker();
 
     integrityChecker.run().then(errors => {
@@ -27,19 +29,11 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
             console.log("Database integrity check passed");
         }
 
-        mongoose.disconnect().then(() => {
-            const manager = new Discord.ShardingManager("./build/index.js", { respawn: false });
+        const manager = new Discord.ShardingManager("./build/index.js", { respawn: true });
             
-            manager.spawn(2);
-            manager.on("shardCreate", shard => {
-                console.log(`- Spawned shard ${shard.id} -`);
-            });
-        }).catch(error => {
-            throw new Error(stripIndent`
-                There was an error disconnecting from mongoose after the initial database check.
-
-                ${error}
-            `);
+        manager.spawn(2);
+        manager.on("shardCreate", shard => {
+            console.log(`- Spawned shard ${shard.id} -`);
         });
     }).catch(error => {
         throw new Error(stripIndent`
