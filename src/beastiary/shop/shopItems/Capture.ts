@@ -13,6 +13,6 @@ export default class CaptureItem extends ShopItem {
     }
 
     public purchaseAction(player: Player, quantity: number): void {
-        player.extraEncountersLeft += quantity;
+        player.extraCapturesLeft += quantity;
     }
 }
