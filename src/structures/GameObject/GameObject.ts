@@ -3,7 +3,7 @@ import { Document, Model, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import gameConfig from "../../config/gameConfig";
 import { BeastiarySchemaDefinition } from '../schema/BeastiarySchema';
-import { fieldValueIsValid } from '../schema/SchemaFieldRestrictions';
+import { findRestrictedFieldValueErrors } from '../schema/SchemaFieldRestrictions';
 import GameObjectCache from "./GameObjectCache";
 
 export interface FieldRestriction {
@@ -99,7 +99,9 @@ export default abstract class GameObject {
         const schemaField = this.schemaDefinition[fieldName];
 
         if (schemaField.fieldRestrictions) {
-            if (!fieldValueIsValid(value, schemaField.fieldRestrictions)) {
+            const fieldError = findRestrictedFieldValueErrors(value, schemaField.fieldRestrictions);
+
+            if (fieldError !== undefined) {
                 throw new Error(stripIndent`
                     Attempted to set a game object field to an illegal value.
 

@@ -8,8 +8,14 @@ export default interface SchemaFieldRestrictions {
     allowDuplicates?: boolean
 }
 
+export enum IllegalValueError {
+    negative,
+    maxLengthExceeded,
+    duplicateEntry
+}
+
 // Checks if a value is valid in accordance with a given set of field restrictions
-export function fieldValueIsValid(value: unknown, restrictions: SchemaFieldRestrictions): boolean {
+export function findRestrictedFieldValueErrors(value: unknown, restrictions: SchemaFieldRestrictions): IllegalValueError | undefined {
     if (restrictions.nonNegative !== undefined) {
         if (typeof value !== "number") {
             throw new Error(stripIndent`
@@ -21,7 +27,7 @@ export function fieldValueIsValid(value: unknown, restrictions: SchemaFieldRestr
 
         if (restrictions.nonNegative) {
             if (value < 0) {
-                return false;
+                return IllegalValueError.negative;
             }
         }
     }
@@ -36,7 +42,7 @@ export function fieldValueIsValid(value: unknown, restrictions: SchemaFieldRestr
         }
 
         if (value.length > restrictions.maxListSize) {
-            return false;
+            return IllegalValueError.maxLengthExceeded;
         }
     }
 
@@ -50,9 +56,9 @@ export function fieldValueIsValid(value: unknown, restrictions: SchemaFieldRestr
         }
 
         if (!restrictions.allowDuplicates && hasDuplicates(value)) {
-            return false;
+            return IllegalValueError.duplicateEntry;
         }
     }
 
-    return true;
+    return;
 }
