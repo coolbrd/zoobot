@@ -1,8 +1,11 @@
 import { stripIndent } from 'common-tags';
+import { hasDuplicates } from '../../utility/arraysAndSuch';
 
 export default interface SchemaFieldRestrictions {
+    defaultValue: unknown,
     nonNegative?: boolean,
-    maxListSize?: number
+    maxListSize?: number,
+    allowDuplicates?: boolean
 }
 
 // Checks if a value is valid in accordance with a given set of field restrictions
@@ -33,6 +36,20 @@ export function fieldValueIsValid(value: unknown, restrictions: SchemaFieldRestr
         }
 
         if (value.length > restrictions.maxListSize) {
+            return false;
+        }
+    }
+
+    if (restrictions.allowDuplicates !== undefined) {
+        if (!Array.isArray(value)) {
+            throw new Error(stripIndent`
+                Illegal  value found in restricted field.
+
+                Value: ${value}
+            `);
+        }
+
+        if (!restrictions.allowDuplicates && hasDuplicates(value)) {
             return false;
         }
     }

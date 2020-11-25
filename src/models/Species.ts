@@ -1,4 +1,5 @@
-import mongoose, { Schema, SchemaDefinition } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import { Species } from '../structures/GameObject/GameObjects/Species';
 
 const cardSubSchema = new Schema({
@@ -20,7 +21,7 @@ const cardSubSchema = new Schema({
     }
 });
 
-export const speciesSchemaDefinition: SchemaDefinition = {
+export const speciesSchemaDefinition: BeastiarySchemaDefinition = {
     [Species.fieldNames.commonNames]: [{
         name: {
             type: String,
@@ -59,6 +60,7 @@ export const speciesSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true
         }
     },

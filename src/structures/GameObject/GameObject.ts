@@ -1,8 +1,9 @@
 import { stripIndent } from "common-tags";
-import { Document, Model, SchemaDefinition, Types } from "mongoose";
+import { Document, Model, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import gameConfig from "../../config/gameConfig";
-import { fieldValueIsValid } from '../SchemaFieldRestrictions';
+import { BeastiarySchemaDefinition } from '../schema/BeastiarySchema';
+import { fieldValueIsValid } from '../schema/SchemaFieldRestrictions';
 import GameObjectCache from "./GameObjectCache";
 
 export interface FieldRestriction {
@@ -18,7 +19,7 @@ export interface ReferencedObject<GameObjectType extends GameObject> {
 export default abstract class GameObject {
     // The model in which the game object's representative documents are found
     public readonly abstract model: Model<Document>;
-    public readonly abstract schemaDefinition: SchemaDefinition;
+    public readonly abstract schemaDefinition: BeastiarySchemaDefinition;
 
     protected readonly beastiaryClient: BeastiaryClient;
 
@@ -97,10 +98,8 @@ export default abstract class GameObject {
 
         const schemaField = this.schemaDefinition[fieldName];
 
-        if ("fieldRestrictions" in schemaField) {
-            const restrictions = schemaField.fieldRestrictions;
-
-            if (!fieldValueIsValid(value, restrictions)) {
+        if (schemaField.fieldRestrictions) {
+            if (!fieldValueIsValid(value, schemaField.fieldRestrictions)) {
                 throw new Error(stripIndent`
                     Attempted to set a game object field to an illegal value.
 

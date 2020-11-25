@@ -1,8 +1,9 @@
-import mongoose, { Schema, SchemaDefinition } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import gameConfig from '../config/gameConfig';
+import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import { Player } from '../structures/GameObject/GameObjects/Player';
 
-export const playerSchemaDefinition: SchemaDefinition = {
+export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     [Player.fieldNames.userId]: {
         type: String,
         required: true
@@ -15,6 +16,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -22,6 +24,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -33,7 +36,9 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: [Schema.Types.ObjectId],
         required: false,
         fieldRestrictions: {
-            maxListSize: gameConfig.maxCrewSize   
+            defaultValue: [],
+            maxListSize: gameConfig.maxCrewSize,
+            allowDuplicates: false
         }
     },
     [Player.fieldNames.lastDailyCurrencyReset]: {
@@ -44,6 +49,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -51,6 +57,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -62,6 +69,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -69,6 +77,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -76,6 +85,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -87,6 +97,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -94,6 +105,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -101,6 +113,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },
@@ -112,6 +125,7 @@ export const playerSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true   
         }
     },

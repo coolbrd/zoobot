@@ -1,7 +1,8 @@
-import mongoose, { Schema, SchemaDefinition } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import { Animal } from '../structures/GameObject/GameObjects/Animal';
 
-export const animalSchemaDefinition: SchemaDefinition = {
+export const animalSchemaDefinition: BeastiarySchemaDefinition = {
     [Animal.fieldNames.speciesId]: {
         type: Schema.Types.ObjectId,
         required: true
@@ -30,6 +31,7 @@ export const animalSchemaDefinition: SchemaDefinition = {
         type: Number,
         required: true,
         fieldRestrictions: {
+            defaultValue: 0,
             nonNegative: true
         }
     }

@@ -1,7 +1,8 @@
-import mongoose, { Schema, SchemaDefinition } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import PendingSpecies from '../structures/GameObject/GameObjects/PendingSpecies';
 
-export const pendingSpeciesSchemaDefinition: SchemaDefinition = {
+export const pendingSpeciesSchemaDefinition: BeastiarySchemaDefinition = {
     [PendingSpecies.fieldNames.commonNames]: {
         type: [String],
         required: true,
