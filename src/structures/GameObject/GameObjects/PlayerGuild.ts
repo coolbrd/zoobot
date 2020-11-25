@@ -2,12 +2,13 @@ import { Guild, GuildChannel } from "discord.js";
 import { Document } from "mongoose";
 import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
-import { GuildModel } from '../../../models/PlayerGuild';
+import { GuildModel, playerGuildSchemaDefinition } from '../../../models/PlayerGuild';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
+    public readonly schemaDefinition = playerGuildSchemaDefinition;
 
     public static readonly fieldNames = {
         guildId: "guildId",

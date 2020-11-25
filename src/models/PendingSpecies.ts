@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, SchemaDefinition } from "mongoose";
 import PendingSpecies from '../structures/GameObject/GameObjects/PendingSpecies';
 
-const pendingSpeciesSchema = new Schema({
+export const pendingSpeciesSchemaDefinition: SchemaDefinition = {
     [PendingSpecies.fieldNames.commonNames]: {
         type: [String],
         required: true,
@@ -34,6 +34,8 @@ const pendingSpeciesSchema = new Schema({
         type: String,
         required: true
     }
-});
+};
+
+const pendingSpeciesSchema = new Schema(pendingSpeciesSchemaDefinition);
 
 export const PendingSpeciesModel = mongoose.model("PendingSpecies", pendingSpeciesSchema);

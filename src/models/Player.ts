@@ -1,7 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, SchemaDefinition } from "mongoose";
+import gameConfig from '../config/gameConfig';
 import { Player } from '../structures/GameObject/GameObjects/Player';
 
-const playerSchema = new Schema({
+export const playerSchemaDefinition: SchemaDefinition = {
     [Player.fieldNames.userId]: {
         type: String,
         required: true
@@ -12,11 +13,17 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.scraps]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.collectionUpgradeLevel]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.collectionAnimalIds]: {
         type: [Schema.Types.ObjectId],
@@ -24,7 +31,10 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.crewAnimalIds]: {
         type: [Schema.Types.ObjectId],
-        required: false
+        required: false,
+        fieldRestrictions: {
+            maxListSize: gameConfig.maxCrewSize   
+        }
     },
     [Player.fieldNames.lastDailyCurrencyReset]: {
         type: Schema.Types.Date,
@@ -32,11 +42,17 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.freeCapturesLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.extraCapturesLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.lastCaptureReset]: {
         type: Schema.Types.Date,
@@ -44,15 +60,24 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.totalCaptures]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.freeEncountersLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.extraEncountersLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.lastEncounterReset]: {
         type: Schema.Types.Date,
@@ -60,15 +85,24 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.totalEncounters]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.freeXpBoostsLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.extraXpBoostsLeft]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.lastXpBoostReset]: {
         type: Schema.Types.Date,
@@ -76,12 +110,17 @@ const playerSchema = new Schema({
     },
     [Player.fieldNames.totalXpBoosts]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true   
+        }
     },
     [Player.fieldNames.tokenSpeciesIds]: {
         type: [Schema.Types.ObjectId],
         required: true
     }
-});
+};
+
+const playerSchema = new Schema(playerSchemaDefinition);
 
 export const PlayerModel = mongoose.model("Player", playerSchema);

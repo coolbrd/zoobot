@@ -1,8 +1,9 @@
 import GameObject from "../GameObject";
-import { PendingSpeciesModel } from '../../../models/PendingSpecies';
+import { PendingSpeciesModel, pendingSpeciesSchemaDefinition } from '../../../models/PendingSpecies';
 
 export default class PendingSpecies extends GameObject {
     public readonly model = PendingSpeciesModel;
+    public readonly schemaDefinition = pendingSpeciesSchemaDefinition;
 
     public static readonly fieldNames = {
         commonNames: "commonNames",

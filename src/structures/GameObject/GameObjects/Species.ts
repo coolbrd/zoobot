@@ -2,10 +2,11 @@ import { Types } from "mongoose";
 import GameObject from "../GameObject";
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { getWeightedRandom } from "../../../utility/weightedRarity";
-import { SpeciesModel } from '../../../models/Species';
+import { SpeciesModel, speciesSchemaDefinition } from '../../../models/Species';
 
 export class Species extends GameObject {
     public readonly model = SpeciesModel;
+    public readonly schemaDefinition = speciesSchemaDefinition;
 
     public static readonly fieldNames = {
         commonNames: "commonNames",

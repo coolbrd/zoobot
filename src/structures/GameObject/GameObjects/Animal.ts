@@ -2,7 +2,7 @@ import { TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import GameObject from "../GameObject";
 import { Species, SpeciesCard } from "./Species";
-import { AnimalModel } from '../../../models/Animal';
+import { AnimalModel, animalSchemaDefinition } from '../../../models/Animal';
 import { unknownCard } from './UnknownSpecies';
 import { stripIndent } from "common-tags";
 import { betterSend } from "../../../discordUtility/messageMan";
@@ -13,6 +13,7 @@ import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
+    public readonly schemaDefinition = animalSchemaDefinition;
 
     public static readonly fieldNames = {
         speciesId: "speciesId",
@@ -22,12 +23,6 @@ export class Animal extends GameObject {
         ownerId: "ownerId",
         nickname: "nickname",
         experience: "experience"
-    };
-
-    public readonly fieldRestrictions = {
-        [Animal.fieldNames.experience]: {
-            nonNegative: true
-        }
     };
 
     protected referenceNames = {

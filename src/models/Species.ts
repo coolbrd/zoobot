@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, SchemaDefinition } from "mongoose";
 import { Species } from '../structures/GameObject/GameObjects/Species';
 
 const cardSubSchema = new Schema({
@@ -20,7 +20,7 @@ const cardSubSchema = new Schema({
     }
 });
 
-const speciesSchema = new Schema({
+export const speciesSchemaDefinition: SchemaDefinition = {
     [Species.fieldNames.commonNames]: [{
         name: {
             type: String,
@@ -57,13 +57,18 @@ const speciesSchema = new Schema({
     },
     [Species.fieldNames.rarity]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true
+        }
     },
     [Species.fieldNames.token]: {
         type: String,
         required: true
     }
-});
+};
+
+const speciesSchema = new Schema(speciesSchemaDefinition);
 
 export const SpeciesModel = mongoose.model("Species", speciesSchema);
 

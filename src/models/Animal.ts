@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, SchemaDefinition } from "mongoose";
 import { Animal } from '../structures/GameObject/GameObjects/Animal';
 
-const animalSchema = new Schema({
+export const animalSchemaDefinition: SchemaDefinition = {
     [Animal.fieldNames.speciesId]: {
         type: Schema.Types.ObjectId,
         required: true
@@ -28,9 +28,14 @@ const animalSchema = new Schema({
     },
     [Animal.fieldNames.experience]: {
         type: Number,
-        required: true
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true
+        }
     }
-});
+};
+
+const animalSchema = new Schema(animalSchemaDefinition);
 
 export const AnimalModel = mongoose.model("Animal", animalSchema);
 

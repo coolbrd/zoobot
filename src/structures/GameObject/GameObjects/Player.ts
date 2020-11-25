@@ -7,13 +7,14 @@ import GameObject from "../GameObject";
 import LoadableOwnedAnimal from "./LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { Animal } from "./Animal";
-import { PlayerModel } from '../../../models/Player';
+import { PlayerModel, playerSchemaDefinition } from '../../../models/Player';
 import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class Player extends GameObject {
     public readonly model = PlayerModel;
+    public readonly schemaDefinition = playerSchemaDefinition;
 
     public static readonly fieldNames = {
         userId: "userId",
@@ -37,42 +38,6 @@ export class Player extends GameObject {
         totalXpBoosts: "totalXpBoosts",
         tokenSpeciesIds: "tokenSpeciesIds"
     };
-
-    public readonly fieldRestrictions = {
-        [Player.fieldNames.scraps]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.collectionUpgradeLevel]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.freeCapturesLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.extraCapturesLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.totalCaptures]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.freeEncountersLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.extraEncountersLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.totalEncounters]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.freeXpBoostsLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.extraXpBoostsLeft]: {
-            nonNegative: true
-        },
-        [Player.fieldNames.totalXpBoosts]: {
-            nonNegative: true
-        }
-    }
 
     public static newDocument(guildMember: GuildMember): Document {
         return new PlayerModel({

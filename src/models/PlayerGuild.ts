@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, SchemaDefinition } from "mongoose";
 import { PlayerGuild } from '../structures/GameObject/GameObjects/PlayerGuild';
 
-const guildScema = new Schema({
+export const playerGuildSchemaDefinition: SchemaDefinition = {
     [PlayerGuild.fieldNames.guildId]: {
         type: String,
         required: true
@@ -14,6 +14,8 @@ const guildScema = new Schema({
         type: String,
         required: false
     }
-});
+};
+
+const guildScema = new Schema(playerGuildSchemaDefinition);
 
 export const GuildModel = mongoose.model("Guild", guildScema);

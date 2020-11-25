@@ -1,7 +1,8 @@
 import { stripIndent } from "common-tags";
-import { Document, Model, Types } from "mongoose";
+import { Document, Model, SchemaDefinition, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import gameConfig from "../../config/gameConfig";
+import { fieldValueIsValid } from '../SchemaFieldRestrictions';
 import GameObjectCache from "./GameObjectCache";
 
 export interface FieldRestriction {
@@ -17,6 +18,7 @@ export interface ReferencedObject<GameObjectType extends GameObject> {
 export default abstract class GameObject {
     // The model in which the game object's representative documents are found
     public readonly abstract model: Model<Document>;
+    public readonly abstract schemaDefinition: SchemaDefinition;
 
     protected readonly beastiaryClient: BeastiaryClient;
 
@@ -25,7 +27,6 @@ export default abstract class GameObject {
 
     // The set of field names that are used to access data within this object's document
     public static readonly fieldNames: {[fieldName: string]: string};
-    public readonly fieldRestrictions: {[fieldName: string]: FieldRestriction} = {};
 
     protected static readonly referenceNames: {[referenceName: string]: string};
     protected references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
@@ -85,27 +86,28 @@ export default abstract class GameObject {
     }
 
     protected setDocumentField(fieldName: string, value: unknown): void {
-        if (fieldName in this.fieldRestrictions) {
-            const restrictions = this.fieldRestrictions[fieldName];
+        if (!(fieldName in this.schemaDefinition)) {
+            throw new Error(stripIndent`
+                Invalid field name used in game object field setter.
 
-            if (restrictions.nonNegative) {
-                if (typeof value !== "number") {
-                    throw new Error(stripIndent`
-                        A non-number value was given to a game object field that is marked as non-negative.
+                Field name: ${fieldName}
+                Game object: ${this.debugString}
+            `);
+        }
 
-                        Value: ${value}
-                        Game object: ${this.debugString}
-                    `);
-                }
+        const schemaField = this.schemaDefinition[fieldName];
 
-                if (value < 0) {
-                    throw new Error(stripIndent`
-                        A negative number was given to a game object field that's supposed to be non-negative.
+        if ("fieldRestrictions" in schemaField) {
+            const restrictions = schemaField.fieldRestrictions;
 
-                        Value: ${value}
-                        Game object: ${this.debugString}
-                    `);
-                }
+            if (!fieldValueIsValid(value, restrictions)) {
+                throw new Error(stripIndent`
+                    Attempted to set a game object field to an illegal value.
+
+                    Field name: ${fieldName}
+                    Value: ${value}
+                    Game object: ${this.debugString}
+                `);
             }
         }
 
