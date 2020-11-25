@@ -54,6 +54,20 @@ export function arrayElementCount<T>(array: T[], element: T): number {
     return count;
 }
 
+export function hasDuplicates<T>(array: T[]): boolean {
+    const encounteredElements: T[] = [];
+
+    for (const currentElement of array) {
+        if (encounteredElements.includes(currentElement)) {
+            return true;
+        }
+
+        encounteredElements.push(currentElement);
+    }
+
+    return false;
+}
+
 // Gets the index of an element within a list where a predicate function is satisfied
 export function indexWhere<T>(list: T[], predicate: (element: T) => boolean): number {
     let indexInList = -1;
