@@ -29,11 +29,17 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
             console.log("Database integrity check passed");
         }
 
-        const manager = new Discord.ShardingManager("./build/index.js", { respawn: true });
+        const manager = new Discord.ShardingManager("./build/index.js", { respawn: false });
             
         manager.spawn(2);
         manager.on("shardCreate", shard => {
             console.log(`- Spawned shard ${shard.id} -`);
+
+            shard.on("message", message => {
+                if (message === "exit") {
+                    process.exit();
+                }
+            });
         });
     }).catch(error => {
         throw new Error(stripIndent`

@@ -134,6 +134,12 @@ export default class BeastiaryClient {
         this.discordClient.on("exit", () => {
             this.beastiary.exit().then(() => {
                 console.log("Exit successful.");
+
+                if (this.discordClient.shard) {
+                    this.discordClient.shard.send("exit");
+                }
+
+                process.exit();
             }).catch(error => {
                 throw new Error(stripIndent`
                     There was an error performing Beastiary exit cleanup.
