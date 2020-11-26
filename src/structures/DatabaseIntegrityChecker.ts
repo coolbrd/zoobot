@@ -1,9 +1,13 @@
 import { stripIndent } from "common-tags";
-import { Document, Model } from "mongoose";
-import { PlayerModel } from "../models/Player";
-import { GuildModel } from "../models/PlayerGuild";
+import { Document, Types } from "mongoose";
+import { AnimalModel, animalSchemaDefinition } from '../models/Animal';
+import { PlayerModel, playerSchemaDefinition } from "../models/Player";
+import { GuildModel, playerGuildSchemaDefinition } from "../models/PlayerGuild";
+import { BeastiarySchemaDefinition, BeastiarySchemaOptions } from './schema/BeastiarySchema';
 import { Player } from "./GameObject/GameObjects/Player";
 import { PlayerGuild } from "./GameObject/GameObjects/PlayerGuild";
+import { findRestrictedFieldValueErrors, IllegalValueError } from './schema/SchemaFieldRestrictions';
+import { Animal } from './GameObject/GameObjects/Animal';
 
 interface DatabaseIntegrityError {
     info: string,
@@ -13,19 +17,73 @@ interface DatabaseIntegrityError {
 export default class DatabaseIntegrityChecker {
     private readonly errors: DatabaseIntegrityError[] = [];
 
-    private async checkForDuplicateDocuments(model: Model<Document>, duplicateInfoString: string, areDuplicates: (document1: Document, document2: Document) => boolean): Promise<void> {
-        let allDocuments: Document[];
-        try {
-            allDocuments = await model.find({});
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error finding all existing documents in a given model.
+    private readonly ownedAnimals = new Map<string, Document>();
 
-                ${error}
-            `);
-        }
+    private addError(info: string, documents: Document[]): void {
+        const newError: DatabaseIntegrityError = {
+            info: info,
+            documents: documents
+        };
 
+        this.errors.push(newError);
+    }
+
+    private idToKey(id: Types.ObjectId): string {
+        return id.toHexString();
+    }
+
+    private keyToId(key: string): Types.ObjectId {
+        return Types.ObjectId.createFromHexString(key);
+    }
+
+    private checkDocumentForIllegalValues(document: Document, schemaDefinition: BeastiarySchemaDefinition): void {
+        for (const fieldName of Object.keys(schemaDefinition)) {
+            const schemaField = schemaDefinition[fieldName] as BeastiarySchemaOptions;
+
+            const documentValue = document.get(fieldName);
+
+            if (schemaField.required && documentValue === undefined) {
+                this.addError(
+                    stripIndent`
+                        An empty required field was found.
+
+                        Field name: ${fieldName}
+                    `,
+                    [document]
+                );
+            }
+
+            if (schemaField.fieldRestrictions) {
+                const fieldError = findRestrictedFieldValueErrors(documentValue, schemaField.fieldRestrictions);
+
+                if (fieldError !== undefined) {
+                    this.addError(
+                        stripIndent`
+                            An illegal value was found in a document. Fixing.
+
+                            Field name: ${fieldName}
+                            Value: ${documentValue}
+                        `,
+                        [document]
+                    );
+
+                    if (fieldError === IllegalValueError.negative) {
+                        document.updateOne({
+                            [fieldName]: schemaField.fieldRestrictions.defaultValue
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    private checkAllDocumentsForIllegalValues(allDocuments: Document[], schemaDefinition: BeastiarySchemaDefinition): void {
+        allDocuments.forEach(currentDocument => {
+            this.checkDocumentForIllegalValues(currentDocument, schemaDefinition);
+        });
+    }
+
+    private checkForDuplicateDocuments(allDocuments: Document[], duplicateInfoString: string, areDuplicates: (document1: Document, document2: Document) => boolean): void {
         const checkedDocuments: Document[] = [];
 
         allDocuments.forEach(currentDocument => {
@@ -34,19 +92,14 @@ export default class DatabaseIntegrityChecker {
             });
 
             if (duplicateDocument) {
-                const newError: DatabaseIntegrityError = {
-                    info: duplicateInfoString,
-                    documents: [currentDocument, duplicateDocument]
-                }
-
-                this.errors.push(newError);
+                this.addError(duplicateInfoString, [currentDocument, duplicateDocument]);
             }
 
             checkedDocuments.push(currentDocument);
         });
     }
 
-    private async checkForDuplicatePlayers(): Promise<void> {
+    private checkForDuplicatePlayers(allPlayers: Document[]): void {
         const playerDocumentsAreDuplicates = (playerDocument1: Document, playerDocument2: Document) => {
             const userIdMatch = playerDocument1.get(Player.fieldNames.userId) === playerDocument2.get(Player.fieldNames.userId);
             const guildIdMatch = playerDocument1.get(Player.fieldNames.guildId) === playerDocument2.get(Player.fieldNames.guildId);
@@ -56,22 +109,14 @@ export default class DatabaseIntegrityChecker {
             return areDuplicates;
         }
 
-        try {
-            await this.checkForDuplicateDocuments(
-                PlayerModel,
-                "Two player documents that identified the same guild member were found.",
-                playerDocumentsAreDuplicates);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error finding duplicate player documents.
-
-                ${error}
-            `);
-        }
+        this.checkForDuplicateDocuments(
+            allPlayers,
+            "Two player documents that identified the same guild member were found.",
+            playerDocumentsAreDuplicates
+        );
     }
 
-    private async checkForDuplicateGuilds(): Promise<void> {
+    private checkForDuplicatePlayerGuilds(allGuilds: Document[]): void {
         const guildDocumentsAreDuplicates = (guildDocument1: Document, guildDocument2: Document) => {
             const guildIdMatch = guildDocument1.get(PlayerGuild.fieldNames.guildId) === guildDocument2.get(PlayerGuild.fieldNames.guildId);
 
@@ -80,57 +125,127 @@ export default class DatabaseIntegrityChecker {
             return areDuplicates;
         }
 
-        try {
-            await this.checkForDuplicateDocuments(
-                GuildModel,
-                "Two guild documents that identified the same guild were found.",
-                guildDocumentsAreDuplicates);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error finding duplicate guild documents.
+        this.checkForDuplicateDocuments(
+            allGuilds,
+            "Two guild documents that identified the same guild were found.",
+            guildDocumentsAreDuplicates
+        );
+    }
 
-                ${error}
-            `);
+    private addAnimalIdToPlayerCollection(playerDocument: Document, id: Types.ObjectId): void {
+        playerDocument.updateOne({
+            $push: {
+                [Player.fieldNames.collectionAnimalIds]: id
+            }
+        }).exec();
+    }
+
+    private findPlayerByUserAndGuildId(allPlayers: Document[], userId: string, guildId: string): Document | undefined {
+        const ownerDocument = allPlayers.find(playerDocument => {
+            const userMatch = userId === playerDocument.get(Player.fieldNames.userId);
+            const guildMatch = guildId === playerDocument.get(Player.fieldNames.guildId);
+
+            return userMatch && guildMatch;
+        });
+
+        return ownerDocument;
+    }
+
+    private validateAnimalOwnership(allAnimals: Document[], allPlayers: Document[]): void {
+        for (const currentPlayerDocument of allPlayers) {
+            const collectionAnimalIds: Types.ObjectId[] = currentPlayerDocument.get(Player.fieldNames.collectionAnimalIds);
+
+            for (const currentAnimalId of collectionAnimalIds) {
+                const idKey = this.idToKey(currentAnimalId);
+
+                const otherOwner = this.ownedAnimals.get(idKey);
+
+                if (otherOwner) {
+                    this.addError(
+                        stripIndent`
+                            An animal id that exists in the collections of two players was found.
+
+                            Id: ${this.keyToId(idKey)}
+                        `,
+                        [otherOwner, currentPlayerDocument]
+                    );
+                }
+                else {
+                    this.ownedAnimals.set(idKey, currentPlayerDocument);
+                }
+            }
+        }
+
+        for (const currentAnimalDocument of allAnimals) {
+            const id: Types.ObjectId = currentAnimalDocument._id;
+
+            const idKey = this.idToKey(id);
+
+            if (!this.ownedAnimals.has(idKey)) {
+                this.addError("An animal whose id isn't in any collection was found. Fixing.", [currentAnimalDocument]);
+
+                const ownerDocument = this.findPlayerByUserAndGuildId(
+                    allPlayers,
+                    currentAnimalDocument.get(Animal.fieldNames.userId),
+                    currentAnimalDocument.get(Animal.fieldNames.guildId)
+                );
+
+                if (!ownerDocument) {
+                    this.addError("An animal with no collection reference is owned by a player that doesn't exist anymore.", [currentAnimalDocument]);
+                }
+                else {
+                    this.addAnimalIdToPlayerCollection(ownerDocument, id);
+                }
+            }
         }
     }
 
     public async run(): Promise<DatabaseIntegrityError[]> {
+        let allPlayers: Document[];
         try {
-            await this.checkForDuplicatePlayers();
+            allPlayers = await PlayerModel.find({});
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error checking for duplicate player documents.
+                There was an error getting all player documents during an integrity check.
 
                 ${error}
             `);
         }
 
+        let allPlayerGuilds: Document[];
         try {
-            await this.checkForDuplicateGuilds();
+            allPlayerGuilds = await GuildModel.find({});
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error checking for duplicate guild documents.
+                There was an error getting all player guild documents during an integrity check.
 
                 ${error}
             `);
         }
+
+        let allAnimals: Document[];
+        try {
+            allAnimals = await AnimalModel.find({});
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting all animal documents during an integrity check.
+
+                ${error}
+            `);
+        }
+
+        this.checkForDuplicatePlayers(allPlayers);
+        this.checkForDuplicatePlayerGuilds(allPlayerGuilds);
+
+        this.checkAllDocumentsForIllegalValues(allPlayers, playerSchemaDefinition);
+        this.checkAllDocumentsForIllegalValues(allPlayerGuilds, playerGuildSchemaDefinition);
+        this.checkAllDocumentsForIllegalValues(allAnimals, animalSchemaDefinition);
+
+        this.validateAnimalOwnership(allAnimals, allPlayers);
 
         return this.errors;
     }
 }
-
-/*
-
-- No animals in two collections at once
-- No game objects with illegal stat values
-x Only one document to represent each player
-- Only one document to represent each guild
-- No id references to nonexistent documents
-- No duplicate ids in any reference list
-- No animals without a collection reference
-- No exceeding crew/collection size limits
-
-*/
