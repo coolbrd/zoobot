@@ -123,6 +123,10 @@ export class Animal extends GameObject {
         return Math.ceil(Math.max(0, Math.log2(this.experience / 50))) + 1;
     }
 
+    public get nextLevelXp(): number {
+        return Math.pow(this.level, 2) * 50;
+    }
+
     public playerIsOwner(player: Player): boolean {
         return this.userId === player.member.user.id && this.guildId === player.member.guild.id;
     }

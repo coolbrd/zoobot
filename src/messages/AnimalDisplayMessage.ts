@@ -104,7 +104,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
                 break;
             }
             case AnimalDisplayMessageState.info: {
-                buildAnimalInfo(embed, selectedAnimal);
+                buildAnimalInfo(embed, selectedAnimal, this.beastiaryClient.beastiary.emojis);
                 break;
             }
             case AnimalDisplayMessageState.card: {

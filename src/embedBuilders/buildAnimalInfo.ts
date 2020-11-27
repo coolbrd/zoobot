@@ -1,8 +1,9 @@
 import { MessageEmbed } from "discord.js";
+import EmojiManager from '../beastiary/EmojiManager';
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): void {
+export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emojiManager: EmojiManager): void {
     embed.setThumbnail(animal.card.url);
     embed.setTitle(`${animal.displayName}`);
 
@@ -23,14 +24,16 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): vo
     if (animal.card.special) {
         embed.addField("Special", capitalizeFirstLetter(animal.card.special));
     }
-    
-    embed.addField("Level", animal.level);
-    embed.addField("Value", `${animal.value} scraps`);
+
+    const experienceEmoji = emojiManager.getByName("xp");
+    embed.addField(`Level ${animal.level}`, `${experienceEmoji}${animal.experience}/${animal.nextLevelXp}`);
+
+    embed.addField("Value", `${animal.value} scraps`, true);
 
     const showToken = animal.owner.hasToken(animal.species);
     let tokenString = "*Unknown*";
     if (showToken) {
         tokenString = animal.species.token;
     }
-    embed.addField("Token", capitalizeFirstLetter(tokenString));
+    embed.addField("Token", capitalizeFirstLetter(tokenString), true);
 }

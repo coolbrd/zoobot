@@ -76,7 +76,8 @@ class GiveXpCommand extends GuildCommand {
 
         player.useXpBoost();
 
-        betterSend(parsedMessage.channel, `Success, you gave ${animal.displayName} **+${gameConfig.xpPerBoost}** xp!`);
+        const xpEmoji = beastiaryClient.beastiary.emojis.getByName("xp");
+        betterSend(parsedMessage.channel, `Success, you gave ${animal.displayName} **+${gameConfig.xpPerBoost}**${xpEmoji}`);
 
         return commandReceipt;
     }
