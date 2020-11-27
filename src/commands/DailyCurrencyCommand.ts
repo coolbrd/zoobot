@@ -40,7 +40,7 @@ class DailyCurrencyCommand extends GuildCommand {
 
         player.claimDailyCurrency();
 
-        const dailyAmount = Math.floor(Math.random() * 50) + 25;
+        const dailyAmount = Math.floor(Math.random() * 200) + 100;
 
         player.pep += dailyAmount;
 
