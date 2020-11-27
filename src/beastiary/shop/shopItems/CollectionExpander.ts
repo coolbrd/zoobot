@@ -11,7 +11,7 @@ export default class CollectionExpander extends ShopItem {
     }
 
     public getPrice(player: Player): number {
-        return 100 + player.collectionUpgradeLevel * 50;
+        return 500 + player.collectionUpgradeLevel * 250;
     }
 
     public purchaseAction(player: Player): void {
