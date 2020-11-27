@@ -76,6 +76,16 @@ export default class BeastiaryClient {
         this.discordClient.on("ready", () => {
             console.log("Logged into Discord");
 
+            if (this.discordClient.user) {
+                this.discordClient.user.setActivity("b/help").catch(error => {
+                    throw new Error(stripIndent`
+                        There was an error attempting to set a client's activity.
+
+                        ${error}
+                    `);
+                });
+            }
+
             preLoad.connectedToDiscord = true;
             complete();
 
