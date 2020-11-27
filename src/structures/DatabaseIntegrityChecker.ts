@@ -67,7 +67,7 @@ export default class DatabaseIntegrityChecker {
                         [document]
                     );
 
-                    if (fieldError === IllegalValueError.negative) {
+                    if (fieldError === IllegalValueError.negative || fieldError === IllegalValueError.wrongType) {
                         document.updateOne({
                             $set: {
                                 [fieldName]: schemaField.fieldRestrictions.defaultValue
