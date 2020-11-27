@@ -29,7 +29,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         this.addButton({
             name: "capture",
-            emoji: "🔘",
+            emoji: beastiaryClient.beastiary.emojis.getReactionVersionByName("capture"),
             helpMessage: "Capture"
         });
 
