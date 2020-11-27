@@ -140,6 +140,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     [Player.fieldNames.tokenSpeciesIds]: {
         type: [Schema.Types.ObjectId],
         required: true
+    },
+    [Player.fieldNames.rarestTierCaught]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            defaultValue: 0,
+            nonNegative: true   
+        }
     }
 };
 

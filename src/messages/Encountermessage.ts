@@ -10,6 +10,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -99,12 +100,9 @@ export default class EncounterMessage extends InteractiveMessage {
         betterSend(this.channel, `${user}, you caught ${commonName.article} ${commonName.name}!`);
         this.setDeactivationText("(caught)");
 
-        player.captureAnimal();
-
-        player.awardCrewExperienceInChannel(gameConfig.xpPerCapture, this.channel);
-
+        let newAnimal: Animal;
         try {
-            await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
+            newAnimal = await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
         }
         catch (error) {
             betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
@@ -119,6 +117,8 @@ export default class EncounterMessage extends InteractiveMessage {
                 ${error}
             `);
         }
+
+        player.captureAnimal(newAnimal, this.channel);
 
         this.deactivate();
     }

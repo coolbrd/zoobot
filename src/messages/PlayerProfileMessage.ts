@@ -42,10 +42,13 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             embed.setColor(firstAnimal.species.rarityData.color);
         }
 
+        const rarestTierCaughtEmoji = this.beastiaryClient.beastiary.emojis.getByName(`t${this.player.rarestTierCaught}`);
+
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
         embed.setDescription(stripIndent`
             Scraps: **${this.player.scraps}**
             Tokens collected: **${this.player.tokenSpeciesIds.length}**
+            Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**
             Encounters remaining: **${this.player.encountersLeft}**

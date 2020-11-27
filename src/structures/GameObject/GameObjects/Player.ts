@@ -37,7 +37,8 @@ export class Player extends GameObject {
         extraXpBoostsLeft: "extraXpBoostsLeft",
         lastXpBoostReset: "lastXpBoostReset",
         totalXpBoosts: "totalXpBoosts",
-        tokenSpeciesIds: "tokenSpeciesIds"
+        tokenSpeciesIds: "tokenSpeciesIds",
+        rarestTierCaught: "rarestTierCaught"
     };
 
     public static newDocument(guildMember: GuildMember): Document {
@@ -59,7 +60,8 @@ export class Player extends GameObject {
             [Player.fieldNames.freeXpBoostsLeft]: 0,
             [Player.fieldNames.extraXpBoostsLeft]: 0,
             [Player.fieldNames.lastXpBoostReset]: new Date(0),
-            [Player.fieldNames.totalXpBoosts]: 0
+            [Player.fieldNames.totalXpBoosts]: 0,
+            [Player.fieldNames.rarestTierCaught]: 0
         });
     }
 
@@ -234,6 +236,14 @@ export class Player extends GameObject {
 
     public get tokenSpeciesIds(): Types.ObjectId[] {
         return this.document.get(Player.fieldNames.tokenSpeciesIds);
+    }
+
+    public get rarestTierCaught(): number {
+        return this.document.get(Player.fieldNames.rarestTierCaught);
+    }
+
+    public set rarestTierCaught(rarestTierCaught: number) {
+        this.setDocumentField(Player.fieldNames.rarestTierCaught, rarestTierCaught);
     }
 
     public get collectionSizeLimit(): number {
@@ -471,7 +481,13 @@ export class Player extends GameObject {
         }
     }
 
-    public captureAnimal(): void {
+    private applyPotentialNewRarestTierCaught(tier: number): void {
+        if (tier > this.rarestTierCaught) {
+            this.rarestTierCaught = tier;
+        }
+    }
+
+    public captureAnimal(animal: Animal, channel: TextChannel): void {
         if (!this.hasCaptures) {
             throw new Error(stripIndent`
                 A player's capture stats were updated as if they captured an animal without any remaining captures.
@@ -487,6 +503,10 @@ export class Player extends GameObject {
                 Player: ${this.debugString}
             `);
         }
+
+        this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
+
+        this.awardCrewExperienceInChannel(gameConfig.xpPerCapture, channel);
 
         this.decrementCapturesLeft();
         this.totalCaptures += 1;
