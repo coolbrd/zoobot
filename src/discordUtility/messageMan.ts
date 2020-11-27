@@ -1,4 +1,4 @@
-import { TextChannel, Message, DMChannel, APIMessage } from "discord.js";
+import { TextChannel, Message, DMChannel, APIMessage, MessageReaction } from "discord.js";
 import { errorHandler } from "../structures/ErrorHandler";
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code
@@ -41,4 +41,24 @@ export function safeDeleteMessage(message: Message | undefined): boolean {
     }
 
     return true;
+}
+
+export async function safeReact(message: Message, emoji: string): Promise<undefined | MessageReaction> {
+    if (message.deleted) {
+        return;
+    }
+
+    return message.react(emoji);
+}
+
+export async function safeEdit(message: Message, content: unknown): Promise<undefined | Message> {
+    if (message.deleted) {
+        return;
+    }
+
+    if (!message.editable) {
+        return;
+    }
+
+    return message.edit(content);
 }

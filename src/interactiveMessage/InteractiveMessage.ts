@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
-import { betterSend } from "../discordUtility/messageMan";
+import { betterSend, safeEdit, safeReact } from "../discordUtility/messageMan";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
@@ -192,7 +192,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.beastiaryClient.interactiveMessageHandler.addMessage(this);
 
         for (const button of this.buttons.values()) {
-            this.message.react(button.emoji).catch(error => {
+            safeReact(this.message, button.emoji).catch(error => {
                 throw new Error(stripIndent`
                     Error trying to add reactions to an interactive message.
 
@@ -258,13 +258,13 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.content = newContent;
 
         if (this.sent) {
-            this.message.edit(this.content);
+            safeEdit(this.message, this.content);
         }
     }
 
     private applyPendingContent(): void {
         if (this.pendingContent) {
-            this.message.edit(this.pendingContent);
+            safeEdit(this.message, this.pendingContent);
             this.pendingContent = undefined;
         }
     }
@@ -324,7 +324,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.buttonNames.set(button.name, button.emoji);
 
         if (this.sent) {
-            this.message.react(button.emoji);
+            safeReact(this.message, button.emoji);
         }
     }
 
