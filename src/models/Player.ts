@@ -148,6 +148,10 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
             defaultValue: 0,
             nonNegative: true   
         }
+    },
+    [Player.fieldNames.favoriteAnimalId]: {
+        type: Schema.Types.ObjectId,
+        required: false
     }
 };
 

@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
+import { Types } from "mongoose";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
@@ -20,10 +21,18 @@ export default class PlayerProfileMessage extends InteractiveMessage {
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        let firstAnimal: Animal | undefined;
-        if (this.player.collectionAnimalIds.length > 0) {
+        let displayAnimalId: Types.ObjectId | undefined;
+        if (this.player.favoriteAnimalId) {
+            displayAnimalId = this.player.favoriteAnimalId;
+        }
+        else if (this.player.collectionAnimalIds.length > 0) {
+            displayAnimalId = this.player.collectionAnimalIds[0];
+        }
+
+        let displayAnimal: Animal | undefined;
+        if (displayAnimalId) {
             try {
-                firstAnimal = await this.player.fetchAnimalById(this.player.collectionAnimalIds[0]);
+                displayAnimal = await this.player.fetchAnimalById(displayAnimalId);
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -36,30 +45,39 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
         }
 
-        if (firstAnimal) {
-            embed.setThumbnail(firstAnimal.card.url);
-
-            embed.setColor(firstAnimal.species.rarityData.color);
-        }
-
         const rarestTierCaughtEmoji = this.beastiaryClient.beastiary.emojis.getByName(`t${this.player.rarestTierCaught}`);
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
-        embed.setDescription(stripIndent`
+
+        let descriptionString = "";
+
+        if (displayAnimal) {
+            embed.setThumbnail(displayAnimal.card.url);
+
+            embed.setColor(displayAnimal.species.rarityData.color);
+
+            if (this.player.favoriteAnimalId) {
+                descriptionString += `Favorite animal: ${displayAnimal.displayName}\n\n`;
+            }
+        }
+
+        descriptionString += stripIndent`
             Scraps: **${this.player.scraps}**
+            Collection size: **${this.player.collectionAnimalIds.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.length}**
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**
             Encounters remaining: **${this.player.encountersLeft}**
             Captures remaining: **${this.player.capturesLeft}**
-            Collection size: **${this.player.collectionAnimalIds.length}**
 
             Lifetime scraps: **${this.player.lifetimeScraps}**
             Total xp boosts: **${this.player.totalXpBoosts}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**
-        `);
+        `;
+
+        embed.setDescription(descriptionString);
 
         return embed;
     }

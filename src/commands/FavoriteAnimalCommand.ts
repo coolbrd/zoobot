@@ -64,6 +64,8 @@ class FavoriteAnimalCommand extends GuildCommand {
         player.removeAnimalIdFromCollection(animal.id);
         player.addAnimalIdsToCollectionPositional([animal.id], 0);
 
+        player.favoriteAnimalId = animal.id;
+
         commandReceipt.reactConfirm = true;
         return commandReceipt;
     }

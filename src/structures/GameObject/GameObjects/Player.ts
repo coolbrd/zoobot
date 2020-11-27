@@ -38,7 +38,8 @@ export class Player extends GameObject {
         lastXpBoostReset: "lastXpBoostReset",
         totalXpBoosts: "totalXpBoosts",
         tokenSpeciesIds: "tokenSpeciesIds",
-        rarestTierCaught: "rarestTierCaught"
+        rarestTierCaught: "rarestTierCaught",
+        favoriteAnimalId: "favoriteAnimalId"
     };
 
     public static newDocument(guildMember: GuildMember): Document {
@@ -244,6 +245,14 @@ export class Player extends GameObject {
 
     public set rarestTierCaught(rarestTierCaught: number) {
         this.setDocumentField(Player.fieldNames.rarestTierCaught, rarestTierCaught);
+    }
+
+    public get favoriteAnimalId(): Types.ObjectId | undefined {
+        return this.document.get(Player.fieldNames.favoriteAnimalId);
+    }
+
+    public set favoriteAnimalId(favoriteAnimalId: Types.ObjectId | undefined) {
+        this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
     }
 
     public get collectionSizeLimit(): number {
@@ -672,9 +681,9 @@ export class Player extends GameObject {
     }
 
     public async releaseAnimal(animalId: Types.ObjectId): Promise<void> {
-        let animal: Animal | undefined;
+        let releasedAnimal: Animal | undefined;
         try {
-            animal = await this.fetchAnimalById(animalId);
+            releasedAnimal = await this.fetchAnimalById(animalId);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -687,22 +696,28 @@ export class Player extends GameObject {
             `);
         }
 
-        if (!animal) {
+        if (!releasedAnimal) {
             return;
         }
 
-        this.removeAnimalIdFromCollection(animal.id);
-        this.removeAnimalIdFromCrew(animal.id);
+        this.removeAnimalIdFromCollection(releasedAnimal.id);
+        this.removeAnimalIdFromCrew(releasedAnimal.id);
 
-        if (!animal.playerIsOwner(this)) {
+        if (this.favoriteAnimalId) {
+            if (this.favoriteAnimalId.equals(releasedAnimal.id)) {
+                this.favoriteAnimalId = undefined;
+            }
+        }
+
+        if (!releasedAnimal.playerIsOwner(this)) {
             throw new Error(stripIndent`
                 A player somehow attempted to release an animal that doesn't belong to them.
 
                 Player: ${this.debugString}
-                Animal: ${animal.debugString}
+                Animal: ${releasedAnimal.debugString}
             `);
         }
 
-        this.scraps += animal.value;
+        this.scraps += releasedAnimal.value;
     }
 }
