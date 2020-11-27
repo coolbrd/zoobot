@@ -153,6 +153,8 @@ export default class BeastiaryClient {
                     this.discordClient.shard.send("exit");
                 }
 
+                this.discordClient.destroy();
+
                 process.exit();
             }).catch(error => {
                 throw new Error(stripIndent`
