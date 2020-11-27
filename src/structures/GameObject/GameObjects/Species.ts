@@ -3,6 +3,11 @@ import GameObject from "../GameObject";
 import { indexWhere } from "../../../utility/arraysAndSuch";
 import { getWeightedRandom } from "../../../utility/weightedRarity";
 import { SpeciesModel, speciesSchemaDefinition } from '../../../models/Species';
+import { RarityInfo } from "../../../beastiary/EncounterManager";
+
+export interface RarityInfoWithEmoji extends RarityInfo {
+    emoji: string
+}
 
 export class Species extends GameObject {
     public readonly model = SpeciesModel;
@@ -84,6 +89,17 @@ export class Species extends GameObject {
         this.setDocumentField(Species.fieldNames.rarity, rarity);
     }
 
+    public get rarityData(): RarityInfoWithEmoji {
+        const rarityInfo = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.rarity);
+
+        const rarityInfoWithEmoji: RarityInfoWithEmoji = {
+            ...rarityInfo,
+            emoji: this.beastiaryClient.beastiary.emojis.getByName(rarityInfo.emojiName)
+        };
+
+        return rarityInfoWithEmoji;
+    }
+
     public get token(): string {
         return this.document.get(Species.fieldNames.token);
     }
@@ -93,9 +109,7 @@ export class Species extends GameObject {
     }
 
     public get baseValue(): number {
-        const rarityInfo = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.rarity);
-
-        const baseValue = 2 + Math.floor(Math.pow(1.75, rarityInfo.tier + 1));
+        const baseValue = 2 + Math.floor(Math.pow(1.75, this.rarityData.tier + 1));
 
         return baseValue;
     }

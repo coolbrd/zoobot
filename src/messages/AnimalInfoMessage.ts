@@ -69,10 +69,10 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         embed.setAuthor(`Belongs to ${this.ownerUser.username}`, userAvatar);
         
         if (!this.cardMode) {
-            buildAnimalInfo(embed, this.animalObject, this.beastiaryClient);
+            buildAnimalInfo(embed, this.animalObject);
         }
         else {
-            buildAnimalCard(embed, this.animalObject, this.beastiaryClient);
+            buildAnimalCard(embed, this.animalObject);
         }
 
         embed.setFooter(this.getButtonHelpString());

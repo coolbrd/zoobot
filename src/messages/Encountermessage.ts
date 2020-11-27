@@ -39,14 +39,10 @@ export default class EncounterMessage extends InteractiveMessage {
 
     public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
-        
-        embed.setColor(this.beastiaryClient.beastiary.encounters.getRarityInfo(this.species.rarity).color);
+
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
 
-        const speciesRarity = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.species.rarity);
-        const rarityEmojiString = this.beastiaryClient.beastiary.emojis.getByName(speciesRarity.emojiName);
-
-        embed.addField("――――――――", `${rarityEmojiString} ${capitalizeFirstLetter(this.species.scientificName)}`, true);
+        embed.addField("――――――――", `${this.species.rarityData.emoji} ${capitalizeFirstLetter(this.species.scientificName)}`, true);
         embed.setImage(this.card.url);
 
         if (this.card.breed) {

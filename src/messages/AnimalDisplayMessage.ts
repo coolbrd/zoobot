@@ -69,9 +69,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             case AnimalDisplayMessageState.page: {
                 embed.setThumbnail(selectedAnimal.card.url);
 
-                const animalRarity = this.beastiaryClient.beastiary.encounters.getRarityInfo(selectedAnimal.species.rarity);
-
-                embed.setColor(animalRarity.color);
+                embed.setColor(selectedAnimal.species.rarityData.color);
 
                 let pageString = "";
                 let elementIndex = this.firstVisibleIndex;
@@ -106,11 +104,11 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
                 break;
             }
             case AnimalDisplayMessageState.info: {
-                buildAnimalInfo(embed, selectedAnimal, this.beastiaryClient);
+                buildAnimalInfo(embed, selectedAnimal);
                 break;
             }
             case AnimalDisplayMessageState.card: {
-                buildAnimalCard(embed, selectedAnimal, this.beastiaryClient);
+                buildAnimalCard(embed, selectedAnimal);
                 break;
             }
         }

@@ -1,23 +1,18 @@
 import { MessageEmbed } from "discord.js";
-import BeastiaryClient from "../bot/BeastiaryClient";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, beastiaryClient: BeastiaryClient): void {
+export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): void {
     embed.setThumbnail(animal.card.url);
     embed.setTitle(`${animal.displayName}`);
 
-    const animalRarity = beastiaryClient.beastiary.encounters.getRarityInfo(animal.species.rarity);
-
-    embed.setColor(animalRarity.color);
+    embed.setColor(animal.species.rarityData.color);
 
     if (animal.nickname) {
         embed.setDescription(capitalizeFirstLetter(animal.species.commonNames[0]));
     }
 
-    const rarityEmojiString = beastiaryClient.beastiary.emojis.getByName(animalRarity.emojiName);
-
-    embed.addField("Species", `${rarityEmojiString} ${capitalizeFirstLetter(animal.species.scientificName)}`, true);
+    embed.addField("Species", `${animal.species.rarityData.emoji} ${capitalizeFirstLetter(animal.species.scientificName)}`, true);
     
     embed.addField("Card", `${animal.species.indexOfCard(animal.card._id) + 1}/${animal.species.cards.length}`, true);
 

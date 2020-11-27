@@ -10,7 +10,7 @@ import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
-interface RarityInfo {
+export interface RarityInfo {
     tier: number,
     color: number,
     emojiName: string

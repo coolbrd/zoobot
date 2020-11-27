@@ -39,9 +39,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         if (firstAnimal) {
             embed.setThumbnail(firstAnimal.card.url);
 
-            const animalRarity = this.beastiaryClient.beastiary.encounters.getRarityInfo(firstAnimal.species.rarity);
-
-            embed.setColor(animalRarity.color);
+            embed.setColor(firstAnimal.species.rarityData.color);
         }
 
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);

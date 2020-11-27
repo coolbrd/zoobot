@@ -1,19 +1,13 @@
-import { stripIndent } from 'common-tags';
 import { MessageEmbed } from "discord.js";
-import BeastiaryClient from "../bot/BeastiaryClient";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildSpeciesCard(embed: MessageEmbed, species: Species, card: SpeciesCard, beastiaryClient: BeastiaryClient): void {
-    const speciesRarity = beastiaryClient.beastiary.encounters.getRarityInfo(species.rarity);
-
-    embed.setColor(speciesRarity.color);
+export default function buildSpeciesCard(embed: MessageEmbed, species: Species, card: SpeciesCard): void {
+    embed.setColor(species.rarityData.color);
 
     embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
 
-    const rarityEmojiString = beastiaryClient.beastiary.emojis.getByName(speciesRarity.emojiName);
-
-    embed.addField("――――――――", `${rarityEmojiString} ${capitalizeFirstLetter(species.scientificName)}`, true);
+    embed.addField("――――――――", `${species.rarityData.emoji} ${capitalizeFirstLetter(species.scientificName)}`, true);
 
     if (card.breed) {
         embed.addField("Breed", capitalizeFirstLetter(card.breed), true);

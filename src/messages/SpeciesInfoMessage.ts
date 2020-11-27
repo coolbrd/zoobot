@@ -52,10 +52,10 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         embed.setColor(getGuildUserDisplayColor(this.beastiaryClient.discordClient.user, this.channel, this.beastiaryClient));
 
         if (this.displayCard) {
-            buildSpeciesCard(embed, this.species, card, this.beastiaryClient);
+            buildSpeciesCard(embed, this.species, card);
         }
         else {
-            buildSpeciesInfo(embed, this.species, card, this.beastiaryClient, this.player);
+            buildSpeciesInfo(embed, this.species, card, this.player);
         }
 
         embed.appendToFooter("\n" + this.getButtonHelpString());
