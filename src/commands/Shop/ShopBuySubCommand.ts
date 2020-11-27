@@ -59,14 +59,15 @@ class ShopBuySubCommand extends GuildCommand {
 
         let purchaseReceipt: ShopReceipt;
         try {
-            purchaseReceipt = itemShop.attemptToPurchase(itemIdentifier, player, itemQuantity);
+            purchaseReceipt = itemShop.attemptToPurchase(beastiaryClient.beastiary.emojis, itemIdentifier, player, itemQuantity);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);
             return commandReceipt;
         }
 
-        betterSend(parsedMessage.channel, `Purchase successful. You bought **${purchaseReceipt.nameAndQuantity}** for **${purchaseReceipt.totalPrice}** scraps.`);
+        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+        betterSend(parsedMessage.channel, `Purchase successful. You bought **${purchaseReceipt.nameAndQuantity}** for **${purchaseReceipt.totalPrice}**${pepEmoji}.`);
         return commandReceipt;
     }
 }

@@ -6,12 +6,12 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
-class ViewScrapsCommand extends GuildCommand {
-    public readonly commandNames = ["scraps", "scrap", "s"];
+class ViewPepCommand extends GuildCommand {
+    public readonly commandNames = ["pep", "vp"];
 
-    public readonly info = "View your current balance of scraps";
+    public readonly info = "View your current balance of pep";
 
-    public readonly helpUseString = "to view your current balance of scraps.";
+    public readonly helpUseString = "to view your current balance of pep.";
 
     public readonly section = CommandSection.playerInfo;
 
@@ -25,9 +25,10 @@ class ViewScrapsCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        betterSend(parsedMessage.channel, `${player.member.displayName}'s balance: **${player.scraps}** scraps.`);
+        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+        betterSend(parsedMessage.channel, `${player.member.displayName}'s balance: **${player.pep}**${pepEmoji}.`);
 
         return commandReceipt;
     }
 }
-export default new ViewScrapsCommand();
+export default new ViewPepCommand();

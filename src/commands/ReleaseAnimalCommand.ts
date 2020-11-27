@@ -13,7 +13,7 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 class ReleaseAnimalCommand extends GuildCommand {
     public readonly commandNames = ["release", "r"];
 
-    public readonly info = "Release an animal from your collection in exchange for some scraps";
+    public readonly info = "Release an animal from your collection in exchange for some pep";
 
     public readonly helpUseString = "`<animal name or number>` to release an animal from your collection`";
 
@@ -167,7 +167,8 @@ class ReleaseAnimalCommand extends GuildCommand {
                 `);
             }
 
-            betterSend(parsedMessage.channel, `${animal.displayName} was released. **+${animal.value}** scraps.`);
+            const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+            betterSend(parsedMessage.channel, `${animal.displayName} was released. +**${animal.value}**${pepEmoji}.`);
         }
         // If the user didn't respond, or responded with anything other than yes
         else {

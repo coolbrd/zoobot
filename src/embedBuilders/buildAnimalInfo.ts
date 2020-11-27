@@ -28,7 +28,8 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     const experienceEmoji = emojiManager.getByName("xp");
     embed.addField(`Level ${animal.level}`, `${experienceEmoji}${animal.experience}/${animal.nextLevelXp}`);
 
-    embed.addField("Value", `${animal.value} scraps`, true);
+    const pepEmoji = emojiManager.getByName("pep");
+    embed.addField("Value", `${animal.value}${pepEmoji}`, true);
 
     const showToken = animal.owner.hasToken(animal.species);
     let tokenString = "*Unknown*";

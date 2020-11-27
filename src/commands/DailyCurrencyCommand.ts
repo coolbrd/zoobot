@@ -8,11 +8,11 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { remainingTimeString } from "../utility/timeStuff";
 
 class DailyCurrencyCommand extends GuildCommand {
-    public readonly commandNames = ["daily", "dailyscraps", "ds"];
+    public readonly commandNames = ["daily", "dailypep", "dp"];
 
-    public readonly info = "Claim some free daily scraps";
+    public readonly info = "Claim some free daily pep";
 
-    public readonly helpUseString = "to claim some free scraps, if you haven't already today.";
+    public readonly helpUseString = "to claim some free pep, if you haven't already today.";
 
     public readonly section = CommandSection.gettingStarted;
 
@@ -42,9 +42,10 @@ class DailyCurrencyCommand extends GuildCommand {
 
         const dailyAmount = Math.floor(Math.random() * 50) + 25;
 
-        player.scraps += dailyAmount;
+        player.pep += dailyAmount;
 
-        betterSend(parsedMessage.channel, `Success, you got +**${dailyAmount}** scraps!`);
+        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+        betterSend(parsedMessage.channel, `Success, you got **${dailyAmount}**${pepEmoji}!`);
         return commandReceipt;
     }
 }

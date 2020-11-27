@@ -2,6 +2,7 @@ import { stripIndent } from "common-tags";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
+import EmojiManager from '../EmojiManager';
 import ShopItem from "./ShopItem";
 
 export interface ShopReceipt {
@@ -30,7 +31,7 @@ export default abstract class Shop {
         });
     }
 
-    public attemptToPurchase(itemString: string, player: Player, quantity = 1): ShopReceipt {
+    public attemptToPurchase(emojiManager: EmojiManager, itemString: string, player: Player, quantity = 1): ShopReceipt {
         const selectedItem = this.resolveStringToItem(itemString);
 
         if (!selectedItem) {
@@ -52,14 +53,16 @@ export default abstract class Shop {
 
         const itemNameAndQuantity = `${itemName} (x${quantity})`;
 
-        if (totalPrice > player.scraps) {
+        const pepEmoji = emojiManager.getByName("pep");
+
+        if (totalPrice > player.pep) {
             throw new UserError(stripIndent`
-                You don't have enough scraps to buy **${itemNameAndQuantity}**.
-                Cost: **${totalPrice}** scraps. You have: **${player.scraps}** scraps.
+                You don't have enough pep to buy **${itemNameAndQuantity}**.
+                Cost: **${totalPrice}**${pepEmoji}. You have: **${player.pep}**${pepEmoji}.
             `);
         }
 
-        player.scraps -= totalPrice;
+        player.pep -= totalPrice;
 
         selectedItem.purchaseAction(player, quantity);
 

@@ -5,7 +5,8 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildItemShopEmbed(embed: MessageEmbed, player: Player, beastiaryClient: BeastiaryClient): MessageEmbed {
-    embed.setAuthor(`Balance: ${player.scraps} scraps`, player.member.user.avatarURL() || undefined);
+    const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+    embed.setAuthor(`Balance: ${player.pep}${pepEmoji}`, player.member.user.avatarURL() || undefined);
 
     embed.setTitle("Item Shop");
     embed.setColor(0xaf7028);
@@ -13,7 +14,7 @@ export default function buildItemShopEmbed(embed: MessageEmbed, player: Player, 
     let itemString = "";
     let itemNumber = 1;
     for (const item of itemShop.items) {
-        itemString += `\`${itemNumber})\` ${capitalizeFirstLetter(item.getName(player))}: ${item.getPrice(player)} scraps\n`;
+        itemString += `\`${itemNumber})\` ${capitalizeFirstLetter(item.getName(player))}: ${item.getPrice(player)}${pepEmoji}\n`;
         itemNumber += 1;
     }
 

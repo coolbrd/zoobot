@@ -55,7 +55,7 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
             buildSpeciesCard(embed, this.species, card);
         }
         else {
-            buildSpeciesInfo(embed, this.species, card, this.player);
+            buildSpeciesInfo(this.beastiaryClient.beastiary.emojis, embed, this.species, card, this.player);
         }
 
         embed.appendToFooter("\n" + this.getButtonHelpString());

@@ -61,8 +61,9 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
         }
 
+        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
         descriptionString += stripIndent`
-            Scraps: **${this.player.scraps}**
+            **${this.player.pep}**${pepEmoji}
             Collection size: **${this.player.collectionAnimalIds.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.length}**
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
@@ -71,7 +72,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Encounters remaining: **${this.player.encountersLeft}**
             Captures remaining: **${this.player.capturesLeft}**
 
-            Lifetime scraps: **${this.player.lifetimeScraps}**
+            Lifetime pep: **${this.player.lifetimePep}**${pepEmoji}
             Total xp boosts: **${this.player.totalXpBoosts}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**

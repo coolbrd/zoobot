@@ -44,10 +44,10 @@ class ViewResetsCommand extends GuildCommand {
         messageString += `Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**\n\n`;
 
         if (player.hasDailyCurrencyReset) {
-            messageString += `You can claim your daily scraps right now!`;
+            messageString += `You can claim your daily pep right now!`;
         }
         else {
-            messageString += `You've claimed your daily scraps today. Next daily reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextDailyCurrencyReset)}**`;
+            messageString += `You've claimed your daily pep today. Next daily reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextDailyCurrencyReset)}**`;
         }
 
         betterSend(parsedMessage.channel, messageString);

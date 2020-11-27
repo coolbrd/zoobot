@@ -19,8 +19,8 @@ export class Player extends GameObject {
     public static readonly fieldNames = {
         userId: "userId",
         guildId: "guildId",
-        scraps: "scraps",
-        lifetimeScraps: "lifetimeScraps",
+        pep: "pep",
+        lifetimePep: "lifetimePep",
         collectionUpgradeLevel: "collectionUpgradeLevel",
         collectionAnimalIds: "collectionAnimalIds",
         crewAnimalIds: "crewAnimalIds",
@@ -46,8 +46,8 @@ export class Player extends GameObject {
         return new PlayerModel({
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
-            [Player.fieldNames.scraps]: 0,
-            [Player.fieldNames.lifetimeScraps]: 0,
+            [Player.fieldNames.pep]: 0,
+            [Player.fieldNames.lifetimePep]: 0,
             [Player.fieldNames.lastDailyCurrencyReset]: new Date(0),
             [Player.fieldNames.collectionUpgradeLevel]: 0,
             [Player.fieldNames.freeCapturesLeft]: 0,
@@ -82,23 +82,23 @@ export class Player extends GameObject {
         return this.document.get(Player.fieldNames.guildId);
     }
 
-    public get scraps(): number {
-        return this.document.get(Player.fieldNames.scraps);
+    public get pep(): number {
+        return this.document.get(Player.fieldNames.pep);
     }
 
-    public set scraps(scraps: number) {
-        const addedScraps = scraps - this.scraps;
-        this.lifetimeScraps += addedScraps;
+    public set pep(pep: number) {
+        const addedPep = pep - this.pep;
+        this.lifetimePep += addedPep;
 
-        this.setDocumentField(Player.fieldNames.scraps, scraps);
+        this.setDocumentField(Player.fieldNames.pep, pep);
     }
 
-    public get lifetimeScraps(): number {
-        return this.document.get(Player.fieldNames.lifetimeScraps);
+    public get lifetimePep(): number {
+        return this.document.get(Player.fieldNames.lifetimePep);
     }
 
-    public set lifetimeScraps(lifetimeScraps: number) {
-        this.setDocumentField(Player.fieldNames.lifetimeScraps, lifetimeScraps);
+    public set lifetimePep(lifetimePep: number) {
+        this.setDocumentField(Player.fieldNames.lifetimePep, lifetimePep);
     }
 
     public get collectionUpgradeLevel(): number {
@@ -718,6 +718,6 @@ export class Player extends GameObject {
             `);
         }
 
-        this.scraps += releasedAnimal.value;
+        this.pep += releasedAnimal.value;
     }
 }

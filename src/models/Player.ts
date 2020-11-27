@@ -12,7 +12,7 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
         type: String,
         required: true
     },
-    [Player.fieldNames.scraps]: {
+    [Player.fieldNames.pep]: {
         type: Number,
         required: true,
         fieldRestrictions: {
@@ -20,7 +20,7 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
             nonNegative: true   
         }
     },
-    [Player.fieldNames.lifetimeScraps]: {
+    [Player.fieldNames.lifetimePep]: {
         type: Number,
         required: true,
         fieldRestrictions: {

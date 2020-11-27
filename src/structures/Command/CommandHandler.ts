@@ -31,7 +31,7 @@ import { stripIndent } from "common-tags";
 import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
 import FavoriteAnimalCommand from "../../commands/FavoriteAnimalCommand";
 import ShopCommand from "../../commands/Shop/ShopCommand";
-import ViewScrapsCommand from "../../commands/ViewScrapsCommand";
+import ViewPepCommand from "../../commands/ViewPepCommand";
 import CommandReceipt from "./CommandReceipt";
 import CommandResolver from "./CommandResolver";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
@@ -52,7 +52,7 @@ export default class CommandHandler {
         ViewCollectionCommand,
         ViewPlayerProfileCommand,
         ChangeAnimalNicknameCommand,
-        ViewScrapsCommand,
+        ViewPepCommand,
         DailyCurrencyCommand,
         ShopCommand,
         CrewCommand,
