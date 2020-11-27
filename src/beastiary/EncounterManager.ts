@@ -12,7 +12,8 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 
 interface RarityInfo {
     tier: number,
-    color: number
+    color: number,
+    emojiName: string
 }
 
 export default class EncounterManager {
@@ -247,7 +248,8 @@ export default class EncounterManager {
             if (rarityOccurrence >= tierMinimumChance) {
                 return {
                     tier: tier,
-                    color: tierColors[tier]
+                    color: tierColors[tier],
+                    emojiName: `t${tier}`
                 }
             }
     
@@ -256,7 +258,8 @@ export default class EncounterManager {
     
         return {
             tier: tier,
-            color: tierColors[tier]
+            color: tierColors[tier],
+            emojiName: "tu"
         }
     }
 }

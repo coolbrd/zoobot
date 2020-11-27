@@ -54,18 +54,22 @@ export default class BeastiaryClient {
         preLoad.databaseConnected = true;
         complete();
 
-        this.commandHandler.loadGuildPrefixes().then(() => {
-            console.log("Guild prefixes loaded");
-
-            preLoad.guildPrefixesLoaded = true;
-            complete();
-        }).catch(error => {
+        try {
+            await this.commandHandler.loadGuildPrefixes();
+        }
+        catch (error) {
             throw new Error(stripIndent`
                 There was an error loading all guild prefixes.
                 
                 ${error}
             `);
-        });
+        }
+
+        console.log("Guild prefixes loaded");
+
+        preLoad.guildPrefixesLoaded = true;
+        complete();
+
 
         this.discordClient.login(DISCORD_TOKEN);
 
@@ -104,7 +108,7 @@ export default class BeastiaryClient {
                             
                             ${error}
                         `);
-                    })
+                    });
                 }).catch(error => {
                     throw new Error(stripIndent`
                         There was an error handling a message through the player manager.

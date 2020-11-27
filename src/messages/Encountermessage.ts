@@ -42,7 +42,11 @@ export default class EncounterMessage extends InteractiveMessage {
         
         embed.setColor(this.beastiaryClient.beastiary.encounters.getRarityInfo(this.species.rarity).color);
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
-        embed.addField("――――――――", capitalizeFirstLetter(this.species.scientificName), true);
+
+        const speciesRarity = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.species.rarity);
+        const rarityEmojiString = this.beastiaryClient.beastiary.emojis.getByName(speciesRarity.emojiName);
+
+        embed.addField("――――――――", `${rarityEmojiString} ${capitalizeFirstLetter(this.species.scientificName)}`, true);
         embed.setImage(this.card.url);
 
         if (this.card.breed) {

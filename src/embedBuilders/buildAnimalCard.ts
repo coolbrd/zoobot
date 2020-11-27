@@ -11,7 +11,9 @@ export default function buildAnimalCard(embed: MessageEmbed, animal: Animal, bea
     
     embed.setColor(animalRarity.color);
 
-    embed.addField("――――――――", `Card #${animal.species.indexOfCard(animal.card._id) + 1} of ${animal.species.cardCount}`, true);
+    const rarityEmojiString = beastiaryClient.beastiary.emojis.getByName(animalRarity.emojiName);
+
+    embed.addField("――――――――", `${rarityEmojiString} Card #${animal.species.indexOfCard(animal.card._id) + 1} of ${animal.species.cardCount}`, true);
 
     if (animal.card.breed) {
         embed.addField("Breed", capitalizeFirstLetter(animal.card.breed), true);

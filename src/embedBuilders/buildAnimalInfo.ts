@@ -15,7 +15,9 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, bea
         embed.setDescription(capitalizeFirstLetter(animal.species.commonNames[0]));
     }
 
-    embed.addField("Species", capitalizeFirstLetter(animal.species.scientificName), true);
+    const rarityEmojiString = beastiaryClient.beastiary.emojis.getByName(animalRarity.emojiName);
+
+    embed.addField("Species", `${rarityEmojiString} ${capitalizeFirstLetter(animal.species.scientificName)}`, true);
     
     embed.addField("Card", `${animal.species.indexOfCard(animal.card._id) + 1}/${animal.species.cards.length}`, true);
 

@@ -2,6 +2,7 @@ import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import AnimalManager from "./AnimalManager";
 import ChannelManager from "./ChannelManager";
+import EmojiManager from './EmojiManager';
 import EncounterManager from "./EncounterManager";
 import PlayerGuildManager from "./PlayerGuildManager";
 import PlayerManager from "./PlayerManager";
@@ -17,6 +18,7 @@ export default class Beastiary {
     public readonly encounters: EncounterManager;
     public readonly channels: ChannelManager;
     public readonly resets: ResetManager;
+    public readonly emojis: EmojiManager;
 
     constructor(beastiaryClient: BeastiaryClient) {
         this.players = new PlayerManager(beastiaryClient);
@@ -26,6 +28,7 @@ export default class Beastiary {
         this.encounters = new EncounterManager(beastiaryClient);
         this.channels = new ChannelManager(beastiaryClient);
         this.resets = new ResetManager();
+        this.emojis = new EmojiManager(beastiaryClient);
     }
 
     public async init(): Promise<void> {
@@ -57,6 +60,17 @@ export default class Beastiary {
         catch (error) {
             throw new Error(stripIndent`
                 There was an error initializing a Beastiary's channel manager.
+
+                ${error}
+            `);
+        }
+
+        try {
+            await this.emojis.init();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error initializing a Beastiary's emoji manager.
 
                 ${error}
             `);

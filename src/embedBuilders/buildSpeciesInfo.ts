@@ -18,7 +18,9 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
         embed.addField("Habitat", species.naturalHabitat);
     }
 
-    embed.addField("Rarity", `T${speciesRarity.tier}`, true);
+    const rarityEmojiString = beastiaryClient.beastiary.emojis.getByName(speciesRarity.emojiName);
+
+    embed.addField("Rarity", `${rarityEmojiString} T${speciesRarity.tier}`, true);
     embed.addField("Base value", `${species.baseValue} scraps`, true);
     embed.addField("More info", species.wikiPage, true);
 
