@@ -32,7 +32,13 @@ export default class InteractiveMessageHandler {
             return;
         }
 
-        const emojiString = messageReaction.emoji.toString();
+        let emojiString = messageReaction.emoji.toString();
+
+        // Custom emojis get formatted with angle brackets in MessageReaction, but can only be added as reactions without them. This just strips them when necessary.
+        const angleBracketWrapped = emojiString[0] === "<" && emojiString[emojiString.length - 1] === ">";
+        if (angleBracketWrapped) {
+            emojiString = emojiString.slice(1, -1);
+        }
 
         const messageHasEmojiButton = interactiveMessage.getActiveButtonEmojis().includes(emojiString);
 
