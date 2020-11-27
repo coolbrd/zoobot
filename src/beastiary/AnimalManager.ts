@@ -88,7 +88,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         return animal;
     }
 
-    public async createAnimal(owner: Player, species: Species, card: SpeciesCard): Promise<void> {
+    public async createAnimal(owner: Player, species: Species, card: SpeciesCard): Promise<Animal> {
         const animalDocument = Animal.newDocument(owner, species, card);
 
         try {
@@ -120,6 +120,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         }
 
         owner.addAnimalIdToCollection(animal.id);
+
+        return animal;
     }
 
     public async searchAnimal(
