@@ -20,6 +20,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
             nonNegative: true   
         }
     },
+    [Player.fieldNames.lifetimeScraps]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            defaultValue: 0,
+            nonNegative: true   
+        }
+    },
     [Player.fieldNames.collectionUpgradeLevel]: {
         type: Number,
         required: true,

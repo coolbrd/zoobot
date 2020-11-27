@@ -54,6 +54,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Captures remaining: **${this.player.capturesLeft}**
             Collection size: **${this.player.collectionAnimalIds.length}**
 
+            Lifetime scraps: **${this.player.lifetimeScraps}**
             Total xp boosts: **${this.player.totalXpBoosts}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**

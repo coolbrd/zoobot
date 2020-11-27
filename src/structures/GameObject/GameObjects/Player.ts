@@ -20,6 +20,7 @@ export class Player extends GameObject {
         userId: "userId",
         guildId: "guildId",
         scraps: "scraps",
+        lifetimeScraps: "lifetimeScraps",
         collectionUpgradeLevel: "collectionUpgradeLevel",
         collectionAnimalIds: "collectionAnimalIds",
         crewAnimalIds: "crewAnimalIds",
@@ -44,6 +45,7 @@ export class Player extends GameObject {
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
             [Player.fieldNames.scraps]: 0,
+            [Player.fieldNames.lifetimeScraps]: 0,
             [Player.fieldNames.lastDailyCurrencyReset]: new Date(0),
             [Player.fieldNames.collectionUpgradeLevel]: 0,
             [Player.fieldNames.freeCapturesLeft]: 0,
@@ -82,7 +84,18 @@ export class Player extends GameObject {
     }
 
     public set scraps(scraps: number) {
+        const addedScraps = scraps - this.scraps;
+        this.lifetimeScraps += addedScraps;
+
         this.setDocumentField(Player.fieldNames.scraps, scraps);
+    }
+
+    public get lifetimeScraps(): number {
+        return this.document.get(Player.fieldNames.lifetimeScraps);
+    }
+
+    public set lifetimeScraps(lifetimeScraps: number) {
+        this.setDocumentField(Player.fieldNames.lifetimeScraps, lifetimeScraps);
     }
 
     public get collectionUpgradeLevel(): number {
