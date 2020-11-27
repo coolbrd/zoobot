@@ -69,8 +69,10 @@ export default class DatabaseIntegrityChecker {
 
                     if (fieldError === IllegalValueError.negative) {
                         document.updateOne({
-                            [fieldName]: schemaField.fieldRestrictions.defaultValue
-                        });
+                            $set: {
+                                [fieldName]: schemaField.fieldRestrictions.defaultValue
+                            }
+                        }).exec();
                     }
                 }
             }
