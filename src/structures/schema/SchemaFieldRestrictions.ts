@@ -1,4 +1,3 @@
-import { stripIndent } from 'common-tags';
 import { hasDuplicates } from '../../utility/arraysAndSuch';
 
 export default interface SchemaFieldRestrictions {
@@ -11,6 +10,7 @@ export default interface SchemaFieldRestrictions {
 export enum IllegalValueError {
     negative,
     maxLengthExceeded,
+    wrongType,
     duplicateEntry
 }
 
@@ -18,11 +18,7 @@ export enum IllegalValueError {
 export function findRestrictedFieldValueErrors(value: unknown, restrictions: SchemaFieldRestrictions): IllegalValueError | undefined {
     if (restrictions.nonNegative !== undefined) {
         if (typeof value !== "number") {
-            throw new Error(stripIndent`
-                Illegal value found in restricted field.
-
-                Value: ${value}
-            `);
+            return IllegalValueError.wrongType;
         }
 
         if (restrictions.nonNegative) {
@@ -34,11 +30,7 @@ export function findRestrictedFieldValueErrors(value: unknown, restrictions: Sch
 
     if (restrictions.maxListSize !== undefined) {
         if (!Array.isArray(value)) {
-            throw new Error(stripIndent`
-                Illegal  value found in restricted field.
-
-                Value: ${value}
-            `);
+            return IllegalValueError.wrongType;
         }
 
         if (value.length > restrictions.maxListSize) {
@@ -48,11 +40,7 @@ export function findRestrictedFieldValueErrors(value: unknown, restrictions: Sch
 
     if (restrictions.allowDuplicates !== undefined) {
         if (!Array.isArray(value)) {
-            throw new Error(stripIndent`
-                Illegal  value found in restricted field.
-
-                Value: ${value}
-            `);
+            return IllegalValueError.wrongType;
         }
 
         if (!restrictions.allowDuplicates && hasDuplicates(value)) {
