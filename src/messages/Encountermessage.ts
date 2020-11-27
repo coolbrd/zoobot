@@ -41,6 +41,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const embed = new SmartEmbed();
 
         embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
+        embed.setColor(this.species.rarityData.color);
 
         embed.addField("――――――――", `${this.species.rarityData.emoji} ${capitalizeFirstLetter(this.species.scientificName)}`, true);
         embed.setImage(this.card.url);
