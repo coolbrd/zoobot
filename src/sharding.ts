@@ -31,7 +31,7 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
 
         const manager = new Discord.ShardingManager("./build/index.js", { respawn: false });
             
-        manager.spawn(2);
+        manager.spawn(1);
         manager.on("shardCreate", shard => {
             console.log(`- Spawned shard ${shard.id} -`);
 
