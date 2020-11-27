@@ -19,20 +19,8 @@ export default class EmojiManager {
         const emojiGuild = this.beastiaryClient.discordClient.guilds.resolve(EMOJI_SERVER_ID);
 
         if (emojiGuild) {
-            const emojiNames = ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "t13", "t14", "tu", "capture"];
-
-            for (const emojiName of emojiNames) {
-                const emoji = emojiGuild.emojis.cache.find(emoji => emoji.name === emojiName);
-
-                if (!emoji) {
-                    throw new Error(stripIndent`
-                        A rarity emoji couldn't be found.
-
-                        Emoji name: ${emojiName}
-                    `);
-                }
-
-                Object.defineProperty(this.emojis, emojiName, {
+            for (const emoji of emojiGuild.emojis.cache.values()) {
+                Object.defineProperty(this.emojis, emoji.name, {
                     value: emoji.toString(),
                     writable: false,
                     enumerable: true
