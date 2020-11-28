@@ -145,6 +145,24 @@ export default class PlayerManager extends GameObjectCache<Player> {
         return player;
     }
 
+    public async safeFetch(guildMember: GuildMember): Promise<Player> {
+        let player: Player;
+        try {
+            player = await this.fetch(guildMember);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player by a guild member.
+
+                Guild member: ${JSON.stringify(guildMember)}
+
+                ${error}
+            `);
+        }
+
+        return player;
+    }
+
     public async fetchByGuildCommandParser(parsedMessage: GuildCommandParser): Promise<Player> {
         let player: Player;
 
