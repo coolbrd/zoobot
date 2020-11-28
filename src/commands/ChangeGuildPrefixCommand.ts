@@ -16,6 +16,11 @@ class ChangeGuildPrefixCommand extends GuildCommand {
     public readonly section = CommandSection.guildManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        if (!parsedMessage.member.hasPermission("MANAGE_GUILD")) {
+            betterSend(parsedMessage.channel, "You need the `Manage Server` permission to use this command.");
+            return commandReceipt;
+        }
+
         const prefix = parsedMessage.fullArguments;
 
         if (!prefix) {
