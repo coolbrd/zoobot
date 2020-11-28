@@ -34,7 +34,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.arguments[0].text;
+        const animalIdentifier = parsedMessage.arguments[0].text.toLowerCase();
 
         let animal: Animal | undefined;
         try {
@@ -55,7 +55,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
         }
 
         if (!animal) {
-            betterSend(parsedMessage.channel, "No animal by that number/nickname exists in your collection.");
+            betterSend(parsedMessage.channel, `No animal by the name/number '${animalIdentifier}' exists in your collection.`);
             return commandReceipt;
         }
 
