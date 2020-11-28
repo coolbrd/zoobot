@@ -88,7 +88,10 @@ export class Player extends GameObject {
 
     public set pep(pep: number) {
         const addedPep = pep - this.pep;
-        this.lifetimePep += addedPep;
+
+        if (addedPep > 0) {
+            this.lifetimePep += addedPep;
+        }
 
         this.setDocumentField(Player.fieldNames.pep, pep);
     }
