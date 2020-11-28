@@ -9,7 +9,7 @@ export default class XpBoostItem extends ShopItem {
     }
 
     public getPrice(_player: Player): number {
-        return 25;
+        return 30;
     }
 
     public purchaseAction(player: Player, quantity: number): void {

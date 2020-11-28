@@ -9,7 +9,7 @@ export default class EncounterItem extends ShopItem {
     }
 
     public getPrice(_player: Player): number {
-        return 20;
+        return 40;
     }
 
     public purchaseAction(player: Player, quantity: number): void {

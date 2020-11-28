@@ -9,7 +9,7 @@ export default class CaptureItem extends ShopItem {
     }
 
     public getPrice(_player: Player): number {
-        return 80;
+        return 200;
     }
 
     public purchaseAction(player: Player, quantity: number): void {
