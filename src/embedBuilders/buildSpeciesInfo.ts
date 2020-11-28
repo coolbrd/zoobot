@@ -26,7 +26,8 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
         const showToken = player.hasToken(species);
         let tokenString = "*Unknown*";
         if (showToken) {
-            tokenString = species.token;
+            const tokenEmoji = emojiManager.getByName("token");
+            tokenString = `${species.token} ${tokenEmoji}`;
         }
         embed.addField("Token", capitalizeFirstLetter(tokenString));
     }

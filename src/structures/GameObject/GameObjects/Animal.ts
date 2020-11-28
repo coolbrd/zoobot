@@ -172,10 +172,11 @@ export class Animal extends GameObject {
             if (dropToken) {
                 this.giveOwnerToken();
 
+                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
                 betterSend(channel, stripIndent`
                     Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
 
-                    **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
+                    ${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
                 `);
             }
         }

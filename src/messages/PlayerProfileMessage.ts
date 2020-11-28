@@ -62,10 +62,11 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         }
 
         const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
+        const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
         descriptionString += stripIndent`
             **${this.player.pep}**${pepEmoji}
             Collection size: **${this.player.collectionAnimalIds.length}**
-            Tokens collected: **${this.player.tokenSpeciesIds.length}**
+            Tokens collected: **${this.player.tokenSpeciesIds.length}** ${tokenEmoji}
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**

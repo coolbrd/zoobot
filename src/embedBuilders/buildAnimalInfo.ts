@@ -34,7 +34,8 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     const showToken = animal.owner.hasToken(animal.species);
     let tokenString = "*Unknown*";
     if (showToken) {
-        tokenString = animal.species.token;
+        const tokenEmoji = emojiManager.getByName("token");
+        tokenString = `${animal.species.token} ${tokenEmoji}`;
     }
     embed.addField("Token", capitalizeFirstLetter(tokenString), true);
 }
