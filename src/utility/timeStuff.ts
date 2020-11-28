@@ -5,6 +5,17 @@ export function todaysMilliseconds(): number {
     return now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000 + now.getSeconds() * 1000 + now.getMilliseconds();
 }
 
+// Get the total number of days that have passed since the Unix epoch
+export function getDaysSinceEpoch(): number {
+    const now = new Date();
+
+    const millisecondsInADay = 24 * 60 * 60 * 1000;
+
+    const daysSinceEpoch = Math.floor(now.valueOf() / millisecondsInADay);
+
+    return daysSinceEpoch;
+}
+
 // Get a string representing the number of hours, minutes, and seconds remaining until a given time
 export function remainingTimeString(targetTime: Date): string {
     const now = new Date();
