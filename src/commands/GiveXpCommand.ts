@@ -27,12 +27,12 @@ class GiveXpCommand extends GuildCommand {
     ];
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length < 1) {
+        if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.arguments[0].text.toLowerCase();
+        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
 
         let player: Player;
         try {
@@ -77,7 +77,7 @@ class GiveXpCommand extends GuildCommand {
         player.useXpBoost();
 
         const xpEmoji = beastiaryClient.beastiary.emojis.getByName("xp");
-        betterSend(parsedMessage.channel, `Success, you gave ${animal.displayName} **+${gameConfig.xpPerBoost}**${xpEmoji}`);
+        betterSend(parsedMessage.channel, `Success, you gave ${animal.displayName} +**${gameConfig.xpPerBoost}**${xpEmoji}`);
 
         return commandReceipt;
     }

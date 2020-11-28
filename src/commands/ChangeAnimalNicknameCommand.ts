@@ -29,12 +29,12 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
     public readonly section = CommandSection.animalManagement;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length < 1) {
+        if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.arguments[0].text.toLowerCase();
+        const animalIdentifier = parsedMessage.consumeArgument().text.toLowerCase();
 
         let animal: Animal | undefined;
         try {
@@ -60,14 +60,12 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
         }
 
         let newNickname: string | undefined;
-        if (parsedMessage.arguments.length < 2) {
+        if (!parsedMessage.currentArgument) {
             // Set the animal's nickname as nothing, resetting it
             newNickname = undefined;
         }
         // If the user specified a nickname
         else {
-            parsedMessage.shiftSubCommand();
-
             newNickname = parsedMessage.fullArguments;
 
             const bannedSubStrings = ["*", "_", "`", "~", ">"];

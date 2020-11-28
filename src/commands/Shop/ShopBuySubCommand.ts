@@ -28,16 +28,16 @@ class ShopBuySubCommand extends GuildCommand {
     ];
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length === 0) {
+        if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const itemIdentifier = parsedMessage.arguments[0].text.toLowerCase();
+        const itemIdentifier = parsedMessage.consumeArgument().text.toLowerCase();
 
         let itemQuantity = 1;
-        if (parsedMessage.arguments.length > 1) {
-            itemQuantity = Number(parsedMessage.arguments[1].text);
+        if (parsedMessage.currentArgument) {
+            itemQuantity = Number(parsedMessage.consumeArgument().text);
 
             if (isNaN(itemQuantity)) {
                 betterSend(parsedMessage.channel, "The quantity of items you want to purchase must be a number.");

@@ -97,8 +97,8 @@ class FishCommand extends GuildCommand {
         }
 
         let distance: number;
-        if (parsedMessage.arguments.length > 0) {
-            const inputDistanceString = parsedMessage.arguments[0].text;
+        if (parsedMessage.currentArgument) {
+            const inputDistanceString = parsedMessage.consumeArgument().text;
 
             const inputDistance = Number(inputDistanceString);
 

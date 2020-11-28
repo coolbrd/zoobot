@@ -17,7 +17,7 @@ class AnimalInfoCommand extends GuildCommand {
     public readonly section = CommandSection.info;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length < 1) {
+        if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }

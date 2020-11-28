@@ -23,8 +23,8 @@ class GameInfoCommand extends Command {
         }
     ];
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (parsedMessage.arguments.length === 0) {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        if (!parsedMessage.currentArgument) {
             const gameMechanicNames: string[] = [];
             mechanics.forEach(mechanic => {
                 gameMechanicNames.push(`\`${mechanic.names[0]}\``);

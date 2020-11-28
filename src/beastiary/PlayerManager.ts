@@ -166,8 +166,8 @@ export default class PlayerManager extends GameObjectCache<Player> {
     public async fetchByGuildCommandParser(parsedMessage: GuildCommandParser): Promise<Player> {
         let player: Player;
 
-        if (parsedMessage.arguments.length > 0) {
-            const potentialGuildMemberArgument = parsedMessage.arguments[0];
+        if (parsedMessage.currentArgument) {
+            const potentialGuildMemberArgument = parsedMessage.currentArgument;
 
             if (!potentialGuildMemberArgument.member) {
                 throw new UserError(`No user with the id \`${potentialGuildMemberArgument.text}\` exists in this server.`);
