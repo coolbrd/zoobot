@@ -5,7 +5,6 @@ import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
 import { Animal } from "../../structures/GameObject/GameObjects/Animal";
-import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 class CrewRemoveSubCommand extends GuildCommand {
     public readonly commandNames = ["remove", "r"];
@@ -24,19 +23,7 @@ class CrewRemoveSubCommand extends GuildCommand {
 
         const searchTerm = parsedMessage.fullArguments.toLowerCase();
 
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in the crew remove command.
-
-                Guild member: ${JSON.stringify(parsedMessage.member)}
-                
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         let animal: Animal | undefined;
         try {

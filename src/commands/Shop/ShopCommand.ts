@@ -1,4 +1,3 @@
-import { stripIndent } from "common-tags";
 import { TextChannel } from "discord.js";
 import { betterSend } from "../../discordUtility/messageMan";
 import SmartEmbed from "../../discordUtility/SmartEmbed";
@@ -31,19 +30,7 @@ class ShopCommand extends GuildCommand {
     }
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in the shop command.
-
-                Guild member: ${JSON.stringify(parsedMessage.member)}
-                
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         this.buildAndSendShopMessage(parsedMessage.channel, player, beastiaryClient);
         return commandReceipt;

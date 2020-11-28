@@ -1,4 +1,3 @@
-import { stripIndent } from "common-tags";
 import { ShopReceipt } from "../../beastiary/shop/Shop";
 import itemShop from "../../beastiary/shop/shops/ItemShop";
 import BeastiaryClient from "../../bot/BeastiaryClient";
@@ -7,7 +6,6 @@ import { betterSend } from "../../discordUtility/messageMan";
 import { CommandArgumentInfo, GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
-import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 class ShopBuySubCommand extends GuildCommand {
     public readonly commandNames = ["buy", "b"];
@@ -45,17 +43,7 @@ class ShopBuySubCommand extends GuildCommand {
             }
         }
 
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in the shop buy command.
-
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         let purchaseReceipt: ShopReceipt;
         try {

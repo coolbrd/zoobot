@@ -1,9 +1,7 @@
 import { betterSend } from "../discordUtility/messageMan";
-import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { remainingTimeString } from "../utility/timeStuff";
-import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
@@ -17,19 +15,7 @@ class ViewResetsCommand extends GuildCommand {
     public readonly section = CommandSection.playerInfo;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player from the cache in the resets command.
-
-                Guild member: ${JSON.stringify(parsedMessage.member)}
-                
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`

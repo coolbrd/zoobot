@@ -8,7 +8,6 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import { remainingTimeString } from "../utility/timeStuff";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { stripIndent } from "common-tags";
-import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
@@ -76,20 +75,7 @@ export default class EncounterMessage extends InteractiveMessage {
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
         const guildMember = getGuildMember(user, this.channel.guild, this.beastiaryClient);
 
-        let player: Player;
-        try {
-            player = await this.beastiaryClient.beastiary.players.fetch(guildMember);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in an encounter message.
-
-                Guild member: ${JSON.stringify(guildMember)}
-                
-                ${error}
-            `);
-        }
-
+        const player = await this.beastiaryClient.beastiary.players.safeFetch(guildMember);
         if (!player.canCapture) {
             this.warnPlayer(player);
             return;

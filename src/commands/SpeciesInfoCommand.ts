@@ -47,18 +47,8 @@ class SpeciesInfoCommand extends Command {
         let player: Player | undefined;
         if (parsedMessage.guild) {
             const guildMember = getGuildMember(parsedMessage.sender.id, parsedMessage.guild.id, beastiaryClient);
-            try {
-                player = await beastiaryClient.beastiary.players.fetch(guildMember);
-            }
-            catch (error) {
-                throw new Error(stripIndent`
-                    There was an error fetching a player by a guild member in the species info command.
-
-                    Guild member: ${JSON.stringify(guildMember)}
-
-                    ${error}
-                `);
-            }
+            
+            player = await beastiaryClient.beastiary.players.safeFetch(guildMember);
         }
 
         const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, beastiaryClient, species, player);

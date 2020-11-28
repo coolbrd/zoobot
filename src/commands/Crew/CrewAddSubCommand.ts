@@ -5,7 +5,6 @@ import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
 import { Animal } from "../../structures/GameObject/GameObjects/Animal";
-import { Player } from "../../structures/GameObject/GameObjects/Player";
 
 class CrewAddSubCommand extends GuildCommand {
     public readonly commandNames = ["add", "a"];
@@ -48,19 +47,7 @@ class CrewAddSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching a player in the animal add to crew command.
-
-                Guild member: ${JSON.stringify(parsedMessage.member)}
-                
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (player.crewAnimalIds.includes(animal.id)) {
             betterSend(parsedMessage.channel, "That animal is already in your crew.");

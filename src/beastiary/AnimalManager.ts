@@ -187,19 +187,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
 
                 const playerGuildMember = getGuildMember(userId, guildId, this.beastiaryClient);
 
-                try {
-                    player = await this.beastiaryClient.beastiary.players.fetch(playerGuildMember);
-                }
-                catch (error) {
-                    throw new Error(stripIndent`
-                        There was an error fetching a player object by a guild member while searching an animal.
-                        
-                        Guild member: ${JSON.stringify(playerGuildMember)}
-                        Search options: ${JSON.stringify(searchOptions)}
-
-                        ${error}
-                    `);
-                }
+                player = await this.beastiaryClient.beastiary.players.safeFetch(playerGuildMember);
             }
 
             let animalId: Types.ObjectId | undefined;

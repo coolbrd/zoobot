@@ -1,6 +1,5 @@
 import { betterSend } from "../discordUtility/messageMan";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
-import { Player } from "../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { stripIndent } from "common-tags";
@@ -24,19 +23,7 @@ class FavoriteAnimalCommand extends GuildCommand {
 
         const searchTerm = parsedMessage.fullArguments.toLowerCase();
 
-        let player: Player;
-        try {
-            player = await beastiaryClient.beastiary.players.fetch(parsedMessage.member)
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error getting a player in the favorite animal command.
-                
-                Guild member: ${JSON.stringify(parsedMessage.member)}
-
-                ${error}
-            `);
-        }
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         let animal: Animal | undefined;
         try {
