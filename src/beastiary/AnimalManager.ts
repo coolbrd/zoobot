@@ -119,8 +119,6 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             `);
         }
 
-        owner.addAnimalIdToCollection(animal.id);
-
         return animal;
     }
 
