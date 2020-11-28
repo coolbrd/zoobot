@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { MessageEmbed, APIMessage } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { CommandSection } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { betterSend, safeDeleteMessage } from "../discordUtility/messageMan";
@@ -37,7 +37,7 @@ class SubmitSpeciesCommand extends Command {
         infoEmbed.addField("Wikipedia page", "The link to the animal's species' wikipedia page.");
         infoEmbed.setFooter("Press the reaction button to initiate the submission process when you're ready.");
 
-        const infoMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: infoEmbed }));
+        const infoMessage = await betterSend(parsedMessage.channel, infoEmbed);
 
         if (!infoMessage) {
             throw new Error(stripIndent`

@@ -1,4 +1,3 @@
-import { APIMessage } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -69,7 +68,7 @@ class CommandListCommand extends Command {
         embed.setFooter(`Prefix commands with "${beastiaryClient.commandHandler.getDisplayPrefixByMessage(parsedMessage.originalMessage)}", or by pinging me!`);
         embed.setColor(0x18476b);
         
-        betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: embed }));
+        betterSend(parsedMessage.channel, embed);
 
         return commandReceipt;
     }

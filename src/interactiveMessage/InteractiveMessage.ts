@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { Message, User, TextChannel, APIMessage, DMChannel, MessageEmbed } from "discord.js";
+import { Message, User, TextChannel, DMChannel, MessageEmbed } from "discord.js";
 import { betterSend, safeEdit, safeReact } from "../discordUtility/messageMan";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
@@ -31,9 +31,9 @@ export default abstract class InteractiveMessage extends EventEmitter {
     private readonly buttonNames: Map<string, string> = new Map();
 
     private _message: Message | undefined;
-    private _content: APIMessage | undefined;
+    private _content: MessageEmbed | undefined;
     private _rateLimited = false;
-    private pendingContent: APIMessage | undefined;
+    private pendingContent: MessageEmbed | undefined;
 
     private _timer: NodeJS.Timeout | undefined;
 
@@ -47,11 +47,11 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.channel = channel;
     }
 
-    private get content(): APIMessage | undefined {
+    private get content(): MessageEmbed | undefined {
         return this._content;
     }
 
-    private set content(content: APIMessage | undefined) {
+    private set content(content: MessageEmbed | undefined) {
         if (this.sent && !content) {
             throw new Error(stripIndent`
                 Attempted to set the content of a sent interactive message to nothing.
@@ -248,14 +248,12 @@ export default abstract class InteractiveMessage extends EventEmitter {
             return;
         }
 
-        const newContent = new APIMessage(this.channel, { embed: newEmbed });
-
         if (this.rateLimited) {
-            this.pendingContent = newContent;
+            this.pendingContent = newEmbed;
             return;
         }
 
-        this.content = newContent;
+        this.content = newEmbed;
 
         if (this.sent) {
             safeEdit(this.message, this.content);

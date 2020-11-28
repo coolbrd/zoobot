@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { APIMessage, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import { betterSend } from "../../discordUtility/messageMan";
 import SmartEmbed from "../../discordUtility/SmartEmbed";
 import buildItemShopEmbed from "../../embedBuilders/buildItemShop";
@@ -27,8 +27,7 @@ class ShopCommand extends GuildCommand {
         const shopEmbed = new SmartEmbed();
         buildItemShopEmbed(shopEmbed, player, beastiaryClient);
 
-        const shopMessage = new APIMessage(channel, { embed: shopEmbed });
-        betterSend(channel, shopMessage);
+        betterSend(channel, shopEmbed);
     }
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {

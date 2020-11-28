@@ -1,8 +1,8 @@
-import { TextChannel, Message, DMChannel, APIMessage, MessageReaction } from "discord.js";
+import { TextChannel, Message, DMChannel, MessageReaction, MessageEmbed } from "discord.js";
 import { errorHandler } from "../structures/ErrorHandler";
 
 // Sends a message in a channel, but has generic error handling so it doesn't have to be repeated 1,000,000 times throughout code
-export async function betterSend(channel: TextChannel | DMChannel, content: string | APIMessage, lifetime?: number): Promise<Message | undefined> {
+export async function betterSend(channel: TextChannel | DMChannel, content: string | MessageEmbed, lifetime?: number): Promise<Message | undefined> {
     let message: Message;
     try {
         message = await channel.send(content);
@@ -51,7 +51,7 @@ export async function safeReact(message: Message, emoji: string): Promise<undefi
     return message.react(emoji);
 }
 
-export async function safeEdit(message: Message, content: unknown): Promise<undefined | Message> {
+export async function safeEdit(message: Message, content: string | MessageEmbed): Promise<undefined | Message> {
     if (message.deleted) {
         return;
     }

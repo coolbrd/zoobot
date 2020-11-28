@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { APIMessage, Message } from "discord.js";
+import { Message } from "discord.js";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -62,7 +62,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
         let confirmMessage: Message | undefined;
         try {
-            confirmMessage = await betterSend(parsedMessage.channel, new APIMessage(parsedMessage.channel, { embed: releaseEmbed }));
+            confirmMessage = await betterSend(parsedMessage.channel, releaseEmbed);
         }
         catch (error) {
             throw new Error(stripIndent`

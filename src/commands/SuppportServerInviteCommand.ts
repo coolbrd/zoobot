@@ -14,7 +14,7 @@ class SupportServerInviteCommand extends GuildCommand {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         betterSend(parsedMessage.channel, gameConfig.supportServerInviteLink);
 
         return commandReceipt;

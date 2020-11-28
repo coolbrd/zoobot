@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { APIMessage, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { ADMIN_SERVER_ID, FEEDBACK_CHANNEL_ID } from "../config/secrets";
 import { betterSend } from "../discordUtility/messageMan";
@@ -58,8 +58,6 @@ export default class ChannelManager {
         feedbackEmbed.setAuthor(`Feedback from ${userTag}`, userAvatarUrl);
         feedbackEmbed.setDescription(content);
 
-        const feedbackMessage = new APIMessage(this.feedbackChannel, { embed: feedbackEmbed });
-
-        betterSend(this.feedbackChannel, feedbackMessage);
+        betterSend(this.feedbackChannel, feedbackEmbed);
     }
 }
