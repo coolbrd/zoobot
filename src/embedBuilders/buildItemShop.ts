@@ -5,11 +5,13 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildItemShopEmbed(embed: MessageEmbed, player: Player, beastiaryClient: BeastiaryClient): MessageEmbed {
-    const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-    embed.setAuthor(`Balance: ${player.pep}${pepEmoji}`, player.member.user.avatarURL() || undefined);
+    
+    embed.setAuthor(`Balance: ${player.pep} pep`, player.member.user.avatarURL() || undefined);
 
     embed.setTitle("Item Shop");
     embed.setColor(0xaf7028);
+
+    const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
 
     let itemString = "";
     let itemNumber = 1;
