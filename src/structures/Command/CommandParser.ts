@@ -74,6 +74,15 @@ export default class CommandParser {
         this.sender = message.author;
     }
 
+    public get currentArgument(): Argument | undefined {
+        if (this.arguments[0]) {
+            return this.arguments[0];
+        }
+        else {
+            return undefined;
+        }
+    }
+
     public get fullArguments(): string {
         let fullArguments = "";
 
@@ -91,8 +100,22 @@ export default class CommandParser {
         return fullArguments;
     }
 
+    public consumeArgument(): Argument {
+        const shiftedArgument = this.arguments.shift();
+
+        if (!shiftedArgument) {
+            throw new Error(stripIndent`
+                A command parser with no arguments left was told to consume an argument.
+
+                Parser: ${JSON.stringify(this)}
+            `);
+        }
+
+        return shiftedArgument;
+    }
+
     public shiftSubCommand(): void {
-        const subCommandArgument = this.arguments.shift();
+        const subCommandArgument = this.consumeArgument();
 
         if (!subCommandArgument) {
             throw new Error(stripIndent`
