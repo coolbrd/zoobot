@@ -96,8 +96,21 @@ export class Animal extends GameObject {
         return this.species.baseValue;
     }
 
+    public get isOwnersFavorite(): boolean {
+        if (this.owner.favoriteAnimalId) {
+            return this.owner.favoriteAnimalId.equals(this.id);
+        }
+        return false;
+    }
+
     public get displayName(): string {
-        return this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
+        let displayName = this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
+
+        if (this.isOwnersFavorite) {
+            displayName += " 💕";
+        }
+
+        return displayName;
     }
 
     public get owner(): Player {
