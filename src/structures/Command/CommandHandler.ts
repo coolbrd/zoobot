@@ -119,6 +119,17 @@ export default class CommandHandler {
                 parsedMessage = new CommandParser(message, messagePrefix, this.beastiaryClient);
             }
 
+            try {
+                await parsedMessage.init();
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error initializing a command parser.
+
+                    Message: ${JSON.stringify(message)}
+                `);
+            }
+
             const displayPrefix = this.getDisplayPrefixByMessage(message);
 
             if (!parsedMessage.currentArgument) {

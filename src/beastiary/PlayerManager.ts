@@ -265,7 +265,29 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
         const guild = message.guild as Guild;
 
-        const guildMember = getGuildMember(message.author, guild, this.beastiaryClient);
+        let guildMember: GuildMember | undefined;
+        try {
+            guildMember = await getGuildMember(message.author.id, guild.id, this.beastiaryClient);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a guild member by a player's information.
+
+                User id: ${message.author.id}
+                Guild id: ${guild.id}
+
+                ${error}
+            `);
+        }
+
+        if (!guildMember) {
+            throw new Error(stripIndent`
+                No guild member could be found for a message's sender information.
+
+                User id: ${message.author.id}
+                Guild i: ${guild.id}
+            `);
+        }
 
         let player: Player;
         try {

@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, User } from "discord.js";
+import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
@@ -73,7 +73,29 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
-        const guildMember = getGuildMember(user, this.channel.guild, this.beastiaryClient);
+        let guildMember: GuildMember | undefined;
+        try {
+            guildMember = await getGuildMember(user.id, this.channel.guild.id, this.beastiaryClient);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a guild member by a player's information.
+
+                User id: ${user.id}
+                Guild id: ${this.channel.guild.id}
+
+                ${error}
+            `);
+        }
+
+        if (!guildMember) {
+            throw new Error(stripIndent`
+                No guild member could be found for a user that pressed an encounter message button.
+
+                User id: ${user.id}
+                Guild id: ${this.channel.guild.id}
+            `);
+        }
 
         const player = await this.beastiaryClient.beastiary.players.safeFetch(guildMember);
         if (!player.canCapture) {

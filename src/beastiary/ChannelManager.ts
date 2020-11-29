@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { TextChannel } from "discord.js";
+import { Guild, TextChannel } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { ADMIN_SERVER_ID, FEEDBACK_CHANNEL_ID } from "../config/secrets";
 import { betterSend } from "../discordUtility/messageMan";
@@ -15,10 +15,16 @@ export default class ChannelManager {
     }
 
     public async init(): Promise<void> {
-        const adminGuild = this.beastiaryClient.discordClient.guilds.resolve(ADMIN_SERVER_ID);
+        let adminGuild: Guild;
+        try {
+            adminGuild = await this.beastiaryClient.discordClient.guilds.fetch(ADMIN_SERVER_ID);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching the admin guild.
 
-        if (!adminGuild) {
-            return;
+                ${error}
+            `);
         }
 
         const feedbackChannel = adminGuild.channels.resolve(FEEDBACK_CHANNEL_ID);

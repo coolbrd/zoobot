@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { MessageEmbed, TextChannel, User } from "discord.js";
+import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
@@ -59,7 +59,31 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             `);
         }
 
-        this.ownerUser = getGuildMember(this.animalObject.userId, this.animalObject.guildId, this.beastiaryClient).user;
+        let guildMember: GuildMember | undefined;
+        try {
+            guildMember = await getGuildMember(this.animalObject.userId, this.animalObject.guildId, this.beastiaryClient);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a guild member by a player's information.
+
+                User id: ${this.animalObject.userId}
+                Guild id: ${this.animalObject.guildId}
+
+                ${error}
+            `);
+        }
+
+        if (!guildMember) {
+            throw new Error(stripIndent`
+                No guild member could be found according to an animal's owner information.
+
+                User id: ${this.animalObject.userId}
+                Guild id: ${this.animalObject.guildId}
+            `);
+        }
+
+        this._ownerUser = guildMember.user;
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {

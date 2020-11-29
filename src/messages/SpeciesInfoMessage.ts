@@ -1,7 +1,6 @@
 import { DMChannel, TextChannel, MessageEmbed, User } from "discord.js";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { Species } from "../structures/GameObject/GameObjects/Species";
-import getGuildUserDisplayColor from "../discordUtility/getGuildUserDisplayColor";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildSpeciesInfo from "../embedBuilders/buildSpeciesInfo";
 import buildSpeciesCard from "../embedBuilders/buildSpeciesCard";
@@ -48,8 +47,6 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
         const embed = new SmartEmbed();
 
         const card = this.species.cards[this.cardIndex];
-
-        embed.setColor(getGuildUserDisplayColor(this.beastiaryClient.discordClient.user, this.channel, this.beastiaryClient));
 
         if (this.displayCard) {
             buildSpeciesCard(embed, this.species, card);

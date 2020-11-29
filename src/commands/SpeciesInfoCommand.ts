@@ -1,5 +1,5 @@
 import Command, { CommandSection } from "../structures/Command/Command";
-import CommandParser from "../structures/Command/CommandParser";
+import CommandParser, { GuildCommandParser } from "../structures/Command/CommandParser";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { betterSend } from "../discordUtility/messageMan";
 import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
@@ -8,6 +8,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import getGuildMember from "../discordUtility/getGuildMember";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { GuildMember } from 'discord.js';
 
 class SpeciesInfoCommand extends Command {
     public readonly commandNames = ["speciesinfo", "si"];
@@ -46,9 +47,9 @@ class SpeciesInfoCommand extends Command {
 
         let player: Player | undefined;
         if (parsedMessage.guild) {
-            const guildMember = getGuildMember(parsedMessage.sender.id, parsedMessage.guild.id, beastiaryClient);
-            
-            player = await beastiaryClient.beastiary.players.safeFetch(guildMember);
+            const guildParser = parsedMessage as GuildCommandParser;
+
+            player = await beastiaryClient.beastiary.players.safeFetch(guildParser.member);
         }
 
         const infoMessage = new SpeciesInfoMessage(parsedMessage.channel, beastiaryClient, species, player);

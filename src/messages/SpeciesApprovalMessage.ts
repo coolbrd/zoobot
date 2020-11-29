@@ -9,7 +9,7 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 export default class SpeciesApprovalMessage extends EDocMessage {
     private pendingSpeciesObject: PendingSpecies;
 
-    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, pendingSpeciesObject: PendingSpecies) {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, pendingSpeciesObject: PendingSpecies, authorUser?: User) {
         const eDoc = new EDoc({
             [Species.fieldNames.commonNames]: {
                 type: [{
@@ -143,7 +143,6 @@ export default class SpeciesApprovalMessage extends EDocMessage {
         eDoc.setField(Species.fieldNames.naturalHabitat, pendingSpeciesObject.naturalHabitat);
         eDoc.setField(Species.fieldNames.wikiPage, pendingSpeciesObject.wikiPage);
 
-        const authorUser = beastiaryClient.discordClient.users.resolve(pendingSpeciesObject.authorId);
         let docName = "Submission";
         if (authorUser) {
             docName += ` by ${authorUser.tag}`;

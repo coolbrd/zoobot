@@ -1,33 +1,52 @@
 import { stripIndent } from "common-tags";
-import { UserResolvable, GuildResolvable, GuildMember } from "discord.js";
+import { GuildMember, User, Guild } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
-export default function getGuildMember(userResolvable: UserResolvable, guildResolvable: GuildResolvable, beastiaryClient: BeastiaryClient): GuildMember {
-    const user = beastiaryClient.discordClient.users.resolve(userResolvable);
-    if (!user) {
+export default async function getGuildMember(userId: string, guildId: string, beastiaryClient: BeastiaryClient): Promise<GuildMember | undefined> {
+    let user: User | undefined;
+    try {
+        user = await beastiaryClient.discordClient.users.fetch(userId);
+    }
+    catch (error) {
         throw new Error(stripIndent`
-            getGuildMember was given a UserResolvable that couldn't be resolved.
+            There was an error fetching a user from the user cache.
 
-            User resolvable: ${JSON.stringify(userResolvable)}
+            User id: ${userId}
+
+            ${error}
         `);
     }
 
-    const guild = beastiaryClient.discordClient.guilds.resolve(guildResolvable);
+    let guild: Guild | undefined;
+    try {
+        guild = await beastiaryClient.discordClient.guilds.fetch(guildId);
+    }
+    catch (error) {
+        throw new Error(stripIndent`
+            There was an error fetching a guild from the guild cache.
+
+            Guild id: ${guildId}
+
+            ${error}
+        `);
+    }
+
     if (!guild) {
-        throw new Error(stripIndent`
-            getGuildMember was given a GuildResolvable that couldn't be resolved.
-
-            Guild resolvable: ${JSON.stringify(guildResolvable)}
-        `);
+        return;
     }
 
-    const member = guild.member(user);
-    if (!member) {
+    let member: GuildMember | undefined;
+    try {
+        member = await guild.members.fetch(user);
+    }
+    catch (error) {
         throw new Error(stripIndent`
-            getGuildMember couldn't resolve a guild and a user into a GuildMember.
+            There was an error fetching a guild member from a guild's member cache.
 
-            Guild: ${JSON.stringify(guild)}
-            User: ${JSON.stringify(user)}
+            User id: ${userId}
+            Guild id: ${guildId}
+
+            ${error}
         `);
     }
 

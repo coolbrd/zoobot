@@ -66,12 +66,22 @@ export class Player extends GameObject {
         });
     }
 
-    public readonly member: GuildMember;
+    private _member: GuildMember | undefined;
 
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
+    }
 
-        this.member = getGuildMember(this.userId, this.guildId, beastiaryClient);
+    public get member(): GuildMember {
+        if (!this._member) {
+            throw new Error(stripIndent`
+                A player object's member field was attempted to be accessed before it was loaded.
+
+                Player: ${this.debugString}
+            `);
+        }
+
+        return this._member;
     }
 
     public get userId(): string {
@@ -724,5 +734,35 @@ export class Player extends GameObject {
         }
 
         this.pep += releasedAnimal.value;
+    }
+
+    private async loadGuildMember(): Promise<void> {
+        try {
+            this._member = await getGuildMember(this.userId, this.guildId, this.beastiaryClient);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error loading a player object's guild member.
+
+                Player: ${this.debugString}
+            `);
+        }
+
+        if (!this._member) {
+            throw new Error(stripIndent`
+                A player object's guild member couldn't be found.
+
+                Player: ${this.debugString}
+            `);
+        }
+    }
+
+    public async loadFields(): Promise<void> {
+        const returnPromises: Promise<unknown>[] = [];
+        returnPromises.push(super.loadFields());
+
+        returnPromises.push(this.loadGuildMember());
+
+        await Promise.all(returnPromises);
     }
 }

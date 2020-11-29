@@ -7,6 +7,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { stripIndent } from "common-tags";
+import { GuildMember } from 'discord.js';
 
 export default class AnimalManager extends GameObjectCache<Animal> {
     protected readonly model = AnimalModel;
@@ -185,7 +186,29 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                     `);
                 }
 
-                const playerGuildMember = getGuildMember(userId, guildId, this.beastiaryClient);
+                let playerGuildMember: GuildMember | undefined;
+                try {
+                    playerGuildMember = await getGuildMember(userId, guildId, this.beastiaryClient);
+                }
+                catch (error) {
+                    throw new Error(stripIndent`
+                        There was an error getting a guild member by a player's information.
+
+                        User id: ${userId}
+                        Guild id: ${guildId}
+
+                        ${error}
+                    `);
+                }
+
+                if (!playerGuildMember) {
+                    throw new Error(stripIndent`
+                        No guild member was found for a player's information in the animal search command.
+
+                        User id: ${userId}
+                        Guild id: ${guildId}
+                    `);
+                }
 
                 player = await this.beastiaryClient.beastiary.players.safeFetch(playerGuildMember);
             }

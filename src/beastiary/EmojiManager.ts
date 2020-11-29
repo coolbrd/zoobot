@@ -1,4 +1,5 @@
 import { stripIndent } from 'common-tags';
+import { Guild } from 'discord.js';
 import BeastiaryClient from '../bot/BeastiaryClient';
 import { EMOJI_SERVER_ID } from '../config/secrets';
 
@@ -16,7 +17,17 @@ export default class EmojiManager {
     }
 
     public async init(): Promise<void> {
-        const emojiGuild = this.beastiaryClient.discordClient.guilds.resolve(EMOJI_SERVER_ID);
+        let emojiGuild: Guild;
+        try {
+            emojiGuild = await this.beastiaryClient.discordClient.guilds.fetch(EMOJI_SERVER_ID);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching the admin guild.
+
+                ${error}
+            `);
+        }
 
         if (emojiGuild) {
             for (const emoji of emojiGuild.emojis.cache.values()) {

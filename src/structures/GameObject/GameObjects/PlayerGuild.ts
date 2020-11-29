@@ -23,22 +23,18 @@ export class PlayerGuild extends GameObject {
         });
     }
 
-    public readonly guild: Guild;
+    private _guild: Guild | undefined;
 
-    constructor(guildDocument: Document, beastiaryClient: BeastiaryClient) {
-        super(guildDocument, beastiaryClient);
-
-        const guild = beastiaryClient.discordClient.guilds.resolve(this.guildId);
-
-        if (!guild) {
+    public get guild(): Guild {
+        if (!this._guild) {
             throw new Error(stripIndent`
-                A player guild with an invalid guild id tried to resolve its id to a guild.
+                A guild object's guild was attepmted to be accessed before it was loaded.
 
-                Guild id: ${this.guildId}
+                Guild object: ${this.debugString}
             `);
         }
 
-        this.guild = guild;
+        return this._guild;
     }
 
     public get guildId(): string {
@@ -73,5 +69,35 @@ export class PlayerGuild extends GameObject {
         }
 
         return encounterGuildChannel;
+    }
+
+    private async loadGuild(): Promise<void> {
+        try {
+            this._guild = await this.beastiaryClient.discordClient.guilds.fetch(this.guildId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error loading a guild object's guild.
+
+                Guild object: ${this.debugString}
+            `);
+        }
+
+        if (!this._guild) {
+            throw new Error(stripIndent`
+                A guild object's guild couldn't be found.
+
+                Guild: ${this.debugString}
+            `);
+        }
+    }
+
+    public async loadFields(): Promise<void> {
+        const returnPromises: Promise<unknown>[] = [];
+        returnPromises.push(super.loadFields());
+
+        returnPromises.push(this.loadGuild());
+
+        await Promise.all(returnPromises);
     }
 }
