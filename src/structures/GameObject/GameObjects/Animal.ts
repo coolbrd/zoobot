@@ -93,7 +93,9 @@ export class Animal extends GameObject {
     }
 
     public get value(): number {
-        return this.species.baseValue;
+        const levelScaler = 1 + this.level / 10;
+
+        return Math.floor(this.species.baseValue * levelScaler);
     }
 
     public get isOwnersFavorite(): boolean {
