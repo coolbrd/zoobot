@@ -93,7 +93,7 @@ export class Animal extends GameObject {
     }
 
     public get value(): number {
-        const levelScaler = 1 + this.level / 10;
+        const levelScaler = 1 + (this.level - 1) / 10;
 
         return Math.floor(this.species.baseValue * levelScaler);
     }
