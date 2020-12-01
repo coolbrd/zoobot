@@ -1,6 +1,7 @@
 import { Message, TextChannel } from "discord.js";
 import seedrandom from "seedrandom";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import TimedMessageCollector from "../discordUtility/TimedMessageCollector";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -145,6 +146,8 @@ class FishCommand extends GuildCommand {
 
                 const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
                 betterSend(parsedMessage.channel, `Success, you reeled in ${rewardPep}${pepEmoji}`);
+
+                player.awardCrewExperienceInChannel(gameConfig.xpPerFish, parsedMessage.channel);
             }
             else {
                 betterSend(parsedMessage.channel, "It got away.");

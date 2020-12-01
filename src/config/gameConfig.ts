@@ -15,6 +15,7 @@ const gameConfig = {
     xpPerMessage: 1,
     xpPerEncounter: 5,
     xpPerCapture: 30,
+    xpPerFish: 3,
     maxCrewSize: 2,
     animalCacheTimeout: 120000,
     playerGuildCacheTimeout: 180000,
