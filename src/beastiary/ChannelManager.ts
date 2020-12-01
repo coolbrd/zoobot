@@ -30,11 +30,7 @@ export default class ChannelManager {
         const feedbackChannel = adminGuild.channels.resolve(FEEDBACK_CHANNEL_ID);
 
         if (!feedbackChannel) {
-            throw new Error(stripIndent`
-                Could not find the admin server feedback channel.
-
-                Id: ${FEEDBACK_CHANNEL_ID}
-            `);
+            return;
         }
 
         let textChannel: TextChannel;
