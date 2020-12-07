@@ -31,7 +31,7 @@ class GiveXpCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 

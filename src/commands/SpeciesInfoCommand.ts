@@ -20,12 +20,12 @@ class SpeciesInfoCommand extends Command {
     public readonly section = CommandSection.info;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (!parsedMessage.fullArguments) {
+        if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
+        const fullSearchTerm = parsedMessage.restOfText.toLowerCase();
 
         let species: Species | undefined;
         try {

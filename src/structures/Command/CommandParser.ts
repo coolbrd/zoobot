@@ -19,6 +19,8 @@ export default class CommandParser {
     public readonly commandChain: string[] = [];
     public readonly arguments: Argument[] = [];
 
+    public restOfText: string;
+
     public readonly originalMessage: Message;
     public readonly channel: TextChannel | DMChannel;
     public readonly sender: User;
@@ -35,9 +37,10 @@ export default class CommandParser {
         this.commandPrefix = prefixUsed;
         this.displayPrefix = beastiaryClient.commandHandler.getDisplayPrefixByMessage(message);
         
-        const messageWithoutPrefix = message.content.slice(prefixUsed.length).trim();
+        const contentWithoutPrefix = message.content.replace(prefixUsed, "").trim();
+        this.restOfText = contentWithoutPrefix;
 
-        const splitByQuotes = messageWithoutPrefix.split("\"");
+        const splitByQuotes = contentWithoutPrefix.split("\"");
 
         let splitMessage: string[] = [];
         for (let i = 0; i < splitByQuotes.length; i += 2) {
@@ -95,7 +98,7 @@ export default class CommandParser {
     }
 
     public get currentArgument(): Argument | undefined {
-        if (this.arguments[0]) {
+        if (this.arguments.length > 0) {
             return this.arguments[0];
         }
         else {
@@ -103,27 +106,14 @@ export default class CommandParser {
         }
     }
 
-    public get fullArguments(): string {
-        let fullArguments = "";
-
-        let argumentIndex = 0;
-        this.arguments.forEach(currentArgument => {
-            fullArguments += currentArgument.text;
-
-            if (argumentIndex < this.arguments.length - 1) {
-                fullArguments += " ";
-            }
-
-            argumentIndex += 1;
-        });
-
-        return fullArguments;
+    private removeFromRestOfText(text: string): void {
+        this.restOfText = this.restOfText.replace(text, "");
     }
 
     public consumeArgument(): Argument {
-        const shiftedArgument = this.arguments.shift();
+        const consumedArgument = this.arguments.shift();
 
-        if (!shiftedArgument) {
+        if (!consumedArgument) {
             throw new Error(stripIndent`
                 A command parser with no arguments left was told to consume an argument.
 
@@ -131,13 +121,15 @@ export default class CommandParser {
             `);
         }
 
-        return shiftedArgument;
+        this.removeFromRestOfText(consumedArgument.text);
+
+        return consumedArgument;
     }
 
-    public shiftSubCommand(): void {
+    public consumeArgumentAsCommand(): void {
         const subCommandArgument = this.consumeArgument();
 
-        this.commandChain.push(subCommandArgument.text.toLowerCase());
+        this.commandChain.push(subCommandArgument.text.toLowerCase().trim());
     }
 }
 
@@ -176,14 +168,26 @@ export class GuildCommandParser extends CommandParser {
         return this._member;
     }
 
+    private async loadMember(): Promise<void> {
+        try {
+            this._member = await this.guild.members.fetch(this.sender.id)
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                A guild command parser couldn't fetch its sender's member.
+
+                Sender id: ${this.sender.id}
+
+                ${error}
+            `);
+        }
+    }
+
     public async init(): Promise<void> {
         const returnPromises: Promise<unknown>[] = [];
         returnPromises.push(super.init())
 
-        const loadMemberPromise = this.guild.members.fetch(this.sender.id).then(member => {
-            this._member = member;
-        });
-        returnPromises.push(loadMemberPromise);
+        returnPromises.push(this.loadMember());
 
         for (const argument of this.arguments) {
             if (!argument.userId) {

@@ -22,7 +22,7 @@ class ApprovePendingSpeciesCommand extends Command {
     public readonly adminOnly = true;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        const fullSearchTerm = parsedMessage.fullArguments.toLowerCase();
+        const fullSearchTerm = parsedMessage.restOfText.toLowerCase();
 
         if (!fullSearchTerm) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));

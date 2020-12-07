@@ -14,7 +14,7 @@ class CommandAliasesCommand extends Command {
     public readonly section = CommandSection.info;
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        const commandName = parsedMessage.fullArguments.toLowerCase();
+        const commandName = parsedMessage.restOfText.toLowerCase();
 
         if (!commandName) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));

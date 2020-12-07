@@ -21,7 +21,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const prefix = parsedMessage.fullArguments;
+        const prefix = parsedMessage.restOfText;
 
         if (!prefix) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));

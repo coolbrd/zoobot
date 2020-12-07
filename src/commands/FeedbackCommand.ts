@@ -23,7 +23,7 @@ class FeedbackCommand extends Command {
     ];
 
     public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (!parsedMessage.fullArguments) {
+        if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, "You have to include a message as your feedback!");
             return commandReceipt;
         }
@@ -35,7 +35,7 @@ class FeedbackCommand extends Command {
         }
 
         beastiaryClient.discordClient.shard.broadcastEval(`
-            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", "${parsedMessage.fullArguments}");
+            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", "${parsedMessage.restOfText}");
         `);
 
         betterSend(parsedMessage.channel, "Feedback sent!");

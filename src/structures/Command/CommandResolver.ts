@@ -31,7 +31,7 @@ export default class CommandResolver {
                 foundSubCommand = true;
                 currentCommand = matchingSubcommand;
 
-                this.commandParser.shiftSubCommand();
+                this.commandParser.consumeArgumentAsCommand();
                 currentCommandList = currentCommand.subCommands;
             }
             else {

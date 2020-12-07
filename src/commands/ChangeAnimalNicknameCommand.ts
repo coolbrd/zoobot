@@ -66,7 +66,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
         }
         // If the user specified a nickname
         else {
-            newNickname = parsedMessage.fullArguments;
+            newNickname = parsedMessage.restOfText;
 
             const bannedSubStrings = ["*", "_", "`", "~", ">"];
 

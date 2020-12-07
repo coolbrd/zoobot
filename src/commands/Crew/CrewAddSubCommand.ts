@@ -16,12 +16,12 @@ class CrewAddSubCommand extends GuildCommand {
     public readonly blocksInput = true;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (!parsedMessage.fullArguments) {
+        if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
         let animal: Animal | undefined;
         try {

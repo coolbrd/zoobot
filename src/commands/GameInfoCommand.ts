@@ -39,7 +39,7 @@ class GameInfoCommand extends Command {
             return commandReceipt;
         }
 
-        const searchTerm = parsedMessage.fullArguments.trim().toLowerCase();
+        const searchTerm = parsedMessage.restOfText.trim().toLowerCase();
 
         const matchedGameMechanic = mechanics.find(mechanic => {
             return mechanic.names.includes(searchTerm);

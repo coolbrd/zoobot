@@ -26,7 +26,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
         let animal: Animal | undefined;
         try {

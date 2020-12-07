@@ -22,7 +22,7 @@ class AnimalInfoCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.fullArguments.toLowerCase();
+        const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
         let animalObject: Animal | undefined;
         try {

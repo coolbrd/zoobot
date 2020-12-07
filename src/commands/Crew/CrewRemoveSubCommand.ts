@@ -16,12 +16,12 @@ class CrewRemoveSubCommand extends GuildCommand {
     public readonly blocksInput = true;
 
     public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        if (!parsedMessage.fullArguments) {
+        if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;
         }
 
-        const searchTerm = parsedMessage.fullArguments.toLowerCase();
+        const searchTerm = parsedMessage.restOfText.toLowerCase();
 
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
