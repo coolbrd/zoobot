@@ -38,7 +38,7 @@ export default class CommandParser {
         this.displayPrefix = beastiaryClient.commandHandler.getDisplayPrefixByMessage(message);
         
         const contentWithoutPrefix = message.content.replace(prefixUsed, "").trim();
-        this.restOfText = contentWithoutPrefix;
+        this.restOfText = contentWithoutPrefix.trim();
 
         const splitByQuotes = contentWithoutPrefix.split("\"");
 
@@ -107,7 +107,7 @@ export default class CommandParser {
     }
 
     private removeFromRestOfText(text: string): void {
-        this.restOfText = this.restOfText.replace(text, "");
+        this.restOfText = this.restOfText.replace(text, "").trim();
     }
 
     public consumeArgument(): Argument {
