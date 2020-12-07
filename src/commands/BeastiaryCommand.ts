@@ -6,7 +6,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class BeastiaryCommand extends Command {
-    public readonly commandNames = ["beastiary", "bestiary", "b"];
+    public readonly names = ["beastiary", "bestiary", "b"];
 
     public readonly info = "View the list of all species available in The Beastiary";
 
@@ -14,7 +14,9 @@ class BeastiaryCommand extends Command {
 
     public readonly section = CommandSection.gettingStarted;
 
-    public async run(parsedUserCommand: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedUserCommand: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, beastiaryClient, parsedUserCommand.originalMessage.author);
         try {
             await beastiaryMessage.send();

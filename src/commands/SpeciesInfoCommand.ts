@@ -11,7 +11,7 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 import { GuildMember } from 'discord.js';
 
 class SpeciesInfoCommand extends Command {
-    public readonly commandNames = ["speciesinfo", "si"];
+    public readonly names = ["speciesinfo", "si"];
 
     public readonly info = "View a species' information and collectible cards";
 
@@ -19,7 +19,9 @@ class SpeciesInfoCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

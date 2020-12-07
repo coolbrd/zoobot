@@ -7,7 +7,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class MoveAnimalsCommand extends GuildCommand {
-    public readonly commandNames = ["moveanimals", "ma"];
+    public readonly names = ["moveanimals", "ma"];
 
     public readonly info = "Rearrange animals in your collection";
 
@@ -29,7 +29,9 @@ class MoveAnimalsCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

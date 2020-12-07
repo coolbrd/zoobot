@@ -13,7 +13,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ApprovePendingSpeciesCommand extends Command {
-    public readonly commandNames = ["approve", "approvespecies"];
+    public readonly names = ["approve", "approvespecies"];
 
     public readonly info = "Review and approve a pending species";
 
@@ -21,7 +21,9 @@ class ApprovePendingSpeciesCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const fullSearchTerm = parsedMessage.restOfText.toLowerCase();
 
         if (!fullSearchTerm) {

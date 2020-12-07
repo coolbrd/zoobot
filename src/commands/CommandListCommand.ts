@@ -7,7 +7,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 
 // Sends an embed containing a list of all non-admin commands and their basic functions
 class CommandListCommand extends Command {
-    public readonly commandNames = ["commands", "commandlist", "listcommands", "command"];
+    public readonly names = ["commands", "commandlist", "listcommands", "command"];
 
     public readonly info = "View this message";
 
@@ -15,7 +15,9 @@ class CommandListCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         let infoCommandString = "";
         let gettingStartedString = "";
         let playerInfoString = "";
@@ -25,7 +27,7 @@ class CommandListCommand extends Command {
         
         for (const command of beastiaryClient.commandHandler.baseCommands) {
             if (!command.adminOnly) {
-                const infoString = `\`${command.commandNames[0]}\`: ${command.info}\n`;
+                const infoString = `\`${command.names[0]}\`: ${command.info}\n`;
                 switch (command.section) {
                     case CommandSection.info: {
                         infoCommandString += infoString;

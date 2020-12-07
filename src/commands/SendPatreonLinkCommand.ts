@@ -7,7 +7,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class SendPatreonLinkCommand extends Command {
-    public readonly commandNames = ["patreon", "donate"];
+    public readonly names = ["patreon", "donate"];
 
     public readonly info = "Support the bot and its creator and unlock premium features";
 
@@ -15,7 +15,9 @@ class SendPatreonLinkCommand extends Command {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+
         betterSend(parsedMessage.channel, stripIndent`
             Show your support by donating, it would mean a lot!
             Donating can also get you exclusive premium features. Learn more with \`${parsedMessage.displayPrefix}premium\`.

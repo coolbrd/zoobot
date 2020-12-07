@@ -9,7 +9,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class EditSpeciesCommand extends Command {
-    public readonly commandNames = ["edit", "editspecies"];
+    public readonly names = ["edit", "editspecies"];
 
     public readonly info = "Edit an existing species";
 
@@ -17,7 +17,9 @@ class EditSpeciesCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

@@ -7,7 +7,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class GameInfoCommand extends Command {
-    public readonly commandNames = ["gameinfo", "gi", "info"];
+    public readonly names = ["gameinfo", "gi", "info"];
 
     public readonly info = "Get more information about how the game works";
 
@@ -23,7 +23,9 @@ class GameInfoCommand extends Command {
         }
     ];
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.currentArgument) {
             const gameMechanicNames: string[] = [];
             mechanics.forEach(mechanic => {

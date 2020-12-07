@@ -5,7 +5,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class CommandAliasesCommand extends Command {
-    public readonly commandNames = ["alias", "aliases", "a"];
+    public readonly names = ["alias", "aliases", "a"];
 
     public readonly info = "View the alternate names and abbreviations of a command";
 
@@ -13,7 +13,9 @@ class CommandAliasesCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const commandName = parsedMessage.restOfText.toLowerCase();
 
         if (!commandName) {
@@ -30,15 +32,15 @@ class CommandAliasesCommand extends Command {
 
         let aliasString = "";
         // Starts at position 1 so the primary command name is omitted (it was stated earlier)
-        for (let i = 1; i < command.commandNames.length; i++) {
-            aliasString += `\`${command.commandNames[i]}\``;
-            if (i < command.commandNames.length - 1) {
+        for (let i = 1; i < command.names.length; i++) {
+            aliasString += `\`${command.names[i]}\``;
+            if (i < command.names.length - 1) {
                 aliasString += ", ";
             }
         }
         aliasString = aliasString || "None";
 
-        betterSend(parsedMessage.channel, `Aliases for \`${command.commandNames[0]}\`: ${aliasString}`);
+        betterSend(parsedMessage.channel, `Aliases for \`${command.names[0]}\`: ${aliasString}`);
 
         return commandReceipt;
     }

@@ -9,7 +9,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { remainingTimeString } from "../utility/timeStuff";
 
 class GiveXpCommand extends GuildCommand {
-    public readonly commandNames = ["givexp", "gx"];
+    public readonly names = ["givexp", "gx"];
 
     public readonly info = "Give an xp boost to one of your animals"
 
@@ -25,7 +25,9 @@ class GiveXpCommand extends GuildCommand {
         }
     ];
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

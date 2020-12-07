@@ -8,7 +8,7 @@ import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class EncounterCommand extends GuildCommand {
-    public readonly commandNames = ["encounter", "e"];
+    public readonly names = ["encounter", "e"];
 
     public readonly info = "Initiate an animal encounter";
 
@@ -18,7 +18,9 @@ class EncounterCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (!player.hasEncounters) {

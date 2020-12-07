@@ -6,7 +6,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class FeedbackCommand extends Command {
-    public readonly commandNames = ["feedback", "suggest"];
+    public readonly names = ["feedback", "suggest"];
 
     public readonly info = "Send a suggestion straight to the support team";
 
@@ -22,7 +22,9 @@ class FeedbackCommand extends Command {
         }
     ];
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, "You have to include a message as your feedback!");
             return commandReceipt;

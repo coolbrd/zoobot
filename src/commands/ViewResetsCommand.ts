@@ -6,7 +6,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ViewResetsCommand extends GuildCommand {
-    public readonly commandNames = ["resets", "rs"];
+    public readonly names = ["resets", "rs"];
 
     public readonly info = "View the time remaining until the next free encounter and capture resets";
 
@@ -14,7 +14,9 @@ class ViewResetsCommand extends GuildCommand {
 
     public readonly section = CommandSection.playerInfo;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;

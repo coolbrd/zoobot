@@ -6,7 +6,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import { remainingTimeString } from "../utility/timeStuff";
 
 class DailyCurrencyCommand extends GuildCommand {
-    public readonly commandNames = ["daily", "dailypep", "dp"];
+    public readonly names = ["daily", "dailypep", "dp"];
 
     public readonly info = "Claim some free daily pep";
 
@@ -16,7 +16,9 @@ class DailyCurrencyCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (!player.hasDailyCurrencyReset) {

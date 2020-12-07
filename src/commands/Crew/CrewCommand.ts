@@ -10,7 +10,7 @@ import CommandReceipt from "../../structures/Command/CommandReceipt";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 
 class CrewCommand extends GuildCommand {
-    public readonly commandNames = ["crew"];
+    public readonly names = ["crew"];
 
     public readonly subCommands = [
         CrewAddSubCommand,
@@ -23,7 +23,9 @@ class CrewCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         let player: Player;
         try {
             player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);

@@ -8,7 +8,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 
 class ViewTokensCommand extends GuildCommand {
-    public readonly commandNames = ["tokens"];
+    public readonly names = ["tokens"];
 
     public readonly info = "View your collected species tokens";
 
@@ -24,7 +24,9 @@ class ViewTokensCommand extends GuildCommand {
         }
     ];
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         let player: Player;
         try {
             player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);

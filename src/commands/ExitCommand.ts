@@ -5,7 +5,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class ExitCommand extends Command {
-    public readonly commandNames = ["exit"];
+    public readonly names = ["exit"];
 
     public readonly info = "Shuts down the bot";
 
@@ -13,7 +13,9 @@ class ExitCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(_parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(_parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         console.log("Exiting...");
 
         if (!beastiaryClient.discordClient.shard) {

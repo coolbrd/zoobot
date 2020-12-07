@@ -9,7 +9,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class SetEncounterChannelCommand extends GuildCommand {
-    public readonly commandNames = ["setencounterchannel"];
+    public readonly names = ["setencounterchannel"];
 
     public readonly info = "Set the channel that random encounters will appear in";
 
@@ -17,7 +17,9 @@ class SetEncounterChannelCommand extends GuildCommand {
 
     public readonly section = CommandSection.guildManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.member.hasPermission("MANAGE_CHANNELS")) {
             betterSend(parsedMessage.channel, "You need the `Manage Channels` permission to change the default encounter channel.");
             return commandReceipt;

@@ -8,7 +8,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class AnimalInfoCommand extends GuildCommand {
-    public readonly commandNames = ["animalinfo", "ai", "stats"];
+    public readonly names = ["animalinfo", "ai", "stats"];
 
     public readonly info = "View the stats, info, and card of a captured animal";
 
@@ -16,7 +16,9 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

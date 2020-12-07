@@ -13,7 +13,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class SubmitSpeciesCommand extends Command {
-    public readonly commandNames = ["submitspecies", "submit"];
+    public readonly names = ["submitspecies", "submit"];
 
     public readonly info = "Submit a new species to The Beastiary";
 
@@ -21,7 +21,9 @@ class SubmitSpeciesCommand extends Command {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const infoEmbed = new MessageEmbed();
 
         infoEmbed.setTitle("New species submission");

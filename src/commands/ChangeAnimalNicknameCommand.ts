@@ -7,7 +7,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ChangeAnimalNicknameCommand extends GuildCommand {
-    public readonly commandNames = ["nickname", "nick", "nn"];
+    public readonly names = ["nickname", "nick", "nn"];
 
     public readonly info = "Change the nickname of one of your captured animals";
 
@@ -28,7 +28,9 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+
         if (!parsedMessage.currentArgument) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

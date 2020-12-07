@@ -24,7 +24,7 @@ export default class CommandResolver {
             const potentialCommandName = this.commandParser.arguments[0].text.toLowerCase();
 
             const matchingSubcommand = currentCommandList.find(currentCommand => {
-                return currentCommand.commandNames.includes(potentialCommandName);
+                return currentCommand.names.includes(potentialCommandName);
             });
 
             if (matchingSubcommand) {

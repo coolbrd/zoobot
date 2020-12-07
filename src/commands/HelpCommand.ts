@@ -6,7 +6,7 @@ import CommandResolver from "../structures/Command/CommandResolver";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class HelpCommand extends Command {
-    public readonly commandNames = ["help", "h"];
+    public readonly names = ["help", "h"];
 
     public readonly info = "View more information about the usage of a command";
 
@@ -14,7 +14,9 @@ class HelpCommand extends Command {
 
     public readonly section = CommandSection.info;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const commandName = parsedMessage.restOfText.toLowerCase();
 
         if (!commandName) {

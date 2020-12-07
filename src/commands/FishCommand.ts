@@ -12,7 +12,7 @@ import { randomWithinRange } from "../utility/numericalMisc";
 import { getDaysSinceEpoch } from "../utility/timeStuff";
 
 class FishCommand extends GuildCommand {
-    public readonly commandNames = ["fish", "cast"];
+    public readonly names = ["fish", "cast"];
 
     public readonly info = "Cast your line and fish up some pep, eventualy";
 
@@ -88,7 +88,9 @@ class FishCommand extends GuildCommand {
         return fishingTime;
     }
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         const fishingChannel = this.fishingPlayers.get(player);

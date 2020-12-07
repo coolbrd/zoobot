@@ -22,22 +22,14 @@ export interface CommandArgumentInfo {
 }
 
 export default abstract class Command {
-    public abstract readonly commandNames: string[];
-
+    public abstract readonly names: string[];
     public abstract readonly info: string;
-
     public abstract readonly helpUseString: string;
-
     public readonly arguments: CommandArgumentInfo[] = [];
-
     public readonly subCommands: Command[] = [];
-
     public readonly section?: CommandSection;
-
     public readonly guildOnly?: boolean = false;
-
     public readonly blocksInput?: boolean = false;
-
     public readonly adminOnly?: boolean = false;
 
     public help(displayPrefix: string, commandChain: string[]): string {
@@ -66,7 +58,7 @@ export default abstract class Command {
         if (this.subCommands.length > 0) {
             helpString += "\n\n__Options__\n";
             this.subCommands.forEach(currentSubCommand => {
-                helpString += `\`${currentSubCommand.commandNames[0]}\`: ${currentSubCommand.info}\n`;
+                helpString += `\`${currentSubCommand.names[0]}\`: ${currentSubCommand.info}\n`;
             });
         }
 
@@ -74,16 +66,22 @@ export default abstract class Command {
     }
 
     public get primaryName(): string {
-        return this.commandNames[0];
+        return this.names[0];
     }
 
-    protected async abstract run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
+    protected newReceipt(): CommandReceipt {
+        const receipt: CommandReceipt = {
+            reactConfirm: false
+        };
+
+        return receipt;
+    }
+
+    protected async abstract run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 
     public async execute(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        const receipt = new CommandReceipt();
-
         try {
-            return await this.run(parsedMessage, receipt, beastiaryClient);
+            return await this.run(parsedMessage, beastiaryClient);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -100,5 +98,5 @@ export default abstract class Command {
 export abstract class GuildCommand extends Command {
     public readonly guildOnly = true;
 
-    protected abstract run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
+    protected abstract run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 }

@@ -7,7 +7,7 @@ import CommandReceipt from "../../structures/Command/CommandReceipt";
 import { Animal } from "../../structures/GameObject/GameObjects/Animal";
 
 class CrewRemoveSubCommand extends GuildCommand {
-    public readonly commandNames = ["remove", "r"];
+    public readonly names = ["remove", "r"];
 
     public readonly info = "Remove an animal from your crew";
 
@@ -15,7 +15,9 @@ class CrewRemoveSubCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

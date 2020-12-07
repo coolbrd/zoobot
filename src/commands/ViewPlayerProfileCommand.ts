@@ -8,7 +8,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ViewPlayerProfileCommand extends GuildCommand {
-    public readonly commandNames = ["profile", "p"];
+    public readonly names = ["profile", "p"];
 
     public readonly info = "View you or another player's profile";
 
@@ -25,7 +25,9 @@ class ViewPlayerProfileCommand extends GuildCommand {
 
     public readonly section = CommandSection.playerInfo;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         let player: Player;
         try {
             player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);

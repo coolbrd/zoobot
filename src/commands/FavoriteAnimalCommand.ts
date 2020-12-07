@@ -7,7 +7,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class FavoriteAnimalCommand extends GuildCommand {
-    public readonly commandNames = ["favorite", "favoriteanimal", "f", "favourite", "favouriteanimal"];
+    public readonly names = ["favorite", "favoriteanimal", "f", "favourite", "favouriteanimal"];
 
     public readonly info = "Select your favorite animal to put at the top of your collection";
 
@@ -15,7 +15,9 @@ class FavoriteAnimalCommand extends GuildCommand {
 
     public readonly section = CommandSection.animalManagement;
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         if (!parsedMessage.restOfText) {
             betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
             return commandReceipt;

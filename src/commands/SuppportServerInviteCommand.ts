@@ -6,7 +6,7 @@ import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class SupportServerInviteCommand extends GuildCommand {
-    public readonly commandNames = ["support", "supportserver", "invite"];
+    public readonly names = ["support", "supportserver", "invite"];
 
     public readonly info = "Get the link to the official support server";
 
@@ -14,7 +14,9 @@ class SupportServerInviteCommand extends GuildCommand {
 
     public readonly section = CommandSection.getInvolved;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         betterSend(parsedMessage.channel, gameConfig.supportServerInviteLink);
 
         return commandReceipt;

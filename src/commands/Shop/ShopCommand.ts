@@ -10,7 +10,7 @@ import ShopBuySubCommand from "./ShopBuySubCommand";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 
 class ShopCommand extends GuildCommand {
-    public readonly commandNames = ["shop"];
+    public readonly names = ["shop"];
 
     public readonly subCommands = [
         ShopBuySubCommand
@@ -29,11 +29,11 @@ class ShopCommand extends GuildCommand {
         betterSend(channel, shopEmbed);
     }
 
-    public async run(parsedMessage: GuildCommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         this.buildAndSendShopMessage(parsedMessage.channel, player, beastiaryClient);
-        return commandReceipt;
+        return this.newReceipt();
     }
 }
 export default new ShopCommand();

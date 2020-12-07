@@ -6,7 +6,7 @@ import CommandParser from '../structures/Command/CommandParser';
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
 class SpeciesRarityCommand extends Command {
-    public readonly commandNames = ["viewrarity", "vr"];
+    public readonly names = ["viewrarity", "vr"];
 
     public readonly info = "View the rarity of all species and their images";
 
@@ -14,7 +14,9 @@ class SpeciesRarityCommand extends Command {
 
     public readonly adminOnly = true;
 
-    public async run(parsedMessage: CommandParser, commandReceipt: CommandReceipt, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const commandReceipt = this.newReceipt();
+        
         const rarityMessage = new SpeciesRarityMessage(parsedMessage.channel, beastiaryClient);
 
         try {
