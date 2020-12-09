@@ -1,11 +1,11 @@
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import BeastiaryMessage from "../messages/BeastiaryMessage";
-import Command, { CommandSection } from "../structures/Command/Command";
-import CommandParser from "../structures/Command/CommandParser";
+import { CommandSection, GuildCommand } from "../structures/Command/Command";
+import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
-class BeastiaryCommand extends Command {
+class BeastiaryCommand extends GuildCommand {
     public readonly names = ["beastiary", "bestiary", "b"];
 
     public readonly info = "View the list of all species available in The Beastiary";
@@ -14,10 +14,12 @@ class BeastiaryCommand extends Command {
 
     public readonly section = CommandSection.gettingStarted;
 
-    public async run(parsedUserCommand: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+    public async run(parsedUserCommand: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
+
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedUserCommand.member);
         
-        const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, beastiaryClient, parsedUserCommand.originalMessage.author);
+        const beastiaryMessage = new BeastiaryMessage(parsedUserCommand.channel, beastiaryClient, player);
         try {
             await beastiaryMessage.send();
         }

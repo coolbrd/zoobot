@@ -1,4 +1,4 @@
-import { DMChannel, MessageEmbed, TextChannel, User } from "discord.js";
+import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableCacheableGameObject from '../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
@@ -7,18 +7,19 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from './PagedMessage';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
 
-    protected readonly elementsPerPage = 15;
+    protected readonly elementsPerPage = 60;
 
-    private readonly user: User;
+    private readonly player: Player;
 
-    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, user: User) {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, player: Player) {
         super(channel, beastiaryClient);
 
-        this.user = user;
+        this.player = player;
     }
 
     private async buildLoadableSpeciesList(): Promise<void> {
@@ -68,14 +69,42 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
 
         const embed = new SmartEmbed();
 
-        embed.setAuthor(`${this.user.username}'s Beastiary`, this.user.avatarURL() || undefined);
+        embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
+        embed.setColor(0x9e6734);
 
-        let pageString = "";
+        const elementsPerField = this.elementsPerPage / 6;
+
+        let currentFieldCount = 0;
+        let currentFieldString = "";
+
+        const addFieldAndReset = () => {
+            embed.addField("----", currentFieldString, true);
+            currentFieldCount = 0;
+            currentFieldString = "";
+        }
+
         this.visibleElements.forEach(loadableSpecies => {
-            pageString += capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0]) + "\n";
+            if (currentFieldCount === elementsPerField) {
+                addFieldAndReset();
+            }
+
+            const playerSpeciesRecord = this.player.getSpeciesRecord(loadableSpecies.gameObject.id);
+            const speciesCaptures = playerSpeciesRecord.data.captures;
+
+            currentFieldString += `${capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0])}`;
+
+            if (speciesCaptures) {
+                currentFieldString += `: ${speciesCaptures}`;
+            }
+
+            currentFieldString += "\n";
+
+            currentFieldCount++;
         });
 
-        embed.setDescription(pageString);
+        if (currentFieldString) {
+            addFieldAndReset();
+        }
 
         embed.setFooter(`Page ${this.page + 1}/${this.pageCount}\n${this.getButtonHelpString()}`);
 
