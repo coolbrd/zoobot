@@ -12,6 +12,14 @@ import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObject
 import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 
+interface PlayerSpeciesRecord {
+    speciesId: Types.ObjectId,
+    data: {
+        captures: number,
+        essence: number
+    }
+}
+
 export class Player extends GameObject {
     public readonly model = PlayerModel;
     public readonly schemaDefinition = playerSchemaDefinition;
@@ -39,7 +47,8 @@ export class Player extends GameObject {
         totalXpBoosts: "totalXpBoosts",
         tokenSpeciesIds: "tokenSpeciesIds",
         rarestTierCaught: "rarestTierCaught",
-        favoriteAnimalId: "favoriteAnimalId"
+        favoriteAnimalId: "favoriteAnimalId",
+        speciesRecords: "speciesRecords"
     };
 
     public static newDocument(guildMember: GuildMember): Document {
@@ -268,6 +277,10 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
     }
 
+    public get speciesRecords(): PlayerSpeciesRecord[] {
+        return this.document.get(Player.fieldNames.speciesRecords);
+    }
+
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -384,18 +397,18 @@ export class Player extends GameObject {
         return this.getIdFromList(this.crewAnimalIds, position);
     }
 
-    private addIdToList(baseList: Types.ObjectId[], id: Types.ObjectId): void {
+    private addToList<T>(baseList: T[], element: T): void {
         this.modify();
 
-        baseList.push(id);
+        baseList.push(element);
     }
 
     public addAnimalIdToCollection(animalId: Types.ObjectId): void {
-        this.addIdToList(this.collectionAnimalIds, animalId);
+        this.addToList(this.collectionAnimalIds, animalId);
     }
 
     public addAnimalIdToCrew(animalId: Types.ObjectId): void {
-        this.addIdToList(this.crewAnimalIds, animalId);
+        this.addToList(this.crewAnimalIds, animalId);
     }
 
     public giveToken(species: Species): void {
@@ -408,7 +421,7 @@ export class Player extends GameObject {
             `);
         }
 
-        this.addIdToList(this.tokenSpeciesIds, species.id);
+        this.addToList(this.tokenSpeciesIds, species.id);
     }
 
     private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
@@ -531,6 +544,8 @@ export class Player extends GameObject {
         this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
 
         this.awardCrewExperienceInChannel(gameConfig.xpPerCapture, channel);
+
+        this.captureSpecies(animal.species.id);
 
         this.decrementCapturesLeft();
         this.totalCaptures += 1;
@@ -734,6 +749,55 @@ export class Player extends GameObject {
         }
 
         this.pep += releasedAnimal.value;
+    }
+
+    private createNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {
+        const newRecord: PlayerSpeciesRecord = {
+            speciesId: id,
+            data: {
+                captures: 0,
+                essence: 0
+            }
+        };
+
+        return newRecord;
+    }
+
+    private addSpeciesRecord(record: PlayerSpeciesRecord): void {
+        this.addToList(this.speciesRecords, record);
+    }
+
+    private createAndAddNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {
+        const newRecord = this.createNewSpeciesRecord(id);
+        this.addSpeciesRecord(newRecord);
+        return newRecord;
+    }
+
+    private findSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord | undefined {
+        return this.speciesRecords.find(speciesRecord => speciesRecord.speciesId.equals(speciesId));
+    }
+
+    public captureSpecies(speciesId: Types.ObjectId): void {
+        this.modify();
+
+        let speciesRecord = this.findSpeciesRecord(speciesId);
+
+        if (!speciesRecord) {
+            speciesRecord = this.createAndAddNewSpeciesRecord(speciesId);
+        }
+
+        speciesRecord.data.captures++;
+    }
+
+    public getSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {
+        const speciesRecord = this.findSpeciesRecord(speciesId);
+
+        if (speciesRecord) {
+            return speciesRecord;
+        }
+        else {
+            return this.createNewSpeciesRecord(speciesId);
+        }
     }
 
     private async loadGuildMember(): Promise<void> {

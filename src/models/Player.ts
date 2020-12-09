@@ -3,6 +3,33 @@ import gameConfig from '../config/gameConfig';
 import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import { Player } from '../structures/GameObject/GameObjects/Player';
 
+export const playerSpeciesRecordSchemaDefinition: BeastiarySchemaDefinition = {
+    speciesId: {
+        type: Schema.Types.ObjectId,
+        required: true
+    },
+    data: {
+        type: {
+            captures: {
+                type: Number,
+                required: true,
+                fieldRestrictions: {
+                    defaultValue: 0,
+                    nonNegative: true
+                }
+            },
+            essence: {
+                type: Number,
+                required: true,
+                fieldRestrictions: {
+                    defaultValue: 0,
+                    nonNegative: true
+                }
+            }
+        }
+    }
+};
+
 export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     [Player.fieldNames.userId]: {
         type: String,
@@ -152,6 +179,9 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     [Player.fieldNames.favoriteAnimalId]: {
         type: Schema.Types.ObjectId,
         required: false
+    },
+    [Player.fieldNames.speciesRecords]: {
+        type: [playerSpeciesRecordSchemaDefinition]
     }
 };
 
