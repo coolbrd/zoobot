@@ -94,7 +94,7 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
             currentFieldString += `${capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0])}`;
 
             if (speciesCaptures) {
-                currentFieldString += `: ${speciesCaptures}`;
+                currentFieldString += ` **(${speciesCaptures})**`;
             }
 
             currentFieldString += "\n";
