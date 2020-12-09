@@ -29,6 +29,15 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
         });
     }
 
+    private sortElementsByPlayerCaptureCount(): void {
+        this.elements.sort((a, b) => {
+            const recordA = this.player.getSpeciesRecord(a.id);
+            const recordB = this.player.getSpeciesRecord(b.id);
+
+            return recordB.data.captures - recordA.data.captures;
+        });
+    }
+
     public async build(): Promise<void> {
         try {
             await this.buildLoadableSpeciesList();
@@ -40,6 +49,8 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
                 ${error}
             `);
         }
+
+        this.sortElementsByPlayerCaptureCount();
 
         try {
             await super.build();
