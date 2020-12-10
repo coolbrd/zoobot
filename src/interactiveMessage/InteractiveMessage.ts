@@ -213,7 +213,18 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     public async send(): Promise<void> {
         if (!this.built) {
-            await this.build();
+            try {
+                await this.build();
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error initially building an interactive message before sending it.
+
+                    Message: ${this.debugString}
+
+                    ${error}
+                `);
+            }
         }
 
         try {
