@@ -38,6 +38,15 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
         });
     }
 
+    private sortElementsByPlayerTokenStatus(): void {
+        this.elements.sort((a, b) => {
+            const hasTokenA = this.player.hasToken(a.id) ? 1 : 0;
+            const hasTokenb = this.player.hasToken(b.id) ? 1 : 0;
+
+            return hasTokenb - hasTokenA;
+        });
+    }
+
     public async build(): Promise<void> {
         try {
             await this.buildLoadableSpeciesList();
@@ -51,6 +60,8 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
         }
 
         this.sortElementsByPlayerCaptureCount();
+
+        this.sortElementsByPlayerTokenStatus();
 
         try {
             await super.build();
@@ -99,10 +110,20 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
                 addFieldAndReset();
             }
 
+            const speciesRarityEmoji = loadableSpecies.gameObject.rarityData.emoji;
+
+            currentFieldString += `${speciesRarityEmoji}`;
+
+            if (this.player.hasToken(loadableSpecies.id)) {
+                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+
+                currentFieldString += `${tokenEmoji}`;
+            }
+
+            currentFieldString += ` ${capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0])}`;
+
             const playerSpeciesRecord = this.player.getSpeciesRecord(loadableSpecies.gameObject.id);
             const speciesCaptures = playerSpeciesRecord.data.captures;
-
-            currentFieldString += `${capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0])}`;
 
             if (speciesCaptures) {
                 currentFieldString += ` **(${speciesCaptures})**`;
