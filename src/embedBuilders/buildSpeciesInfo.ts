@@ -23,7 +23,7 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
     embed.addField("More info", species.wikiPage, true);
 
     if (player) {
-        const showToken = player.hasToken(species);
+        const showToken = player.hasToken(species.id);
         let tokenString = "*Unknown*";
         if (showToken) {
             const tokenEmoji = emojiManager.getByName("token");

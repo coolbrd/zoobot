@@ -345,8 +345,8 @@ export class Player extends GameObject {
         return this.periodsSinceLastXpBoostReset > 0;
     }
 
-    public hasToken(species: Species): boolean {
-        return this.tokenSpeciesIds.includes(species.id);
+    public hasToken(speciesId: Types.ObjectId): boolean {
+        return this.tokenSpeciesIds.includes(speciesId);
     }
 
     private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
@@ -412,7 +412,7 @@ export class Player extends GameObject {
     }
 
     public giveToken(species: Species): void {
-        if (this.hasToken(species)) {
+        if (this.hasToken(species.id)) {
             throw new Error(stripIndent`
                 Attempted to give a player a token they already owned.
 
