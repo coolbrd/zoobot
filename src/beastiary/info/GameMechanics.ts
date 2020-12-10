@@ -3,6 +3,7 @@ import AnimalInfoCommand from "../../commands/AnimalInfoCommand";
 import ChangeAnimalNicknameCommand from "../../commands/ChangeAnimalNicknameCommand";
 import CrewCommand from "../../commands/Crew/CrewCommand";
 import EncounterCommand from "../../commands/EncounterCommand";
+import FishCommand from "../../commands/FishCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
@@ -80,6 +81,14 @@ const mechanics: GameMechanicInfo[] = [
             its token, and that chance increases with the amount of experience the animal gains. Tokens are rare collectibles that every
             species has, think of them as a gift from that species for being so good to it. You can view your collected tokens with the
             \`${ViewTokensCommand.primaryName}\` command.
+        `
+    },
+    {
+        names: ["fishing", "fish"],
+        info: oneLine`
+            Fishing is a way to semi-passively generate pep when you don't have any other ways of obtaining it. Start fishing using the
+            \`${FishCommand.primaryName}\` command, and type \`reel\` when it says you have a bite. It's that simple! (Don't worry about
+            the complete lack of actual fish to catch)
         `
     }
 ];
