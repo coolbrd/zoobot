@@ -18,15 +18,11 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
     }
 
     public get gameObject(): GameObjectType {
-        if (!this.loaded) {
-            throw new Error(stripIndent`
-                A loadable game object's object was attempted to be read before it was loaded.
-
-                Game object: ${this.gameObject.debugString}
-            `);
+        if (!this._gameObject) {
+            throw new Error("A loadable game object's object was attempted to be read before it was loaded.");
         }
 
-        return this._gameObject as GameObjectType;
+        return this._gameObject;
     }
 
     public get loadFailed(): boolean {
