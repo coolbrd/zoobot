@@ -237,7 +237,7 @@ export default class EncounterManager {
     
     // Gets some visual indication info for any given weighted rarity value
     public getRarityInfo(rarity: number): RarityInfo {
-        const tierColors = [0x557480, 0x49798b, 0x3e6297, 0x2c67a9, 0x1a97bb, 0x0fc6c6, 0x07cd9c, 0x17bd52, 0x417c36, 0xbbae13, 0xf9da04, 0xf3850a, 0xef0e3a, 0xda23c8, 0xff80ff, 0xFFFFFF];
+        const tierColors = [0x557480, 0x49798b, 0x3e6297, 0x2c67a9, 0x1a97bb, 0x0fc6c6, 0x07cd9c, 0x17bd52, 0x417c36, 0xbbae13, 0xf9da04, 0xf3850a, 0xef0e3a, 0xda23c8, 0xff80ff, 0xfffffe];
     
         const rarityOccurrence = this.getWeightedRarityMinimumOccurrence(rarity);
     
@@ -258,7 +258,7 @@ export default class EncounterManager {
     
         return {
             tier: tier,
-            color: tierColors[tier],
+            color: tierColors[tierColors.length - 1],
             emojiName: "tu"
         }
     }
