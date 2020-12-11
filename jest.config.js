@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-undef
 module.exports = {
     testEnvironment: "node",
-    roots: ['test', 'src'],
+    roots: [],
     transform: {
         '^.+\\.tsx?$': 'ts-jest'
     },
