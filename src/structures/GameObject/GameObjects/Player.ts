@@ -423,7 +423,7 @@ export class Player extends GameObject {
         baseList.push(element);
     }
 
-    public addAnimalIdToCollection(animalId: Types.ObjectId): void {
+    private addAnimalIdToCollection(animalId: Types.ObjectId): void {
         this.addToList(this.collectionAnimalIds, animalId);
     }
 
