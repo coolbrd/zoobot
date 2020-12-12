@@ -77,7 +77,7 @@ export default abstract class Command {
         return receipt;
     }
 
-    protected async abstract run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
+    protected abstract run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 
     public async execute(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         try {
