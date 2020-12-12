@@ -17,13 +17,10 @@ class SetEncounterChannelCommand extends GuildCommand {
 
     public readonly section = CommandSection.guildManagement;
 
+    public readonly permissionRequirement = "MANAGE_CHANNELS";
+
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
-        
-        if (!parsedMessage.member.hasPermission("MANAGE_CHANNELS")) {
-            betterSend(parsedMessage.channel, "You need the `Manage Channels` permission to change the default encounter channel.");
-            return commandReceipt;
-        }
 
         let playerGuild: PlayerGuild;
         try {

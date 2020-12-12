@@ -1,5 +1,7 @@
 import { stripIndent } from "common-tags";
+import { BitFieldResolvable, PermissionString } from "discord.js";
 import BeastiaryClient from "../../bot/BeastiaryClient";
+import { betterSend } from "../../discordUtility/messageMan";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import CommandParser, { GuildCommandParser } from "./CommandParser";
 import CommandReceipt from "./CommandReceipt";
@@ -97,6 +99,29 @@ export default abstract class Command {
 
 export abstract class GuildCommand extends Command {
     public readonly guildOnly = true;
+    public readonly permissionRequirement?: BitFieldResolvable<PermissionString>;
 
     protected abstract run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
+
+    public async execute(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        if (this.permissionRequirement) {
+            if (!parsedMessage.member.hasPermission(this.permissionRequirement)) {
+                betterSend(parsedMessage.channel, `You don't have adequate server permissions to run this command. Requirement: \`${this.permissionRequirement}\``);
+                return this.newReceipt();
+            }
+        }
+
+        try {
+            return await super.execute(parsedMessage, beastiaryClient);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error running a guild command's inherited execution information.
+
+                Command ${JSON.stringify(this)}
+
+                ${error}
+            `);
+        }
+    }
 }
