@@ -62,6 +62,8 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             return existingCachedGameObject;
         }
 
+        const newCachedGameObject = this.cacheSet(gameObject);
+
         try {
             await gameObject.loadFields();
         }
@@ -74,8 +76,6 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
                 ${error}
             `);
         }
-
-        const newCachedGameObject = this.cacheSet(gameObject);
 
         return newCachedGameObject;
     }
