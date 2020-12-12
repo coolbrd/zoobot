@@ -35,9 +35,17 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
         }
     }
 
-    protected setPage(page: number): void {
-        super.setPage(page);
+    protected get page(): number {
+        return super.page;
+    }
 
+    protected set page(page: number) {
+        super.page = page;
+
+        this.updatePointerPage();
+    }
+
+    private updatePointerPage(): void {
         if (!this.pointerIsOnPage) {
             this.pointerPage = this.page;
         }
@@ -54,9 +62,7 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
     public set pointerPosition(pointerPosition: number) {
         this.elements.pointerPosition = loopValue(pointerPosition, 0, this.elements.length - 1);
 
-        if (!this.pointerIsOnPage) {
-            this.setPage(this.pointerPage);
-        }
+        this.updatePointerPage();
     }
 
     public get pointerPage(): number {
@@ -72,17 +78,6 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
     }
 
     protected async buttonPress(buttonName: string, user: User): Promise<void> {
-        try {
-            await super.buttonPress(buttonName, user);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error performing inherited button press behavior in a pointed message.
-                
-                ${error}
-            `);
-        }
-
         switch (buttonName) {
             case "upArrow": {
                 this.pointerPosition -= 1;
@@ -92,6 +87,17 @@ export default abstract class PointedMessage<ElementType> extends PagedMessage<E
                 this.pointerPosition += 1;
                 break;
             }
+        }
+        
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error performing inherited button press behavior in a pointed message.
+                
+                ${error}
+            `);
         }
     }
 }

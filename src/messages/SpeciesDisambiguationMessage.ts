@@ -1,20 +1,29 @@
-import { stripIndent } from "common-tags";
-import { MessageEmbed } from "discord.js";
-import SpeciesDisplayMessage from "./SpeciesDisplayMessage";
+import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
+import BeastiaryClient from "../bot/BeastiaryClient";
+import { Species } from "../structures/GameObject/GameObjects/Species";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import PagedMessage from "./PagedMessage";
 
-export default class SpeciesDisambiguationMessage extends SpeciesDisplayMessage {
+export default class SpeciesDisambiguationMessage extends PagedMessage<Species> {
+    protected readonly lifetime = 60000;
+
+    protected readonly fieldsPerPage = 2;
+    protected readonly elementsPerField = 10;
+
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, species: Species[]) {
+        super(channel, beastiaryClient);
+
+        this.elements = species;
+    }
+
+    protected formatElement(species: Species): string {
+        const displayName = capitalizeFirstLetter(species.commonNames[0]);
+
+        return displayName;
+    }
+
     protected async buildEmbed(): Promise<MessageEmbed> {
-        let embed: MessageEmbed;
-        try {
-            embed = await super.buildEmbed();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error building a species disambiguation message's inherited information.
-                
-                ${error}
-            `);
-        }
+        const embed = await super.buildEmbed();
 
         embed.setColor(0xFFFF00);
         embed.setTitle("Multiple species found");

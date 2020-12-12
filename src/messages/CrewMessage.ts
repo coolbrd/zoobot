@@ -3,11 +3,14 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import AnimalDisplayMessage from "./AnimalDisplayMessage";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import CrewCommand from "../commands/Crew/CrewCommand";
+import CrewAddSubCommand from "../commands/Crew/CrewAddSubCommand";
 
 export default class CrewMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 30000;
 
-    protected readonly elementsPerPage = 10;
+    protected readonly fieldsPerPage = 1;
+    protected readonly elementsPerField = 10;
 
     private readonly player: Player;
     public readonly channel: TextChannel;
@@ -20,28 +23,21 @@ export default class CrewMessage extends AnimalDisplayMessage {
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
-        let embed: MessageEmbed;
-        try {
-            embed = await super.buildEmbed();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error building a crew message's inherited embed information.
-
-                Crew message: ${this.debugString}
-                
-                ${error}
-            `);
-        }
+        const embed = await super.buildEmbed();
 
         const crew = this.elements;
 
         const userAvatar = this.player.member.user.avatarURL() || undefined;
+
         embed.setAuthor(`${this.player.member.user.username}'s crew`, userAvatar);
-        embed.setFooter(`${crew.length} in crew\n${this.getButtonHelpString()}`);
+        embed.setFooter(stripIndent`
+            ${crew.length} in crew
+            ${this.getButtonHelpString()}
+        `);
 
         if (crew.length < 1) {
-            embed.setDescription(`It's empty in here. Add animals to your crew with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}crewadd\`!`);
+            const guildPrefix = this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild);
+            embed.setDescription(`It's empty in here. Add animals to your crew with \`${guildPrefix}${CrewCommand.primaryName}\` \`${CrewAddSubCommand.primaryName}\`!`);
             return embed;
         }
 

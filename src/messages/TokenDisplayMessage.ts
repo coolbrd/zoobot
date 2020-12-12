@@ -1,7 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
-import SmartEmbed from "../discordUtility/SmartEmbed";
 import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -10,7 +9,8 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from "./PagedMessage";
 
 export default class TokenDisplayMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
-    public readonly elementsPerPage = 15;
+    public readonly fieldsPerPage = 1;
+    public readonly elementsPerField = 15;
 
     public readonly lifetime = 30000;
 
@@ -21,6 +21,12 @@ export default class TokenDisplayMessage extends PagedMessage<LoadableCacheableG
 
         this.player = player;
         this.elements = player.getTokenLoadableSpecies();
+    }
+
+    protected formatElement(loadableSpecies: LoadableCacheableGameObject<Species>): string {
+        const token = capitalizeFirstLetter(loadableSpecies.gameObject.token);
+
+        return token;
     }
 
     public async buildEmbed(): Promise<MessageEmbed> {
@@ -35,21 +41,10 @@ export default class TokenDisplayMessage extends PagedMessage<LoadableCacheableG
             `);
         }
 
-        const embed = new SmartEmbed();
+        const embed = await super.buildEmbed();
 
         embed.setAuthor(`${this.player.member.user.username}'s tokens`, this.player.member.user.avatarURL() || undefined);
-
         embed.setColor(0x008888);
-
-        let tokenString = "";
-        this.visibleElements.forEach(currentLoadableSpecies => {
-            const species = currentLoadableSpecies.gameObject;
-
-            tokenString += `${capitalizeFirstLetter(species.token)}\n`;
-        });
-
-        embed.setDescription(tokenString);
-
         embed.setFooter(`${this.elements.length} tokens collected`);
 
         return embed;

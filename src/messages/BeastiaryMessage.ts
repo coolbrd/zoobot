@@ -1,18 +1,18 @@
 import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
-import SmartEmbed from "../discordUtility/SmartEmbed";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableCacheableGameObject from '../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
 import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
-import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedMessage from './PagedMessage';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
     protected readonly lifetime = 60000;
 
-    protected readonly elementsPerPage = 60;
+    protected readonly fieldsPerPage = 6;
+    protected readonly elementsPerField = 10;
 
     private readonly player: Player;
 
@@ -22,9 +22,42 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
         this.player = player;
     }
 
+    protected formatElement(loadableSpecies: LoadableCacheableGameObject<Species>): string {
+        let speciesString = "";
+
+        const species = loadableSpecies.gameObject;
+        const speciesRarityEmoji = species.rarityData.emoji;
+
+        speciesString += `${speciesRarityEmoji}`;
+
+        if (this.player.hasToken(species.id)) {
+            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+
+            speciesString += `${tokenEmoji}`;
+        }
+
+        let speciesDisplayName = capitalizeFirstLetter(species.commonNames[0]);
+
+        if (this.player.hasSpecies(species.id)) {
+            speciesDisplayName = `**${speciesDisplayName}**`;
+        }
+
+        speciesString += ` ${speciesDisplayName}`;
+
+        const playerSpeciesRecord = this.player.getSpeciesRecord(species.id);
+        const speciesCaptures = playerSpeciesRecord.data.captures;
+
+        if (speciesCaptures) {
+            speciesString += ` **(${speciesCaptures})**`;
+        }
+
+        return speciesString;
+    }
+
     private async buildLoadableSpeciesList(): Promise<void> {
         this.beastiaryClient.beastiary.species.allSpeciesIds.forEach(currentSpeciesId => {
             const loadableSpecies = new LoadableCacheableGameObject(currentSpeciesId, this.beastiaryClient.beastiary.species);
+
             this.elements.push(loadableSpecies);
         });
     }
@@ -89,64 +122,10 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
             `);
         }
 
-        const embed = new SmartEmbed();
+        const embed = await super.buildEmbed()
 
         embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
         embed.setColor(0x9e6734);
-
-        const elementsPerField = this.elementsPerPage / 6;
-
-        let currentFieldCount = 0;
-        let currentFieldString = "";
-
-        const addFieldAndReset = () => {
-            embed.addField("----", currentFieldString, true);
-            currentFieldCount = 0;
-            currentFieldString = "";
-        }
-
-        this.visibleElements.forEach(loadableSpecies => {
-            if (currentFieldCount === elementsPerField) {
-                addFieldAndReset();
-            }
-
-            const species = loadableSpecies.gameObject;
-
-            const speciesRarityEmoji = species.rarityData.emoji;
-
-            currentFieldString += `${speciesRarityEmoji}`;
-
-            if (this.player.hasToken(species.id)) {
-                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-
-                currentFieldString += `${tokenEmoji}`;
-            }
-
-            let speciesDisplayName = capitalizeFirstLetter(species.commonNames[0]);
-
-            if (this.player.hasSpecies(species.id)) {
-                speciesDisplayName = `__${speciesDisplayName}__`;
-            }
-
-            currentFieldString += ` ${speciesDisplayName}`;
-
-            const playerSpeciesRecord = this.player.getSpeciesRecord(species.id);
-            const speciesCaptures = playerSpeciesRecord.data.captures;
-
-            if (speciesCaptures) {
-                currentFieldString += ` **(${speciesCaptures})**`;
-            }
-
-            currentFieldString += "\n";
-
-            currentFieldCount++;
-        });
-
-        if (currentFieldString) {
-            addFieldAndReset();
-        }
-
-        embed.setFooter(`Page ${this.page + 1}/${this.pageCount}\n${this.getButtonHelpString()}`);
 
         return embed;
     }

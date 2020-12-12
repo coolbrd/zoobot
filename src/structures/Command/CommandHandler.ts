@@ -25,7 +25,6 @@ import ReleaseAnimalCommand from "../../commands/ReleaseAnimalCommand";
 import ExitCommand from "../../commands/ExitCommand";
 import ViewPlayerProfileCommand from "../../commands/ViewPlayerProfileCommand";
 import CrewCommand from "../../commands/Crew/CrewCommand";
-import SpeciesRarityCommand from '../../commands/SpeciesRarityCommand';
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import { stripIndent } from "common-tags";
 import CommandAliasesCommand from "../../commands/CommandAliasesCommand";
@@ -76,7 +75,6 @@ export default class CommandHandler {
         SuppportServerInviteCommand,
         SubmitSpeciesCommand,
         ApprovePendingSpeciesCommand,
-        SpeciesRarityCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();

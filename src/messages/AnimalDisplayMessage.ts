@@ -1,5 +1,4 @@
-import { MessageEmbed, TextChannel } from "discord.js";
-import SmartEmbed from "../discordUtility/SmartEmbed";
+import { MessageEmbed, TextChannel, User } from "discord.js";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
@@ -7,6 +6,7 @@ import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjec
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import PointedArray from "../structures/PointedArray";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -22,7 +22,58 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
 
         this.state = AnimalDisplayMessageState.page;
 
-        this.elements.push(...loadableAnimals);
+        this.elements = new PointedArray(loadableAnimals);
+    }
+
+    protected formatElement(loadedAnimal: LoadableGameObject<Animal>): string {
+        let animalString = "";
+        
+        const currentAnimal = loadedAnimal.gameObject;
+        const card = currentAnimal.card;
+
+        let specialText = "";
+        if (!currentAnimal.nickname) {
+            if (card.special) {
+                specialText = card.special;
+            }
+            else if (card.breed) {
+                specialText = card.breed;
+            }
+            if (specialText) {
+                specialText = ` (${specialText})`;
+            }
+        }
+
+        const animalIndex = this.elements.indexOf(loadedAnimal);
+
+        animalString += `\`${animalIndex + 1})\` ${currentAnimal.displayName}${specialText}`;
+
+        if (animalIndex === this.elements.pointerPosition) {
+            animalString += " 🔹";
+        }
+
+        return animalString;
+    }
+
+    public async build(): Promise<void> {
+        try {
+            await super.build();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error building an animal display message's inherited build information.
+
+                ${error}
+            `);
+        }
+
+        if (this.elements.length > 0) {
+            this.addButton({
+                emoji: "Ⓜ️",
+                name: "mode",
+                helpMessage: "View mode"
+            });
+        }
     }
 
     private get allVisibleAnimalsLoaded(): boolean {
@@ -40,8 +91,6 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
-        const embed = new SmartEmbed();
-
         while (this.allVisibleAnimalsLoaded === false) {
             try {
                 await bulkLoad(this.visibleElements);
@@ -59,6 +108,8 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             this.pruneVisibleAnimalsThatFailedToLoad();
         }
 
+        let embed = new MessageEmbed();
+
         if (this.visibleElements.length === 0) {
             return embed;
         }
@@ -67,40 +118,10 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
 
         switch (this.state) {
             case AnimalDisplayMessageState.page: {
+                embed = await super.buildEmbed();
+
                 embed.setThumbnail(selectedAnimal.card.url);
-
                 embed.setColor(selectedAnimal.species.rarityData.color);
-
-                let pageString = "";
-                let elementIndex = this.firstVisibleIndex;
-                this.visibleElements.forEach(loadableAnimal => {
-                    const currentAnimal = loadableAnimal.gameObject;
-
-                    const card = currentAnimal.card;
-
-                    let specialText = "";
-                    if (!currentAnimal.nickname) {
-                        if (card.special) {
-                            specialText = card.special;
-                        }
-                        else if (card.breed) {
-                            specialText = card.breed;
-                        }
-                        if (specialText) {
-                            specialText = ` (${specialText})`;
-                        }
-                    }
-
-                    const pointerText = elementIndex === this.elements.pointerPosition ? " 🔹" : "";
-
-                    pageString += `\`${elementIndex + 1})\` ${currentAnimal.displayName}${specialText}`;
-
-                    pageString += ` ${pointerText}\n`;
-
-                    elementIndex++;
-                });
-
-                embed.setDescription(pageString);
                 break;
             }
             case AnimalDisplayMessageState.info: {
@@ -113,5 +134,38 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             }
         }
         return embed;
+    }
+
+    protected async buttonPress(buttonName: string, user: User): Promise<void> {
+        switch (buttonName) {
+            case "mode": {
+                switch (this.state) {
+                    case AnimalDisplayMessageState.page: {
+                        this.state = AnimalDisplayMessageState.info;
+                        break;
+                    }
+                    case AnimalDisplayMessageState.info: {
+                        this.state = AnimalDisplayMessageState.card;
+                        break;
+                    }
+                    case AnimalDisplayMessageState.card: {
+                        this.state = AnimalDisplayMessageState.page;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        try {
+            await super.buttonPress(buttonName, user);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error performing inherited button behavior in a collection message.
+                
+                ${error}
+            `);
+        }
     }
 }
