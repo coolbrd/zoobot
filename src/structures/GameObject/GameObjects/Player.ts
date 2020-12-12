@@ -802,6 +802,7 @@ export class Player extends GameObject {
         }
 
         speciesRecord.data.captures++;
+        speciesRecord.data.essence += 5;
     }
 
     public getSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {
