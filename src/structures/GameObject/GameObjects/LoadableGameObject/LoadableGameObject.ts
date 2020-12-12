@@ -46,7 +46,7 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
         this.loadAttempted = true;
     }
 
-    public abstract async loadGameObject(): Promise<GameObjectType | undefined>;
+    public abstract loadGameObject(): Promise<GameObjectType | undefined>;
 }
 
 export function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]): Promise<void> {
