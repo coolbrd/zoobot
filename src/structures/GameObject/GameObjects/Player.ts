@@ -431,6 +431,12 @@ export class Player extends GameObject {
         this.addToList(this.crewAnimalIds, animalId);
     }
 
+    public addAnimalToCollection(animal: Animal): void {
+        this.animals.push(animal);
+
+        this.addAnimalIdToCollection(animal.id);
+    }
+
     public giveToken(species: Species): void {
         if (this.hasToken(species.id)) {
             throw new Error(stripIndent`
@@ -476,6 +482,12 @@ export class Player extends GameObject {
 
     public removeAnimalIdFromCrew(animalId: Types.ObjectId): void {
         this.removeAnimalIdFromList(this.crewAnimalIds, animalId);
+    }
+
+    public removeAnimalFromCollection(animal: Animal): void {
+        this.animals.splice(this.animals.indexOf(animal), 1);
+
+        this.removeAnimalIdFromCollection(animal.id);
     }
 
     public removeAnimalIdsFromListPositional(baseList: Types.ObjectId[], positions: number[]): Types.ObjectId[] {
@@ -559,7 +571,7 @@ export class Player extends GameObject {
             `);
         }
 
-        this.addAnimalIdToCollection(animal.id);
+        this.addAnimalToCollection(animal);
 
         this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
 
@@ -750,7 +762,7 @@ export class Player extends GameObject {
             return;
         }
 
-        this.removeAnimalIdFromCollection(releasedAnimal.id);
+        this.removeAnimalFromCollection(releasedAnimal);
         this.removeAnimalIdFromCrew(releasedAnimal.id);
 
         if (this.favoriteAnimalId) {
