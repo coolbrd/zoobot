@@ -20,7 +20,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
     protected readonly abstract lifetime: number;
 
     // The method that uses this message's information in order to build its embed
-    protected abstract async buildEmbed(): Promise<MessageEmbed>;
+    protected abstract buildEmbed(): Promise<MessageEmbed>;
 
     protected readonly resetTimerOnButtonPress: boolean = true;
     protected deactivationText = "(message deactivated)";
