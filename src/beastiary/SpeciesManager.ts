@@ -113,7 +113,7 @@ export default class SpeciesManager extends GameObjectCache<Species> {
         }
 
         try {
-            await new Promise(resolve => {
+            await new Promise<void>(resolve => {
                 let completed = 0;
                 speciesDocuments.forEach(currentSpeciesDocument => {
                     this.fetchById(currentSpeciesDocument._id).then(currentSpecies => {
