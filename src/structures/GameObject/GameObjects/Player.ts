@@ -77,6 +77,8 @@ export class Player extends GameObject {
 
     private _member: GuildMember | undefined;
 
+    private _animals: Animal[] | undefined;
+
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
     }
@@ -91,6 +93,18 @@ export class Player extends GameObject {
         }
 
         return this._member;
+    }
+
+    public get animals(): Animal[] {
+        if (this._animals === undefined) {
+            throw new Error(stripIndent`
+                A player object's animals field was attempted to be accessed before it was loaded.
+
+                Player: ${this.debugString}
+            `);
+        }
+
+        return this._animals;
     }
 
     public get userId(): string {
@@ -347,6 +361,12 @@ export class Player extends GameObject {
 
     public hasToken(speciesId: Types.ObjectId): boolean {
         return this.tokenSpeciesIds.includes(speciesId);
+    }
+
+    public hasSpecies(speciesId: Types.ObjectId): boolean {
+        const animalOfSpecies = this.animals.find(animal => animal.species.id.equals(speciesId));
+
+        return Boolean(animalOfSpecies);
     }
 
     private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
@@ -821,11 +841,40 @@ export class Player extends GameObject {
         }
     }
 
+    private async loadAnimals(): Promise<void> {
+        const loadedAnimals: Animal[] = [];
+
+        const animalLoadPromises: Promise<void>[] = [];
+
+        this.collectionAnimalIds.forEach(animalId => {
+            const animalPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
+                if (!animal) {
+                    throw new Error(stripIndent`
+                        An invalid animal id was found in a player's collection.
+
+                        Player: ${this.debugString}
+                        Animal id: ${animalId}
+                    `);
+                }
+
+                loadedAnimals.push(animal);
+            });
+
+            animalLoadPromises.push(animalPromise);
+        });
+
+        await Promise.all(animalLoadPromises);
+
+        this._animals = loadedAnimals;
+    }
+
     public async loadFields(): Promise<void> {
         const returnPromises: Promise<unknown>[] = [];
         returnPromises.push(super.loadFields());
 
         returnPromises.push(this.loadGuildMember());
+
+        returnPromises.push(this.loadAnimals());
 
         await Promise.all(returnPromises);
     }
