@@ -110,19 +110,27 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
                 addFieldAndReset();
             }
 
-            const speciesRarityEmoji = loadableSpecies.gameObject.rarityData.emoji;
+            const species = loadableSpecies.gameObject;
+
+            const speciesRarityEmoji = species.rarityData.emoji;
 
             currentFieldString += `${speciesRarityEmoji}`;
 
-            if (this.player.hasToken(loadableSpecies.id)) {
+            if (this.player.hasToken(species.id)) {
                 const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
 
                 currentFieldString += `${tokenEmoji}`;
             }
 
-            currentFieldString += ` ${capitalizeFirstLetter(loadableSpecies.gameObject.commonNames[0])}`;
+            let speciesDisplayName = capitalizeFirstLetter(species.commonNames[0]);
 
-            const playerSpeciesRecord = this.player.getSpeciesRecord(loadableSpecies.gameObject.id);
+            if (this.player.hasSpecies(species.id)) {
+                speciesDisplayName = `__${speciesDisplayName}__`;
+            }
+
+            currentFieldString += ` ${speciesDisplayName}`;
+
+            const playerSpeciesRecord = this.player.getSpeciesRecord(species.id);
             const speciesCaptures = playerSpeciesRecord.data.captures;
 
             if (speciesCaptures) {
