@@ -669,7 +669,7 @@ export class Player extends GameObject {
     public async awardCrewExperienceInChannel(experienceAmount: number, channel: TextChannel): Promise<void> {
         const crewAnimals: Animal[] = [];
         try {
-            await new Promise(resolve => {
+            await new Promise<void>(resolve => {
                 let completed = 0;
                 for (const currentCrewAnimalId of this.crewAnimalIds) {
                     this.fetchAnimalById(currentCrewAnimalId).then(animal => {
