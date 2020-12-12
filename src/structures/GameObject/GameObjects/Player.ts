@@ -699,47 +699,30 @@ export class Player extends GameObject {
     }
 
     public async awardCrewExperienceInChannel(experienceAmount: number, channel: TextChannel): Promise<void> {
-        const crewAnimals: Animal[] = [];
-        try {
-            await new Promise<void>(resolve => {
-                let completed = 0;
-                for (const currentCrewAnimalId of this.crewAnimalIds) {
-                    this.fetchAnimalById(currentCrewAnimalId).then(animal => {
-                        if (!animal) {
-                            return;
-                        }
+        const awardPromises: Promise<void>[] = [];
 
-                        crewAnimals.push(animal);
-
-                        if (++completed >= this.crewAnimalIds.length) {
-                            resolve();
-                        }
-                    }).catch(error => {
-                        throw new Error(stripIndent`
-                            There was an error fetching a player's crew animal by its id.
-
-                            Id: ${currentCrewAnimalId}
-                            Player: ${this.debugString}
-                            
-                            ${error}
-                        `);
-                    });
+        this.crewAnimalIds.forEach(animalId => {
+            const fetchPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
+                if (!animal) {
+                    return;
                 }
+
+                animal.addExperienceInChannel(experienceAmount, channel);
+            }).catch(error => {
+                throw new Error(stripIndent`
+                    There was an error fetching a player's crew animal by its id.
+
+                    Player: ${this.debugString}
+                    Crew animal id: ${animalId}
+
+                    ${error}
+                `);
             });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error bulk fetching a player's crew animals.
 
-                Player: ${this.debugString}
-                
-                ${error}
-            `);
-        }
+            awardPromises.push(fetchPromise);
+        });
 
-        for (const crewAnimal of crewAnimals) {
-            crewAnimal.addExperienceInChannel(experienceAmount, channel);
-        }
+        await Promise.all(awardPromises);
     }
 
     public async releaseAnimal(animalId: Types.ObjectId): Promise<void> {
