@@ -4,7 +4,7 @@ import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import LoadableGameObjectDisplayMessage from "./LoadableSpeciesDisplayMessage";
+import LoadableGameObjectDisplayMessage from "./LoadableGameObjectDisplayMessage";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 
 export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<Species> {
