@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import Discord from "discord.js";
 import mongoose from "mongoose";
-import { MONGODB_PATH } from "./config/secrets";
+import { DISCORD_TOKEN, MONGODB_PATH } from "./config/secrets";
 import DatabaseIntegrityChecker from "./structures/DatabaseIntegrityChecker";
 
 mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
@@ -29,9 +29,9 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
             console.log("Database integrity check passed");
         }
 
-        const manager = new Discord.ShardingManager("./build/index.js", { respawn: false });
+        const manager = new Discord.ShardingManager("./build/index.js", { respawn: false, token: DISCORD_TOKEN });
             
-        manager.spawn(1);
+        manager.spawn("auto");
         manager.on("shardCreate", shard => {
             console.log(`- Spawned shard ${shard.id} -`);
 
