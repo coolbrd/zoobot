@@ -27,6 +27,11 @@ class ChangeGuildPrefixCommand extends GuildCommand {
             return commandReceipt;
         }
 
+        if (prefix.length >= 128) {
+            betterSend(parsedMessage.channel, "Why would you want a prefix that long? For you own safety, I'm not gonna do that.");
+            return commandReceipt;
+        }
+
         let guildObject: PlayerGuild;
         try {
             guildObject = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
