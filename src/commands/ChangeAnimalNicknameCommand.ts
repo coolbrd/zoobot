@@ -70,6 +70,11 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
         else {
             newNickname = parsedMessage.restOfText;
 
+            if (newNickname.length >= 256) {
+                betterSend(parsedMessage.channel, "Nicknames must be less than 256 characters in length. Calm down, maybe?");
+                return commandReceipt;
+            }
+
             const bannedSubStrings = ["*", "_", "`", "~", ">"];
 
             for (const substring of bannedSubStrings) {
