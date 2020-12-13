@@ -42,6 +42,7 @@ import DailyCurrencyCommand from "../../commands/DailyCurrencyCommand";
 import GameInfoCommand from "../../commands/GameInfoCommand";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import FishCommand from "../../commands/FishCommand";
+import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -64,6 +65,7 @@ export default class CommandHandler {
         ChangeGuildPrefixCommand,
         ViewResetsCommand,
         ViewTokensCommand,
+        ViewEssenceCommand,
         CommandAliasesCommand,
         SpeciesInfoCommand,
         AnimalInfoCommand,

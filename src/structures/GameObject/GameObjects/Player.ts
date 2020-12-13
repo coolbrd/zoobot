@@ -11,6 +11,7 @@ import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObject
 import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 import GameObjectListField from "../GameObjectListField";
+import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -367,11 +368,15 @@ export class Player extends GameObject {
     }
 
     public getCollectionAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.collectionAnimalIds.getAs(this.idToLoadableAnimal);
+        return this.collectionAnimalIds.list.map(animalId => {
+            return this.idToLoadableAnimal(animalId);
+        });
     }
 
     public getCrewAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.crewAnimalIds.getAs(this.idToLoadableAnimal);
+        return this.crewAnimalIds.list.map(animalId => {
+            return this.idToLoadableAnimal(animalId);
+        });
     }
 
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
@@ -725,6 +730,18 @@ export class Player extends GameObject {
         else {
             return this.createNewSpeciesRecord(speciesId);
         }
+    }
+
+    public getRecordedLoadableSpecies(): LoadableGameObject<Species>[] {
+        return this.speciesRecords.list.map(speciesRecord => {
+            return new LoadableCacheableGameObject<Species>(speciesRecord.speciesId, this.beastiaryClient.beastiary.species);
+        });
+    }
+
+    public getEssence(speciesId: Types.ObjectId): number {
+        const record = this.getSpeciesRecord(speciesId);
+
+        return record.data.essence;
     }
 
     private async loadGuildMember(): Promise<void> {
