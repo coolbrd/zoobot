@@ -1,15 +1,15 @@
 import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
-import { Species } from "../structures/GameObject/GameObjects/Species";
 import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import PagedMessage from './PagedMessage';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import GameObject from "../structures/GameObject/GameObject";
 
-export default abstract class LoadableSpeciesDisplayMessage extends PagedMessage<LoadableGameObject<Species>> {
-    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, loadableSpecies: LoadableGameObject<Species>[]) {
+export default abstract class LoadableGameObjectDisplayMessage<GameObjectType extends GameObject> extends PagedMessage<LoadableGameObject<GameObjectType>> {
+    constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, loadableGameObjects: LoadableGameObject<GameObjectType>[]) {
         super(channel, beastiaryClient);
 
-        this.elements = loadableSpecies;
+        this.elements = loadableGameObjects;
     }
     
     protected async buildEmbed(): Promise<MessageEmbed> {
@@ -18,9 +18,9 @@ export default abstract class LoadableSpeciesDisplayMessage extends PagedMessage
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error loading all the species on the current page of a Beastiary message.
+                There was an error loading the visible elements of a loadable game object message.
 
-                Species on page: ${JSON.stringify(this.visibleElements)}
+                Elements: ${JSON.stringify(this.visibleElements)}
                 
                 ${error}
             `);

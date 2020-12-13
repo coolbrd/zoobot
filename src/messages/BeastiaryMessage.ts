@@ -4,10 +4,10 @@ import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import LoadableSpeciesDisplayMessage from "./LoadableSpeciesDisplayMessage";
+import LoadableGameObjectDisplayMessage from "./LoadableSpeciesDisplayMessage";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 
-export default class BeastiaryMessage extends LoadableSpeciesDisplayMessage {
+export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<Species> {
     protected readonly lifetime = 60000;
 
     protected readonly fieldsPerPage = 6;
@@ -95,7 +95,7 @@ export default class BeastiaryMessage extends LoadableSpeciesDisplayMessage {
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error loading all the species on the current page of a Beastiary message.
+                There was an error performing inherited embed building information in a Beastiary message.
 
                 Species on page: ${JSON.stringify(this.visibleElements)}
                 
