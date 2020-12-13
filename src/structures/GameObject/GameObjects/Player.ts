@@ -792,17 +792,34 @@ export class Player extends GameObject {
         return this.speciesRecords.find(speciesRecord => speciesRecord.speciesId.equals(speciesId));
     }
 
-    public captureSpecies(speciesId: Types.ObjectId): void {
-        this.modify();
-
+    private getOrInitializeSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {
         let speciesRecord = this.findSpeciesRecord(speciesId);
 
         if (!speciesRecord) {
             speciesRecord = this.createAndAddNewSpeciesRecord(speciesId);
         }
 
+        return speciesRecord;
+    }
+
+    private addCapture(speciesId: Types.ObjectId): void {
+        this.modify();
+
+        const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
+
         speciesRecord.data.captures++;
-        speciesRecord.data.essence += 5;
+    }
+
+    public addEssence(speciesId: Types.ObjectId, essence: number): void {
+        const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
+
+        speciesRecord.data.essence += essence;
+    }
+
+    public captureSpecies(speciesId: Types.ObjectId): void {
+        this.addCapture(speciesId);
+
+        this.addEssence(speciesId, 5);
     }
 
     public getSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {

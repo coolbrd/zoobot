@@ -174,26 +174,35 @@ export class Animal extends GameObject {
         this.owner.giveToken(this.species);
     }
 
+    private potentiallyDropToken(chance: number, channel: TextChannel): void {
+        const dropToken = this.tokenDropChance(chance);
+
+        if (dropToken) {
+            this.giveOwnerToken();
+
+            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+            betterSend(channel, stripIndent`
+                Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
+
+                ${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
+            `);
+        }
+    }
+
     public addExperienceInChannel(experience: number, channel: TextChannel): void {
         const levelUp = this.addExperienceAndCheckForLevelUp(experience);
 
         if (levelUp) {
-            betterSend(channel, `Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!`);
+            this.owner.addEssence(this.species.id, 1);
+
+            betterSend(channel, stripIndent`
+                Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
+                +1 essence (${this.species.commonNames[0]})
+            `);
         }
 
         if (!this.ownerHasToken) {
-            const dropToken = this.tokenDropChance(experience);
-
-            if (dropToken) {
-                this.giveOwnerToken();
-
-                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-                betterSend(channel, stripIndent`
-                    Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
-
-                    ${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
-                `);
-            }
+            this.potentiallyDropToken(experience, channel);
         }
     }
 }
