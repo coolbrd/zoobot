@@ -1,14 +1,13 @@
 import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
 import { Species } from "../structures/GameObject/GameObjects/Species";
-import LoadableCacheableGameObject from '../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject';
-import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
-import PagedMessage from './PagedMessage';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import LoadableSpeciesDisplayMessage from "./LoadableSpeciesDisplayMessage";
+import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 
-export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
+export default class BeastiaryMessage extends LoadableSpeciesDisplayMessage {
     protected readonly lifetime = 60000;
 
     protected readonly fieldsPerPage = 6;
@@ -17,12 +16,12 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
     private readonly player: Player;
 
     constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, player: Player) {
-        super(channel, beastiaryClient);
+        super(channel, beastiaryClient, beastiaryClient.beastiary.species.getAllLoadableSpecies());
 
         this.player = player;
     }
 
-    protected formatElement(loadableSpecies: LoadableCacheableGameObject<Species>): string {
+    protected formatElement(loadableSpecies: LoadableGameObject<Species>): string {
         let speciesString = "";
 
         const species = loadableSpecies.gameObject;
@@ -54,14 +53,6 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
         return speciesString;
     }
 
-    private async buildLoadableSpeciesList(): Promise<void> {
-        this.beastiaryClient.beastiary.species.allSpeciesIds.forEach(currentSpeciesId => {
-            const loadableSpecies = new LoadableCacheableGameObject(currentSpeciesId, this.beastiaryClient.beastiary.species);
-
-            this.elements.push(loadableSpecies);
-        });
-    }
-
     private sortElementsByPlayerCaptureCount(): void {
         this.elements.sort((a, b) => {
             const recordA = this.player.getSpeciesRecord(a.id);
@@ -81,17 +72,6 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
     }
 
     public async build(): Promise<void> {
-        try {
-            await this.buildLoadableSpeciesList();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error getting the ids of all species in a Beastiary message.
-                
-                ${error}
-            `);
-        }
-
         this.sortElementsByPlayerCaptureCount();
 
         this.sortElementsByPlayerTokenStatus();
@@ -109,8 +89,9 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
     }
     
     protected async buildEmbed(): Promise<MessageEmbed> {
+        let embed: MessageEmbed;
         try {
-            await bulkLoad(this.visibleElements);
+            embed = await super.buildEmbed();
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -121,8 +102,6 @@ export default class BeastiaryMessage extends PagedMessage<LoadableCacheableGame
                 ${error}
             `);
         }
-
-        const embed = await super.buildEmbed()
 
         embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
         embed.setColor(0x9e6734);

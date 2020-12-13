@@ -8,6 +8,7 @@ import SpeciesDisambiguationMessage from "../messages/SpeciesDisambiguationMessa
 import { SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UnknownSpecies from "../structures/GameObject/GameObjects/UnknownSpecies";
+import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -223,5 +224,11 @@ export default class SpeciesManager extends GameObjectCache<Species> {
             }
             return undefined;
         }
+    }
+
+    public getAllLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
+        return this.allSpeciesIds.map(speciesId => {
+            return new LoadableCacheableGameObject(speciesId, this);
+        });
     }
 }
