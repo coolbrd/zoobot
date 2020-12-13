@@ -60,4 +60,16 @@ export default class GameObjectListField<ElementType> {
 
         return elements;
     }
+
+    public getAs<OutputType>(transform: (element: ElementType) => OutputType): OutputType[] {
+        const transformedList: OutputType[] = [];
+
+        this._list.forEach(element => {
+            const transformedElement = transform(element);
+
+            transformedList.push(transformedElement);
+        });
+
+        return transformedList;
+    }
 }

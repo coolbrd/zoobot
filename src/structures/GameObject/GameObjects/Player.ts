@@ -362,36 +362,22 @@ export class Player extends GameObject {
         return Boolean(animalOfSpecies);
     }
 
-    private animalIdsToLoadableAnimals(animalIds: Types.ObjectId[]): LoadableOwnedAnimal[] {
-        const loadableAnimals: LoadableOwnedAnimal[] = [];
-
-        animalIds.forEach(currentAnimalId => {
-            const newLoadableAnimal = new LoadableOwnedAnimal(currentAnimalId, this);
-
-            loadableAnimals.push(newLoadableAnimal);
-        });
-
-        return loadableAnimals;
+    private idToLoadableAnimal(animalId: Types.ObjectId): LoadableOwnedAnimal {
+        return new LoadableOwnedAnimal(animalId, this);
     }
 
     public getCollectionAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.animalIdsToLoadableAnimals(this.collectionAnimalIds.list);
+        return this.collectionAnimalIds.getAs(this.idToLoadableAnimal);
     }
 
     public getCrewAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.animalIdsToLoadableAnimals(this.crewAnimalIds.list);
+        return this.crewAnimalIds.getAs(this.idToLoadableAnimal);
     }
 
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
-        const loadableSpecies: LoadableCacheableGameObject<Species>[] = [];
-
-        this.tokenSpeciesIds.list.forEach(currentTokenSpecies => {
-            const newLoadableSpecies = new LoadableCacheableGameObject<Species>(currentTokenSpecies, this.beastiaryClient.beastiary.species);
-
-            loadableSpecies.push(newLoadableSpecies);
-        });
-
-        return loadableSpecies;
+        const speciesIdToLoadableSpecies = (speciesId: Types.ObjectId) => new LoadableCacheableGameObject<Species>(speciesId, this.beastiaryClient.beastiary.species);
+        
+        return this.tokenSpeciesIds.getAs(speciesIdToLoadableSpecies);
     }
 
     public addAnimalToCollection(animal: Animal): void {
