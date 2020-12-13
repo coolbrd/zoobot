@@ -17,7 +17,7 @@ const gameConfig = {
     xpPerCapture: 30,
     xpPerFish: 3,
     maxCrewSize: 2,
-    animalCacheTimeout: 120000,
+    animalCacheTimeout: 180000,
     playerGuildCacheTimeout: 180000,
     playerCacheTimeout: 180000,
     speciesCacheTimeout: 300000,
