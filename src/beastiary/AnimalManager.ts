@@ -216,11 +216,11 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             let animalId: Types.ObjectId | undefined;
             switch (searchList) {
                 case "collection": {
-                    animalId = player.getCollectionIdPositional(searchNumber - 1);
+                    animalId = player.collectionAnimalIds.getPosition(searchNumber - 1);
                     break;
                 }
                 case "crew": {
-                    animalId = player.getCrewIdPositional(searchNumber - 1);
+                    animalId = player.crewAnimalIds.getPosition(searchNumber - 1);
                     break;
                 }
             }

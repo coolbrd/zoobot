@@ -147,7 +147,7 @@ export class Animal extends GameObject {
     }
 
     private get ownerHasToken(): boolean {
-        return this.owner.tokenSpeciesIds.includes(this.species.id);
+        return this.owner.hasToken(this.species.id);
     }
 
     private addExperienceAndCheckForLevelUp(experience: number): boolean {

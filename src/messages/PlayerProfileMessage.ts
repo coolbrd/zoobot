@@ -25,8 +25,8 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         if (this.player.favoriteAnimalId) {
             displayAnimalId = this.player.favoriteAnimalId;
         }
-        else if (this.player.collectionAnimalIds.length > 0) {
-            displayAnimalId = this.player.collectionAnimalIds[0];
+        else if (this.player.collectionAnimalIds.list.length > 0) {
+            displayAnimalId = this.player.collectionAnimalIds.list[0];
         }
 
         let displayAnimal: Animal | undefined;
@@ -65,8 +65,8 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
         descriptionString += stripIndent`
             **${this.player.pep}**${pepEmoji}
-            Collection size: **${this.player.collectionAnimalIds.length}**
-            Tokens collected: **${this.player.tokenSpeciesIds.length}** ${tokenEmoji}
+            Collection size: **${this.player.collectionAnimalIds.list.length}**
+            Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${tokenEmoji}
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**

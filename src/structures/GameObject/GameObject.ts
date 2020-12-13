@@ -70,7 +70,7 @@ export default abstract class GameObject {
     }
 
     // Meant to be called whenever changes are made to the game object
-    protected modify(): void {
+    public modify(): void {
         if (!this.modifiedSinceLastSave) {
             this.modifiedSinceLastSave = true;
 

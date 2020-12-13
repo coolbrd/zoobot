@@ -65,7 +65,7 @@ class MoveAnimalsCommand extends GuildCommand {
             else if (numericPosition < 0) {
                 errors.push(`Too low: \`${argText}\``);
             }
-            else if (numericPosition >= playerObject.collectionAnimalIds.length) {
+            else if (numericPosition >= playerObject.collectionAnimalIds.list.length) {
                 errors.push(`Out of range: \`${argText}\``);
             }
             else if (positions.includes(numericPosition)) {
@@ -88,13 +88,13 @@ class MoveAnimalsCommand extends GuildCommand {
 
         const sortPosition = positions.shift() as number;
 
-        const baseAnimalId = playerObject.collectionAnimalIds[sortPosition];
+        const baseAnimalId = playerObject.collectionAnimalIds.list[sortPosition];
 
-        const movedAnimalIds = playerObject.removeAnimalIdsFromCollectionPositional(positions);
+        const movedAnimalIds = playerObject.collectionAnimalIds.removePositional(positions);
 
-        const basePosition = playerObject.collectionAnimalIds.indexOf(baseAnimalId);
+        const basePosition = playerObject.collectionAnimalIds.list.indexOf(baseAnimalId);
 
-        playerObject.addAnimalIdsToCollectionPositional(movedAnimalIds, basePosition + 1);
+        playerObject.collectionAnimalIds.insert(basePosition + 1, ...movedAnimalIds);
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;

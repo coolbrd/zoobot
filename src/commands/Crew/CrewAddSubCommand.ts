@@ -51,7 +51,7 @@ class CrewAddSubCommand extends GuildCommand {
 
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        if (player.crewAnimalIds.includes(animal.id)) {
+        if (player.crewAnimalIds.list.includes(animal.id)) {
             betterSend(parsedMessage.channel, "That animal is already in your crew.");
             return commandReceipt;
         }
@@ -61,7 +61,7 @@ class CrewAddSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        player.addAnimalIdToCrew(animal.id);
+        player.crewAnimalIds.push(animal.id);
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;

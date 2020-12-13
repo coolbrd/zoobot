@@ -54,7 +54,7 @@ class CrewRemoveSubCommand extends GuildCommand {
 
         const targetAnimalId = animal.id;
 
-        const animalInCrew = player.crewAnimalIds.some(animalId => {
+        const animalInCrew = player.crewAnimalIds.list.some(animalId => {
             return animalId.equals(targetAnimalId);
         });
 
@@ -63,7 +63,7 @@ class CrewRemoveSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        player.removeAnimalIdFromCrew(animal.id);
+        player.crewAnimalIds.remove(animal.id);
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;

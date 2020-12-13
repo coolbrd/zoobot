@@ -5,12 +5,12 @@ import gameConfig from "../../../config/gameConfig";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import GameObject from "../GameObject";
 import LoadableOwnedAnimal from "./LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
-import { indexWhere } from "../../../utility/arraysAndSuch";
 import { Animal } from "./Animal";
 import { PlayerModel, playerSchemaDefinition } from '../../../models/Player';
 import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
+import GameObjectListField from "../GameObjectListField";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -76,11 +76,20 @@ export class Player extends GameObject {
     }
 
     private _member: GuildMember | undefined;
-
     private _animals: Animal[] | undefined;
+
+    public readonly collectionAnimalIds: GameObjectListField<Types.ObjectId>;
+    public readonly crewAnimalIds: GameObjectListField<Types.ObjectId>;
+    public readonly tokenSpeciesIds: GameObjectListField<Types.ObjectId>;
+    public readonly speciesRecords: GameObjectListField<PlayerSpeciesRecord>;
 
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
+
+        this.collectionAnimalIds = new GameObjectListField(this, this.document.get(Player.fieldNames.collectionAnimalIds));
+        this.crewAnimalIds = new GameObjectListField(this, this.document.get(Player.fieldNames.crewAnimalIds));
+        this.tokenSpeciesIds = new GameObjectListField(this, this.document.get(Player.fieldNames.tokenSpeciesIds));
+        this.speciesRecords = new GameObjectListField(this, this.document.get(Player.fieldNames.speciesRecords));
     }
 
     public get member(): GuildMember {
@@ -143,14 +152,6 @@ export class Player extends GameObject {
 
     public set collectionUpgradeLevel(collectionUpgradeLevel: number) {
         this.setDocumentField(Player.fieldNames.collectionUpgradeLevel, collectionUpgradeLevel);
-    }
-
-    public get collectionAnimalIds(): Types.ObjectId[] {
-        return this.document.get(Player.fieldNames.collectionAnimalIds);
-    }
-
-    public get crewAnimalIds(): Types.ObjectId[] {
-        return this.document.get(Player.fieldNames.crewAnimalIds);
     }
 
     public get lastDailyCurrencyReset(): Date {
@@ -271,10 +272,6 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalXpBoosts, totalXpBoosts);
     }
 
-    public get tokenSpeciesIds(): Types.ObjectId[] {
-        return this.document.get(Player.fieldNames.tokenSpeciesIds);
-    }
-
     public get rarestTierCaught(): number {
         return this.document.get(Player.fieldNames.rarestTierCaught);
     }
@@ -291,10 +288,6 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
     }
 
-    public get speciesRecords(): PlayerSpeciesRecord[] {
-        return this.document.get(Player.fieldNames.speciesRecords);
-    }
-
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -308,11 +301,11 @@ export class Player extends GameObject {
     }
 
     public get collectionFull(): boolean {
-        return this.collectionAnimalIds.length >= this.collectionSizeLimit;
+        return this.collectionAnimalIds.list.length >= this.collectionSizeLimit;
     }
 
     public get crewFull(): boolean {
-        return this.crewAnimalIds.length >= gameConfig.maxCrewSize;
+        return this.crewAnimalIds.list.length >= gameConfig.maxCrewSize;
     }
 
     public get hasDailyCurrencyReset(): boolean {
@@ -360,7 +353,7 @@ export class Player extends GameObject {
     }
 
     public hasToken(speciesId: Types.ObjectId): boolean {
-        return this.tokenSpeciesIds.includes(speciesId);
+        return this.tokenSpeciesIds.list.includes(speciesId);
     }
 
     public hasSpecies(speciesId: Types.ObjectId): boolean {
@@ -382,17 +375,17 @@ export class Player extends GameObject {
     }
 
     public getCollectionAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.animalIdsToLoadableAnimals(this.collectionAnimalIds);
+        return this.animalIdsToLoadableAnimals(this.collectionAnimalIds.list);
     }
 
     public getCrewAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.animalIdsToLoadableAnimals(this.crewAnimalIds);
+        return this.animalIdsToLoadableAnimals(this.crewAnimalIds.list);
     }
 
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
         const loadableSpecies: LoadableCacheableGameObject<Species>[] = [];
 
-        this.tokenSpeciesIds.forEach(currentTokenSpecies => {
+        this.tokenSpeciesIds.list.forEach(currentTokenSpecies => {
             const newLoadableSpecies = new LoadableCacheableGameObject<Species>(currentTokenSpecies, this.beastiaryClient.beastiary.species);
 
             loadableSpecies.push(newLoadableSpecies);
@@ -401,40 +394,10 @@ export class Player extends GameObject {
         return loadableSpecies;
     }
 
-    private getIdFromList(baseList: Types.ObjectId[], position: number): Types.ObjectId | undefined {
-        if (position < 0 || position >= baseList.length) {
-            return undefined;
-        }
-
-        return baseList[position];
-    }
-
-    public getCollectionIdPositional(position: number): Types.ObjectId | undefined {
-        return this.getIdFromList(this.collectionAnimalIds, position);
-    }
-
-    public getCrewIdPositional(position: number): Types.ObjectId | undefined {
-        return this.getIdFromList(this.crewAnimalIds, position);
-    }
-
-    private addToList<T>(baseList: T[], element: T): void {
-        this.modify();
-
-        baseList.push(element);
-    }
-
-    private addAnimalIdToCollection(animalId: Types.ObjectId): void {
-        this.addToList(this.collectionAnimalIds, animalId);
-    }
-
-    public addAnimalIdToCrew(animalId: Types.ObjectId): void {
-        this.addToList(this.crewAnimalIds, animalId);
-    }
-
     public addAnimalToCollection(animal: Animal): void {
         this.animals.push(animal);
 
-        this.addAnimalIdToCollection(animal.id);
+        this.collectionAnimalIds.push(animal.id);
     }
 
     public giveToken(species: Species): void {
@@ -447,70 +410,13 @@ export class Player extends GameObject {
             `);
         }
 
-        this.addToList(this.tokenSpeciesIds, species.id);
-    }
-
-    private addAnimalIdsToListPositional(baseList: Types.ObjectId[], animalIds: Types.ObjectId[], position: number): void {
-        this.modify();
-
-        baseList.splice(position, 0, ...animalIds);
-    }
-
-    public addAnimalIdsToCollectionPositional(animalIds: Types.ObjectId[], position: number): void {
-        this.addAnimalIdsToListPositional(this.collectionAnimalIds, animalIds, position);
-    }
-
-    public addAnimalIdsToCrewPositional(animalIds: Types.ObjectId[], position: number): void {
-        this.addAnimalIdsToListPositional(this.crewAnimalIds, animalIds, position);
-    }
-
-    public removeAnimalIdFromList(baseList: Types.ObjectId[], animalId: Types.ObjectId): void {
-        this.modify();
-
-        const indexInBaseList = indexWhere(baseList, element => element.equals(animalId));
-
-        if (indexInBaseList == -1) {
-            return;
-        }
-
-        baseList.splice(indexInBaseList, 1);
-    }
-
-    public removeAnimalIdFromCollection(animalId: Types.ObjectId): void {
-        this.removeAnimalIdFromList(this.collectionAnimalIds, animalId);
-    }
-
-    public removeAnimalIdFromCrew(animalId: Types.ObjectId): void {
-        this.removeAnimalIdFromList(this.crewAnimalIds, animalId);
+        this.tokenSpeciesIds.push(species.id);
     }
 
     public removeAnimalFromCollection(animal: Animal): void {
         this.animals.splice(this.animals.indexOf(animal), 1);
 
-        this.removeAnimalIdFromCollection(animal.id);
-    }
-
-    public removeAnimalIdsFromListPositional(baseList: Types.ObjectId[], positions: number[]): Types.ObjectId[] {
-        this.modify();
-
-        const animalIds: Types.ObjectId[] = [];
-        positions.forEach(currentPosition => {
-            animalIds.push(baseList[currentPosition]);
-        });
-
-        animalIds.forEach(currentAnimalId => {
-            this.removeAnimalIdFromList(baseList, currentAnimalId);
-        });
-
-        return animalIds;
-    }
-
-    public removeAnimalIdsFromCollectionPositional(positions: number[]): Types.ObjectId[] {
-        return this.removeAnimalIdsFromListPositional(this.collectionAnimalIds, positions);
-    }
-
-    public removeAnimalIdsFromCrewPositional(positions: number[]): Types.ObjectId[] {
-        return this.removeAnimalIdsFromListPositional(this.crewAnimalIds, positions);
+        this.collectionAnimalIds.remove(animal.id);
     }
 
     public claimDailyCurrency(): void {
@@ -666,19 +572,19 @@ export class Player extends GameObject {
         this.decrementXpBoostsLeft();
     }
 
-    public async fetchAnimalById(id: Types.ObjectId): Promise<Animal | undefined> {
-        if (!this.collectionAnimalIds.includes(id)) {
+    public async fetchAnimalById(animalId: Types.ObjectId): Promise<Animal | undefined> {
+        if (!this.collectionAnimalIds.list.includes(animalId)) {
             throw new Error(stripIndent`
                 An animal id was attempted to be fetched from a player that didn't own an animal with the given id.
 
-                Id: ${id}
+                Id: ${animalId}
                 Player: ${this.debugString}
             `);
         }
 
         let animal: Animal | undefined;
         try {
-            animal = await this.beastiaryClient.beastiary.animals.fetchById(id);
+            animal = await this.beastiaryClient.beastiary.animals.fetchById(animalId);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -691,8 +597,8 @@ export class Player extends GameObject {
         }
 
         if (!animal) {
-            this.removeAnimalIdFromCollection(id);
-            this.removeAnimalIdFromCrew(id);
+            this.collectionAnimalIds.remove(animalId);
+            this.crewAnimalIds.remove(animalId);
         }
 
         return animal;
@@ -701,7 +607,7 @@ export class Player extends GameObject {
     public async awardCrewExperienceInChannel(experienceAmount: number, channel: TextChannel): Promise<void> {
         const awardPromises: Promise<void>[] = [];
 
-        this.crewAnimalIds.forEach(animalId => {
+        this.crewAnimalIds.list.forEach(animalId => {
             const fetchPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
                 if (!animal) {
                     return;
@@ -746,7 +652,7 @@ export class Player extends GameObject {
         }
 
         this.removeAnimalFromCollection(releasedAnimal);
-        this.removeAnimalIdFromCrew(releasedAnimal.id);
+        this.crewAnimalIds.remove(releasedAnimal.id);
 
         if (this.favoriteAnimalId) {
             if (this.favoriteAnimalId.equals(releasedAnimal.id)) {
@@ -779,17 +685,19 @@ export class Player extends GameObject {
     }
 
     private addSpeciesRecord(record: PlayerSpeciesRecord): void {
-        this.addToList(this.speciesRecords, record);
+        this.speciesRecords.push(record);
     }
 
     private createAndAddNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {
         const newRecord = this.createNewSpeciesRecord(id);
+
         this.addSpeciesRecord(newRecord);
+
         return newRecord;
     }
 
     private findSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord | undefined {
-        return this.speciesRecords.find(speciesRecord => speciesRecord.speciesId.equals(speciesId));
+        return this.speciesRecords.list.find(speciesRecord => speciesRecord.speciesId.equals(speciesId));
     }
 
     private getOrInitializeSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {
@@ -859,7 +767,7 @@ export class Player extends GameObject {
 
         const animalLoadPromises: Promise<void>[] = [];
 
-        this.collectionAnimalIds.forEach(animalId => {
+        this.collectionAnimalIds.list.forEach(animalId => {
             const animalPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
                 if (!animal) {
                     throw new Error(stripIndent`
