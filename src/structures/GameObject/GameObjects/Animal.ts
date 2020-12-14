@@ -197,7 +197,7 @@ export class Animal extends GameObject {
 
             betterSend(channel, stripIndent`
                 Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
-                +1 essence (${this.species.commonNames[0]})
+                +**1** essence (${this.species.commonNames[0]})
             `);
         }
 

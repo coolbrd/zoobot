@@ -107,7 +107,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         betterSend(this.channel, stripIndent`
             ${user}, you caught ${commonName.article} ${commonName.name}!
-            +5 essence (${this.species.commonNames[0]})
+            +**5** essence (${this.species.commonNames[0]})
         `);
         
         this.setDeactivationText("(caught)");
