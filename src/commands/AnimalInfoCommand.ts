@@ -12,7 +12,7 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly info = "View the stats, info, and card of a captured animal";
 
-    public readonly helpUseString = "`<animal number or nickname>` to view information about that animal.";
+    public readonly helpUseString = "`<animal number or nickname>` to view information about that animal. You can also use the keyword 'last' to specify the last animal in your collection.";
 
     public readonly section = CommandSection.info;
 
