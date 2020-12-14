@@ -22,35 +22,9 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
     }
 
     protected formatElement(loadableSpecies: LoadableGameObject<Species>): string {
-        let speciesString = "";
-
         const species = loadableSpecies.gameObject;
-        const speciesRarityEmoji = species.rarityData.emoji;
 
-        speciesString += `${speciesRarityEmoji}`;
-
-        if (this.player.hasToken(species.id)) {
-            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-
-            speciesString += `${tokenEmoji}`;
-        }
-
-        let speciesDisplayName = capitalizeFirstLetter(species.commonNames[0]);
-
-        if (this.player.hasSpecies(species.id)) {
-            speciesDisplayName = `**${speciesDisplayName}**`;
-        }
-
-        speciesString += ` ${speciesDisplayName}`;
-
-        const playerSpeciesRecord = this.player.getSpeciesRecord(species.id);
-        const speciesCaptures = playerSpeciesRecord.data.captures;
-
-        if (speciesCaptures) {
-            speciesString += ` **(${speciesCaptures})**`;
-        }
-
-        return speciesString;
+        return species.getShowcaseDisplayName(this.player)
     }
 
     private sortElementsByPlayerCaptureCount(): void {

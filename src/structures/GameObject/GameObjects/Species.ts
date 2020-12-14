@@ -1,9 +1,10 @@
 import { Types } from "mongoose";
 import GameObject from "../GameObject";
-import { indexWhere } from "../../../utility/arraysAndSuch";
+import { capitalizeFirstLetter, indexWhere } from "../../../utility/arraysAndSuch";
 import { getWeightedRandom } from "../../../utility/weightedRarity";
 import { SpeciesModel, speciesSchemaDefinition } from '../../../models/Species';
 import { RarityInfo } from "../../../beastiary/EncounterManager";
+import { Player } from "./Player";
 
 export interface RarityInfoWithEmoji extends RarityInfo {
     emoji: string
@@ -145,6 +146,32 @@ export class Species extends GameObject {
 
     public indexOfCard(cardId: Types.ObjectId): number {
         return indexWhere(this.cards, card => card._id.equals(cardId));
+    }
+
+    public getShowcaseDisplayName(player: Player): string {
+        let displayName = "";
+
+        const rarityEmoji = this.rarityData.emoji;
+        displayName += rarityEmoji;
+
+        if (player.hasToken(this.id)) {
+            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+            displayName += tokenEmoji;
+        }
+
+        let speciesName = capitalizeFirstLetter(this.commonNames[0]);
+        if (player.hasSpecies(this.id)) {
+            speciesName = `**${speciesName}**`;
+        }
+
+        displayName += ` ${speciesName}`;
+
+        const playerCaptures = player.getSpeciesRecord(this.id).data.captures;
+        if (playerCaptures > 0) {
+            displayName += ` (${playerCaptures})`;
+        }
+
+        return displayName;
     }
 }
 
