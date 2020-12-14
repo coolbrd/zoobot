@@ -87,8 +87,9 @@ const mechanics: GameMechanicInfo[] = [
         names: ["fishing", "fish"],
         info: oneLine`
             Fishing is a way to semi-passively generate pep when you don't have any other ways of obtaining it. Start fishing using the
-            \`${FishCommand.primaryName}\` command, and type \`reel\` when it says you have a bite. It's that simple! (Don't worry about
-            the complete lack of actual fish to catch)
+            \`${FishCommand.primaryName}\` command, and type \`reel\` when it says you have a bite. It's that simple! You can also
+            specify how far out you want to cast, between 1 and 100 feet. Every channel has a daily random sweet spot where the fish
+            bite faster, the closer you are the faster they bite. Find it to really start reeling them in!
         `
     }
 ];
