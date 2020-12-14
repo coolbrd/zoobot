@@ -661,6 +661,7 @@ export class Player extends GameObject {
         }
 
         this.pep += releasedAnimal.value;
+        this.addEssence(releasedAnimal.speciesId, releasedAnimal.level * 2);
     }
 
     private createNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {
