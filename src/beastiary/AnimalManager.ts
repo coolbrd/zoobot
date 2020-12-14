@@ -153,7 +153,51 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             }
         }
 
-        const searchNumber = Number(searchTerm);
+        if (!player) {
+            // Make sure there's enough info provided to determine the player object
+            if (!guildId || !userId) {
+                throw new Error(stripIndent`
+                    Insufficient information was provided to searchAnimal for the purpose of searching by animal position.
+
+                    Search options: ${JSON.stringify(searchOptions)}
+                `);
+            }
+
+            let playerGuildMember: GuildMember | undefined;
+            try {
+                playerGuildMember = await getGuildMember(userId, guildId, this.beastiaryClient);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error getting a guild member by a player's information.
+
+                    User id: ${userId}
+                    Guild id: ${guildId}
+
+                    ${error}
+                `);
+            }
+
+            if (!playerGuildMember) {
+                throw new Error(stripIndent`
+                    No guild member was found for a player's information in the animal search command.
+
+                    User id: ${userId}
+                    Guild id: ${guildId}
+                `);
+            }
+
+            player = await this.beastiaryClient.beastiary.players.safeFetch(playerGuildMember);
+        }
+
+        let searchNumber: number;
+
+        if (searchTerm === "last") {
+            searchNumber = player.collectionAnimalIds.list.length;
+        }
+        else {
+            searchNumber = Number(searchTerm);
+        }
 
         if (isNaN(searchNumber)) {
             let animalObject: Animal | undefined;
@@ -176,43 +220,6 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             }
         }
         else {
-            if (!player) {
-                // Make sure there's enough info provided to determine the player object
-                if (!guildId || !userId) {
-                    throw new Error(stripIndent`
-                        Insufficient information was provided to searchAnimal for the purpose of searching by animal position.
-
-                        Search options: ${JSON.stringify(searchOptions)}
-                    `);
-                }
-
-                let playerGuildMember: GuildMember | undefined;
-                try {
-                    playerGuildMember = await getGuildMember(userId, guildId, this.beastiaryClient);
-                }
-                catch (error) {
-                    throw new Error(stripIndent`
-                        There was an error getting a guild member by a player's information.
-
-                        User id: ${userId}
-                        Guild id: ${guildId}
-
-                        ${error}
-                    `);
-                }
-
-                if (!playerGuildMember) {
-                    throw new Error(stripIndent`
-                        No guild member was found for a player's information in the animal search command.
-
-                        User id: ${userId}
-                        Guild id: ${guildId}
-                    `);
-                }
-
-                player = await this.beastiaryClient.beastiary.players.safeFetch(playerGuildMember);
-            }
-
             let animalId: Types.ObjectId | undefined;
             switch (searchList) {
                 case "collection": {
