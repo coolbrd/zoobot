@@ -353,6 +353,15 @@ export class Player extends GameObject {
         return this.periodsSinceLastXpBoostReset > 0;
     }
 
+    public get beastiaryPercentComplete(): number {
+        const allSpeciesLength = this.beastiaryClient.beastiary.species.allSpeciesIds.length;
+        const recordedSpeciesLength = this.speciesRecords.list.length;
+
+        const recordedRatio = recordedSpeciesLength / allSpeciesLength * 100;
+
+        return recordedRatio;
+    }
+
     public hasToken(speciesId: Types.ObjectId): boolean {
         return this.tokenSpeciesIds.list.includes(speciesId);
     }

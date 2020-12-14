@@ -3,7 +3,6 @@ import { Species } from "../structures/GameObject/GameObjects/Species";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import LoadableGameObjectDisplayMessage from "./LoadableGameObjectDisplayMessage";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 
@@ -76,6 +75,8 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
                 ${error}
             `);
         }
+
+        embed.setDescription(`${this.player.beastiaryPercentComplete.toPrecision(3)}% of all species recorded.`);
 
         embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
         embed.setColor(0x9e6734);

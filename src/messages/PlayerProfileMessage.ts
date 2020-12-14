@@ -68,6 +68,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Collection size: **${this.player.collectionAnimalIds.list.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${tokenEmoji}
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
+            Beastiary complete: **${this.player.beastiaryPercentComplete.toPrecision(3)}%**
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**
             Encounters remaining: **${this.player.encountersLeft}**
