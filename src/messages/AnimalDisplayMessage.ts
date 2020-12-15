@@ -56,6 +56,14 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
     }
 
     public async build(): Promise<void> {
+        if (this.elements.length > 0) {
+            this.addButton({
+                emoji: "Ⓜ️",
+                name: "mode",
+                helpMessage: "View mode"
+            });
+        }
+        
         try {
             await super.build();
         }
@@ -65,14 +73,6 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
 
                 ${error}
             `);
-        }
-
-        if (this.elements.length > 0) {
-            this.addButton({
-                emoji: "Ⓜ️",
-                name: "mode",
-                helpMessage: "View mode"
-            });
         }
     }
 
