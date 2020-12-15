@@ -7,6 +7,7 @@ import FishCommand from "../../commands/FishCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
+import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
 
 interface GameMechanicInfo {
@@ -80,6 +81,17 @@ const mechanics: GameMechanicInfo[] = [
             "Pep" is the primary currency in The Beastiary. It's used in the shop to buy extra encounters, captures, xp boosts, and
             collection expanders. The best way to earn pep is by capturing an animal (the more rare, the better), leveling it up a bit,
             and releasing it back into the wild. You can also slowly earn pep by fishing, learn more in the \`fishing\` section.
+        `
+    },
+    {
+        names: ["essence"],
+        info: oneLine`
+            Essence is species-specific currency that never goes down, it's the best indicator for how much work you've put into any
+            one species. The more essence you have for a species, the higher that species' level cap will be, allowing you to earn more
+            essence and pep from leveling them up! Essence is also the path towards species badges, a prestigious set of color-coded
+            medals awarded only to players who've really dedicated themselves to a species. Your species badges will be displayed in
+            your Beastiary; earn one for your favorite species and show it off! All your species' essences can be viewed with the
+            \`${ViewEssenceCommand.primaryName}\` command.
         `
     },
     {
