@@ -23,6 +23,11 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
 
         this.addButtons([
             {
+                name: "info",
+                emoji: "❔",
+                helpMessage: "Info"
+            },
+            {
                 name: "leftArrow",
                 emoji: "⬅️",
                 helpMessage: "Previous card"
@@ -31,11 +36,6 @@ export default class SpeciesInfoMessage extends InteractiveMessage {
                 name: "rightArrow",
                 emoji: "➡️",
                 helpMessage: "Next card"
-            },
-            {
-                name: "info",
-                emoji: "❔",
-                helpMessage: "Info"
             }
         ]);
 
