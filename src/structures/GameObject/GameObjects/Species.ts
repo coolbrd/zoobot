@@ -148,7 +148,7 @@ export class Species extends GameObject {
         return indexWhere(this.cards, card => card._id.equals(cardId));
     }
 
-    public getShowcaseDisplayName(player: Player): string {
+    public getShowcaseDisplayName(player: Player, showCaptures = true): string {
         let displayName = "";
 
         const rarityEmoji = this.rarityData.emoji;
@@ -166,9 +166,11 @@ export class Species extends GameObject {
 
         displayName += ` ${speciesName}`;
 
-        const playerCaptures = player.getSpeciesRecord(this.id).data.captures;
-        if (playerCaptures > 0) {
-            displayName += ` (${playerCaptures})`;
+        if (showCaptures) {
+            const playerCaptures = player.getSpeciesRecord(this.id).data.captures;
+            if (playerCaptures > 0) {
+                displayName += ` (${playerCaptures})`;
+            }
         }
 
         return displayName;

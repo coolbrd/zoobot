@@ -6,6 +6,8 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
+import { Species } from "../structures/GameObject/GameObjects/Species";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default class PlayerProfileMessage extends InteractiveMessage {
     protected readonly lifetime = 30000;
@@ -61,14 +63,43 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
         }
 
+        const highestEssenceRecord = this.player.getHighestEssenceSpeciesRecord();
+
+        let highestEssenceSpeciesString: string;
+        if (highestEssenceRecord) {
+            let highestEssenceSpecies: Species;
+            try {
+                highestEssenceSpecies = await this.beastiaryClient.beastiary.species.fetchById(highestEssenceRecord.speciesId);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching a player's highest essence species in a player profile message.
+
+                    Player: ${this.player.debugString}
+                    Species id: ${highestEssenceRecord.speciesId}
+
+                    ${error}
+                `);
+            }
+
+            const speciesDisplayName = capitalizeFirstLetter(highestEssenceSpecies.getShowcaseDisplayName(this.player, false));
+
+            highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**`;
+        }
+        else {
+            highestEssenceSpeciesString = "*None*";
+        }
+
         const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
         const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
         descriptionString += stripIndent`
             **${this.player.pep}**${pepEmoji}
+            
             Collection size: **${this.player.collectionAnimalIds.list.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${tokenEmoji}
             Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
             Beastiary complete: **${this.player.beastiaryPercentComplete.toPrecision(3)}%**
+            Top species: ${highestEssenceSpeciesString}
 
             Xp boosts remaining: **${this.player.xpBoostsLeft}**
             Encounters remaining: **${this.player.encountersLeft}**

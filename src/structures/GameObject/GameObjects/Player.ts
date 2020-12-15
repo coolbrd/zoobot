@@ -754,6 +754,24 @@ export class Player extends GameObject {
         return record.data.essence;
     }
 
+    public getHighestEssenceSpeciesRecord(): PlayerSpeciesRecord | undefined {
+        const firstEssenceRecord = this.speciesRecords.getPosition(0);
+
+        if (!firstEssenceRecord) {
+            return undefined;
+        }
+
+        let highestEssenceRecord = firstEssenceRecord;
+
+        this.speciesRecords.list.forEach(record => {
+            if (record.data.essence > highestEssenceRecord.data.essence) {
+                highestEssenceRecord = record;
+            }
+        });
+
+        return highestEssenceRecord;
+    }
+
     private async loadGuildMember(): Promise<void> {
         try {
             this._member = await getGuildMember(this.userId, this.guildId, this.beastiaryClient);
