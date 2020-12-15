@@ -26,12 +26,12 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
         return species.getShowcaseDisplayName(this.player)
     }
 
-    private sortElementsByPlayerCaptureCount(): void {
+    private sortElementsByEssence(): void {
         this.elements.sort((a, b) => {
-            const recordA = this.player.getSpeciesRecord(a.id);
-            const recordB = this.player.getSpeciesRecord(b.id);
+            const essenceA = this.player.getEssence(a.id);
+            const essenceB = this.player.getEssence(b.id);
 
-            return recordB.data.captures - recordA.data.captures;
+            return essenceB - essenceA;
         });
     }
 
@@ -45,7 +45,7 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
     }
 
     public async build(): Promise<void> {
-        this.sortElementsByPlayerCaptureCount();
+        this.sortElementsByEssence();
 
         this.sortElementsByPlayerTokenStatus();
 
