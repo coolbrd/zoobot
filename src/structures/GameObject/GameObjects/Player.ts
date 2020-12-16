@@ -353,11 +353,15 @@ export class Player extends GameObject {
         return this.periodsSinceLastXpBoostReset > 0;
     }
 
+    public get totalRecordedSpecies(): number {
+        return this.speciesRecords.list.length;
+    }
+
     public get beastiaryPercentComplete(): number {
         const allSpeciesLength = this.beastiaryClient.beastiary.species.allSpeciesIds.length;
-        const recordedSpeciesLength = this.speciesRecords.list.length;
+        const recordedSpeciesCount = this.totalRecordedSpecies;
 
-        const recordedRatio = recordedSpeciesLength / allSpeciesLength * 100;
+        const recordedRatio = recordedSpeciesCount / allSpeciesLength * 100;
 
         return recordedRatio;
     }

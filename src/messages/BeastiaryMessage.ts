@@ -76,7 +76,9 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
             `);
         }
 
-        embed.setDescription(`${this.player.beastiaryPercentComplete.toPrecision(3)}% of all species recorded.`);
+        const playerSpeciesRecorded = this.player.totalRecordedSpecies;
+        const totalSpeciesCount = this.beastiaryClient.beastiary.species.allSpeciesIds.length;
+        embed.setDescription(`${this.player.beastiaryPercentComplete.toPrecision(3)}% of all species recorded. (${playerSpeciesRecorded}/${totalSpeciesCount})`);
 
         embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
         embed.setColor(0x9e6734);
