@@ -69,8 +69,6 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
         catch (error) {
             throw new Error(stripIndent`
                 There was an error performing inherited embed building information in a Beastiary message.
-
-                Species on page: ${JSON.stringify(this.visibleElements)}
                 
                 ${error}
             `);

@@ -19,8 +19,6 @@ export default abstract class LoadableGameObjectDisplayMessage<GameObjectType ex
         catch (error) {
             throw new Error(stripIndent`
                 There was an error loading the visible elements of a loadable game object message.
-
-                Elements: ${JSON.stringify(this.visibleElements)}
                 
                 ${error}
             `);
