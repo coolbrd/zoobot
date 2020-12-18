@@ -85,7 +85,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
         let message: Message | undefined;
         try {
-            message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 6000);
+            message = await awaitUserNextMessage(parsedMessage.channel, parsedMessage.sender, 10000);
         }
         catch (error) {
             throw new Error(stripIndent`
