@@ -31,11 +31,9 @@ export class Species extends GameObject {
     }
 
     public setCommonNameObjects(commonNameObjects: CommonNameTemplate[]): void {
-        this.modify();
+        this.setDocumentField(Species.fieldNames.commonNames, commonNameObjects);
 
-        this.document.set(Species.fieldNames.commonNames, commonNameObjects);
-
-        this.document.set(Species.fieldNames.commonNamesLower, commonNamesToLowerArray(commonNameObjects));
+        this.setDocumentField(Species.fieldNames.commonNamesLower, commonNamesToLowerArray(commonNameObjects));
     }
 
     public get commonNamesLower(): string[] {
