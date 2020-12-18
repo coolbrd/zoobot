@@ -45,8 +45,6 @@ class ViewPlayerProfileCommand extends GuildCommand {
         catch (error) {
             throw new Error(stripIndent`
                 There was an error sending a profile message.
-
-                Profile message: ${JSON.stringify(playerProfileMessage)}
                 
                 ${error}
             `);
