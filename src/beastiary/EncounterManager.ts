@@ -242,7 +242,7 @@ export default class EncounterManager {
         const rarityOccurrence = this.getWeightedRarityMinimumOccurrence(rarity);
     
         let tier = 0;
-        while (tier <= tierColors.length - 1) {
+        while (tier < tierColors.length - 1) {
             const tierMinimumChance = 1/(Math.pow(2, tier + 1));
     
             if (rarityOccurrence >= tierMinimumChance) {
