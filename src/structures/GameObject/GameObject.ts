@@ -1,7 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
-import gameConfig from "../../config/gameConfig";
 import { BeastiarySchemaDefinition } from '../schema/BeastiarySchema';
 import { findRestrictedFieldValueErrors } from '../schema/SchemaFieldRestrictions';
 import GameObjectCache from "./GameObjectCache";
