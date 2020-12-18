@@ -2,11 +2,13 @@ import GameObject from "./GameObject";
 
 export default class GameObjectListField<ElementType> {
     private gameObject: GameObject;
+    private fieldName: string;
     private _list: ElementType[];
 
-    constructor(gameObject: GameObject, list: ElementType[]) {
+    constructor(gameObject: GameObject, fieldName: string, listField: ElementType[]) {
         this.gameObject = gameObject;
-        this._list = list;
+        this.fieldName = fieldName;
+        this._list = listField;
     }
 
     public get list(): ElementType[] {
@@ -14,15 +16,17 @@ export default class GameObjectListField<ElementType> {
     }
 
     public push(...elements: ElementType[]): number {
-        this.gameObject.modify();
+        const newLength = this._list.push(...elements);
 
-        return this._list.push(...elements);
+        this.gameObject.modifyField(this.fieldName);
+
+        return newLength;
     }
 
     public insert(position: number, ...elements: ElementType[]): void {
-        this.gameObject.modify();
-
         this._list.splice(position, 0, ...elements);
+
+        this.gameObject.modifyField(this.fieldName);
     }
 
     public getPosition(position: number): ElementType | undefined {
@@ -41,14 +45,12 @@ export default class GameObjectListField<ElementType> {
             return;
         }
 
-        this.gameObject.modify();
-
         this._list.splice(indexInBaseList, 1);
+
+        this.gameObject.modifyField(this.fieldName);
     }
 
     public removePositional(positions: number[]): ElementType[] {
-        this.gameObject.modify();
-
         const elements: ElementType[] = [];
         positions.forEach(currentPosition => {
             elements.push(this._list[currentPosition]);
@@ -58,18 +60,8 @@ export default class GameObjectListField<ElementType> {
             this.remove(element);
         });
 
+        this.gameObject.modifyField(this.fieldName);
+
         return elements;
-    }
-
-    public getAs<OutputType>(transform: (element: ElementType) => OutputType): OutputType[] {
-        const transformedList: OutputType[] = [];
-
-        this._list.forEach(element => {
-            const transformedElement = transform(element);
-
-            transformedList.push(transformedElement);
-        });
-
-        return transformedList;
     }
 }

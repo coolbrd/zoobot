@@ -32,61 +32,13 @@ export default abstract class GameObject {
     protected static readonly referenceNames: {[referenceName: string]: string};
     protected references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
 
-    private modifiedSinceLastSave = false;
-    private saveTimer: NodeJS.Timeout | undefined;
-    private saveDelay = gameConfig.gameObjectSaveDelay;
-
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         this.beastiaryClient = beastiaryClient;
         this.document = document;
         this.id = document._id;
     }
 
-    private get saveTimerIsRunning(): boolean {
-        return Boolean(this.saveTimer);
-    }
-
-    private startSaveTimer(): void {
-        this.saveTimer = setTimeout(() => {
-            this.save().then(() => {
-                this.unmodify();
-            }).catch(error => {
-                throw new Error(stripIndent`
-                    There was an error saving a game object's document after it was modified.
-
-                    Game object: ${this.debugString}
-                    
-                    ${error}
-                `);
-            });
-        }, this.saveDelay);
-    }
-
-    private stopSaveTimer(): void {
-        if (this.saveTimer) {
-            clearTimeout(this.saveTimer);
-            this.saveTimer = undefined;
-        }
-    }
-
-    // Meant to be called whenever changes are made to the game object
-    public modify(): void {
-        if (!this.modifiedSinceLastSave) {
-            this.modifiedSinceLastSave = true;
-
-            if (!this.saveTimerIsRunning) {
-                this.startSaveTimer();
-            }
-        }
-    }
-
-    private unmodify(): void {
-        this.modifiedSinceLastSave = false;
-
-        this.stopSaveTimer();
-    }
-
-    protected setDocumentField(fieldName: string, value: unknown): void {
+    private ensureValidField(fieldName: string): void {
         if (!(fieldName in this.schemaDefinition)) {
             throw new Error(stripIndent`
                 Invalid field name used in game object field setter.
@@ -95,6 +47,20 @@ export default abstract class GameObject {
                 Game object: ${this.debugString}
             `);
         }
+    }
+
+    public modifyField(fieldName: string): void {
+        this.ensureValidField(fieldName);
+
+        const fieldValue = this.document.get(fieldName);
+
+        this.document.updateOne({
+            [fieldName]: fieldValue
+        }).exec();
+    }
+
+    protected setDocumentField(fieldName: string, value: unknown): void {
+        this.ensureValidField(fieldName);
 
         const schemaField = this.schemaDefinition[fieldName];
 
@@ -112,7 +78,9 @@ export default abstract class GameObject {
             }
         }
 
-        this.modify();
+        this.document.updateOne({
+            [fieldName]: value
+        }).exec();
 
         this.document.set(fieldName, value);
     }
@@ -163,38 +131,8 @@ export default abstract class GameObject {
         return reference.gameObject as unknown as GameObjectType;
     }
 
-    private async saveDocument(): Promise<void> {
-        try {
-            await this.document.save();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error saving a game object's document.
-
-                Document: ${this.document.toString()}
-                
-                ${error}
-            `);
-        }
-    }
-
-    public async save(): Promise<void> {
-        try {
-            await this.saveDocument();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error saving a game object's document before unmodifying it.
-                
-                ${error}
-            `);
-        }
-    }
-
     // This should only be called after the game object has been properly removed from the game
     public async delete(): Promise<void> {
-        this.stopSaveTimer();
-
         try {
             await this.document.deleteOne();
         }

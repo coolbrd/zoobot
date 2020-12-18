@@ -80,25 +80,15 @@ class EditSpeciesCommand extends Command {
             species.rarity = finalDocument[Species.fieldNames.rarity] as number;
             species.token = finalDocument[Species.fieldNames.token] as string;
             
-            species.save().then(() => {
-                betterSend(parsedMessage.channel, "Edit successful.");
-
-                beastiaryClient.beastiary.species.refreshSpecies().catch(error => {
-                    throw new Error(stripIndent`
-                        There was an error reloading the species rarity table after adding a new species.
-                        
-                        ${error}
-                    `);
-                });
-            }).catch(error => {
+            beastiaryClient.beastiary.species.refreshSpecies().catch(error => {
                 throw new Error(stripIndent`
-                    There was an error saving a species after editing it.
-
-                    Species: ${species.debugString}
+                    There was an error reloading the species rarity table after adding a new species.
                     
                     ${error}
                 `);
-            })
+            });
+            
+            betterSend(parsedMessage.channel, "Edit successful.");
         });
 
         return commandReceipt;

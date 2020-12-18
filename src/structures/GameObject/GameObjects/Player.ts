@@ -87,10 +87,10 @@ export class Player extends GameObject {
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
 
-        this.collectionAnimalIds = new GameObjectListField(this, this.document.get(Player.fieldNames.collectionAnimalIds));
-        this.crewAnimalIds = new GameObjectListField(this, this.document.get(Player.fieldNames.crewAnimalIds));
-        this.tokenSpeciesIds = new GameObjectListField(this, this.document.get(Player.fieldNames.tokenSpeciesIds));
-        this.speciesRecords = new GameObjectListField(this, this.document.get(Player.fieldNames.speciesRecords));
+        this.collectionAnimalIds = new GameObjectListField(this, Player.fieldNames.collectionAnimalIds, this.document.get(Player.fieldNames.collectionAnimalIds));
+        this.crewAnimalIds = new GameObjectListField(this, Player.fieldNames.crewAnimalIds, this.document.get(Player.fieldNames.crewAnimalIds));
+        this.tokenSpeciesIds = new GameObjectListField(this, Player.fieldNames.tokenSpeciesIds, this.document.get(Player.fieldNames.tokenSpeciesIds));
+        this.speciesRecords = new GameObjectListField(this, Player.fieldNames.speciesRecords, this.document.get(Player.fieldNames.speciesRecords));
     }
 
     public get member(): GuildMember {
@@ -395,7 +395,7 @@ export class Player extends GameObject {
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
         const speciesIdToLoadableSpecies = (speciesId: Types.ObjectId) => new LoadableCacheableGameObject<Species>(speciesId, this.beastiaryClient.beastiary.species);
         
-        return this.tokenSpeciesIds.getAs(speciesIdToLoadableSpecies);
+        return this.tokenSpeciesIds.list.map(speciesIdToLoadableSpecies);
     }
 
     public addAnimalToCollection(animal: Animal): void {
@@ -716,8 +716,6 @@ export class Player extends GameObject {
     }
 
     private addCapture(speciesId: Types.ObjectId): void {
-        this.modify();
-
         const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
 
         speciesRecord.data.captures++;

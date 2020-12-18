@@ -93,19 +93,6 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
 
         cachedGameObject.stopTimer();
 
-        try {
-            await cachedGameObject.gameObject.save();
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error saving a game object before it was removed from the cache.
-
-                Game object: ${cachedGameObject.gameObject.debugString}
-                
-                ${error}
-            `);
-        }
-
         this.cacheDelete(cachedGameObject.gameObject.id);
     }
 
