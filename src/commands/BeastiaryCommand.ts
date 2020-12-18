@@ -26,8 +26,6 @@ class BeastiaryCommand extends GuildCommand {
         catch (error) {
             throw new Error(stripIndent`
                 There was an error sending a beastiary message.
-
-                Message: ${beastiaryMessage.debugString}
                 
                 ${error}
             `);

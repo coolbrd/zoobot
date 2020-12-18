@@ -55,8 +55,6 @@ class EditSpeciesCommand extends Command {
         catch (error) {
             throw new Error(stripIndent`
                 There was an error sending a species edit message.
-
-                Message: ${editMessage.debugString}
                 
                 ${error}
             `);

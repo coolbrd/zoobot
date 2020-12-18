@@ -44,8 +44,6 @@ class ViewTokensCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error sending a token display message.
 
-                Token display message: ${JSON.stringify(tokenMessage)}
-
                 ${error}
             `);
         }

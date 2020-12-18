@@ -27,7 +27,6 @@ class ViewEssenceCommand extends GuildCommand {
                 There was an error sending an essence display message.
 
                 Player: ${player.debugString}
-                Message: ${JSON.stringify(essenceDisplayMessage)}
 
                 ${error}
             `);

@@ -61,8 +61,6 @@ class SpeciesInfoCommand extends Command {
         catch (error) {
             throw new Error(stripIndent`
                 There was an error sending a new species info message.
-
-                Info message: ${infoMessage.debugString}
                 
                 ${error}
             `);
