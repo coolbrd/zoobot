@@ -52,11 +52,10 @@ export default abstract class GameObject {
     public modifyField(fieldName: string, value?: unknown): void {
         this.ensureValidField(fieldName);
 
+        this.document.set(fieldName, value);
+
         if (value === undefined) {
             value = this.document.get(fieldName);
-        }
-        else {
-            this.document.set(fieldName, value);
         }
 
         this.document.updateOne({ [fieldName]: value }).exec();
