@@ -25,8 +25,16 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
         embed.addField("Special", capitalizeFirstLetter(animal.card.special));
     }
 
+    let levelText = `Level ${animal.level}`;
     const experienceEmoji = emojiManager.getByName("xp");
-    embed.addField(`Level ${animal.level}`, `${experienceEmoji}${animal.experience}/${animal.nextLevelXp}`);
+    let experienceText = `${experienceEmoji}${animal.experience}`;
+    if (animal.level === animal.levelCap) {
+        levelText += " (MAX)";
+    }
+    else {
+        experienceText += `/${animal.nextLevelXp}`;
+    }
+    embed.addField(levelText, experienceText);
 
     const pepEmoji = emojiManager.getByName("pep");
     embed.addField("Value", `${animal.value}${pepEmoji}`, true);

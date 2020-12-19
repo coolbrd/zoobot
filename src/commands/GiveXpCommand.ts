@@ -63,12 +63,23 @@ class GiveXpCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        animal.addExperienceInChannel(gameConfig.xpPerBoost, parsedMessage.channel);
-
         player.useXpBoost();
 
+        const xpReceipt = animal.addExperienceInChannel(gameConfig.xpPerBoost, parsedMessage.channel);
+
         const xpEmoji = beastiaryClient.beastiary.emojis.getByName("xp");
-        betterSend(parsedMessage.channel, `Success, you gave ${animal.displayName} +**${gameConfig.xpPerBoost}**${xpEmoji}`);
+
+        let resultString: string;
+        if (xpReceipt.taken === xpReceipt.given) {
+            resultString = `Success, you gave ${animal.displayName} +**${xpReceipt.given}**${xpEmoji}`;
+        }
+        else {
+            resultString = stripIndent`
+                You gave ${animal.displayName} **${xpReceipt.given}**${xpEmoji}, but only **${xpReceipt.taken}**${xpEmoji} was gained.
+                Earn more ${animal.species.commonNames[0]} essence to raise ${animal.displayName}'s level cap!
+            `;
+        }
+        betterSend(parsedMessage.channel, resultString);
 
         return commandReceipt;
     }

@@ -11,6 +11,12 @@ import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 
+interface ExperienceGainReceipt {
+    given: number,
+    taken: number,
+    levelUp: boolean
+}
+
 export class Animal extends GameObject {
     public readonly model = AnimalModel;
     public readonly schemaDefinition = animalSchemaDefinition;
@@ -135,11 +141,19 @@ export class Animal extends GameObject {
     }
 
     public get level(): number {
-        return Math.ceil(Math.max(0, Math.log2(this.experience / 50))) + 1;
+        return Math.floor(Math.max(-1, Math.log2(this.experience / 50))) + 2;
+    }
+
+    public get levelCap(): number {
+        return 5;
     }
 
     public get nextLevelXp(): number {
-        return Math.pow(this.level, 2) * 50;
+        return this.getLevelXpRequirement(this.level + 1);
+    }
+
+    public getLevelXpRequirement(level: number): number {
+        return Math.pow(2, level - 2) * 50;
     }
 
     public playerIsOwner(player: Player): boolean {
@@ -148,17 +162,6 @@ export class Animal extends GameObject {
 
     private get ownerHasToken(): boolean {
         return this.owner.hasToken(this.species.id);
-    }
-
-    private addExperienceAndCheckForLevelUp(experience: number): boolean {
-        const previousLevel = this.level;
-
-        this.experience += experience;
-
-        if (this.level > previousLevel) {
-            return true;
-        }
-        return false;
     }
 
     private tokenDropChance(target: number): boolean {
@@ -189,10 +192,37 @@ export class Animal extends GameObject {
         }
     }
 
-    public addExperienceInChannel(experience: number, channel: TextChannel): void {
-        const levelUp = this.addExperienceAndCheckForLevelUp(experience);
+    private addExperienceAndCheckForLevelUp(experience: number): ExperienceGainReceipt {
+        const previousExperience = this.experience;
+        const previousLevel = this.level;
 
-        if (levelUp) {
+        if (this.level < this.levelCap) {
+            this.experience += experience;
+        }
+
+        let levelUp = false;
+        
+        if (this.level > previousLevel) {
+            if (this.level === this.levelCap) {
+                this.experience = Math.min(this.experience, this.getLevelXpRequirement(this.levelCap));
+            }
+
+            levelUp = true;
+        }
+        
+        const xpReceipt: ExperienceGainReceipt = {
+            given: experience,
+            taken: this.experience - previousExperience,
+            levelUp: levelUp
+        }
+
+        return xpReceipt;
+    }
+
+    public addExperienceInChannel(experience: number, channel: TextChannel): ExperienceGainReceipt {
+        const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
+
+        if (xpReceipt.levelUp) {
             this.owner.addEssence(this.species.id, 1);
 
             betterSend(channel, stripIndent`
@@ -204,5 +234,7 @@ export class Animal extends GameObject {
         if (!this.ownerHasToken) {
             this.potentiallyDropToken(experience, channel);
         }
+
+        return xpReceipt;
     }
 }
