@@ -93,6 +93,8 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
 
         cachedGameObject.stopTimer();
 
+        await cachedGameObject.gameObject.updateAllFields();
+
         this.cacheDelete(cachedGameObject.gameObject.id);
     }
 

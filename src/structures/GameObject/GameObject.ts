@@ -31,6 +31,8 @@ export default abstract class GameObject {
     protected static readonly referenceNames: {[referenceName: string]: string};
     protected references: {[referenceName: string]: ReferencedObject<GameObject>} = {};
 
+    private fieldUpdates = new Map<string, NodeJS.Timeout>();
+
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         this.beastiaryClient = beastiaryClient;
         this.document = document;
@@ -48,12 +50,30 @@ export default abstract class GameObject {
         }
     }
 
+    private async updateField(fieldName: string): Promise<void> {
+        const value = this.document.get(fieldName);
+
+        await this.document.updateOne({ [fieldName]: value });
+    }
+
+    private createFieldUpdateTimeout(fieldName: string): NodeJS.Timeout {
+        return setTimeout(() => {
+            this.updateField(fieldName).then(() => this.fieldUpdates.delete(fieldName));
+        }, 5000);
+    }
+
+    private createAndSetFieldUpdateTimeout(fieldName: string): void {
+        const updateTimeout = this.createFieldUpdateTimeout(fieldName);
+
+        this.fieldUpdates.set(fieldName, updateTimeout);
+    }
+
     public modifyField(fieldName: string): void {
         this.ensureValidField(fieldName);
 
-        const value = this.document.get(fieldName);
-
-        this.document.updateOne({ [fieldName]: value }).exec();
+        if (!this.fieldUpdates.has(fieldName)) {
+            this.createAndSetFieldUpdateTimeout(fieldName);
+        }
     }
 
     protected setDocumentField(fieldName: string, value: unknown): void {
@@ -124,6 +144,20 @@ export default abstract class GameObject {
         }
 
         return reference.gameObject as unknown as GameObjectType;
+    }
+
+    public async updateAllFields(): Promise<void> {
+        const allFieldUpdates: Promise<void>[] = [];
+
+        for (const [fieldName, fieldUpdateTimeout] of this.fieldUpdates) {
+            clearTimeout(fieldUpdateTimeout);
+
+            const update = this.updateField(fieldName);
+
+            allFieldUpdates.push(update);
+        }
+
+        await Promise.all(allFieldUpdates);
     }
 
     // This should only be called after the game object has been properly removed from the game
