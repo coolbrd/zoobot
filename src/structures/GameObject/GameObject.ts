@@ -48,14 +48,10 @@ export default abstract class GameObject {
         }
     }
 
-    public modifyField(fieldName: string, value?: unknown): void {
+    public modifyField(fieldName: string): void {
         this.ensureValidField(fieldName);
 
-        this.document.set(fieldName, value);
-
-        if (value === undefined) {
-            value = this.document.get(fieldName);
-        }
+        const value = this.document.get(fieldName);
 
         this.document.updateOne({ [fieldName]: value }).exec();
     }
@@ -79,7 +75,9 @@ export default abstract class GameObject {
             }
         }
 
-        this.modifyField(fieldName, value);
+        this.document.set(fieldName, value);
+
+        this.modifyField(fieldName);
     }
 
     public async loadFields(): Promise<void> {
