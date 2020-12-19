@@ -72,7 +72,8 @@ const mechanics: GameMechanicInfo[] = [
             crew, which gives them some experience when you do things in your server! Every level beyond level 1 increases the animal's
             value by 10%. Each animal in your crew gets a little xp for every message you send in the server, and even more xp when you
             do things like using encounters, capturing, and fishing. You also get some free xp boosts every 3 hours, which you can give
-            to any of your animals with \`${GiveXpCommand.primaryName}\`.
+            to any of your animals with \`${GiveXpCommand.primaryName}\`. Careful though, an animal that's hit its max level won't gain
+            any xp, so keep earning that species essence so nothing goes to waste!
         `
     },
     {
@@ -107,10 +108,11 @@ const mechanics: GameMechanicInfo[] = [
         names: ["tokens", "token"],
         info: oneLine`
             Tokens are your reward for dedication to an animal. Every time one of your animals gains experience, it has a chance to drop
-            its token, and that chance increases with the amount of experience the animal gains. Tokens are rare collectibles that every
-            species has, think of them as a gift from that species for being so good to it. You can view your collected tokens with the
-            \`${ViewTokensCommand.primaryName}\` command. Species whose tokens you've collected are also specially marked in your
-            Beastiary, just to show off your hard work that much more.
+            its token, and that chance increases with the amount of experience the animal gains. Additionally, even if an animal is at
+            its max level, it still has a chance to drop its token when earning xp (although the xp is not gained). Tokens are rare
+            collectibles that every species has, think of them as a gift from that species for being so good to it. You can view your
+            collected tokens with the \`${ViewTokensCommand.primaryName}\` command. Species whose tokens you've collected are also
+            specially marked in your Beastiary, just to show off your hard work that much more.
         `
     },
     {
