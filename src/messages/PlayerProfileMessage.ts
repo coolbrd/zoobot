@@ -112,10 +112,10 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         `;
 
         if (this.player.premium) {
-            descriptionString += "\n\n";
+            descriptionString += "\n";
 
             if (this.player.playerPremium) {
-                descriptionString += "**Player premium**";
+                descriptionString += "\n**Player premium**";
             }
 
             if (this.player.playerGuild.premium) {
