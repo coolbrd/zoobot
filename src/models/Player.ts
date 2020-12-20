@@ -39,6 +39,13 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
         type: String,
         required: true
     },
+    [Player.fieldNames.premium]: {
+        type: Boolean,
+        required: true,
+        fieldRestrictions: {
+            defaultValue: false
+        }  
+    },
     [Player.fieldNames.playerGuildId]: {
         type: Schema.Types.ObjectId,
         required: true

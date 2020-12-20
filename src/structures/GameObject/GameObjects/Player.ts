@@ -29,6 +29,7 @@ export class Player extends GameObject {
     public static readonly fieldNames = {
         userId: "userId",
         guildId: "guildId",
+        premium: "premium",
         playerGuildId: "playerGuildId",
         pep: "pep",
         lifetimePep: "lifetimePep",
@@ -62,6 +63,7 @@ export class Player extends GameObject {
         return new PlayerModel({
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
+            [Player.fieldNames.premium]: false,
             [Player.fieldNames.playerGuildId]: playerGuild.id,
             [Player.fieldNames.pep]: 0,
             [Player.fieldNames.lifetimePep]: 0,
@@ -137,6 +139,14 @@ export class Player extends GameObject {
 
     public get guildId(): string {
         return this.document.get(Player.fieldNames.guildId);
+    }
+
+    public get premium(): boolean {
+        return this.document.get(Player.fieldNames.premium);
+    }
+
+    public set premium(premium: boolean) {
+        this.setDocumentField(Player.fieldNames.premium, premium);
     }
 
     public get playerGuildId(): Types.ObjectId {

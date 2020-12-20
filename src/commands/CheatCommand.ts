@@ -20,6 +20,7 @@ class CheatCommand extends GuildCommand {
         player.extraEncountersLeft += 9999999999;
         player.extraCapturesLeft += 9999999999;
         player.extraXpBoostsLeft += 9999999999;
+        player.premium = true;
 
         console.log(`${player.member.user.username} just cheated!`);
 
