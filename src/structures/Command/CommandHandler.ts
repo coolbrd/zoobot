@@ -131,6 +131,8 @@ export default class CommandHandler {
                     There was an error initializing a command parser.
 
                     Message: ${JSON.stringify(message)}
+
+                    ${error}
                 `);
             }
 

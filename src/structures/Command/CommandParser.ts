@@ -63,7 +63,7 @@ export default class CommandParser {
                 if (tagPosition !== -1) {
                     userId = argument.slice(tagPosition + 3, tagPosition + 3 + 18);
                 }
-                else {
+                else if (argument.length === 18 && !isNaN(Number(argument))) {
                     userId = argument;
                 }
             }
@@ -89,6 +89,14 @@ export default class CommandParser {
 
             const loadPromise = this.beastiaryClient.discordClient.users.fetch(argument.userId).then(user => {
                 argument.user = user;
+            }).catch(error => {
+                throw new Error(stripIndent`
+                    There was an error fetching a user from the Discord client while initializing a command parser.
+
+                    User id: ${argument.userId}
+
+                    ${error}
+                `);
             });
 
             returnPromises.push(loadPromise);
