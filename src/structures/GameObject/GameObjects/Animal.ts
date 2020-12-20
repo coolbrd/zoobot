@@ -164,7 +164,7 @@ export class Animal extends GameObject {
         return this.owner.hasToken(this.species.id);
     }
 
-    private tokenDropChance(target: number): boolean {
+    private performDropChance(target: number): boolean {
         const tokenChance = Math.random() * gameConfig.tokenDropChance;
         
         if (tokenChance <= target) {
@@ -177,18 +177,25 @@ export class Animal extends GameObject {
         this.owner.giveToken(this.species);
     }
 
-    private potentiallyDropToken(chance: number, channel: TextChannel): void {
-        const dropToken = this.tokenDropChance(chance);
+    private potentiallyDropTokenOrEssence(chance: number, channel: TextChannel): void {
+        const dropSuccess = this.performDropChance(chance);
 
-        if (dropToken) {
-            this.giveOwnerToken();
+        if (dropSuccess) {
+            let dropString = `Oh? ${this.owner.member.user}, ${this.displayName} dropped something!\n\n`;
 
-            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-            betterSend(channel, stripIndent`
-                Oh? ${this.owner.member.user}, ${this.displayName} dropped something!
+            if (!this.ownerHasToken) {
+                this.giveOwnerToken();
 
-                ${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!
-            `);
+                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+                dropString += `${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!`;
+            }
+            else {
+                this.owner.addEssence(this.species.id, 5);
+
+                dropString += `+**5** essence (${this.species.commonNames[0]})`;
+            }
+
+            betterSend(channel, dropString);
         }
     }
 
@@ -231,9 +238,7 @@ export class Animal extends GameObject {
             `);
         }
 
-        if (!this.ownerHasToken) {
-            this.potentiallyDropToken(experience, channel);
-        }
+        this.potentiallyDropTokenOrEssence(experience, channel);
 
         return xpReceipt;
     }
