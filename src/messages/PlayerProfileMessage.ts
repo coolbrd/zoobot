@@ -111,6 +111,18 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Total captures: **${this.player.totalCaptures}**
         `;
 
+        if (this.player.premium) {
+            descriptionString += "\n\n";
+
+            if (this.player.playerPremium) {
+                descriptionString += "**Player premium**";
+            }
+
+            if (this.player.playerGuild.premium) {
+                descriptionString += "\n**Server premium**";
+            }
+        }
+
         embed.setDescription(descriptionString);
 
         return embed;
