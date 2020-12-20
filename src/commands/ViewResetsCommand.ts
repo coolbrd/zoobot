@@ -21,15 +21,15 @@ class ViewResetsCommand extends GuildCommand {
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`
-        messageString += `Next encounter reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextEncounterReset)}**\n\n`;
+        messageString += `Next encounter reset: **${remainingTimeString(player.nextEncounterReset)}**\n\n`;
 
         messageString += `You have **${player.capturesLeft}** capture${player.capturesLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n`
-        messageString += `Next capture reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextCaptureReset)}**\n\n`;
+        messageString += `Next capture reset: **${remainingTimeString(player.nextCaptureReset)}**\n\n`;
 
         messageString += `You have **${player.xpBoostsLeft}** xp boost${player.freeXpBoostsLeft === 1 ? "" : "s"} left`;
         messageString += ` (**${player.freeXpBoostsLeft}** free, **${player.extraXpBoostsLeft}** extra)\n`;
-        messageString += `Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**\n\n`;
+        messageString += `Next xp boost reset: **${remainingTimeString(player.nextXpBoostReset)}**\n\n`;
 
         if (player.hasDailyCurrencyReset) {
             messageString += `You can claim your daily pep right now!`;

@@ -13,6 +13,7 @@ import BeastiaryClient from "../../../bot/BeastiaryClient";
 import GameObjectListField from "../GameObjectListField";
 import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
 import { PlayerGuild } from "./PlayerGuild";
+import premiumConfig from "../../../config/premiumConfig";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -325,6 +326,46 @@ export class Player extends GameObject {
         return this.playerPremium || this.playerGuild.premium;
     }
 
+    public get freeEncounterPeriod(): number {
+        let period = gameConfig.freeEncounterPeriod;
+
+        if (this.premium) {
+            period *= premiumConfig.encounterPeriodMultiplier;
+        }
+
+        return period;
+    }
+
+    public get freeCapturePeriod(): number {
+        let period = gameConfig.freeCapturePeriod;
+
+        if (this.premium) {
+            period *= premiumConfig.capturePeriodMultiplier;
+        }
+
+        return period;
+    }
+
+    public get freeXpBoostPeriod(): number {
+        let period = gameConfig.freeXpBoostPeriod;
+
+        if (this.premium) {
+            period *= premiumConfig.xpBoostPeriodMultiplier;
+        }
+
+        return period;
+    }
+
+    public get freeEncounterMaxStack(): number {
+        let maxStack = gameConfig.freeEncounterMaxStack;
+
+        if (this.premium) {
+            maxStack *= premiumConfig.freeEncounterMaxStackMultiplier;
+        }
+
+        return maxStack;
+    }
+
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -349,6 +390,10 @@ export class Player extends GameObject {
         return this.lastDailyCurrencyReset.valueOf() < this.beastiaryClient.beastiary.resets.lastDailyCurrencyReset.valueOf();
     }
 
+    public get nextCaptureReset(): Date {
+        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeCapturePeriod);
+    }
+
     public get hasCaptureReset(): boolean {
         return this.lastCaptureReset.valueOf() < this.beastiaryClient.beastiary.resets.lastCaptureReset.valueOf();
     }
@@ -365,8 +410,12 @@ export class Player extends GameObject {
         return this.encountersLeft > 0;
     }
 
+    public get nextEncounterReset(): Date {
+        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeEncounterPeriod);
+    }
+
     public get periodsSinceLastEncounterReset(): number {
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, this.beastiaryClient.beastiary.resets.lastEncounterReset, gameConfig.freeEncounterPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, this.beastiaryClient.beastiary.resets.lastEncounterReset, this.freeEncounterPeriod);
     }
 
     public get hasEncounterReset(): boolean {
@@ -381,8 +430,12 @@ export class Player extends GameObject {
         return this.xpBoostsLeft > 0;
     }
 
+    public get nextXpBoostReset(): Date {
+        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeXpBoostPeriod);
+    }
+
     public get periodsSinceLastXpBoostReset(): number {
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, this.beastiaryClient.beastiary.resets.lastXpBoostReset, gameConfig.freeXpBoostPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, this.beastiaryClient.beastiary.resets.lastXpBoostReset, this.freeXpBoostPeriod);
     }
 
     public get hasXpBoostReset(): boolean {
@@ -535,7 +588,7 @@ export class Player extends GameObject {
         if (freePeriodsPassed > 0) {
             const encountersToAdd = freePeriodsPassed * gameConfig.freeEncountersPerPeriod;
 
-            this.freeEncountersLeft = Math.min(this.freeEncountersLeftNoReset + encountersToAdd, gameConfig.freeEncounterMaxStack);
+            this.freeEncountersLeft = Math.min(this.freeEncountersLeftNoReset + encountersToAdd, this.freeEncounterMaxStack);
 
             this.lastEncounterReset = new Date();
         }

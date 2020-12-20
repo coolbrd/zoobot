@@ -2,7 +2,7 @@ import gameConfig from "../config/gameConfig";
 import { todaysMilliseconds } from "../utility/timeStuff";
 
 export default class ResetManager {
-    private getLastResetByPeriod(period: number): Date {
+    public getLastResetByPeriod(period: number): Date {
         const now = new Date();
 
         const millisecondsSinceLastReset = todaysMilliseconds() % period;
@@ -10,7 +10,7 @@ export default class ResetManager {
         return new Date(now.valueOf() - millisecondsSinceLastReset);
     }
 
-    private getNextResetByPeriod(period: number): Date {
+    public getNextResetByPeriod(period: number): Date {
         return new Date(this.getLastResetByPeriod(period).valueOf() + period);
     }
 

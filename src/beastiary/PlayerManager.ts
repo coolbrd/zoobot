@@ -300,7 +300,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 No guild member could be found for a message's sender information.
 
                 User id: ${message.author.id}
-                Guild i: ${guild.id}
+                Guild id: ${guild.id}
             `);
         }
 
@@ -317,6 +317,10 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
                 ${error}
             `);
+        }
+
+        if (!player.premium) {
+            return;
         }
 
         try {
