@@ -21,7 +21,7 @@ class PremiumInfoCommand extends Command {
 
         embed.setColor(0xf9ff56);
 
-        embed.setTitle("The perks of premium");
+        embed.setTitle("The Perks of Premium");
 
         embed.setDescription("Ever wonder why you should pay money for any of this? Here's the pitch!");
 
