@@ -415,7 +415,8 @@ export class Player extends GameObject {
     }
 
     public get periodsSinceLastEncounterReset(): number {
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, this.beastiaryClient.beastiary.resets.lastEncounterReset, this.freeEncounterPeriod);
+        const lastGlobalReset = this.beastiaryClient.beastiary.resets.getLastResetByPeriod(this.freeEncounterPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, lastGlobalReset, this.freeEncounterPeriod);
     }
 
     public get hasEncounterReset(): boolean {
@@ -435,7 +436,8 @@ export class Player extends GameObject {
     }
 
     public get periodsSinceLastXpBoostReset(): number {
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, this.beastiaryClient.beastiary.resets.lastXpBoostReset, this.freeXpBoostPeriod);
+        const lastGlobalReset = this.beastiaryClient.beastiary.resets.getLastResetByPeriod(this.freeXpBoostPeriod);
+        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, lastGlobalReset, this.freeXpBoostPeriod);
     }
 
     public get hasXpBoostReset(): boolean {
