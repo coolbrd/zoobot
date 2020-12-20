@@ -45,12 +45,16 @@ export default class DatabaseIntegrityChecker {
             if (schemaField.required && documentValue === undefined) {
                 this.addError(
                     stripIndent`
-                        An empty required field was found.
+                        An empty required field was found. Fixing.
 
                         Field name: ${fieldName}
                     `,
                     [document]
                 );
+
+                if (schemaField.fieldRestrictions && schemaField.fieldRestrictions.defaultValue !== undefined) {
+                    document.updateOne({ [fieldName]: schemaField.fieldRestrictions.defaultValue }).exec();
+                }
             }
 
             if (schemaField.fieldRestrictions) {
