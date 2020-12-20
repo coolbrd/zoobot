@@ -774,6 +774,16 @@ export class Player extends GameObject {
         return highestEssenceRecord;
     }
 
+    public getSpeciesLevelCap(speciesId: Types.ObjectId): number {
+        const essence = this.getEssence(speciesId);
+
+        let extraLevelCap = Math.max(0, essence - 9);
+
+        extraLevelCap = Math.ceil(extraLevelCap / 3);
+
+        return extraLevelCap + 5;
+    }
+
     private async loadGuildMember(): Promise<void> {
         try {
             this._member = await getGuildMember(this.userId, this.guildId, this.beastiaryClient);

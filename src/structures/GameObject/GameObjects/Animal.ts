@@ -145,7 +145,7 @@ export class Animal extends GameObject {
     }
 
     public get levelCap(): number {
-        return 5;
+        return this.owner.getSpeciesLevelCap(this.species.id);
     }
 
     public get nextLevelXp(): number {
