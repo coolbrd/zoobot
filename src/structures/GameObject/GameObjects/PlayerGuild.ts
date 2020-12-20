@@ -4,7 +4,6 @@ import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
 import { GuildModel, playerGuildSchemaDefinition } from '../../../models/PlayerGuild';
 import { stripIndent } from "common-tags";
-import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
