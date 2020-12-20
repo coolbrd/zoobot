@@ -1,6 +1,7 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
+import gameConfig from "../../config/gameConfig";
 import { BeastiarySchemaDefinition } from '../schema/BeastiarySchema';
 import { findRestrictedFieldValueErrors } from '../schema/SchemaFieldRestrictions';
 import GameObjectCache from "./GameObjectCache";
@@ -59,7 +60,7 @@ export default abstract class GameObject {
     private createFieldUpdateTimeout(fieldName: string): NodeJS.Timeout {
         return setTimeout(() => {
             this.updateField(fieldName).then(() => this.fieldUpdates.delete(fieldName));
-        }, 5000);
+        }, gameConfig.gameObjectFieldSaveDelay);
     }
 
     private createAndSetFieldUpdateTimeout(fieldName: string): void {
