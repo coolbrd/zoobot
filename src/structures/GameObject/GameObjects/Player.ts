@@ -183,6 +183,10 @@ export class Player extends GameObject {
         return this._animals;
     }
 
+    public get playerGuild(): PlayerGuild {
+        return this.getReference(this.referenceNames.playerGuild);
+    }
+
     public get userId(): string {
         return this.document.get(Player.fieldNames.userId);
     }
@@ -297,14 +301,6 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
     }
 
-    public get playerGuild(): PlayerGuild {
-        return this.getReference(this.referenceNames.playerGuild);
-    }
-
-    public getPremium(): boolean {
-        return this.playerPremium || this.playerGuild.premium;
-    }
-
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -333,16 +329,8 @@ export class Player extends GameObject {
         return this.freeEncounters.count + this.extraEncountersLeft;
     }
 
-    public get hasEncounters(): boolean {
-        return this.encountersLeft > 0;
-    }
-
     public get xpBoostsLeft(): number {
         return this.freeXpBoosts.count + this.extraXpBoostsLeft;
-    }
-
-    public get hasXpBoost(): boolean {
-        return this.xpBoostsLeft > 0;
     }
 
     public get totalRecordedSpecies(): number {
@@ -352,10 +340,13 @@ export class Player extends GameObject {
     public get beastiaryPercentComplete(): number {
         const allSpeciesLength = this.beastiaryClient.beastiary.species.allSpeciesIds.length;
         const recordedSpeciesCount = this.totalRecordedSpecies;
-
         const recordedRatio = recordedSpeciesCount / allSpeciesLength * 100;
 
         return recordedRatio;
+    }
+
+    public getPremium(): boolean {
+        return this.playerPremium || this.playerGuild.premium;
     }
 
     public hasToken(speciesId: Types.ObjectId): boolean {
@@ -364,7 +355,6 @@ export class Player extends GameObject {
 
     public hasSpecies(speciesId: Types.ObjectId): boolean {
         const animalOfSpecies = this.animals.find(animal => animal.species.id.equals(speciesId));
-
         return Boolean(animalOfSpecies);
     }
 
@@ -386,13 +376,11 @@ export class Player extends GameObject {
 
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
         const speciesIdToLoadableSpecies = (speciesId: Types.ObjectId) => new LoadableCacheableGameObject<Species>(speciesId, this.beastiaryClient.beastiary.species);
-        
         return this.tokenSpeciesIds.list.map(speciesIdToLoadableSpecies);
     }
 
     public addAnimalToCollection(animal: Animal): void {
         this.animals.push(animal);
-
         this.collectionAnimalIds.push(animal.id);
     }
 
@@ -467,13 +455,9 @@ export class Player extends GameObject {
         }
 
         this.addAnimalToCollection(animal);
-
         this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
-
         this.awardCrewExperienceInChannel(gameConfig.xpPerCapture, channel);
-
         this.captureSpecies(animal.species.id);
-
         this.decrementCapturesLeft();
         this.totalCaptures += 1;
     }
@@ -495,7 +479,7 @@ export class Player extends GameObject {
     }
 
     public encounterAnimal(): void {
-        if (!this.hasEncounters) {
+        if (this.encountersLeft <= 0) {
             throw new Error(stripIndent`
                 A player's encounter stats were updated as if it encountered an animal without any remaining encounters.
 
@@ -524,7 +508,7 @@ export class Player extends GameObject {
     }
 
     public useXpBoost(): void {
-        if (!this.hasXpBoost) {
+        if (this.xpBoostsLeft <= 0) {
             throw new Error(stripIndent`
                 A player's xp boost stats were updated as if they used an xp boost without having any.
 
@@ -656,7 +640,6 @@ export class Player extends GameObject {
 
     private createAndAddNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {
         const newRecord = this.createNewSpeciesRecord(id);
-
         this.addSpeciesRecord(newRecord);
 
         return newRecord;
@@ -678,19 +661,16 @@ export class Player extends GameObject {
 
     private addCapture(speciesId: Types.ObjectId): void {
         const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
-
         speciesRecord.data.captures++;
     }
 
     public addEssence(speciesId: Types.ObjectId, essence: number): void {
         const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
-
         speciesRecord.data.essence += essence;
     }
 
     public captureSpecies(speciesId: Types.ObjectId): void {
         this.addCapture(speciesId);
-
         this.addEssence(speciesId, 5);
     }
 
@@ -713,7 +693,6 @@ export class Player extends GameObject {
 
     public getEssence(speciesId: Types.ObjectId): number {
         const record = this.getSpeciesRecord(speciesId);
-
         return record.data.essence;
     }
 
@@ -737,9 +716,7 @@ export class Player extends GameObject {
 
     public getSpeciesLevelCap(speciesId: Types.ObjectId): number {
         const essence = this.getEssence(speciesId);
-
         let extraLevelCap = Math.max(0, essence - 9);
-
         extraLevelCap = Math.ceil(extraLevelCap / 3);
 
         return extraLevelCap + 5;
@@ -795,10 +772,9 @@ export class Player extends GameObject {
 
     public async loadFields(): Promise<void> {
         const returnPromises: Promise<unknown>[] = [];
+
         returnPromises.push(super.loadFields());
-
         returnPromises.push(this.loadGuildMember());
-
         returnPromises.push(this.loadAnimals());
 
         await Promise.all(returnPromises);
