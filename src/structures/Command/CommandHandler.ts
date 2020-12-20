@@ -43,6 +43,7 @@ import GameInfoCommand from "../../commands/GameInfoCommand";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import FishCommand from "../../commands/FishCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
+import CheatCommand from "../../commands/CheatCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -77,6 +78,7 @@ export default class CommandHandler {
         SuppportServerInviteCommand,
         SubmitSpeciesCommand,
         ApprovePendingSpeciesCommand,
+        CheatCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
