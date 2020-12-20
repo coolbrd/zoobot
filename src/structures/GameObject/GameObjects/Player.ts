@@ -141,11 +141,11 @@ export class Player extends GameObject {
         return this.document.get(Player.fieldNames.guildId);
     }
 
-    public get premium(): boolean {
+    public get playerPremium(): boolean {
         return this.document.get(Player.fieldNames.premium);
     }
 
-    public set premium(premium: boolean) {
+    public set playerPremium(premium: boolean) {
         this.setDocumentField(Player.fieldNames.premium, premium);
     }
 
@@ -319,6 +319,10 @@ export class Player extends GameObject {
 
     public get playerGuild(): PlayerGuild {
         return this.getReference(this.referenceNames.playerGuild);
+    }
+
+    public get premium(): boolean {
+        return this.playerPremium || this.playerGuild.premium;
     }
 
     public get collectionSizeLimit(): number {
