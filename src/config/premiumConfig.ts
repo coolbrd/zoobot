@@ -1,6 +1,6 @@
 const premiumConfig = {
-    freeEncounterMaxStackMultiplier: 3,
     encounterPeriodMultiplier: 0.5,
+    freeEncounterMaxStackMultiplier: 3,
     capturePeriodMultiplier: 0.5,
     xpBoostPeriodMultiplier: 0.5,
 }

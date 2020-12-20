@@ -5,6 +5,8 @@ import CrewCommand from "../../commands/Crew/CrewCommand";
 import EncounterCommand from "../../commands/EncounterCommand";
 import FishCommand from "../../commands/FishCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
+import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
+import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
@@ -123,6 +125,15 @@ const mechanics: GameMechanicInfo[] = [
             also specify how far out you want to cast, between 1 and 100 feet. Every channel has a daily random sweet spot where the
             fish bite faster, the closer you are the faster they bite. It's like a little game of hot and cold, find it to really start
             reeling them in!
+        `
+    },
+    {
+        names: ["premium"],
+        info: oneLine`
+            Premium status is unlocked for either your server your just yourself (across all servers) by donating to my Patreon (see
+            the \`${SendPatreonLinkCommand.primaryName}\` command). Premium gets you lots of simple perks that make the game more
+            interesting to play, such as more encounters, captures, and ways to earn xp. Learn more with the
+            \`${PremiumInfoCommand.primaryName}\` command.
         `
     }
 ];

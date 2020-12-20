@@ -45,6 +45,7 @@ import FishCommand from "../../commands/FishCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import CheatCommand from "../../commands/CheatCommand";
 import TogglePremiumCommand from "../../commands/TogglePremiumCommand";
+import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -78,6 +79,7 @@ export default class CommandHandler {
         FeedbackCommand,
         SuppportServerInviteCommand,
         SubmitSpeciesCommand,
+        PremiumInfoCommand,
         ApprovePendingSpeciesCommand,
         CheatCommand,
         TogglePremiumCommand,
