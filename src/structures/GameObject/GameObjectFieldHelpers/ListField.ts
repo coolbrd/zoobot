@@ -1,6 +1,6 @@
-import GameObject from "./GameObject";
+import GameObject from "../GameObject";
 
-export default class GameObjectListField<ElementType> {
+export default class ListField<ElementType> {
     private gameObject: GameObject;
     private fieldName: string;
     private _list: ElementType[];

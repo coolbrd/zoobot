@@ -319,7 +319,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
 
-        if (!player.premium) {
+        if (!player.getPremium()) {
             return;
         }
 

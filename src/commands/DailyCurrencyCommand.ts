@@ -21,7 +21,7 @@ class DailyCurrencyCommand extends GuildCommand {
         
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        if (!player.hasDailyCurrencyReset) {
+        if (!player.dailyPep.hasReset) {
             betterSend(parsedMessage.channel, `You've already claimed your daily currency today. Next reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextDailyCurrencyReset)}**`);
             return commandReceipt;
         }

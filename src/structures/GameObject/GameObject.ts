@@ -21,9 +21,9 @@ export default abstract class GameObject {
     public readonly abstract model: Model<Document>;
     public readonly abstract schemaDefinition: BeastiarySchemaDefinition;
 
-    protected readonly beastiaryClient: BeastiaryClient;
+    public readonly beastiaryClient: BeastiaryClient;
 
-    protected readonly document: Document;
+    public readonly document: Document;
     public readonly id: Types.ObjectId;
 
     // The set of field names that are used to access data within this object's document
@@ -77,7 +77,7 @@ export default abstract class GameObject {
         }
     }
 
-    protected setDocumentField(fieldName: string, value: unknown): void {
+    public setDocumentField(fieldName: string, value: unknown): void {
         this.ensureValidField(fieldName);
 
         const schemaField = this.schemaDefinition[fieldName];

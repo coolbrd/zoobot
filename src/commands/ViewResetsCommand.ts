@@ -20,18 +20,18 @@ class ViewResetsCommand extends GuildCommand {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
         
         let messageString = `You have **${player.encountersLeft}** encounter${player.encountersLeft === 1 ? "" : "s"} left`;
-        messageString += ` (**${player.freeEncountersLeft}** free, **${player.extraEncountersLeft}** extra)\n`
-        messageString += `Next encounter reset: **${remainingTimeString(player.nextEncounterReset)}**\n\n`;
+        messageString += ` (**${player.freeEncounters.count}** free, **${player.extraEncountersLeft}** extra)\n`
+        messageString += `Next encounter reset: **${remainingTimeString(player.freeEncounters.nextReset)}**\n\n`;
 
         messageString += `You have **${player.capturesLeft}** capture${player.capturesLeft === 1 ? "" : "s"} left`;
-        messageString += ` (**${player.freeCapturesLeft}** free, **${player.extraCapturesLeft}** extra)\n`
-        messageString += `Next capture reset: **${remainingTimeString(player.nextCaptureReset)}**\n\n`;
+        messageString += ` (**${player.freeCaptures.count}** free, **${player.extraCapturesLeft}** extra)\n`
+        messageString += `Next capture reset: **${remainingTimeString(player.freeCaptures.nextReset)}**\n\n`;
 
-        messageString += `You have **${player.xpBoostsLeft}** xp boost${player.freeXpBoostsLeft === 1 ? "" : "s"} left`;
-        messageString += ` (**${player.freeXpBoostsLeft}** free, **${player.extraXpBoostsLeft}** extra)\n`;
-        messageString += `Next xp boost reset: **${remainingTimeString(player.nextXpBoostReset)}**\n\n`;
+        messageString += `You have **${player.xpBoostsLeft}** xp boost${player.xpBoostsLeft === 1 ? "" : "s"} left`;
+        messageString += ` (**${player.freeXpBoosts.count}** free, **${player.extraXpBoostsLeft}** extra)\n`;
+        messageString += `Next xp boost reset: **${remainingTimeString(player.freeXpBoosts.nextReset)}**\n\n`;
 
-        if (player.hasDailyCurrencyReset) {
+        if (player.dailyPep.hasReset) {
             messageString += `You can claim your daily pep right now!`;
         }
         else {

@@ -10,10 +10,12 @@ import { PlayerModel, playerSchemaDefinition } from '../../../models/Player';
 import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
 import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
-import GameObjectListField from "../GameObjectListField";
+import ListField from "../GameObjectFieldHelpers/ListField";
 import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
 import { PlayerGuild } from "./PlayerGuild";
 import premiumConfig from "../../../config/premiumConfig";
+import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
+import ResetField from "../GameObjectFieldHelpers/ResetField";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -89,10 +91,16 @@ export class Player extends GameObject {
     private _member: GuildMember | undefined;
     private _animals: Animal[] | undefined;
 
-    public readonly collectionAnimalIds: GameObjectListField<Types.ObjectId>;
-    public readonly crewAnimalIds: GameObjectListField<Types.ObjectId>;
-    public readonly tokenSpeciesIds: GameObjectListField<Types.ObjectId>;
-    public readonly speciesRecords: GameObjectListField<PlayerSpeciesRecord>;
+    public readonly collectionAnimalIds: ListField<Types.ObjectId>;
+    public readonly crewAnimalIds: ListField<Types.ObjectId>;
+    public readonly tokenSpeciesIds: ListField<Types.ObjectId>;
+    public readonly speciesRecords: ListField<PlayerSpeciesRecord>;
+
+    public readonly freeEncounters: CountedResetField;
+    public readonly freeCaptures: CountedResetField;
+    public readonly freeXpBoosts: CountedResetField;
+
+    public readonly dailyPep: ResetField;
 
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
@@ -104,10 +112,51 @@ export class Player extends GameObject {
             }
         };
 
-        this.collectionAnimalIds = new GameObjectListField(this, Player.fieldNames.collectionAnimalIds, this.document.get(Player.fieldNames.collectionAnimalIds));
-        this.crewAnimalIds = new GameObjectListField(this, Player.fieldNames.crewAnimalIds, this.document.get(Player.fieldNames.crewAnimalIds));
-        this.tokenSpeciesIds = new GameObjectListField(this, Player.fieldNames.tokenSpeciesIds, this.document.get(Player.fieldNames.tokenSpeciesIds));
-        this.speciesRecords = new GameObjectListField(this, Player.fieldNames.speciesRecords, this.document.get(Player.fieldNames.speciesRecords));
+        this.collectionAnimalIds = new ListField(this, Player.fieldNames.collectionAnimalIds, this.document.get(Player.fieldNames.collectionAnimalIds));
+        this.crewAnimalIds = new ListField(this, Player.fieldNames.crewAnimalIds, this.document.get(Player.fieldNames.crewAnimalIds));
+        this.tokenSpeciesIds = new ListField(this, Player.fieldNames.tokenSpeciesIds, this.document.get(Player.fieldNames.tokenSpeciesIds));
+        this.speciesRecords = new ListField(this, Player.fieldNames.speciesRecords, this.document.get(Player.fieldNames.speciesRecords));
+
+        this.freeEncounters = new CountedResetField({
+            gameObject: this,
+            countFieldName: Player.fieldNames.freeEncountersLeft,
+            lastResetFieldName: Player.fieldNames.lastEncounterReset,
+            basePeriod: gameConfig.freeEncounterPeriod,
+            baseCountPerPeriod: gameConfig.freeEncountersPerPeriod,
+            baseMaxStack: gameConfig.freeEncounterMaxStack,
+            premiumPeriodModifier: premiumConfig.encounterPeriodMultiplier,
+            premiumMaxStackModifier: premiumConfig.freeEncounterMaxStackMultiplier,
+            getPremium: this.getPremium.bind(this)
+        });
+
+        this.freeCaptures = new CountedResetField({
+            gameObject: this,
+            countFieldName: Player.fieldNames.freeCapturesLeft,
+            lastResetFieldName: Player.fieldNames.lastCaptureReset,
+            basePeriod: gameConfig.freeCapturePeriod,
+            baseCountPerPeriod: gameConfig.freeCapturesPerPeriod,
+            baseMaxStack: 1,
+            premiumPeriodModifier: premiumConfig.capturePeriodMultiplier,
+            getPremium: this.getPremium.bind(this)
+        });
+
+        this.freeXpBoosts = new CountedResetField({
+            gameObject: this,
+            countFieldName: Player.fieldNames.freeXpBoostsLeft,
+            lastResetFieldName: Player.fieldNames.lastXpBoostReset,
+            basePeriod: gameConfig.freeXpBoostPeriod,
+            baseCountPerPeriod: gameConfig.freeXpBoostsPerPeriod,
+            baseMaxStack: gameConfig.freeXpBoostMaxStack,
+            premiumPeriodModifier: premiumConfig.xpBoostPeriodMultiplier,
+            getPremium: this.getPremium.bind(this)
+        });
+
+        this.dailyPep = new ResetField({
+            gameObject: this,
+            lastResetFieldName: Player.fieldNames.lastDailyCurrencyReset,
+            basePeriod: gameConfig.dailyCurrencyPeriod,
+            getPremium: this.getPremium.bind(this)
+        });
     }
 
     public get member(): GuildMember {
@@ -184,38 +233,12 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.collectionUpgradeLevel, collectionUpgradeLevel);
     }
 
-    public get lastDailyCurrencyReset(): Date {
-        return this.document.get(Player.fieldNames.lastDailyCurrencyReset);
-    }
-
-    public set lastDailyCurrencyReset(lastDailyCurrencyReset: Date) {
-        this.setDocumentField(Player.fieldNames.lastDailyCurrencyReset, lastDailyCurrencyReset);
-    }
-
-    public get freeCapturesLeft(): number {
-        this.applyCaptureReset();
-
-        return this.document.get(Player.fieldNames.freeCapturesLeft);
-    }
-
-    public set freeCapturesLeft(freeCapturesLeft: number) {
-        this.setDocumentField(Player.fieldNames.freeCapturesLeft, freeCapturesLeft);
-    }
-
     public get extraCapturesLeft(): number {
         return this.document.get(Player.fieldNames.extraCapturesLeft);
     }
 
     public set extraCapturesLeft(extraCapturesLeft: number) {
         this.setDocumentField(Player.fieldNames.extraCapturesLeft, extraCapturesLeft);
-    }
-
-    public get lastCaptureReset(): Date {
-        return this.document.get(Player.fieldNames.lastCaptureReset);
-    }
-
-    public set lastCaptureReset(lastCaptureReset: Date) {
-        this.setDocumentField(Player.fieldNames.lastCaptureReset, lastCaptureReset);
     }
 
     public get totalCaptures(): number {
@@ -226,34 +249,12 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalCaptures, totalCaptures);
     }
 
-    private get freeEncountersLeftNoReset(): number {
-        return this.document.get(Player.fieldNames.freeEncountersLeft);
-    }
-
-    public get freeEncountersLeft(): number {
-        this.applyEncounterReset();
-
-        return this.freeEncountersLeftNoReset;
-    }
-
-    public set freeEncountersLeft(freeEncountersLeft: number) {
-        this.setDocumentField(Player.fieldNames.freeEncountersLeft, freeEncountersLeft);
-    }
-
     public get extraEncountersLeft(): number {
         return this.document.get(Player.fieldNames.extraEncountersLeft);
     }
 
     public set extraEncountersLeft(extraEncountersLeft: number) {
         this.setDocumentField(Player.fieldNames.extraEncountersLeft, extraEncountersLeft);
-    }
-
-    public get lastEncounterReset(): Date {
-        return this.document.get(Player.fieldNames.lastEncounterReset);
-    }
-
-    public set lastEncounterReset(lastEncounterReset: Date) {
-        this.setDocumentField(Player.fieldNames.lastEncounterReset, lastEncounterReset);
     }
 
     public get totalEncounters(): number {
@@ -264,34 +265,12 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.totalEncounters, totalEncounters);
     }
 
-    private get freeXpBoostsLeftNoReset(): number {
-        return this.document.get(Player.fieldNames.freeXpBoostsLeft);
-    }
-
-    public get freeXpBoostsLeft(): number {
-        this.applyXpBoostReset();
-
-        return this.freeXpBoostsLeftNoReset;
-    }
-
-    public set freeXpBoostsLeft(freeXpBoostsLeft: number) {
-        this.setDocumentField(Player.fieldNames.freeXpBoostsLeft, freeXpBoostsLeft);
-    }
-
     public get extraXpBoostsLeft(): number {
         return this.document.get(Player.fieldNames.extraXpBoostsLeft);
     }
 
     public set extraXpBoostsLeft(extraXpBoostsLeft: number) {
         this.setDocumentField(Player.fieldNames.extraXpBoostsLeft, extraXpBoostsLeft);
-    }
-
-    public get lastXpBoostReset(): Date {
-        return this.document.get(Player.fieldNames.lastXpBoostReset);
-    }
-
-    public set lastXpBoostReset(lastXpBoostReset: Date) {
-        this.setDocumentField(Player.fieldNames.lastXpBoostReset, lastXpBoostReset);
     }
 
     public get totalXpBoosts(): number {
@@ -322,48 +301,8 @@ export class Player extends GameObject {
         return this.getReference(this.referenceNames.playerGuild);
     }
 
-    public get premium(): boolean {
+    public getPremium(): boolean {
         return this.playerPremium || this.playerGuild.premium;
-    }
-
-    public get freeEncounterPeriod(): number {
-        let period = gameConfig.freeEncounterPeriod;
-
-        if (this.premium) {
-            period *= premiumConfig.encounterPeriodMultiplier;
-        }
-
-        return period;
-    }
-
-    public get freeCapturePeriod(): number {
-        let period = gameConfig.freeCapturePeriod;
-
-        if (this.premium) {
-            period *= premiumConfig.capturePeriodMultiplier;
-        }
-
-        return period;
-    }
-
-    public get freeXpBoostPeriod(): number {
-        let period = gameConfig.freeXpBoostPeriod;
-
-        if (this.premium) {
-            period *= premiumConfig.xpBoostPeriodMultiplier;
-        }
-
-        return period;
-    }
-
-    public get freeEncounterMaxStack(): number {
-        let maxStack = gameConfig.freeEncounterMaxStack;
-
-        if (this.premium) {
-            maxStack *= premiumConfig.freeEncounterMaxStackMultiplier;
-        }
-
-        return maxStack;
     }
 
     public get collectionSizeLimit(): number {
@@ -371,7 +310,7 @@ export class Player extends GameObject {
     }
 
     public get capturesLeft(): number {
-        return this.freeCapturesLeft + this.extraCapturesLeft;
+        return this.freeCaptures.count + this.extraCapturesLeft;
     }
 
     public get hasCaptures(): boolean {
@@ -386,62 +325,24 @@ export class Player extends GameObject {
         return this.crewAnimalIds.list.length >= gameConfig.maxCrewSize;
     }
 
-    public get hasDailyCurrencyReset(): boolean {
-        return this.lastDailyCurrencyReset.valueOf() < this.beastiaryClient.beastiary.resets.lastDailyCurrencyReset.valueOf();
-    }
-
-    public get nextCaptureReset(): Date {
-        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeCapturePeriod);
-    }
-
-    public get hasCaptureReset(): boolean {
-        return this.lastCaptureReset.valueOf() < this.beastiaryClient.beastiary.resets.lastCaptureReset.valueOf();
-    }
-
     public get canCapture(): boolean {
         return this.hasCaptures && !this.collectionFull;
     }
 
     public get encountersLeft(): number {
-        return this.freeEncountersLeft + this.extraEncountersLeft;
+        return this.freeEncounters.count + this.extraEncountersLeft;
     }
 
     public get hasEncounters(): boolean {
         return this.encountersLeft > 0;
     }
 
-    public get nextEncounterReset(): Date {
-        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeEncounterPeriod);
-    }
-
-    public get periodsSinceLastEncounterReset(): number {
-        const lastGlobalReset = this.beastiaryClient.beastiary.resets.getLastResetByPeriod(this.freeEncounterPeriod);
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastEncounterReset, lastGlobalReset, this.freeEncounterPeriod);
-    }
-
-    public get hasEncounterReset(): boolean {
-        return this.periodsSinceLastEncounterReset > 0;
-    }
-
     public get xpBoostsLeft(): number {
-        return this.freeXpBoostsLeft + this.extraXpBoostsLeft;
+        return this.freeXpBoosts.count + this.extraXpBoostsLeft;
     }
 
     public get hasXpBoost(): boolean {
         return this.xpBoostsLeft > 0;
-    }
-
-    public get nextXpBoostReset(): Date {
-        return this.beastiaryClient.beastiary.resets.getNextResetByPeriod(this.freeXpBoostPeriod);
-    }
-
-    public get periodsSinceLastXpBoostReset(): number {
-        const lastGlobalReset = this.beastiaryClient.beastiary.resets.getLastResetByPeriod(this.freeXpBoostPeriod);
-        return this.beastiaryClient.beastiary.resets.getPeriodsSinceLastReset(this.lastXpBoostReset, lastGlobalReset, this.freeXpBoostPeriod);
-    }
-
-    public get hasXpBoostReset(): boolean {
-        return this.periodsSinceLastXpBoostReset > 0;
     }
 
     public get totalRecordedSpecies(): number {
@@ -515,7 +416,7 @@ export class Player extends GameObject {
     }
 
     public claimDailyCurrency(): void {
-        if (!this.hasDailyCurrencyReset) {
+        if (!this.dailyPep.hasReset) {
             throw new Error(stripIndent`
                 A player somehow attempted to claim daily currency when they didn't have a reset available.
 
@@ -523,19 +424,12 @@ export class Player extends GameObject {
             `);
         }
 
-        this.lastDailyCurrencyReset = new Date();
-    }
-
-    private applyCaptureReset(): void {
-        if (this.hasCaptureReset) {
-            this.freeCapturesLeft = gameConfig.freeCapturesPerPeriod;
-            this.lastCaptureReset = new Date();
-        }
+        this.dailyPep.applyReset();
     }
 
     public decrementCapturesLeft(): void {
-        if (this.freeCapturesLeft > 0) {
-            this.freeCapturesLeft -= 1;
+        if (this.freeCaptures.count > 0) {
+            this.freeCaptures.count -= 1;
         }
         else if (this.extraCapturesLeft > 0) {
             this.extraCapturesLeft -= 1;
@@ -584,21 +478,9 @@ export class Player extends GameObject {
         this.totalCaptures += 1;
     }
 
-    private applyEncounterReset(): void {
-        const freePeriodsPassed = this.periodsSinceLastEncounterReset;
-
-        if (freePeriodsPassed > 0) {
-            const encountersToAdd = freePeriodsPassed * gameConfig.freeEncountersPerPeriod;
-
-            this.freeEncountersLeft = Math.min(this.freeEncountersLeftNoReset + encountersToAdd, this.freeEncounterMaxStack);
-
-            this.lastEncounterReset = new Date();
-        }
-    }
-
     public decrementEncountersLeft(): void {
-        if (this.freeEncountersLeft > 0) {
-            this.freeEncountersLeft -= 1;
+        if (this.freeEncounters.count > 0) {
+            this.freeEncounters.count -= 1;
         }
         else if (this.extraEncountersLeft > 0) {
             this.extraEncountersLeft -= 1;
@@ -625,21 +507,9 @@ export class Player extends GameObject {
         this.totalEncounters += 1;
     }
 
-    public applyXpBoostReset(): void {
-        const freePeriodsPassed = this.periodsSinceLastXpBoostReset;
-        
-        if (freePeriodsPassed > 0) {
-            const xpBoostsToAdd = freePeriodsPassed * gameConfig.freeXpBoostsPerPeriod;
-
-            this.freeXpBoostsLeft = Math.min(this.freeXpBoostsLeftNoReset + xpBoostsToAdd, gameConfig.freeXpBoostMaxStack);
-
-            this.lastXpBoostReset = new Date();
-        }
-    }
-
     public decrementXpBoostsLeft(): void {
-        if (this.freeXpBoostsLeft > 0) {
-            this.freeXpBoostsLeft -= 1;
+        if (this.freeXpBoosts.count > 0) {
+            this.freeXpBoosts.count -= 1;
         }
         else if (this.extraXpBoostsLeft > 0) {
             this.extraXpBoostsLeft -= 1;
