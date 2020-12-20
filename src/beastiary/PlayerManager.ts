@@ -8,6 +8,7 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { stripIndent } from "common-tags";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
@@ -215,7 +216,21 @@ export default class PlayerManager extends GameObjectCache<Player> {
     }
 
     private async createNewPlayer(guildMember: GuildMember): Promise<Player> {
-        const playerDocument = Player.newDocument(guildMember)
+        let playerGuild: PlayerGuild;
+        try {
+            playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(guildMember.guild.id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player guild by a guild member's guild id.
+
+                Guild member: ${JSON.stringify(guildMember)}
+
+                ${error}
+            `);
+        }
+
+        const playerDocument = Player.newDocument(guildMember, playerGuild)
 
         try {
             await playerDocument.save();

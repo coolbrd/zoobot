@@ -12,13 +12,15 @@ export class PlayerGuild extends GameObject {
     public static readonly fieldNames = {
         guildId: "guildId",
         prefix: "prefix",
-        encounterChannelId: "encounterChannelId"
+        encounterChannelId: "encounterChannelId",
+        premium: "premium"
     };
 
     public static newDocument(guild: Guild): Document {
         return new GuildModel({
             [PlayerGuild.fieldNames.guildId]: guild.id,
-            [PlayerGuild.fieldNames.prefix]: config.prefix
+            [PlayerGuild.fieldNames.prefix]: config.prefix,
+            [PlayerGuild.fieldNames.premium]: false
         });
     }
 
@@ -54,6 +56,14 @@ export class PlayerGuild extends GameObject {
 
     public set encounterChannelId(encounterChannelId: string | undefined) {
         this.setDocumentField(PlayerGuild.fieldNames.encounterChannelId, encounterChannelId);
+    }
+
+    public get premium(): boolean {
+        return this.document.get(PlayerGuild.fieldNames.premium);
+    }
+
+    public set premium(premium: boolean) {
+        this.setDocumentField(PlayerGuild.fieldNames.premium, premium);
     }
 
     public get encounterGuildChannel(): GuildChannel | undefined {

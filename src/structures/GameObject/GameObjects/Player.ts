@@ -12,6 +12,7 @@ import { Species } from "./Species";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 import GameObjectListField from "../GameObjectListField";
 import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
+import { PlayerGuild } from "./PlayerGuild";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -28,6 +29,7 @@ export class Player extends GameObject {
     public static readonly fieldNames = {
         userId: "userId",
         guildId: "guildId",
+        playerGuildId: "playerGuildId",
         pep: "pep",
         lifetimePep: "lifetimePep",
         collectionUpgradeLevel: "collectionUpgradeLevel",
@@ -52,10 +54,15 @@ export class Player extends GameObject {
         speciesRecords: "speciesRecords"
     };
 
-    public static newDocument(guildMember: GuildMember): Document {
+    protected referenceNames = {
+        playerGuild: "playerGuild"
+    };
+
+    public static newDocument(guildMember: GuildMember, playerGuild: PlayerGuild): Document {
         return new PlayerModel({
             [Player.fieldNames.userId]: guildMember.user.id,
             [Player.fieldNames.guildId]: guildMember.guild.id,
+            [Player.fieldNames.playerGuildId]: playerGuild.id,
             [Player.fieldNames.pep]: 0,
             [Player.fieldNames.lifetimePep]: 0,
             [Player.fieldNames.lastDailyCurrencyReset]: new Date(0),
@@ -86,6 +93,13 @@ export class Player extends GameObject {
 
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
+
+        this.references = {
+            [this.referenceNames.playerGuild]: {
+                cache: beastiaryClient.beastiary.playerGuilds,
+                id: this.playerGuildId
+            }
+        };
 
         this.collectionAnimalIds = new GameObjectListField(this, Player.fieldNames.collectionAnimalIds, this.document.get(Player.fieldNames.collectionAnimalIds));
         this.crewAnimalIds = new GameObjectListField(this, Player.fieldNames.crewAnimalIds, this.document.get(Player.fieldNames.crewAnimalIds));
@@ -123,6 +137,10 @@ export class Player extends GameObject {
 
     public get guildId(): string {
         return this.document.get(Player.fieldNames.guildId);
+    }
+
+    public get playerGuildId(): Types.ObjectId {
+        return this.document.get(Player.fieldNames.playerGuildId);
     }
 
     public get pep(): number {
@@ -287,6 +305,10 @@ export class Player extends GameObject {
 
     public set favoriteAnimalId(favoriteAnimalId: Types.ObjectId | undefined) {
         this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
+    }
+
+    public get playerGuild(): PlayerGuild {
+        return this.getReference(this.referenceNames.playerGuild);
     }
 
     public get collectionSizeLimit(): number {
