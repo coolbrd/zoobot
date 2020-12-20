@@ -44,6 +44,7 @@ import BeastiaryClient from "../../bot/BeastiaryClient";
 import FishCommand from "../../commands/FishCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import CheatCommand from "../../commands/CheatCommand";
+import TogglePremiumCommand from "../../commands/TogglePremiumCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -79,6 +80,7 @@ export default class CommandHandler {
         SubmitSpeciesCommand,
         ApprovePendingSpeciesCommand,
         CheatCommand,
+        TogglePremiumCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
