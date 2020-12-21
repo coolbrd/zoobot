@@ -114,7 +114,8 @@ const mechanics: GameMechanicInfo[] = [
             its max level, it still has a chance to drop its token when earning xp (although the xp is not gained). Tokens are rare
             collectibles that every species has, think of them as a gift from that species for being so good to it. You can view your
             collected tokens with the \`${ViewTokensCommand.primaryName}\` command. Species whose tokens you've collected are also
-            specially marked in your Beastiary, just to show off your hard work that much more.
+            specially marked in your Beastiary, just to show off your hard work that much more. Additionally, once you have a species'
+            token, the chance for it to drop its token is replaced with the chance to drop some essence.
         `
     },
     {
