@@ -110,6 +110,22 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
 
+        let hasPremium: boolean;
+        try {
+            hasPremium = await this.beastiaryClient.beastiary.playerGuilds.hasPremium(player.userId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error checking if a newly cached player has premium status.
+
+                Player : ${player.debugString}
+
+                ${error}
+            `);
+        }
+
+        player.playerPremium = hasPremium;
+
         return player;
     }
 

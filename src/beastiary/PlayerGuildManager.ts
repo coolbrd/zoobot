@@ -5,6 +5,7 @@ import { GuildModel } from "../models/PlayerGuild";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { stripIndent } from "common-tags";
+import { PremiumIdModel } from "../models/PremiumId";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
@@ -84,6 +85,88 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             `);
         }
 
+        let hasPremium: boolean;
+        try {
+            hasPremium = await this.hasPremium(playerGuild.guildId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error checking if a newly cached guild has premium status.
+
+                Player guild: ${playerGuild.debugString}
+
+                ${error}
+            `);
+        }
+
+        playerGuild.premium = hasPremium;
+
         return playerGuild;
+    }
+
+    public async givePremium(id: string): Promise<void> {
+        let alreadyHasPremium: boolean;
+        try {
+            alreadyHasPremium = await this.hasPremium(id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error checking if an id already has premium.
+
+                ${error}
+            `);
+        }
+
+        if (alreadyHasPremium) {
+            return;
+        }
+
+        const newPremiumIdDocument = new PremiumIdModel({ id: id });
+
+        try {
+            await newPremiumIdDocument.save();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error saving a new premium id document.
+
+                Document: ${newPremiumIdDocument}
+
+                ${error}
+            `);
+        }
+    }
+
+    public async removePremium(id: string): Promise<void> {
+        try {
+            await PremiumIdModel.deleteOne({ id: id });
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error deleting a premium id.
+
+                Id: ${id}
+
+                ${error}
+            `);
+        }
+    }
+
+    public async hasPremium(id: string): Promise<boolean> {
+        let isPremium: boolean;
+        try {
+            isPremium = await PremiumIdModel.exists({ id: id });
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error finding a premium id document by an id.
+
+                Id: ${id}
+
+                ${error}
+            `);
+        }
+
+        return isPremium;
     }
 }

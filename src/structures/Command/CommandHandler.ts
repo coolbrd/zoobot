@@ -46,6 +46,8 @@ import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import CheatCommand from "../../commands/CheatCommand";
 import TogglePremiumCommand from "../../commands/TogglePremiumCommand";
 import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
+import GivePremiumCommand from "../../commands/GivePremiumCommand";
+import RemovePremiumCommand from "../../commands/RemovePremiumCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -82,6 +84,8 @@ export default class CommandHandler {
         PremiumInfoCommand,
         ApprovePendingSpeciesCommand,
         CheatCommand,
+        GivePremiumCommand,
+        RemovePremiumCommand,
         TogglePremiumCommand,
         ExitCommand
     ];
