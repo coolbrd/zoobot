@@ -345,6 +345,14 @@ export class Player extends GameObject {
         return recordedRatio;
     }
 
+    public get totalCollectionValue(): number {
+        let total = 0;
+
+        this.animals.forEach(animal => total += animal.value);
+
+        return total;
+    }
+
     public getPremium(): boolean {
         return this.playerPremium || this.playerGuild.premium;
     }

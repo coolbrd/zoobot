@@ -94,6 +94,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
         const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
         descriptionString += stripIndent`
             **${this.player.pep}**${pepEmoji}
+            Total collection value: **${this.player.totalCollectionValue}**${pepEmoji}
             
             Collection size: **${this.player.collectionAnimalIds.list.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${tokenEmoji}

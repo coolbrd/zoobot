@@ -24,10 +24,13 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         const embed = await super.buildEmbed();
 
         const collection = this.elements;
-
         const userAvatar = this.player.member.user.avatarURL() || undefined;
 
+        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
+
         embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
+        embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
+
         embed.setFooter(stripIndent`
             ${collection.length} in collection (max ${this.player.collectionSizeLimit})
             ${this.getButtonHelpString()}
