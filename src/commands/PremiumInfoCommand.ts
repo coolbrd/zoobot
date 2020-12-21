@@ -1,6 +1,4 @@
-import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
-import premiumConfig from "../config/premiumConfig";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import Command, { CommandSection } from "../structures/Command/Command";
