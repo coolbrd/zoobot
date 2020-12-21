@@ -10,6 +10,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import gameConfig from "../config/gameConfig";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -65,7 +66,11 @@ export default class EncounterMessage extends InteractiveMessage {
                 betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
             }
             else {
-                betterSend(this.channel, `${player.member.user}, you can't capture an animal for another **${remainingTimeString(this.beastiaryClient.beastiary.resets.nextCaptureReset)}**.`);
+                betterSend(this.channel, stripIndent`
+                    ${player.member.user}, you can't capture an animal for another **${remainingTimeString(this.beastiaryClient.beastiary.resets.nextCaptureReset)}**.
+                    
+                    Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
+                `);
             }
 
             this.warnedUserIds.push(player.member.user.id);

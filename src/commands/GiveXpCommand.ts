@@ -38,7 +38,11 @@ class GiveXpCommand extends GuildCommand {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (player.xpBoostsLeft <= 0) {
-            betterSend(parsedMessage.channel, `You don't have any xp boosts left. Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**`);
+            betterSend(parsedMessage.channel, stripIndent`
+                You don't have any xp boosts left. Next xp boost reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextXpBoostReset)}**
+            
+                Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
+            `);
             return commandReceipt;
         }
 
