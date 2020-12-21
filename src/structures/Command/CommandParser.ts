@@ -87,9 +87,11 @@ export default class CommandParser {
                 continue;
             }
 
-            const loadPromise = this.beastiaryClient.discordClient.users.fetch(argument.userId).then(user => {
+            const loadPromise = this.beastiaryClient.discordClient.users.fetch(argument.userId as string).then(user => {
                 argument.user = user;
-            }).catch(() => { return });
+            }).catch(() => {
+                argument.userId = undefined;
+            });
 
             returnPromises.push(loadPromise);
         }
@@ -184,8 +186,18 @@ export class GuildCommandParser extends CommandParser {
     }
 
     public async init(): Promise<void> {
+        try {
+            await super.init();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error performing the inherited initialization behavior in a guild command parser.
+
+                ${error}
+            `);
+        }
+
         const returnPromises: Promise<unknown>[] = [];
-        returnPromises.push(super.init())
 
         returnPromises.push(this.loadMember());
 
