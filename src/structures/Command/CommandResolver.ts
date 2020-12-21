@@ -1,4 +1,4 @@
-import { ADMIN_SERVER_ID } from "../../config/secrets";
+import { DEVELOPER_ID } from "../../config/secrets";
 import Command from "./Command";
 import CommandParser from "./CommandParser";
 
@@ -40,9 +40,7 @@ export default class CommandResolver {
         } while (foundSubCommand);
 
         if (currentCommand && currentCommand.adminOnly) {
-            const parserGuild = this.commandParser.originalMessage.guild;
-
-            if (parserGuild && parserGuild.id !== ADMIN_SERVER_ID) {
+            if (this.commandParser.sender.id !== DEVELOPER_ID) {
                 return undefined;
             }
         }
