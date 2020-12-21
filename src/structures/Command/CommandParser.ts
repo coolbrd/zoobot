@@ -89,15 +89,7 @@ export default class CommandParser {
 
             const loadPromise = this.beastiaryClient.discordClient.users.fetch(argument.userId).then(user => {
                 argument.user = user;
-            }).catch(error => {
-                throw new Error(stripIndent`
-                    There was an error fetching a user from the Discord client while initializing a command parser.
-
-                    User id: ${argument.userId}
-
-                    ${error}
-                `);
-            });
+            }).catch(() => { return });
 
             returnPromises.push(loadPromise);
         }
