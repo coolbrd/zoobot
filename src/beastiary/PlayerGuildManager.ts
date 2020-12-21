@@ -85,22 +85,6 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             `);
         }
 
-        let hasPremium: boolean;
-        try {
-            hasPremium = await this.hasPremium(playerGuild.guildId);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error checking if a newly cached guild has premium status.
-
-                Player guild: ${playerGuild.debugString}
-
-                ${error}
-            `);
-        }
-
-        playerGuild.premium = hasPremium;
-
         return playerGuild;
     }
 

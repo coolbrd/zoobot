@@ -48,6 +48,7 @@ import TogglePremiumCommand from "../../commands/TogglePremiumCommand";
 import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 import GivePremiumCommand from "../../commands/GivePremiumCommand";
 import RemovePremiumCommand from "../../commands/RemovePremiumCommand";
+import RefreshPremiumCommand from "../../commands/RefreshPremiumCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -67,6 +68,7 @@ export default class CommandHandler {
         ReleaseAnimalCommand,
         GiveXpCommand,
         SetEncounterChannelCommand,
+        RefreshPremiumCommand,
         ChangeGuildPrefixCommand,
         ViewResetsCommand,
         ViewTokensCommand,

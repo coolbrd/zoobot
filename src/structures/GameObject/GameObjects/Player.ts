@@ -778,12 +778,31 @@ export class Player extends GameObject {
         this._animals = loadedAnimals;
     }
 
+    public async applyPotentialPremium(): Promise<void> {
+        let hasPremium: boolean;
+        try {
+            hasPremium = await this.beastiaryClient.beastiary.playerGuilds.hasPremium(this.userId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error checking is a player has premium.
+
+                Player: ${this.debugString}
+
+                ${error}
+            `);
+        }
+
+        this.playerPremium = hasPremium;
+    }
+
     public async loadFields(): Promise<void> {
         const returnPromises: Promise<unknown>[] = [];
 
         returnPromises.push(super.loadFields());
         returnPromises.push(this.loadGuildMember());
         returnPromises.push(this.loadAnimals());
+        returnPromises.push(this.applyPotentialPremium());
 
         await Promise.all(returnPromises);
     }

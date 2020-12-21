@@ -101,11 +101,30 @@ export class PlayerGuild extends GameObject {
         }
     }
 
+    public async applyPotentialPremium(): Promise<void> {
+        let hasPremium: boolean;
+        try {
+            hasPremium = await this.beastiaryClient.beastiary.playerGuilds.hasPremium(this.guildId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error checking is a player guild has premium.
+
+                Player guild: ${this.debugString}
+
+                ${error}
+            `);
+        }
+
+        this.premium = hasPremium;
+    }
+
     public async loadFields(): Promise<void> {
         const returnPromises: Promise<unknown>[] = [];
-        returnPromises.push(super.loadFields());
 
+        returnPromises.push(super.loadFields());
         returnPromises.push(this.loadGuild());
+        returnPromises.push(this.applyPotentialPremium());
 
         await Promise.all(returnPromises);
     }
