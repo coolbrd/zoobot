@@ -67,7 +67,7 @@ export default class EncounterMessage extends InteractiveMessage {
             }
             else {
                 betterSend(this.channel, stripIndent`
-                    ${player.member.user}, you can't capture an animal for another **${remainingTimeString(this.beastiaryClient.beastiary.resets.nextCaptureReset)}**.
+                    ${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.
                     
                     Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
                 `);

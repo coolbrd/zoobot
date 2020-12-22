@@ -25,7 +25,7 @@ class EncounterCommand extends GuildCommand {
 
         if (player.encountersLeft <= 0) {
             betterSend(parsedMessage.channel, stripIndent`
-                You don't have any encounters left. Next encounter reset: **${remainingTimeString(beastiaryClient.beastiary.resets.nextEncounterReset)}**.
+                You don't have any encounters left. Next encounter reset: **${remainingTimeString(player.freeEncounters.nextReset)}**.
 
                 Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
             `);
