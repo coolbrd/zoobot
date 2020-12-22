@@ -157,9 +157,11 @@ class ReleaseAnimalCommand extends GuildCommand {
             }
 
             const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+            const essenceEmoji = beastiaryClient.beastiary.emojis.getByName("essence");
+
             betterSend(parsedMessage.channel, stripIndent`
                 ${animal.displayName} was released.
-                +**${animal.value}**${pepEmoji}, +**${animal.level * 2}** essence (${animal.species.commonNames[0]}).
+                +**${animal.value}**${pepEmoji}, +**${animal.level * 2}**${essenceEmoji} (${animal.species.commonNames[0]}).
             `);
         }
         // If the user didn't respond, or responded with anything other than yes

@@ -191,8 +191,9 @@ export class Animal extends GameObject {
             }
             else {
                 this.owner.addEssence(this.species.id, 5);
+                const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-                dropString += `+**5** essence (${this.species.commonNames[0]})`;
+                dropString += `+**5**${essenceEmoji} (${this.species.commonNames[0]})`;
             }
 
             betterSend(channel, dropString);
@@ -231,10 +232,11 @@ export class Animal extends GameObject {
 
         if (xpReceipt.levelUp) {
             this.owner.addEssence(this.species.id, 1);
+            const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
             betterSend(channel, stripIndent`
                 Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
-                +**1** essence (${this.species.commonNames[0]})
+                +**1**${essenceEmoji} (${this.species.commonNames[0]})
             `);
         }
 

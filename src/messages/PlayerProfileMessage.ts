@@ -83,8 +83,9 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
 
             const speciesDisplayName = capitalizeFirstLetter(highestEssenceSpecies.getShowcaseDisplayName(this.player, false));
+            const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-            highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**`;
+            highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**${essenceEmoji}`;
         }
         else {
             highestEssenceSpeciesString = "*None*";
@@ -92,6 +93,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
 
         const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
         const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
+
         descriptionString += stripIndent`
             **${this.player.pep}**${pepEmoji}
             Total collection value: **${this.player.totalCollectionValue}**${pepEmoji}

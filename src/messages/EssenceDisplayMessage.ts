@@ -26,7 +26,9 @@ export default class EssenceDisplayMessage extends LoadableGameObjectDisplayMess
 
         let speciesString = capitalizeFirstLetter(species.commonNames[0]);
 
-        speciesString += `: ${this.player.getEssence(species.id)}`;
+        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
+
+        speciesString += `: ${this.player.getEssence(species.id)}${essenceEmoji}`;
 
         return speciesString;
     }

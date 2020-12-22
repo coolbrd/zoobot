@@ -110,9 +110,11 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const commonName = this.species.commonNameObjects[0];
 
+        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
+
         betterSend(this.channel, stripIndent`
             ${user}, you caught ${commonName.article} ${commonName.name}!
-            +**5** essence (${this.species.commonNames[0]})
+            +**5**${essenceEmoji} (${this.species.commonNames[0]})
         `);
         
         this.setDeactivationText("(caught)");

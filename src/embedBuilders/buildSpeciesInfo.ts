@@ -31,7 +31,8 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
         }
         embed.addField("Token", capitalizeFirstLetter(tokenString), true);
 
-        embed.addField("Essence", player.getEssence(species.id), true);
+        const essenceEmoji = emojiManager.getByName("essence");
+        embed.addField("Essence", `${player.getEssence(species.id)}${essenceEmoji}`, true);
 
         embed.addField("Max level", player.getSpeciesLevelCap(species.id), true);
     }
