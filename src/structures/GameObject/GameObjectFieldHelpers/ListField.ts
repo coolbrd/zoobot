@@ -64,4 +64,8 @@ export default class ListField<ElementType> {
 
         return elements;
     }
+
+    public modify(): void {
+        this.gameObject.modifyField(this.fieldName);
+    }
 }

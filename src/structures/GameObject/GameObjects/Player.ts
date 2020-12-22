@@ -670,11 +670,13 @@ export class Player extends GameObject {
     private addCapture(speciesId: Types.ObjectId): void {
         const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
         speciesRecord.data.captures++;
+        this.speciesRecords.modify();
     }
 
     public addEssence(speciesId: Types.ObjectId, essence: number): void {
         const speciesRecord = this.getOrInitializeSpeciesRecord(speciesId);
         speciesRecord.data.essence += essence;
+        this.speciesRecords.modify();
     }
 
     public captureSpecies(speciesId: Types.ObjectId): void {
