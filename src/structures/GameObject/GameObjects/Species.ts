@@ -149,6 +149,23 @@ export class Species extends GameObject {
     public getShowcaseDisplayName(player: Player, showCaptures = true): string {
         let displayName = "";
 
+        const playerEssence = player.getEssence(this.id);
+
+        if (playerEssence >= 15) {
+            let medalEmoji: string;
+            if (playerEssence >= 150) {
+                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalgold");
+            }
+            else if (playerEssence >= 50) {
+                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalsilver");
+            }
+            else {
+                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalbronze");
+            }
+
+            displayName += medalEmoji;
+        }
+
         const rarityEmoji = this.rarityData.emoji;
         displayName += rarityEmoji;
 
