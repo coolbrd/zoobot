@@ -14,7 +14,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
     public readonly info = "Release an animal from your collection in exchange for some pep";
 
-    public readonly helpUseString = "`<animal name or number>` to release an animal from your collection`";
+    public readonly helpUseString = "`<animal name or number>` to release an animal from your collection.";
 
     public readonly section = CommandSection.animalManagement;
 
