@@ -73,7 +73,7 @@ class FishCommand extends GuildCommand {
         const maxFishingTimeOffset = 1 / (Math.pow(distanceToSweetSpot / 25, 2) + (1 / 10));
         const baseFishingTime = this.fishingTimeBounds.max - maxFishingTimeOffset;
         const offsetFromBase = randomWithinRange(Math.random(), this.extraTimeBounds.min, this.extraTimeBounds.max);
-        const fishingTime = (baseFishingTime + offsetFromBase) * 1000;
+        const fishingTime = (baseFishingTime + offsetFromBase) * 1000 * 60;
 
         return fishingTime;
     }
