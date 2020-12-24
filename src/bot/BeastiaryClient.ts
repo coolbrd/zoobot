@@ -77,7 +77,7 @@ export default class BeastiaryClient {
             console.log("Logged into Discord");
 
             if (this.discordClient.user) {
-                this.discordClient.user.setActivity("b/help").catch(error => {
+                this.discordClient.user.setActivity("b/commands").catch(error => {
                     throw new Error(stripIndent`
                         There was an error attempting to set a client's activity.
 
