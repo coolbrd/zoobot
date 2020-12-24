@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Document, Model, Types } from "mongoose";
+import { inspect } from "util";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import gameConfig from "../../config/gameConfig";
 import { BeastiarySchemaDefinition } from '../schema/BeastiarySchema';
@@ -180,6 +181,8 @@ export default abstract class GameObject {
     public get debugString(): string {
         return stripIndent`
             Document: ${this.document.toString()}
+
+            References: ${inspect(this.references)}
         `;
     }
 }
