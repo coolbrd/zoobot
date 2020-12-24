@@ -29,7 +29,6 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
 
         embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
-        embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
 
         embed.setFooter(stripIndent`
             ${collection.length} in collection (max ${this.player.collectionSizeLimit})
@@ -41,7 +40,10 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             return embed;
         }
 
-        if (this.state === AnimalDisplayMessageState.info || this.state === AnimalDisplayMessageState.card) {
+        if (this.state === AnimalDisplayMessageState.page) {
+            embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
+        }
+        else {
             embed.setTitle(`\`${collection.pointerPosition + 1})\` ${embed.title}`);
         }
 
