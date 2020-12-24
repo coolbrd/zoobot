@@ -808,4 +808,12 @@ export class Player extends GameObject {
 
         await Promise.all(returnPromises);
     }
+
+    public get debugString(): string {
+        return stripIndent`
+            Document: ${this.document}
+
+            Playerguild: ${this.playerGuild}
+        `;
+    }
 }
