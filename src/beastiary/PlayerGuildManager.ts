@@ -10,7 +10,7 @@ import { PremiumIdModel } from "../models/PremiumId";
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
 
-    protected readonly cacheObjectTimeout = gameConfig.playerGuildCacheTimeout;
+    protected readonly cacheObjectTimeout = gameConfig.cachedGameObjectTimeout;
 
     protected documentToGameObject(document: Document): PlayerGuild {
         return new PlayerGuild(document, this.beastiaryClient);

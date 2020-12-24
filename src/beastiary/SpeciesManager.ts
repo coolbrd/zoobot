@@ -13,7 +13,7 @@ import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/Lo
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
 
-    protected readonly cacheObjectTimeout = gameConfig.speciesCacheTimeout;
+    protected readonly cacheObjectTimeout = gameConfig.cachedGameObjectTimeout;
 
     private _allSpeciesIds: Types.ObjectId[] = [];
 

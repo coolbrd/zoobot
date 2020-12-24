@@ -9,13 +9,11 @@ import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { stripIndent } from "common-tags";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
-import { inspect } from "util";
-import CachedGameObject from "../structures/GameObject/CachedGameObject";
 
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
 
-    protected readonly cacheObjectTimeout = gameConfig.playerCacheTimeout;
+    protected readonly cacheObjectTimeout = gameConfig.cachedGameObjectTimeout;
 
     private readonly playerUserIds = new Set<string>();
 

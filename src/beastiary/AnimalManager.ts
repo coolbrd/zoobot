@@ -12,7 +12,7 @@ import { GuildMember } from 'discord.js';
 export default class AnimalManager extends GameObjectCache<Animal> {
     protected readonly model = AnimalModel;
 
-    protected readonly cacheObjectTimeout = gameConfig.animalCacheTimeout;
+    protected readonly cacheObjectTimeout = gameConfig.cachedGameObjectTimeout;
 
     protected documentToGameObject(document: Document): Animal {
         return new Animal(document, this.beastiaryClient);
