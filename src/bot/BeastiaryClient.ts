@@ -113,13 +113,25 @@ export default class BeastiaryClient {
             this.commandHandler.handleMessage(message).then(() => {
                 this.beastiary.players.handleMessage(message).then(() => {
                     this.beastiary.encounters.handleMessage(message).catch(error => {
-                        console.error("There was an error handling a message through the encounter handler.", error);
+                        console.error(stripIndent`
+                            There was an error handling a message through the encounter handler.
+                            
+                            Message: ${JSON.stringify(message)}
+                        `, error);
                     });
                 }).catch(error => {
-                    console.error("There was an error handling a message through the player manager.", error);
+                    console.error(stripIndent`
+                        There was an error handling a message through the player manager.
+                        
+                        Message: ${JSON.stringify(message)}
+                    `, error);
                 });
             }).catch(error => {
-                console.error("There was an error handling a message as a command.", error);
+                console.error(stripIndent`
+                    There was an error handling a message through the command handler.
+                    
+                    Message: ${JSON.stringify(message)}
+                `, error);
             });
         });
 
