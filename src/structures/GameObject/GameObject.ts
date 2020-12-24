@@ -103,25 +103,26 @@ export default abstract class GameObject {
     }
 
     public async loadFields(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const references = Object.values(this.references);
-            if (references.length === 0) {
-                resolve();
-            }
+        const referenceFetchPromises: Promise<void>[] = [];
 
-            let completed = 0;
-            for (const reference of references) {
-                reference.cache.fetchById(reference.id).then(gameObject => {
-                    reference.gameObject = gameObject;
+        for (const reference of Object.values(this.references)) {
+            const fetchPromise = reference.cache.fetchReferenceById(reference.id).then(gameObject => {
+                reference.gameObject = gameObject;
+            }).catch(error => {
+                throw new Error(stripIndent`
+                    There was an error fetching a game object's reference.
 
-                    if (++completed >= references.length) {
-                        resolve();
-                    }
-                }).catch(error => {
-                    reject(error);
-                });
-            }
-        });
+                    Reference: ${JSON.stringify(reference)}
+                    Game object: ${this.debugString}
+
+                    ${error}
+                `);
+            });
+
+            referenceFetchPromises.push(fetchPromise);
+        }
+
+        await Promise.all(referenceFetchPromises);
     }
 
     protected getReference<GameObjectType>(referenceName: string): GameObjectType {

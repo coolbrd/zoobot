@@ -29,7 +29,7 @@ class FishCommand extends GuildCommand {
         }
     ];
 
-    private fishingPlayers = new Map<Player, TextChannel>();
+    private fishingPlayers = new Map<string, TextChannel>();
 
     private reelWindow = 10 * 1000;
 
@@ -49,11 +49,15 @@ class FishCommand extends GuildCommand {
     };
 
     private setPlayerFishing(player: Player, channel: TextChannel): void {
-        this.fishingPlayers.set(player, channel);
+        this.fishingPlayers.set(player.id.toHexString(), channel);
     }
 
     private unsetPlayerFishing(player: Player): void {
-        this.fishingPlayers.delete(player);
+        this.fishingPlayers.delete(player.id.toHexString());
+    }
+
+    private playerIsFishing(player: Player): boolean {
+        return Boolean(this.fishingPlayers.get(player.id.toHexString()));
     }
 
     private isReelMessage(message: Message): boolean {
@@ -91,9 +95,9 @@ class FishCommand extends GuildCommand {
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
         
-        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
+        let player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        const fishingChannel = this.fishingPlayers.get(player);
+        const fishingChannel = this.playerIsFishing(player);
         if (fishingChannel) {
             betterSend(parsedMessage.channel, `You're already fishing in ${fishingChannel}, reel in your line before trying to cast again!`);
             return commandReceipt;
@@ -132,6 +136,8 @@ class FishCommand extends GuildCommand {
             .collectFrom(player.member.user)
             .collectBy(this.isReelMessage)
             .collectOne(fishingTime);
+
+        player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (earlyReelMessage) {
             betterSend(parsedMessage.channel, "You reel your line back in.");

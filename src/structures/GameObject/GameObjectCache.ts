@@ -13,6 +13,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
     protected abstract documentToGameObject(document: Document): GameObjectType;
 
     private readonly cache = new Map<string, CachedGameObject<GameObjectType>>();
+    private readonly loadingCache = new Map<string, GameObjectType>();
 
     protected readonly beastiaryClient: BeastiaryClient;
 
@@ -55,6 +56,21 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         return this.cache.delete(cacheKey);
     }
 
+    private addToLoadingCache(gameObject: GameObjectType): void {
+        const idKey = this.idToCacheKey(gameObject.id);
+        this.loadingCache.set(idKey, gameObject);
+    }
+
+    private removeFromLoadingCache(gameObject: GameObjectType): void {
+        const idKey = this.idToCacheKey(gameObject.id);
+        this.loadingCache.delete(idKey);
+    }
+
+    private getFromLoadingCache(id: Types.ObjectId): GameObjectType | undefined {
+        const idKey = this.idToCacheKey(id);
+        return this.loadingCache.get(idKey);
+    }
+
     protected async addToCache(gameObject: GameObjectType): Promise<CachedGameObject<GameObjectType>> {
         const existingCachedGameObject = this.cacheGet(gameObject.id);
 
@@ -62,7 +78,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             return existingCachedGameObject;
         }
 
-        const newCachedGameObject = this.cacheSet(gameObject);
+        this.addToLoadingCache(gameObject);
 
         try {
             await gameObject.loadFields();
@@ -76,6 +92,10 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
                 ${error}
             `);
         }
+
+        this.removeFromLoadingCache(gameObject);
+
+        const newCachedGameObject = this.cacheSet(gameObject);
 
         return newCachedGameObject;
     }
@@ -153,6 +173,27 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         }
 
         return gameObject;
+    }
+
+    public async fetchReferenceById(id: Types.ObjectId): Promise<GameObjectType | undefined> {
+        const loadingReference = this.getFromLoadingCache(id);
+
+        if (loadingReference) {
+            return loadingReference;
+        }
+
+        try {
+            return await this.fetchById(id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a game object reference by an id after no loading object was found.
+
+                Id: ${id}
+
+                ${error}
+            `);
+        }
     }
 
     public async dumpCache(): Promise<void> {

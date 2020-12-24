@@ -9,6 +9,8 @@ import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { stripIndent } from "common-tags";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import { inspect } from "util";
+import CachedGameObject from "../structures/GameObject/CachedGameObject";
 
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
@@ -95,7 +97,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
 
         const player = this.documentToGameObject(playerDocument);
-        
+
         try {
             await this.addToCache(player);
         }
