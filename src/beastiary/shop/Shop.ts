@@ -16,8 +16,8 @@ export default abstract class Shop {
     protected abstract readonly items: ShopItem[];
 
     private resolveStringToItem(itemString: string): ShopItem | undefined {
-        const itemNumber = Number(itemString);
-
+        const itemNumber = Number(itemString) - 1;
+        
         if (!isNaN(itemNumber)) {
             if (itemNumber < 0 || itemNumber >= this.items.length) {
                 return undefined;
