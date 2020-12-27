@@ -11,6 +11,8 @@ import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import gameConfig from "../config/gameConfig";
+import ViewCollectionCommand from "../commands/ViewCollectionCommand";
+import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -114,10 +116,16 @@ export default class EncounterMessage extends InteractiveMessage {
 
         const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-        betterSend(this.channel, stripIndent`
+        let captureString = stripIndent`
             ${user}, you caught ${commonName.article} ${commonName.name}!
             +**5**${essenceEmoji} (${this.species.commonNames[0]})
-        `);
+        `;
+
+        if (player.totalCaptures <= 3) {
+            captureString += `\n\nView your new animal with the \`${ViewCollectionCommand.primaryName}\` command, and give them a name with the \`${ChangeAnimalNicknameCommand.primaryName}\` command!`;
+        }
+        
+        betterSend(this.channel, captureString);
         
         this.setDeactivationText("(caught)");
 
