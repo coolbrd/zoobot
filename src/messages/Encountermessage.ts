@@ -66,11 +66,13 @@ export default class EncounterMessage extends InteractiveMessage {
                 betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
             }
             else {
-                betterSend(this.channel, stripIndent`
-                    ${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.
-                    
-                    Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
-                `);
+                let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
+
+                if (!player.getPremium()) {
+                    noCapturesLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
+                }
+
+                betterSend(this.channel, noCapturesLeftString);
             }
 
             this.warnedUserIds.push(player.member.user.id);

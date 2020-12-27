@@ -24,11 +24,14 @@ class EncounterCommand extends GuildCommand {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (player.encountersLeft <= 0) {
-            betterSend(parsedMessage.channel, stripIndent`
-                You don't have any encounters left. Next encounter reset: **${remainingTimeString(player.freeEncounters.nextReset)}**.
+            let noEncountersLeftString = `You don't have any encounters left. Next encounter reset: **${remainingTimeString(player.freeEncounters.nextReset)}**.`;
 
-                Want more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!
-            `);
+            if (!player.getPremium()) {
+                noEncountersLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
+            }
+
+            betterSend(parsedMessage.channel, noEncountersLeftString);
+            
             return commandReceipt;
         }
 
