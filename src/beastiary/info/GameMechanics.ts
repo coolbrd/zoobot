@@ -131,7 +131,7 @@ const mechanics: GameMechanicInfo[] = [
     {
         names: ["premium"],
         info: oneLine`
-            Premium status is unlocked for either your server your just yourself (across all servers) by donating to my Patreon (see
+            Premium status is unlocked for either your server or just yourself (across all servers) by donating to my Patreon (see
             the \`${SendPatreonLinkCommand.primaryName}\` command). Premium gets you lots of simple perks that make the game more
             interesting to play, such as more encounters, captures, and ways to earn xp. Learn more with the
             \`${PremiumInfoCommand.primaryName}\` command.
