@@ -1,4 +1,3 @@
-import { stripIndent } from "common-tags";
 import { GuildMember, User, Guild } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
@@ -8,13 +7,7 @@ export default async function getGuildMember(userId: string, guildId: string, be
         user = await beastiaryClient.discordClient.users.fetch(userId);
     }
     catch (error) {
-        throw new Error(stripIndent`
-            There was an error fetching a user from the user cache.
-
-            User id: ${userId}
-
-            ${error}
-        `);
+        return undefined;
     }
 
     let guild: Guild | undefined;
@@ -22,13 +15,7 @@ export default async function getGuildMember(userId: string, guildId: string, be
         guild = await beastiaryClient.discordClient.guilds.fetch(guildId);
     }
     catch (error) {
-        throw new Error(stripIndent`
-            There was an error fetching a guild from the guild cache.
-
-            Guild id: ${guildId}
-
-            ${error}
-        `);
+        return undefined;
     }
 
     if (!guild) {
@@ -40,14 +27,7 @@ export default async function getGuildMember(userId: string, guildId: string, be
         member = await guild.members.fetch(user);
     }
     catch (error) {
-        throw new Error(stripIndent`
-            There was an error fetching a guild member from a guild's member cache.
-
-            User id: ${userId}
-            Guild id: ${guildId}
-
-            ${error}
-        `);
+        return undefined;
     }
 
     return member;
