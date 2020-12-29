@@ -12,9 +12,10 @@ import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 interface ExperienceGainReceipt {
-    given: number,
-    taken: number,
-    levelUp: boolean
+    xpGiven: number,
+    xpTaken: number,
+    levelUp: boolean,
+    essence: number
 }
 
 export class Animal extends GameObject {
@@ -140,8 +141,12 @@ export class Animal extends GameObject {
         return card;
     }
 
+    private getLevel(xp: number): number {
+        return Math.floor(Math.max(1, Math.log(Math.ceil((xp + 1) / 100)) / Math.log(1.75) + 1));
+    }
+
     public get level(): number {
-        return Math.floor(Math.max(-1, Math.log2(this.experience / 50))) + 2;
+        return this.getLevel(this.experience);
     }
 
     public get levelCap(): number {
@@ -153,7 +158,7 @@ export class Animal extends GameObject {
     }
 
     public getLevelXpRequirement(level: number): number {
-        return Math.pow(2, level - 2) * 50;
+        return 100 * Math.floor(Math.pow(1.75, level - 1));
     }
 
     public playerIsOwner(player: Player): boolean {
@@ -219,9 +224,10 @@ export class Animal extends GameObject {
         }
         
         const xpReceipt: ExperienceGainReceipt = {
-            given: experience,
-            taken: this.experience - previousExperience,
-            levelUp: levelUp
+            xpGiven: experience,
+            xpTaken: this.experience - previousExperience,
+            levelUp: levelUp,
+            essence: 0
         }
 
         return xpReceipt;
@@ -231,12 +237,14 @@ export class Animal extends GameObject {
         const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
         if (xpReceipt.levelUp) {
-            this.owner.addEssence(this.species.id, 1);
+            xpReceipt.essence = 1;
+
+            this.owner.addEssence(this.species.id, xpReceipt.essence);
             const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
             betterSend(channel, stripIndent`
                 Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
-                +**1**${essenceEmoji} (${this.species.commonNames[0]})
+                +**${xpReceipt.essence}**${essenceEmoji} (${this.species.commonNames[0]})
             `);
         }
 

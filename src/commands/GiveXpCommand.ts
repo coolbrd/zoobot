@@ -77,14 +77,14 @@ class GiveXpCommand extends GuildCommand {
         const xpEmoji = beastiaryClient.beastiary.emojis.getByName("xp");
 
         let resultString: string;
-        if (xpReceipt.taken === xpReceipt.given) {
-            resultString = `Success, you gave ${animal.displayName} +**${xpReceipt.given}**${xpEmoji}`;
+        if (xpReceipt.xpTaken === xpReceipt.xpGiven) {
+            resultString = `Success, you gave ${animal.displayName} +**${xpReceipt.xpGiven}**${xpEmoji}`;
         }
         else {
             const essenceEmoji = beastiaryClient.beastiary.emojis.getByName("essence");
 
             resultString = stripIndent`
-                You gave ${animal.displayName} **${xpReceipt.given}**${xpEmoji}, but only **${xpReceipt.taken}**${xpEmoji} was gained.
+                You gave ${animal.displayName} **${xpReceipt.xpGiven}**${xpEmoji}, but only **${xpReceipt.xpTaken}**${xpEmoji} was gained.
                 Earn more ${animal.species.commonNames[0]} essence ${essenceEmoji} to raise ${animal.displayName}'s level cap!
             `;
         }
