@@ -1,5 +1,4 @@
 import { stripIndent } from "common-tags";
-import { inspect } from "util";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
