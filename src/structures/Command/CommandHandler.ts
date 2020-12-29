@@ -49,6 +49,7 @@ import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 import GivePremiumCommand from "../../commands/GivePremiumCommand";
 import RemovePremiumCommand from "../../commands/RemovePremiumCommand";
 import RefreshPremiumCommand from "../../commands/RefreshPremiumCommand";
+import GiveAnimalCommand from "../../commands/GiveAnimalCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -79,6 +80,7 @@ export default class CommandHandler {
         FishCommand,
         CommandListCommand,
         EditSpeciesCommand,
+        GiveAnimalCommand,
         SendPatreonLinkCommand,
         FeedbackCommand,
         SuppportServerInviteCommand,

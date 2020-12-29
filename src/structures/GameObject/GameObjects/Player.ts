@@ -409,6 +409,12 @@ export class Player extends GameObject {
         this.animals.splice(this.animals.indexOf(animal), 1);
 
         this.collectionAnimalIds.remove(animal.id);
+
+        if (this.favoriteAnimalId) {
+            if (this.favoriteAnimalId.equals(animal.id)) {
+                this.favoriteAnimalId = undefined;
+            }
+        }
     }
 
     public claimDailyCurrency(): void {
@@ -611,12 +617,6 @@ export class Player extends GameObject {
         this.removeAnimalFromCollection(releasedAnimal);
         this.crewAnimalIds.remove(releasedAnimal.id);
 
-        if (this.favoriteAnimalId) {
-            if (this.favoriteAnimalId.equals(releasedAnimal.id)) {
-                this.favoriteAnimalId = undefined;
-            }
-        }
-
         if (!releasedAnimal.playerIsOwner(this)) {
             throw new Error(stripIndent`
                 A player somehow attempted to release an animal that doesn't belong to them.
@@ -628,6 +628,52 @@ export class Player extends GameObject {
 
         this.pep += releasedAnimal.value;
         this.addEssence(releasedAnimal.speciesId, releasedAnimal.level * 2);
+    }
+
+    public async giveAnimal(animalId: Types.ObjectId, receivingPlayer: Player): Promise<void> {
+        let ownedAnimal: Animal | undefined;
+        
+        try {
+            ownedAnimal = await this.fetchAnimalById(animalId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player's owned animal before giving it to another player.
+
+                Animal id: ${animalId}
+                Player: ${this.debugString}
+
+                ${error}
+            `);
+        }
+
+        if (!ownedAnimal) {
+            throw new Error(stripIndent`
+                An animal id that a player does not own was attempted to be given to another player.
+
+                Animal id: ${animalId}
+                Player: ${this.debugString}
+            `);
+        }
+
+        this.removeAnimalFromCollection(ownedAnimal);
+
+        try {
+            await ownedAnimal.changeOwner(receivingPlayer.id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error changing the owner of an animal being given to another player.
+
+                Animal id: ${animalId}
+                Giving player: ${this.debugString}
+                Receiving player: ${receivingPlayer.debugString}
+
+                ${error}
+            `);
+        }
+
+        receivingPlayer.addAnimalToCollection(ownedAnimal);
     }
 
     private createNewSpeciesRecord(id: Types.ObjectId): PlayerSpeciesRecord {

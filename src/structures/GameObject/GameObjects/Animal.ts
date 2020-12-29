@@ -75,12 +75,20 @@ export class Animal extends GameObject {
         return this.document.get(Animal.fieldNames.userId);
     }
 
+    public set userId(userId: string) {
+        this.setDocumentField(Animal.fieldNames.userId, userId);
+    }
+
     public get guildId(): string {
         return this.document.get(Animal.fieldNames.guildId);
     }
 
     public get ownerId(): Types.ObjectId {
         return this.document.get(Animal.fieldNames.ownerId);
+    }
+
+    public set ownerId(ownerId: Types.ObjectId) {
+        this.setDocumentField(Animal.fieldNames.ownerId, ownerId);
     }
 
     public get nickname(): string | undefined {
@@ -251,5 +259,43 @@ export class Animal extends GameObject {
         this.potentiallyDropTokenOrEssence(experience, channel);
 
         return xpReceipt;
+    }
+
+    public async changeOwner(newOwnerId: Types.ObjectId): Promise<void> {
+        let newOwner: Player | undefined;
+        try {
+            newOwner = await this.beastiaryClient.beastiary.players.fetchById(newOwnerId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching an animal's new owner player upon attempting to change its owner.
+
+                New owner id: ${newOwnerId}
+                Animal: ${this.debugString}
+
+                ${error}
+            `);
+        }
+
+        if (!newOwner) {
+            throw new Error(stripIndent`
+                An invalid player id was given to an animal when attempting to change its owner.
+
+                New owner id: ${newOwnerId}
+                Animal: ${this.debugString}
+            `);
+        }
+
+        this.ownerId = newOwner.id;
+        this.userId = newOwner.member.user.id;
+
+        try {
+            await this.loadFields();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error reloading an animal's references after an owner change.
+            `);
+        }
     }
 }
