@@ -8,6 +8,7 @@ import GiveXpCommand from "../../commands/GiveXpCommand";
 import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
+import ShopCommand from "../../commands/Shop/ShopCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
@@ -41,10 +42,10 @@ const mechanics: GameMechanicInfo[] = [
         names: ["encounters", "encounter"],
         info: oneLine`
             Encounters are the primary way to obtain new animals. When you see an encounter, you have 60 seconds to react to it before
-            the animal will flee. Make sure you react quickly, someone else could get it first! You get 5 free encounters every 2
-            hours, and can buy more using the shop command (for some currency, of course). Additionally, encounters occur randomly
-            when there's message activity in the server. You can change the channel these encounters occur in using the
-            \`${SetEncounterChannelCommand.primaryName}\` command.
+            the animal will flee. Make sure you react quickly, someone else could get it first! Standard players get 2 free encounters
+            every hour, and can buy more using the \`${ShopCommand.primaryName}\` command (for some pep, of course). Additionally,
+            encounters occur randomly when there's message activity in the server. You can change the channel these encounters occur in
+            using the \`${SetEncounterChannelCommand.primaryName}\` command.
         `
     },
     {
@@ -72,10 +73,9 @@ const mechanics: GameMechanicInfo[] = [
             Experience is the main way to distinguish how much cooler your animals are compared to everybody else's, and the way towards
             earning an animal's token. Starting at level 1, you can start gaining experience for your animals by adding them to your
             crew, which gives them some experience when you do things in your server! Every level beyond level 1 increases the animal's
-            value by 10%. Each animal in your crew gets a little xp for every message you send in the server, and even more xp when you
-            do things like using encounters, capturing, and fishing. You also get some free xp boosts every 3 hours, which you can give
-            to any of your animals with \`${GiveXpCommand.primaryName}\`. Careful though, an animal that's hit its max level won't gain
-            any xp, so keep earning that species essence so nothing goes to waste!
+            value by 10%. Each animal in your crew gets xp when you do things like using encounters, capturing, and fishing. You also
+            get some free xp boosts every hour, which you can give to any of your animals with \`${GiveXpCommand.primaryName}\`. Careful
+            though, an animal that's hit its max level won't gain any xp, so keep earning that species essence so nothing goes to waste!
         `
     },
     {
