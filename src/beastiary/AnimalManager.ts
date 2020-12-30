@@ -218,6 +218,12 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             if (animalObject) {
                 return animalObject;
             }
+
+            const firstMatchBySpecies = player.animals.find(animal => animal.species.commonNamesLower.includes(searchTerm));
+
+            if (firstMatchBySpecies) {
+                return firstMatchBySpecies;
+            }
         }
         else {
             let animalId: Types.ObjectId | undefined;
