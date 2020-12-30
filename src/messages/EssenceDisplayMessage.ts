@@ -47,7 +47,7 @@ export default class EssenceDisplayMessage extends LoadableGameObjectDisplayMess
         }
 
         embed.setAuthor(`${this.player.member.user.username}'s essence`, this.player.member.user.avatarURL() || undefined);
-        embed.setColor(0x00ff00);
+        embed.setColor(0x3861a9);
 
         return embed;
     }
