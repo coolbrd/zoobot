@@ -3,7 +3,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildAnimalCard(embed: MessageEmbed, animal: Animal): void {
-    embed.setTitle(animal.displayName);
+    embed.setTitle(animal.showcaseDisplayName);
     embed.setImage(animal.card.url);
     
     embed.setColor(animal.species.rarityData.color);

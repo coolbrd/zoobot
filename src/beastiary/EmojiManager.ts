@@ -74,4 +74,12 @@ export default class EmojiManager {
 
         return emojiString.slice(1, -1);
     }
+
+    public getAnimalLevelEmoji(level: number): string {
+        const emojiLevel = Math.max(0, Math.min(15, level));
+
+        const emojiName = "l" + emojiLevel;
+
+        return this.getByName(emojiName);
+    }
 }

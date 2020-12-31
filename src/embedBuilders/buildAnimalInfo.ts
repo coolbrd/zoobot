@@ -5,7 +5,7 @@ import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emojiManager: EmojiManager): void {
     embed.setThumbnail(animal.card.url);
-    embed.setTitle(`${animal.displayName}`);
+    embed.setTitle(`${animal.showcaseDisplayName}`);
 
     embed.setColor(animal.species.rarityData.color);
 

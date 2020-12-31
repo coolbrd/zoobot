@@ -52,7 +52,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             animalString += `\`${animalIndex + 1})\` `;
         }
 
-        animalString += `${currentAnimal.displayName}${specialText}`;
+        animalString += `${currentAnimal.showcaseDisplayName}${specialText}`;
 
         if (animalIndex === this.elements.pointerPosition) {
             animalString += " 🔹";

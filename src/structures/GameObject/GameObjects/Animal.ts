@@ -130,6 +130,12 @@ export class Animal extends GameObject {
         return displayName;
     }
 
+    public get showcaseDisplayName(): string {
+        const levelEmoji = this.beastiaryClient.beastiary.emojis.getAnimalLevelEmoji(this.level);
+
+        return `${levelEmoji} ${this.displayName}`;
+    }
+
     public get owner(): Player {
         return this.getReference(this.referenceNames.owner);
     }
