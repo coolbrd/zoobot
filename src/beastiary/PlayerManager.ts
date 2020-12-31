@@ -94,17 +94,15 @@ export default class PlayerManager extends GameObjectCache<Player> {
             return;
         }
 
-        const player = this.documentToGameObject(playerDocument);
-
+        let player: Player;
         try {
-            await this.addToCache(player);
+            player = await this.addDocumentToCache(playerDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a player to the cache.
+                There was an error adding a player document to the cache.
 
                 Player document: ${playerDocument.toString()}
-                Player: ${player.debugString}
                 
                 ${error}
             `);
@@ -245,16 +243,15 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
 
-        const player = this.documentToGameObject(playerDocument);
-
+        let player: Player;
         try {
-            await this.addToCache(player);
+            player = await this.addDocumentToCache(playerDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a player to the cache.
+                There was an error adding a player document to the cache.
 
-                Player: ${player.debugString}
+                Player document: ${playerDocument.toString()}
                 
                 ${error}
             `);

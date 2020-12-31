@@ -71,13 +71,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         return this.loadingCache.get(idKey);
     }
 
-    protected async addToCache(gameObject: GameObjectType): Promise<CachedGameObject<GameObjectType>> {
-        const existingCachedGameObject = this.cacheGet(gameObject.id);
-
-        if (existingCachedGameObject) {
-            return existingCachedGameObject;
-        }
-
+    private async addToCache(gameObject: GameObjectType): Promise<CachedGameObject<GameObjectType>> {
         this.addToLoadingCache(gameObject);
 
         try {
@@ -98,6 +92,32 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const newCachedGameObject = this.cacheSet(gameObject);
 
         return newCachedGameObject;
+    }
+
+    protected async addDocumentToCache(document: Document): Promise<GameObjectType> {
+        const existingCachedGameObject = this.cacheGet(document._id);
+
+        if (existingCachedGameObject) {
+            return existingCachedGameObject.gameObject;
+        }
+
+        const gameObject = this.documentToGameObject(document);
+
+        try {
+            await this.addToCache(gameObject);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error adding a newly created game object to a cache.
+
+                Document: ${document.toString()}
+                Game object: ${gameObject.debugString}
+
+                ${error}
+            `);
+        }
+
+        return gameObject;
     }
 
     public async removeFromCache(gameObjectId: Types.ObjectId): Promise<void> {

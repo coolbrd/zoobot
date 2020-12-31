@@ -1,6 +1,5 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import gameConfig from "../config/gameConfig";
-import getGuildMember from "../discordUtility/getGuildMember";
 import { AnimalModel } from "../models/Animal";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -34,16 +33,15 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             `);
         }
 
-        const animal = this.documentToGameObject(animalDocument);
-
+        let animal: Animal;
         try {
-            await this.addToCache(animal);
+            animal = await this.addDocumentToCache(animalDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a new animal to the animal cache.
+                There was an error adding a new animal document to the animal cache.
 
-                Animal: ${animal.debugString}
+                Document: ${animalDocument.toString()}
                 
                 ${error}
             `);
@@ -91,12 +89,18 @@ export default class AnimalManager extends GameObjectCache<Animal> {
     }
 
     public async searchGuildAnimal(searchTerm: string, guildId: string): Promise<Animal | undefined> {
+        const cachedAnimal = this.getMatchingFromCache(animal => animal.nickname === searchTerm);
+
+        if (cachedAnimal) {
+            return cachedAnimal;
+        }
+
         let animalDocument: Document | null;
         try {
             animalDocument = await AnimalModel.findOne({
                 [Animal.fieldNames.guildId]: guildId,
                 $text: {
-                    $search: searchTerm
+                    $search: `"${searchTerm}"`
                 }
             });
         }
@@ -115,16 +119,15 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             return undefined;
         }
 
-        const animal = this.documentToGameObject(animalDocument);
-
+        let animal: Animal;
         try {
-            await this.addToCache(animal);
+            animal = await this.addDocumentToCache(animalDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a searched animal to the animal cache.
+                There was an error adding a searched animal document to the animal cache.
 
-                Animal: ${animal.debugString}
+                Document: ${animalDocument.toString()}
 
                 ${error}
             `);

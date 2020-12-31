@@ -70,16 +70,15 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             }
         }
 
-        const playerGuild = this.documentToGameObject(guildDocument);
-
+        let playerGuild: PlayerGuild;
         try {
-            await this.addToCache(playerGuild);
+            playerGuild = await this.addDocumentToCache(guildDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a guild to the cache.
+                There was an error adding a guild document to the cache.
 
-                Player guild: ${playerGuild.debugString}
+                Document: ${guildDocument.toString()}
                 
                 ${error}
             `);
