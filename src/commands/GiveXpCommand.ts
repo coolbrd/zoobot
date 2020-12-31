@@ -5,7 +5,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { remainingTimeString } from "../utility/timeStuff";
 
 class GiveXpCommand extends GuildCommand {
@@ -49,21 +48,7 @@ class GiveXpCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                playerObject: player,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching an animal by a search term in the give xp command.
-
-                Search term: ${animalIdentifier}
-                Player: ${player.debugString}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
         
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that name/identifier could be found in your collection.");

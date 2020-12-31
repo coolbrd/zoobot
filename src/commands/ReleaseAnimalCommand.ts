@@ -28,25 +28,11 @@ class ReleaseAnimalCommand extends GuildCommand {
             return commandReceipt;
         }
 
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
+
         const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedMessage.channel.guild.id,
-                userId: parsedMessage.originalMessage.author.id,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching an animal in the release command.
-
-                Message: ${JSON.stringify(parsedMessage)}
-                
-                ${error}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the nickname or number "${animalIdentifier}" exists in your collection.`);
@@ -96,8 +82,6 @@ class ReleaseAnimalCommand extends GuildCommand {
                 ${error}
             `);
         }
-
-        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (message && message.content.toLowerCase() === "yes") {
             try {

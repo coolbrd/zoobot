@@ -1,10 +1,8 @@
-import { stripIndent } from "common-tags";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import { betterSend } from "../../discordUtility/messageMan";
 import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
-import { Animal } from "../../structures/GameObject/GameObjects/Animal";
 
 class CrewAddSubCommand extends GuildCommand {
     public readonly names = ["add", "a"];
@@ -23,33 +21,16 @@ class CrewAddSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.restOfText.toLowerCase();
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedMessage.guild.id,
-                userId: parsedMessage.sender.id,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching for an animal when attempting to add an animal to a player's crew.
+        const animalIdentifier = parsedMessage.restOfText;
 
-                Search term: ${animalIdentifier}
-                Parsed message: ${JSON.stringify(parsedMessage)}
-                
-                ${error}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname/number exists in your collection.");
             return commandReceipt;
         }
-
-        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         if (player.crewAnimalIds.list.includes(animal.id)) {
             betterSend(parsedMessage.channel, "That animal is already in your crew.");

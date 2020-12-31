@@ -81,3 +81,11 @@ export function indexWhere<T>(list: T[], predicate: (element: T) => boolean): nu
 
     return indexInList;
 }
+
+export function safeListAccess<T>(list: T[], index: number): T | undefined {
+    if (index < 0 || index >= list.length) {
+        return undefined;
+    }
+
+    return list[index];
+}

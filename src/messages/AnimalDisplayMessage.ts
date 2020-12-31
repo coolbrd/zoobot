@@ -15,6 +15,8 @@ export enum AnimalDisplayMessageState {
 }
 
 export default abstract class AnimalDisplayMessage extends PointedMessage<LoadableGameObject<Animal>> {
+    protected abstract readonly numbered: boolean;
+
     protected state: AnimalDisplayMessageState;
 
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, loadableAnimals: LoadableGameObject<Animal>[]) {
@@ -46,7 +48,11 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
 
         const animalIndex = this.elements.indexOf(loadedAnimal);
 
-        animalString += `\`${animalIndex + 1})\` ${currentAnimal.displayName}${specialText}`;
+        if (this.numbered) {
+            animalString += `\`${animalIndex + 1})\` `;
+        }
+
+        animalString += `${currentAnimal.displayName}${specialText}`;
 
         if (animalIndex === this.elements.pointerPosition) {
             animalString += " 🔹";

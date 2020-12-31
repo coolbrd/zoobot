@@ -24,32 +24,28 @@ class AnimalInfoCommand extends GuildCommand {
             return commandReceipt;
         }
 
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
+
         const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
-        let animalObject: Animal | undefined;
+        let animal: Animal | undefined;
         try {
-            animalObject = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedMessage.guild.id,
-                userId: parsedMessage.sender.id,
-                searchList: "collection"
-            });
+            animal = await beastiaryClient.beastiary.animals.searchPlayerOrGuildAnimal(animalIdentifier, player, parsedMessage.guild.id)
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error attempting to search an animal for the info command.
-
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                There was an error searching a player/guild animal in the animal info command.
 
                 ${error}
             `);
         }
 
-        if (!animalObject) {
-            betterSend(parsedMessage.channel, "No animal by that nickname/number could be found in this server.");
+        if (!animal) {
+            betterSend(parsedMessage.channel, "No animal by that nickname could be found in this server.");
             return commandReceipt;
         }
 
-        const infoMessage = new AnimalInfoMessage(parsedMessage.channel, beastiaryClient, animalObject);
+        const infoMessage = new AnimalInfoMessage(parsedMessage.channel, beastiaryClient, animal);
         
         try {
             await infoMessage.send();

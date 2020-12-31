@@ -1,8 +1,6 @@
 import { betterSend } from "../discordUtility/messageMan";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
@@ -23,27 +21,11 @@ class FavoriteAnimalCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const searchTerm = parsedMessage.restOfText.toLowerCase();
-
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(searchTerm, {
-                playerObject: player,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching an animal in the favorite command.
+        const searchTerm = parsedMessage.restOfText.toLowerCase();
 
-                Search term: ${searchTerm}
-                Player: ${player.debugString}
-                
-                ${error}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the nickname/number \`${searchTerm}\` exists in your collection.`);

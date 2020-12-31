@@ -28,25 +28,9 @@ class TradeCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const initiatingAnimalIdentifier = parsedMessage.consumeArgument().text.toLowerCase();
+        const initiatingAnimalIdentifier = parsedMessage.consumeArgument().text;
 
-        let initiatingAnimal: Animal | undefined;
-        try {
-            initiatingAnimal = await beastiaryClient.beastiary.animals.searchAnimal(initiatingAnimalIdentifier, {
-                playerObject: initiatingPlayer,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching for the animal that a player wanted to trade.
-
-                Animal identifier: ${initiatingAnimalIdentifier}
-                Player: ${initiatingPlayer.debugString}
-
-                ${error}
-            `);
-        }
+        const initiatingAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(initiatingAnimalIdentifier, initiatingPlayer);
 
         if (!initiatingAnimal) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${initiatingAnimalIdentifier}' could be found.`);
@@ -86,23 +70,7 @@ class TradeCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        let offerAnimal: Animal | undefined;
-        try {
-            offerAnimal = await beastiaryClient.beastiary.animals.searchAnimal(response, {
-                playerObject: targetPlayer,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching for the animal that a player offered in response to a trade.
-
-                Animal identifier: ${response}
-                Player: ${targetPlayer.debugString}
-
-                ${error}
-            `);
-        }
+        const offerAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(response, targetPlayer);
 
         if (!offerAnimal) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${response}' could be found.`);

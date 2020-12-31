@@ -1,10 +1,8 @@
-import { stripIndent } from "common-tags";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import { betterSend } from "../../discordUtility/messageMan";
 import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
-import { Animal } from "../../structures/GameObject/GameObjects/Animal";
 
 class CrewRemoveSubCommand extends GuildCommand {
     public readonly names = ["remove", "r"];
@@ -23,29 +21,11 @@ class CrewRemoveSubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const searchTerm = parsedMessage.restOfText.toLowerCase();
-
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(searchTerm, {
-                guildId: parsedMessage.guild.id,
-                userId: parsedMessage.sender.id,
-                playerObject: player,
-                searchList: "crew"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching for an animal in a player's crew.
+        const searchTerm = parsedMessage.restOfText;
 
-                Player: ${player.debugString}
-                Parsed message: ${JSON.stringify(parsedMessage)}
-                
-                ${error}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname or number exists in your crew.");
@@ -59,7 +39,7 @@ class CrewRemoveSubCommand extends GuildCommand {
         });
 
         if (!animalInCrew) {
-            betterSend(parsedMessage.channel, `"${animal.displayName}" isn't in your crew, so it couldn't be removed.`);
+            betterSend(parsedMessage.channel, `"${animal.displayName}" isn't in your crew.`);
             return commandReceipt;
         }
 

@@ -9,6 +9,8 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
     protected readonly fieldsPerPage = 3;
     protected readonly elementsPerField = 10;
+
+    protected readonly numbered = true;
     
     private readonly player: Player;
     public readonly channel: TextChannel;

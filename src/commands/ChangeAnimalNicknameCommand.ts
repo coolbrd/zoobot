@@ -1,8 +1,6 @@
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
-import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
@@ -36,25 +34,11 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.consumeArgument().text.toLowerCase();
+        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        let animal: Animal | undefined;
-        try {
-            animal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                guildId: parsedMessage.member.guild.id,
-                userId: parsedMessage.member.user.id,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There as an error searching an animal by its nickname.
+        const animalIdentifier = parsedMessage.consumeArgument().text;
 
-                Parsed message: ${JSON.stringify(parsedMessage)}
-                
-                ${error}
-            `);
-        }
+        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal by the name/number '${animalIdentifier}' exists in your collection.`);

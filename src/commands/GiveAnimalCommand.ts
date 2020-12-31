@@ -6,7 +6,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 
 class GiveAnimalCommand extends GuildCommand {
@@ -28,25 +27,9 @@ class GiveAnimalCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animalIdentifier = parsedMessage.consumeArgument().text.toLowerCase();
+        const animalIdentifier = parsedMessage.consumeArgument().text;
 
-        let givenAnimal: Animal | undefined;
-        try {
-            givenAnimal = await beastiaryClient.beastiary.animals.searchAnimal(animalIdentifier, {
-                playerObject: givingPlayer,
-                searchList: "collection"
-            });
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error searching for the animal that a player wanted to give.
-
-                Animal identifier: ${animalIdentifier}
-                Player: ${givingPlayer.debugString}
-
-                ${error}
-            `);
-        }
+        const givenAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, givingPlayer);
 
         if (!givenAnimal) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${animalIdentifier}' could be found.`);

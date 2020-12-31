@@ -12,6 +12,8 @@ export default class CrewMessage extends AnimalDisplayMessage {
     protected readonly fieldsPerPage = 1;
     protected readonly elementsPerField = 10;
 
+    protected readonly numbered = false;
+
     private readonly player: Player;
     public readonly channel: TextChannel;
 
