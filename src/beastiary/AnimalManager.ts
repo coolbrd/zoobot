@@ -91,9 +91,9 @@ export default class AnimalManager extends GameObjectCache<Animal> {
     }
 
     public async searchGuildAnimal(searchTerm: string, guildId: string): Promise<Animal | undefined> {
-        let animal: Animal | undefined;
+        let animalDocument: Document | null;
         try {
-            AnimalModel.findOne({
+            animalDocument = await AnimalModel.findOne({
                 [Animal.fieldNames.guildId]: guildId,
                 $text: {
                     $search: searchTerm
@@ -106,6 +106,25 @@ export default class AnimalManager extends GameObjectCache<Animal> {
 
                 Search term: ${searchTerm}
                 Guild id: ${guildId}
+
+                ${error}
+            `);
+        }
+
+        if (!animalDocument) {
+            return undefined;
+        }
+
+        const animal = this.documentToGameObject(animalDocument);
+
+        try {
+            await this.addToCache(animal);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error adding a searched animal to the animal cache.
+
+                Animal: ${animal.debugString}
 
                 ${error}
             `);
