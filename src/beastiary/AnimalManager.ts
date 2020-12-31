@@ -54,7 +54,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         searchTerm = searchTerm.toLowerCase();
 
         const matchedAnimal = player.animals.find(animal => {
-            const nicknameMatch = animal.nickname === searchTerm;
+            const nicknameMatch = animal.nickname && animal.nickname.toLowerCase() === searchTerm;
             const commonNameMatch = animal.species.commonNamesLower.includes(searchTerm);
 
             return nicknameMatch || commonNameMatch;
