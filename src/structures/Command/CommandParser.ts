@@ -109,6 +109,16 @@ export default class CommandParser {
     }
 
     private removeFromRestOfText(text: string): void {
+        const textIndexStart = this.restOfText.indexOf(text);
+        const textIndexEnd = textIndexStart + text.length - 1;
+
+        const hasLeadingQuote = textIndexStart > 0 && this.restOfText[textIndexStart - 1] === '"';
+        const hasTrailingQuote = textIndexEnd < this.restOfText.length - 1 && this.restOfText[textIndexEnd + 1] === '"';
+
+        if (hasLeadingQuote && hasTrailingQuote) {
+            text = `"${text}"`;
+        }
+
         this.restOfText = this.restOfText.replace(text, "").trim();
     }
 
