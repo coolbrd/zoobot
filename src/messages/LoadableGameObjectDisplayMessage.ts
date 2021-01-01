@@ -1,11 +1,11 @@
 import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
 import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
-import PagedMessage from './PagedMessage';
+import PagedListMessage from './PagedListMessage';
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import GameObject from "../structures/GameObject/GameObject";
 
-export default abstract class LoadableGameObjectDisplayMessage<GameObjectType extends GameObject> extends PagedMessage<LoadableGameObject<GameObjectType>> {
+export default abstract class LoadableGameObjectDisplayMessage<GameObjectType extends GameObject> extends PagedListMessage<LoadableGameObject<GameObjectType>> {
     constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient, loadableGameObjects: LoadableGameObject<GameObjectType>[]) {
         super(channel, beastiaryClient);
 

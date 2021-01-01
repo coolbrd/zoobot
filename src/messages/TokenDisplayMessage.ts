@@ -6,9 +6,9 @@ import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/Lo
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import PagedMessage from "./PagedMessage";
+import PagedListMessage from "./PagedListMessage";
 
-export default class TokenDisplayMessage extends PagedMessage<LoadableCacheableGameObject<Species>> {
+export default class TokenDisplayMessage extends PagedListMessage<LoadableCacheableGameObject<Species>> {
     public readonly fieldsPerPage = 1;
     public readonly elementsPerField = 15;
 

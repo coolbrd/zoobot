@@ -5,14 +5,10 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import loopValue from "../utility/loopValue";
 
-export default abstract class PagedMessage<ElementType> extends InteractiveMessage {
-    protected readonly abstract elementsPerField: number;
-    protected readonly abstract fieldsPerPage: number;
-
-    protected abstract formatElement(element: ElementType): string;
-
-    protected elements: ElementType[] = [];
+export default abstract class PagedMessage extends InteractiveMessage {
     private _page = 0;
+
+    protected abstract get pageCount(): number;
 
     constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient) {
         super(channel, beastiaryClient);
@@ -43,49 +39,8 @@ export default abstract class PagedMessage<ElementType> extends InteractiveMessa
         this._page = loopValue(page, 0, this.pageCount - 1);
     }
 
-    protected get elementsPerPage(): number {
-        return this.fieldsPerPage * this.elementsPerField;
-    }
-
-    protected get pageCount(): number {
-        return Math.ceil(this.elements.length / this.elementsPerPage);
-    }
-
-    protected get firstVisibleIndex(): number {
-        return this.page * this.elementsPerPage;
-    }
-
-    protected get visibleElements(): ElementType[] {
-        const lastVisibleIndex = this.firstVisibleIndex + this.elementsPerPage;
-
-        return this.elements.slice(this.firstVisibleIndex, lastVisibleIndex);
-    }
-
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
-
-        let currentFieldElementCount = 0;
-        let currentFieldString = "";
-
-        const addFieldAndReset = () => {
-            embed.addField("----", currentFieldString, true);
-            currentFieldElementCount = 0;
-            currentFieldString = "";
-        }
-
-        this.visibleElements.forEach(element => {
-            if (currentFieldElementCount === this.elementsPerField) {
-                addFieldAndReset();
-            }
-
-            currentFieldString += `${this.formatElement(element)}\n`;
-
-            currentFieldElementCount++;
-        });
-
-        if (currentFieldElementCount) {
-            addFieldAndReset();
-        }
 
         embed.setFooter(stripIndent`
             Page ${this.page + 1}/${this.pageCount}

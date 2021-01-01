@@ -2,9 +2,9 @@ import { stripIndent } from "common-tags";
 import { User } from 'discord.js';
 import PointedArray from '../structures/PointedArray';
 import loopValue from '../utility/loopValue';
-import PagedMessage from './PagedMessage';
+import PagedListMessage from './PagedListMessage';
 
-export default abstract class PointedMessage<ElementType> extends PagedMessage<ElementType> {
+export default abstract class PointedMessage<ElementType> extends PagedListMessage<ElementType> {
     protected elements: PointedArray<ElementType> = new PointedArray<ElementType>();
 
     public async build(): Promise<void> {

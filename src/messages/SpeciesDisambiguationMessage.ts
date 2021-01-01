@@ -2,9 +2,9 @@ import { DMChannel, MessageEmbed, TextChannel } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
-import PagedMessage from "./PagedMessage";
+import PagedListMessage from "./PagedListMessage";
 
-export default class SpeciesDisambiguationMessage extends PagedMessage<Species> {
+export default class SpeciesDisambiguationMessage extends PagedListMessage<Species> {
     protected readonly lifetime = 60000;
 
     protected readonly fieldsPerPage = 2;
