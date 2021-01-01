@@ -64,7 +64,13 @@ export default class AnimalManager extends GameObjectCache<Animal> {
             return matchedAnimal;
         }
 
-        const searchNumber = Number(searchTerm);
+        let searchNumber;
+        if (searchTerm === "last") {
+            searchNumber = player.collectionAnimalIds.list.length;
+        }
+        else {
+            searchNumber = Number(searchTerm);
+        }
 
         if (!isNaN(searchNumber)) {
             const targetAnimalId = safeListAccess(player.collectionAnimalIds.list, searchNumber - 1);
