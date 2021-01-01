@@ -171,6 +171,10 @@ export class Animal extends GameObject {
         return this.getLevelXpRequirement(this.level + 1);
     }
 
+    public get levelEssenceReward(): number {
+        return 1 + 2 * Math.floor((this.level - 1) / 5);
+    }
+
     public getLevelXpRequirement(level: number): number {
         return 100 * Math.floor(Math.pow(1.75, level - 1));
     }
@@ -251,7 +255,7 @@ export class Animal extends GameObject {
         const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
         if (xpReceipt.levelUp) {
-            xpReceipt.essence = 1;
+            xpReceipt.essence = this.levelEssenceReward;
 
             this.owner.addEssence(this.species.id, xpReceipt.essence);
             const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
