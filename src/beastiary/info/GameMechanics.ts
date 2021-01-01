@@ -101,9 +101,9 @@ const mechanics: GameMechanicInfo[] = [
         names: ["crew"],
         info: oneLine`
             Your crew is the spot where only your coolest animals hang out (or the ones whose tokens you want). You can only have 2
-            animals in your crew at once, so choose wisely. Each animal in your crew gets a small amount of experience for every single
-            message you send in their home server, so stay active! Crew animals also get xp when you do things like use encounters and
-            captures. Manage your crew with the \`${CrewCommand.primaryName}\` command.
+            animals in your crew at once, so choose wisely. Each animal in your crew gets xp when you do things like using encounters and
+            captures, with premium players earning crew experience with every message they send! Manage your crew with the
+            \`${CrewCommand.primaryName}\` command.
         `
     },
     {
