@@ -201,6 +201,10 @@ export default class DatabaseIntegrityChecker {
                 }
                 else {
                     this.addAnimalIdToPlayerCollection(ownerDocument, id);
+
+                    currentAnimalDocument.updateOne({
+                        [Animal.fieldNames.ownerId]: ownerDocument._id
+                    }).exec();
                 }
             }
         }
