@@ -10,12 +10,15 @@ import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
 import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
+import { randomWithinRange } from "../../../utility/numericalMisc";
 
 interface ExperienceGainReceipt {
     xpGiven: number,
     xpTaken: number,
     levelUp: boolean,
-    essence: number
+    essence: number,
+    encounters: number,
+    captures: number
 }
 
 export class Animal extends GameObject {
@@ -175,16 +178,34 @@ export class Animal extends GameObject {
         return 1 + 2 * Math.floor((this.level - 1) / 5);
     }
 
+    public getlevelEncounterRandomReward(): number {
+        const minimumEncounterReward = Math.max(1, this.level / 2);
+        const maximumEncounterReward = Math.max(0, 2 * Math.floor(this.level) - 2);
+
+        const encounterReward = Math.round(randomWithinRange(Math.random(), minimumEncounterReward, maximumEncounterReward));
+
+        return encounterReward;
+    }
+
+    public getLevelCaptureRandomReward(): number {
+        const minimumCaptureReward = Math.max(0, Math.floor((this.level - 3) / 2));
+        const maximumCaptureReward = Math.max(0, Math.floor(this.level - 4));
+        
+        const captureReward = Math.round(randomWithinRange(Math.random(), minimumCaptureReward, maximumCaptureReward));
+
+        return captureReward;
+    }
+
+    private get ownerHasToken(): boolean {
+        return this.owner.hasToken(this.species.id);
+    }
+
     public getLevelXpRequirement(level: number): number {
         return 100 * Math.floor(Math.pow(1.75, level - 1));
     }
 
     public playerIsOwner(player: Player): boolean {
         return this.userId === player.member.user.id && this.guildId === player.member.guild.id;
-    }
-
-    private get ownerHasToken(): boolean {
-        return this.owner.hasToken(this.species.id);
     }
 
     private performDropChance(target: number): boolean {
@@ -245,7 +266,9 @@ export class Animal extends GameObject {
             xpGiven: experience,
             xpTaken: this.experience - previousExperience,
             levelUp: levelUp,
-            essence: 0
+            essence: 0,
+            encounters: 0,
+            captures: 0
         }
 
         return xpReceipt;
@@ -256,14 +279,26 @@ export class Animal extends GameObject {
 
         if (xpReceipt.levelUp) {
             xpReceipt.essence = this.levelEssenceReward;
+            xpReceipt.encounters = this.getlevelEncounterRandomReward();
+            xpReceipt.captures = this.getLevelCaptureRandomReward();
 
             this.owner.addEssence(this.species.id, xpReceipt.essence);
+            this.owner.extraEncountersLeft += xpReceipt.encounters;
+            this.owner.extraCapturesLeft += xpReceipt.captures;
+
             const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-            betterSend(channel, stripIndent`
+            let rewardString = stripIndent`
                 Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
                 +**${xpReceipt.essence}**${essenceEmoji} (${this.species.commonNames[0]})
-            `);
+                +**${xpReceipt.encounters}** encounter${xpReceipt.encounters !== 1 ? "s" : ""}
+            `;
+
+            if (xpReceipt.captures > 0) {
+                rewardString += `\n+**${xpReceipt.captures}** capture${xpReceipt.captures !== 1 ? "s" : ""}`;
+            }
+
+            betterSend(channel, rewardString);
         }
 
         this.potentiallyDropTokenOrEssence(experience, channel);
