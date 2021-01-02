@@ -773,7 +773,7 @@ export class Player extends GameObject {
     public getSpeciesLevelCap(speciesId: Types.ObjectId): number {
         const essence = this.getEssence(speciesId);
         let extraLevelCap = Math.max(0, essence - 9);
-        extraLevelCap = Math.ceil(extraLevelCap / 7);
+        extraLevelCap = Math.floor(extraLevelCap / 7);
 
         return extraLevelCap + 5;
     }
