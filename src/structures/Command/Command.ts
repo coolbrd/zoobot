@@ -7,12 +7,12 @@ import CommandParser, { GuildCommandParser } from "./CommandParser";
 import CommandReceipt from "./CommandReceipt";
 
 export enum CommandSection {
-    info,
-    gettingStarted,
-    playerInfo,
-    animalManagement,
-    guildManagement,
-    getInvolved
+    gettingStarted = "Getting started",
+    gameplay = "Gameplay",
+    info = "General info",
+    animalManagement = "Animal management",
+    guildManagement = "Guild management",
+    getInvolved = "Get involved"
 }
 
 export interface CommandArgumentInfo {
@@ -29,7 +29,7 @@ export default abstract class Command {
     public abstract readonly helpUseString: string;
     public readonly arguments: CommandArgumentInfo[] = [];
     public readonly subCommands: Command[] = [];
-    public readonly section?: CommandSection;
+    public readonly sections?: CommandSection[];
     public readonly guildOnly?: boolean = false;
     public readonly blocksInput?: boolean = false;
     public readonly adminOnly?: boolean = false;

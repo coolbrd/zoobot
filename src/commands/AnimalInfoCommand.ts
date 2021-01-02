@@ -14,7 +14,7 @@ class AnimalInfoCommand extends GuildCommand {
 
     public readonly helpUseString = "`<animal number or nickname>` to view information about that animal. You can also use the keyword `last` to specify the last animal in your collection.";
 
-    public readonly section = CommandSection.info;
+    public readonly sections = [CommandSection.info];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

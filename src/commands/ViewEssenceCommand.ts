@@ -12,7 +12,7 @@ class ViewEssenceCommand extends GuildCommand {
 
     public readonly helpUseString = "to see all the essence you've collected from every species.";
 
-    public readonly section: CommandSection = CommandSection.playerInfo;
+    public readonly sections = [CommandSection.gameplay];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);

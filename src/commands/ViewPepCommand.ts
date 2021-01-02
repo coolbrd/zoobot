@@ -13,7 +13,7 @@ class ViewPepCommand extends GuildCommand {
 
     public readonly helpUseString = "to view your current balance of pep.";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly sections = [CommandSection.gameplay];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

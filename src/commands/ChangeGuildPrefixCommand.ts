@@ -13,7 +13,7 @@ class ChangeGuildPrefixCommand extends GuildCommand {
 
     public readonly helpUseString = "`<new command prefix>` to change the prefix that I respond to.";
 
-    public readonly section = CommandSection.guildManagement;
+    public readonly sections = [CommandSection.guildManagement];
 
     public readonly permissionRequirement = "MANAGE_GUILD";
 

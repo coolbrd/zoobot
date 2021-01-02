@@ -14,7 +14,7 @@ class ViewTokensCommand extends GuildCommand {
 
     public readonly helpUseString = "to see every token you've collected.";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly sections = [CommandSection.gameplay];
 
     public readonly arguments: CommandArgumentInfo[] = [
         {

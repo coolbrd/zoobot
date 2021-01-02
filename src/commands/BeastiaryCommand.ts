@@ -12,7 +12,7 @@ class BeastiaryCommand extends GuildCommand {
 
     public readonly helpUseString = "to view a list of every collectible species.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay, CommandSection.info];
 
     public async run(parsedUserCommand: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

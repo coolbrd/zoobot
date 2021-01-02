@@ -12,7 +12,7 @@ class HelpCommand extends Command {
 
     public readonly helpUseString = "to see more information about the usage of a particular command.";
 
-    public readonly section = CommandSection.info;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.info];
 
     public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

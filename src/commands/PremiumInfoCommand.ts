@@ -12,7 +12,7 @@ class PremiumInfoCommand extends Command {
 
     public readonly helpUseString = "to see all the specific benefits of having premium status.";
 
-    public readonly section: CommandSection = CommandSection.info;
+    public readonly sections = [CommandSection.info];
 
     public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const embed = new SmartEmbed();

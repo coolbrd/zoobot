@@ -6,9 +6,7 @@ import SpeciesInfoMessage from "../messages/SpeciesInfoMessage";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
-import getGuildMember from "../discordUtility/getGuildMember";
 import BeastiaryClient from "../bot/BeastiaryClient";
-import { GuildMember } from 'discord.js';
 
 class SpeciesInfoCommand extends Command {
     public readonly names = ["speciesinfo", "si"];
@@ -17,7 +15,7 @@ class SpeciesInfoCommand extends Command {
 
     public readonly helpUseString = "`<species>` to view a species' traits and cards.";
 
-    public readonly section = CommandSection.info;
+    public readonly sections = [CommandSection.info];
 
     public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

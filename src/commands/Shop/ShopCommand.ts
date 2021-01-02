@@ -20,7 +20,7 @@ class ShopCommand extends GuildCommand {
 
     public readonly helpUseString = "to view the item shop.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay];
 
     private buildAndSendShopMessage(channel: TextChannel, player: Player, beastiaryClient: BeastiaryClient): void {
         const shopEmbed = new SmartEmbed();

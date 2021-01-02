@@ -6,7 +6,6 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 
 class TradeCommand extends GuildCommand {
@@ -16,7 +15,7 @@ class TradeCommand extends GuildCommand {
 
     public readonly helpUseString = "`<animal identifier>` `<user tag or id>` to start a trade with that animal and that user.";
 
-    public readonly section: CommandSection = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.animalManagement];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

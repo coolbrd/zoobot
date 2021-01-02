@@ -19,7 +19,7 @@ class SubmitSpeciesCommand extends Command {
 
     public readonly helpUseString = "to begin the species submission process.";
 
-    public readonly section = CommandSection.getInvolved;
+    public readonly sections = [CommandSection.getInvolved];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

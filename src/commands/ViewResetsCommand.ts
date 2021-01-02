@@ -12,7 +12,7 @@ class ViewResetsCommand extends GuildCommand {
 
     public readonly helpUseString = "to view the time until the next encounter and capture resets, along with the number of encounters and captures you have left.";
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly sections = [CommandSection.gameplay];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

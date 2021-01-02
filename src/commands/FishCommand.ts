@@ -18,7 +18,7 @@ class FishCommand extends GuildCommand {
 
     public readonly helpUseString = "`<distance>` to throw out your line and wait for some pep to bite. It might take a while. Type 'reel' once you have a bite.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay];
 
     public readonly arguments: CommandArgumentInfo[] = [
         {

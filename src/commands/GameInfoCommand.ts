@@ -13,7 +13,7 @@ class GameInfoCommand extends Command {
 
     public readonly helpUseString = "`mechanic` to view more information about that mechanic.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.info];
 
     public readonly arguments: CommandArgumentInfo[] = [
         {

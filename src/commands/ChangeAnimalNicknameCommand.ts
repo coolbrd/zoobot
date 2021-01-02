@@ -24,7 +24,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
         }
     ];
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.animalManagement];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

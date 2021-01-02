@@ -11,7 +11,7 @@ class CommandAliasesCommand extends Command {
 
     public readonly helpUseString = "to view the valid aliases of a command.";
 
-    public readonly section = CommandSection.info;
+    public readonly sections = [CommandSection.info];
 
     public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

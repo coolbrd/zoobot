@@ -10,7 +10,7 @@ class RefreshPremiumCommand extends GuildCommand {
 
     public readonly helpUseString = "to manually refresh your player and server premium status, in case it hasn't updated automatically fast enough.";
 
-    public readonly section: CommandSection = CommandSection.guildManagement;
+    public readonly sections = [CommandSection.guildManagement];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);

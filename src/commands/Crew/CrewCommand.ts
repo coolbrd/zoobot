@@ -21,7 +21,7 @@ class CrewCommand extends GuildCommand {
 
     public readonly helpUseString = "to view the animals currently earning xp in your crew.";
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.gameplay, CommandSection.animalManagement];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

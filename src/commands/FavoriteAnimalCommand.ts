@@ -11,7 +11,7 @@ class FavoriteAnimalCommand extends GuildCommand {
 
     public readonly helpUseString = "`<animal name or number>` to select your favorite animal, which will be displayed at the top of your collection and on your profile."
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.animalManagement];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

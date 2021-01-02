@@ -14,7 +14,7 @@ class EncounterCommand extends GuildCommand {
 
     public readonly helpUseString = "to initiate an animal encounter.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay];
 
     public readonly blocksInput = true;
 

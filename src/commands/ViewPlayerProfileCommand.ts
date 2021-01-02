@@ -23,7 +23,7 @@ class ViewPlayerProfileCommand extends GuildCommand {
         }
     ];
 
-    public readonly section = CommandSection.playerInfo;
+    public readonly sections = [CommandSection.gameplay];
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

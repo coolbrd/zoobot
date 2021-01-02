@@ -12,7 +12,7 @@ class FeedbackCommand extends Command {
 
     public readonly helpUseString = "to send a feedback message to the developer.";
 
-    public readonly section = CommandSection.getInvolved;
+    public readonly sections = [CommandSection.getInvolved];
 
     public readonly arguments = [
         {

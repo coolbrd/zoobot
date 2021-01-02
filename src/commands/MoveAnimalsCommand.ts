@@ -25,7 +25,7 @@ class MoveAnimalsCommand extends GuildCommand {
         }
     ];
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.animalManagement];
 
     public readonly blocksInput = true;
 

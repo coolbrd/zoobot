@@ -9,11 +9,11 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 class SendPatreonLinkCommand extends Command {
     public readonly names = ["patreon", "donate"];
 
-    public readonly info = "Support the bot and its creator and unlock premium features";
+    public readonly info = "Support the bot and its creator to unlock premium features";
 
     public readonly helpUseString = "to get the link to my Patreon page, where you can donate and get premium perks.";
 
-    public readonly section = CommandSection.getInvolved;
+    public readonly sections = [CommandSection.getInvolved];
 
     public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

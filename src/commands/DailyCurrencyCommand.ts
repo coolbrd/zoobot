@@ -12,7 +12,7 @@ class DailyCurrencyCommand extends GuildCommand {
 
     public readonly helpUseString = "to claim some free pep, if you haven't already today.";
 
-    public readonly section = CommandSection.gettingStarted;
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay];
 
     public readonly blocksInput = true;
 

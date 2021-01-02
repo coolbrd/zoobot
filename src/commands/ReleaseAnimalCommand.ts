@@ -3,7 +3,6 @@ import { Message } from "discord.js";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import SmartEmbed from "../discordUtility/SmartEmbed";
-import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
@@ -12,11 +11,11 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 class ReleaseAnimalCommand extends GuildCommand {
     public readonly names = ["release", "r"];
 
-    public readonly info = "Release an animal from your collection in exchange for some pep";
+    public readonly info = "Release an animal in exchange for some pep and essence";
 
     public readonly helpUseString = "`<animal name or number>` to release an animal from your collection.";
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.gameplay, CommandSection.animalManagement];
 
     public readonly blocksInput = true;
 

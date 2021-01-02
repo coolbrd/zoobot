@@ -14,7 +14,7 @@ class GiveXpCommand extends GuildCommand {
 
     public readonly helpUseString = "to give one of your animals some xp.";
 
-    public readonly section = CommandSection.animalManagement;
+    public readonly sections = [CommandSection.gameplay, CommandSection.animalManagement];
 
     public readonly blocksInput = true;
 
