@@ -73,9 +73,10 @@ const mechanics: GameMechanicInfo[] = [
             Experience is the main way to distinguish how much cooler your animals are compared to everybody else's, and the way towards
             earning an animal's token. Starting at level 1, you can start gaining experience for your animals by adding them to your
             crew, which gives them some experience when you do things in your server! Every level beyond level 1 increases the animal's
-            value by 10%. Each animal in your crew gets xp when you do things like using encounters, capturing, and fishing. You also
-            get some free xp boosts every hour, which you can give to any of your animals with \`${GiveXpCommand.primaryName}\`. Careful
-            though, an animal that's hit its max level won't gain any xp, so keep earning that species essence so nothing goes to waste!
+            value by 10%, and animals drops little rewards every time they level up. Each animal in your crew gets xp when you do things
+            like using encounters, capturing, and fishing. You also get some free xp boosts every hour, which you can give to any of
+            your animals with \`${GiveXpCommand.primaryName}\`. Careful though, an animal that's hit its max level won't gain any xp,
+            so keep earning that species essence so nothing goes to waste!
         `
     },
     {
