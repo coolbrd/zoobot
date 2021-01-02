@@ -54,10 +54,10 @@ import TradeCommand from "../../commands/TradeCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
-        HelpCommand,
         GameInfoCommand,
         EncounterCommand,
         BeastiaryCommand,
+        HelpCommand,
         ViewCollectionCommand,
         ViewPlayerProfileCommand,
         ChangeAnimalNicknameCommand,
