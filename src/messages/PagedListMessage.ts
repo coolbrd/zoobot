@@ -27,6 +27,10 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
         return this.elements.slice(this.firstVisibleIndex, lastVisibleIndex);
     }
 
+    protected formatFieldTitle(): string {
+        return "----";
+    }
+
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = await super.buildEmbed();
 
@@ -34,7 +38,7 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
         let currentFieldString = "";
 
         const addFieldAndReset = () => {
-            embed.addField("----", currentFieldString, true);
+            embed.addField(this.formatFieldTitle(), currentFieldString, true);
             currentFieldElementCount = 0;
             currentFieldString = "";
         }
