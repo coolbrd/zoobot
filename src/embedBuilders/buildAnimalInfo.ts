@@ -28,7 +28,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     let levelText = `Level ${animal.level}`;
     const experienceEmoji = emojiManager.getByName("xp");
     let experienceText = `${experienceEmoji}${animal.experience}`;
-    if (animal.level === animal.levelCap) {
+    if (animal.level >= animal.levelCap) {
         levelText += " (MAX)";
     }
     else {
