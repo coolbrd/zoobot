@@ -9,6 +9,7 @@ import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export interface RarityInfo {
     tier: number,
@@ -69,7 +70,7 @@ export default class EncounterManager {
         return getWeightedRarityMinimumOccurrence(weightedRarity, this.sortedRarityList);
     }
 
-    public async spawnAnimal(channel: TextChannel): Promise<void> {
+    public async spawnAnimal(channel: TextChannel, player?: Player): Promise<void> {
         if (this.rarityMap.size < 1) {
             throw new Error(stripIndent`
                 Tried to spawn an animal before the encounter rarity map was formed.
@@ -104,7 +105,7 @@ export default class EncounterManager {
             `);
         }
 
-        const encounterMessage = new EncounterMessage(channel, this.beastiaryClient, species);
+        const encounterMessage = new EncounterMessage(channel, this.beastiaryClient, species, player);
         try {
             await encounterMessage.send();
         }

@@ -24,9 +24,11 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly species: Species;
     private readonly card: SpeciesCard;
 
+    private readonly player?: Player;
+
     private readonly warnedUserIds: string[] = [];
 
-    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, species: Species) {
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, species: Species, player?: Player) {
         super(channel, beastiaryClient);
 
         this.addButton({
@@ -38,6 +40,8 @@ export default class EncounterMessage extends InteractiveMessage {
         this.channel = channel;
         this.species = species;
         this.card = this.species.getRandomCard();
+
+        this.player = player;
     }
 
     public async buildEmbed(): Promise<MessageEmbed> {
@@ -58,6 +62,15 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         embed.setFooter("Wild encounter");
+
+        if (this.player) {
+            if (this.player.freeEncounters.count === 2) {
+                embed.appendToFooter("\n2 free encounters left!");
+            }
+            else if (this.player.freeEncounters.count === 0) {
+                embed.appendToFooter("\nLast free encounter!");
+            }
+        }
 
         return embed;
     }
