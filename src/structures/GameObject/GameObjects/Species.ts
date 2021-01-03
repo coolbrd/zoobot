@@ -108,7 +108,7 @@ export class Species extends GameObject {
     }
 
     public get baseValue(): number {
-        const baseValue = Math.floor(15 * Math.pow(1.75, this.rarityData.tier + 1));
+        const baseValue = Math.floor(15 * (Math.pow(1.6, this.rarityData.tier + 1) + 2 * this.rarityData.tier));
 
         return baseValue;
     }
