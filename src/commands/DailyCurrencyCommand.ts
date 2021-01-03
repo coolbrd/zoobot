@@ -16,6 +16,14 @@ class DailyCurrencyCommand extends GuildCommand {
 
     public readonly blocksInput = true;
 
+    private getRandomDailyAmount(): number {
+        const x = Math.random() * 100;
+
+        const dailyAmount = Math.floor(50 * Math.tan((Math.PI * x) / 204) + x + 150);
+
+        return dailyAmount;
+    }
+
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
         
@@ -28,7 +36,7 @@ class DailyCurrencyCommand extends GuildCommand {
 
         player.claimDailyCurrency();
 
-        const dailyAmount = Math.floor(Math.random() * 200) + 100;
+        const dailyAmount = this.getRandomDailyAmount();
 
         player.pep += dailyAmount;
 
