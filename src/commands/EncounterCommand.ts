@@ -6,6 +6,7 @@ import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class EncounterCommand extends GuildCommand {
     public readonly names = ["encounter", "e"];
@@ -42,7 +43,7 @@ class EncounterCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error creating a new animal encounter.
 
-                Message: ${JSON.stringify(parsedMessage)}
+                Message: ${inspect(parsedMessage)}
                 
                 ${error}
             `);

@@ -10,6 +10,7 @@ import { EDoc, EDocField, EDocValue, SimpleEDoc } from "../structures/eDoc/EDoc"
 import { EDocFieldInfo } from '../structures/eDoc/EDocSkeleton';
 import PointedArray from "../structures/PointedArray";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
+import { inspect } from "util";
 
 export default class EDocMessage extends InteractiveMessage {
     protected readonly lifetime = 300000;
@@ -94,7 +95,7 @@ export default class EDocMessage extends InteractiveMessage {
             throw new Error(stripIndent`
                 Unexpected value type selected in eDoc.
 
-                Selected field value: ${JSON.stringify(selectedFieldValue)}
+                Selected field value: ${inspect(selectedFieldValue)}
             `);
         }
 
@@ -205,7 +206,7 @@ export default class EDocMessage extends InteractiveMessage {
             throw new Error(stripIndent`
                 Unexpected value type selected in eDoc.
 
-                Selected field value: ${JSON.stringify(selectedFieldValue)}
+                Selected field value: ${inspect(selectedFieldValue)}
             `);
         }
 
@@ -250,7 +251,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
-                                    Selected nested field: ${JSON.stringify(selectedNestedField)}
+                                    Selected nested field: ${inspect(selectedNestedField)}
                                     
                                     ${error}
                                 `);
@@ -320,7 +321,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
-                                    Selected element: ${JSON.stringify(selectedElement)}
+                                    Selected element: ${inspect(selectedElement)}
                                     
                                     ${error}
                                 `);
@@ -362,7 +363,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 throw new Error(stripIndent`
                                     There was an error taking a user's input in an eDoc message.
 
-                                    Selected field: ${JSON.stringify(selectedField)}
+                                    Selected field: ${inspect(selectedField)}
                                     
                                     ${error}
                                 `);

@@ -2,6 +2,7 @@ import { stripIndent } from "common-tags";
 import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "discord.js";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import getGuildMember from '../../discordUtility/getGuildMember';
+import { inspect } from "util";
 
 export interface Argument {
     text: string,
@@ -129,7 +130,7 @@ export default class CommandParser {
             throw new Error(stripIndent`
                 A command parser with no arguments left was told to consume an argument.
 
-                Parser: ${JSON.stringify(this)}
+                Parser: ${inspect(this)}
             `);
         }
 
@@ -160,7 +161,7 @@ export class GuildCommandParser extends CommandParser {
             throw new Error(stripIndent`
                 A message within a non-text channel was given to a guild command parser.
 
-                Message: ${JSON.stringify(message)}
+                Message: ${inspect(message)}
             `);
         }
 
@@ -173,7 +174,7 @@ export class GuildCommandParser extends CommandParser {
             throw new Error(stripIndent`
                 A guild command parser's member field was attempted to be accessed before it was loaded.
 
-                Parser: ${JSON.stringify(this)}
+                Parser: ${inspect(this)}
             `);
         }
 

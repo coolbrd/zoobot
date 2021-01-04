@@ -7,6 +7,7 @@ import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class SpeciesInfoCommand extends Command {
     public readonly names = ["speciesinfo", "si"];
@@ -35,7 +36,7 @@ class SpeciesInfoCommand extends Command {
             throw new Error(stripIndent`
                 There was an error fetching a species by its common name in the species info command.
 
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                Parsed message: ${inspect(parsedMessage)}
                 
                 ${error}
             `);

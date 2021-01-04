@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Channel, Guild, TextChannel } from "discord.js";
+import { inspect } from "util";
 
 export default async function getFirstAvailableTextChannel(guild: Guild): Promise<TextChannel | undefined> {
     for (const guildChannel of guild.channels.cache.values()) {
@@ -12,7 +13,7 @@ export default async function getFirstAvailableTextChannel(guild: Guild): Promis
                 throw new Error(stripIndent`
                     There was an error fetching a channel from a guild channel.
 
-                    Guild channel: ${JSON.stringify(guildChannel)}
+                    Guild channel: ${inspect(guildChannel)}
                     
                     ${error}
                 `);
@@ -22,7 +23,7 @@ export default async function getFirstAvailableTextChannel(guild: Guild): Promis
                 throw new Error(stripIndent`
                     Somehow a non-text channel was fetched from a text guild channel.
 
-                    Channel: ${JSON.stringify(channel)}
+                    Channel: ${inspect(channel)}
                 `);
             }
 

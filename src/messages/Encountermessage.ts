@@ -14,6 +14,7 @@ import gameConfig from "../config/gameConfig";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
 import { getWeightedRandom } from "../utility/weightedRarity";
+import { inspect } from "util";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -132,7 +133,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
                 Player: ${player.debugString}
                 Species: ${this.species.debugString}
-                Card: ${JSON.stringify(this.card)}
+                Card: ${inspect(this.card)}
                 
                 ${error}
             `);

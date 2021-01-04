@@ -5,6 +5,7 @@ import Beastiary from "../beastiary/Beastiary";
 import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
+import { inspect } from "util";
 
 export default class BeastiaryClient {
     public readonly discordClient: Client;
@@ -116,21 +117,21 @@ export default class BeastiaryClient {
                         console.error(stripIndent`
                             There was an error handling a message through the encounter handler.
                             
-                            Message: ${JSON.stringify(message)}
+                            Message: ${inspect(message)}
                         `, error);
                     });
                 }).catch(error => {
                     console.error(stripIndent`
                         There was an error handling a message through the player manager.
                         
-                        Message: ${JSON.stringify(message)}
+                        Message: ${inspect(message)}
                     `, error);
                 });
             }).catch(error => {
                 console.error(stripIndent`
                     There was an error handling a message through the command handler.
                     
-                    Message: ${JSON.stringify(message)}
+                    Message: ${inspect(message)}
                 `, error);
             });
         });

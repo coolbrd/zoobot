@@ -7,6 +7,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import PointedArray from "../structures/PointedArray";
+import { inspect } from "util";
 
 export enum AnimalDisplayMessageState {
     page,
@@ -105,7 +106,7 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
                 throw new Error(stripIndent`
                     There was an error bulk loading all the animals on a page of an animal display message.
 
-                    Animals on page: ${JSON.stringify(this.visibleElements)}
+                    Animals on page: ${inspect(this.visibleElements)}
                     
                     ${error}
                 `);

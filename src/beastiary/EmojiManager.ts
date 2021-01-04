@@ -1,5 +1,6 @@
 import { stripIndent } from 'common-tags';
 import { Guild } from 'discord.js';
+import { inspect } from "util";
 import BeastiaryClient from '../bot/BeastiaryClient';
 import { EMOJI_SERVER_ID } from '../config/secrets';
 
@@ -45,7 +46,7 @@ export default class EmojiManager {
             }
 
             this.beastiaryClient.discordClient.shard.broadcastEval(`
-                this.emit("emojisfound", ${JSON.stringify(this.emojis)});
+                this.emit("emojisfound", ${inspect(this.emojis)});
             `);
         }
         else {

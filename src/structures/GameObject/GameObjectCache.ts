@@ -3,6 +3,7 @@ import { Document, Model, Types } from "mongoose";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import CachedGameObject from "./CachedGameObject";
 import GameObject from "./GameObject";
+import { inspect } from "util";
 
 export default abstract class GameObjectCache<GameObjectType extends GameObject> {
     // The model in which game object's documents will be found
@@ -166,7 +167,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
                 There was an error fetching a game object's document in a cache by its id.
 
                 Id: ${id}
-                Cache: ${JSON.stringify(this)}
+                Cache: ${inspect(this)}
                 
                 ${error}
             `);
@@ -186,7 +187,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
                 There was an error adding a game object to the cache after finding it by its id.
 
                 Game object: ${gameObject.debugString}
-                Cache: ${JSON.stringify(this)}
+                Cache: ${inspect(this)}
                 
                 ${error}
             `);

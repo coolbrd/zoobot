@@ -7,6 +7,7 @@ import { SimpleEDoc } from "../structures/eDoc/EDoc";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class EditSpeciesCommand extends Command {
     public readonly names = ["edit", "editspecies"];
@@ -36,7 +37,7 @@ class EditSpeciesCommand extends Command {
                 There was an error fetching a species in the edit species command.
 
                 Search term: ${fullSearchTerm}
-                Channel: ${JSON.stringify(parsedMessage.channel)}
+                Channel: ${inspect(parsedMessage.channel)}
                 
                 ${error}
             `);

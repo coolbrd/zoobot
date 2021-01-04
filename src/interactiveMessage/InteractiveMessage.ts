@@ -3,6 +3,7 @@ import { Message, User, TextChannel, DMChannel, MessageEmbed } from "discord.js"
 import { betterSend, safeEdit, safeReact } from "../discordUtility/messageMan";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 interface EmojiButton {
     emoji: string,
@@ -81,7 +82,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 Tried to set an interactive message to a message after it had already been sent.
 
                 Interactive message: ${this.debugString}
-                Message: ${JSON.stringify(message)}
+                Message: ${inspect(message)}
             `);
         }
 
@@ -324,7 +325,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
             throw new Error(stripIndent`
                 Attempted to add a button to an interactive message that already exists.
 
-                Button: ${JSON.stringify(button)}
+                Button: ${inspect(button)}
                 Interactive message: ${this.debugString}
             `);
         }
@@ -391,7 +392,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 There was an error pressing an interactive message's emoji button.
 
                 Emoji: ${emoji}
-                User: ${JSON.stringify(user)}
+                User: ${inspect(user)}
                 Interactive message: ${this.debugString}
                 
                 ${error}
@@ -421,7 +422,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 There was an error pressing an interactive message's button.
 
                 Emoji: ${emoji}
-                User: ${JSON.stringify(user)}
+                User: ${inspect(user)}
                 Interactive message: ${this.debugString}
                 
                 ${error}
@@ -492,7 +493,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     public get debugString(): string {
         return stripIndent`
-            Message: ${JSON.stringify(this._message)}
+            Message: ${inspect(this._message)}
             Deactivated: ${this.deactivated}
         `;
     }

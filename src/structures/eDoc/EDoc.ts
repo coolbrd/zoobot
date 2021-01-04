@@ -4,6 +4,7 @@ import EDocSkeleton, { EDocFieldInfo, getEDocTypeString } from "./EDocSkeleton";
 import PointedArray from "../PointedArray";
 import UserError from "../UserError";
 import { stripIndent } from "common-tags";
+import { inspect } from "util";
 
 export type EDocValue = undefined | string | number | EDoc | PointedArray<EDocField<EDocValue>>;
 
@@ -147,7 +148,7 @@ export class EDocField<ValueType extends EDocValue> {
                     throw new Error(stripIndent`
                         Non-array type given to eDoc array field.
 
-                        Input: ${JSON.stringify(input)}
+                        Input: ${inspect(input)}
                     `);
                 }
 
@@ -161,7 +162,7 @@ export class EDocField<ValueType extends EDocValue> {
                         throw new Error(stripIndent`
                             There was an error trying to push a value from a set of values to an eDoc array field.
 
-                            Element pushed: ${JSON.stringify(element)}
+                            Element pushed: ${inspect(element)}
                         `);
                     }
                 }
@@ -172,7 +173,7 @@ export class EDocField<ValueType extends EDocValue> {
                     throw new Error(stripIndent`
                         Non-Object value given to the set function of an eDoc field.
 
-                        Input: ${JSON.stringify(input)}
+                        Input: ${inspect(input)}
                     `);
                 }
 
@@ -194,7 +195,7 @@ export class EDocField<ValueType extends EDocValue> {
                                 There was an error assigning a value to a field of an eDoc when converting from a simple eDoc value.
 
                                 Field name: ${fieldName}
-                                Field value: ${JSON.stringify(fieldValue)}
+                                Field value: ${inspect(fieldValue)}
 
                                 ${error}
                             `);
@@ -233,7 +234,7 @@ export class EDocField<ValueType extends EDocValue> {
             throw new Error(stripIndent`
                 A non-array eDoc field was attempted to be used like an array field with the push method.
 
-                Field: ${JSON.stringify(this)}
+                Field: ${inspect(this)}
             `);
         }
 
@@ -247,8 +248,8 @@ export class EDocField<ValueType extends EDocValue> {
             throw new Error(stripIndent`
                 A non-array type was found in an eDoc array field.
 
-                Field: ${JSON.stringify(this)}
-                Array type: ${JSON.stringify(arrayType)}
+                Field: ${inspect(this)}
+                Array type: ${inspect(arrayType)}
             `);
         }
 
@@ -261,7 +262,7 @@ export class EDocField<ValueType extends EDocValue> {
             newField.setValue(input);
         }
 
-        this.value.push(newField);
+        (this.value as unknown[]).push(newField);
     }
 
     public requirementsMet(): boolean {
@@ -403,7 +404,7 @@ export class EDocField<ValueType extends EDocValue> {
                             Invalid field name found in eDocField.info.documentOptions.displayField.
 
                             Field name: ${displayFieldName}
-                            eDoc: ${JSON.stringify(this)}
+                            eDoc: ${inspect(this)}
                         `);
                     }
 

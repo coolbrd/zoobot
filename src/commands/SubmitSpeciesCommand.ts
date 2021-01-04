@@ -11,6 +11,7 @@ import { EDoc, SimpleEDoc } from "../structures/eDoc/EDoc";
 import EDocMessage from "../messages/EDocMessage";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class SubmitSpeciesCommand extends Command {
     public readonly names = ["submitspecies", "submit"];
@@ -45,7 +46,7 @@ class SubmitSpeciesCommand extends Command {
             throw new Error(stripIndent`
                 Unable to send the initial species submission message.
 
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                Parsed message: ${inspect(parsedMessage)}
             `);
         }
 
@@ -57,8 +58,8 @@ class SubmitSpeciesCommand extends Command {
             throw new Error(stripIndent`
                 There was an error getting the reaction input on a message.
 
-                Info message: ${JSON.stringify(infoMessage)}
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                Info message: ${inspect(infoMessage)}
+                Parsed message: ${inspect(parsedMessage)}
                 
                 ${error}
             `);

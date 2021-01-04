@@ -5,6 +5,7 @@ import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class MoveAnimalsCommand extends GuildCommand {
     public readonly names = ["moveanimals", "ma"];
@@ -45,7 +46,7 @@ class MoveAnimalsCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error getting a player object in the move animals command.
 
-                Guild member: ${JSON.stringify(parsedMessage.member)}
+                Guild member: ${inspect(parsedMessage.member)}
                 
                 ${error}
             `);

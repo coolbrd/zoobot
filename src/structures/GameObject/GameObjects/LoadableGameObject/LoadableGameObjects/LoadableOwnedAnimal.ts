@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { Animal } from "../../Animal";
 import { Player } from "../../Player";
 import LoadableGameObject from "../LoadableGameObject";
+import { inspect } from "util";
 
 export default class LoadableOwnedAnimal extends LoadableGameObject<Animal> {
     private readonly owner: Player;
@@ -22,7 +23,7 @@ export default class LoadableOwnedAnimal extends LoadableGameObject<Animal> {
                 There was an error loading an owned animal from its owner's collection.
 
                 Id: ${this.id}
-                Owner: ${JSON.stringify(this.owner)}
+                Owner: ${inspect(this.owner)}
 
                 ${error}
             `);

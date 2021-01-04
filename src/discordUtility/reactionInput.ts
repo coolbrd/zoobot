@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Message, MessageReaction, User } from "discord.js";
+import { inspect } from "util";
 
 // Adds reactions to a message and waits for a user to press one of them
 // Returns the string of the button that gets pressed, and undefined if none are pressed
@@ -13,7 +14,7 @@ export default async function reactionInput(message: Message, timeOut: number, e
         throw new Error(stripIndent`
             There was an error reacting to a message in reactionInput.
 
-            Message: ${JSON.stringify(message)}
+            Message: ${inspect(message)}
             Emojis: ${emojis}
             
             ${error}

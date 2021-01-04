@@ -10,6 +10,7 @@ import { stripIndent } from "common-tags";
 import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
+import { inspect } from "util";
 
 export interface RarityInfo {
     tier: number,
@@ -76,7 +77,7 @@ export default class EncounterManager {
             throw new Error(stripIndent`
                 Tried to spawn an animal before the encounter rarity map was formed.
 
-                Channel: ${JSON.stringify(channel)}
+                Channel: ${inspect(channel)}
             `);
         }
 
@@ -91,7 +92,7 @@ export default class EncounterManager {
                 There was an error getting a species by an id.
 
                 Id: ${randomSpeciesId}
-                Channel: ${JSON.stringify(channel)}
+                Channel: ${inspect(channel)}
                 
                 ${error}
             `);
@@ -102,7 +103,7 @@ export default class EncounterManager {
                 An invalid species id was chosen to be spawned randomly.
 
                 Id: ${randomSpeciesId}
-                Text channel: ${JSON.stringify(channel)}
+                Text channel: ${inspect(channel)}
             `);
         }
 
@@ -114,7 +115,7 @@ export default class EncounterManager {
             throw new Error(stripIndent`
                 There was an error sending a new encounter message.
 
-                Channel: ${JSON.stringify(channel)}
+                Channel: ${inspect(channel)}
                 Species: ${species.debugString}
                 
                 ${error}
@@ -148,7 +149,7 @@ export default class EncounterManager {
                 throw new Error(stripIndent`
                     There was an error fetching a text channel from its guild channel.
 
-                    Encounter guild channel: ${JSON.stringify(encounterGuildChannel)}
+                    Encounter guild channel: ${inspect(encounterGuildChannel)}
                     
                     ${error}
                 `);
@@ -163,7 +164,7 @@ export default class EncounterManager {
                 throw new Error(stripIndent`
                     There was an error getting the first available text channel in a guild before spawning an animal.
 
-                    Guild: ${JSON.stringify(playerGuild.guild)}
+                    Guild: ${inspect(playerGuild.guild)}
                     
                     ${error}
                 `);
@@ -227,7 +228,7 @@ export default class EncounterManager {
                 throw new Error(stripIndent`
                     There was an error spawning an animal after a message was sent.
 
-                    Encounter channel: ${JSON.stringify(encounterChannel)}
+                    Encounter channel: ${inspect(encounterChannel)}
                     
                     ${error}
                 `);

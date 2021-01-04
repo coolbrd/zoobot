@@ -7,6 +7,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedListMessage from "./PagedListMessage";
+import { inspect } from "util";
 
 export default class TokenDisplayMessage extends PagedListMessage<LoadableCacheableGameObject<Species>> {
     public readonly fieldsPerPage = 1;
@@ -37,7 +38,7 @@ export default class TokenDisplayMessage extends PagedListMessage<LoadableCachea
             throw new Error(stripIndent`
                 There was an error bulk loading the species within a token display message.
 
-                Visible species: ${JSON.stringify(this.visibleElements)}
+                Visible species: ${inspect(this.visibleElements)}
             `);
         }
 

@@ -7,6 +7,7 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import { stripIndent } from "common-tags";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class SetEncounterChannelCommand extends GuildCommand {
     public readonly names = ["setencounterchannel"];
@@ -46,7 +47,7 @@ class SetEncounterChannelCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error getting a user's response message when changing a guild's default encounter channel.
 
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                Parsed message: ${inspect(parsedMessage)}
                 
                 ${error}
             `);

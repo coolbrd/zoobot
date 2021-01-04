@@ -112,7 +112,7 @@ export default abstract class GameObject {
                 throw new Error(stripIndent`
                     There was an error fetching a game object's reference.
 
-                    Reference: ${JSON.stringify(reference)}
+                    Reference: ${inspect(reference)}
                     Game object: ${this.debugString}
 
                     ${error}

@@ -1,6 +1,7 @@
 import { stripIndent } from "common-tags";
 import { Types } from "mongoose";
 import GameObject from "../../GameObject";
+import { inspect } from "util";
 
 export default abstract class LoadableGameObject<GameObjectType extends GameObject> {
     public readonly id: Types.ObjectId;
@@ -65,7 +66,7 @@ export function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]):
                 reject(stripIndent`
                     There was an error loading a game object from a loadable game object.
 
-                    LoadableGameObject: ${JSON.stringify(currentLoadableGameObject)}
+                    LoadableGameObject: ${inspect(currentLoadableGameObject)}
 
                     ${error}
                 `);

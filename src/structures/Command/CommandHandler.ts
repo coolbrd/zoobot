@@ -51,6 +51,7 @@ import RemovePremiumCommand from "../../commands/RemovePremiumCommand";
 import RefreshPremiumCommand from "../../commands/RefreshPremiumCommand";
 import GiveAnimalCommand from "../../commands/GiveAnimalCommand";
 import TradeCommand from "../../commands/TradeCommand";
+import { inspect } from "util";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -142,7 +143,7 @@ export default class CommandHandler {
                 throw new Error(stripIndent`
                     There was an error initializing a command parser.
 
-                    Message: ${JSON.stringify(message)}
+                    Message: ${inspect(message)}
 
                     ${error}
                 `);

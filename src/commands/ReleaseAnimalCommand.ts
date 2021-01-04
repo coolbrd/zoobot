@@ -7,6 +7,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { inspect } from "util";
 
 class ReleaseAnimalCommand extends GuildCommand {
     public readonly names = ["release", "r"];
@@ -54,7 +55,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error sending a release command confirmation message.
 
-                Message: ${JSON.stringify(confirmMessage)}
+                Message: ${inspect(confirmMessage)}
                 
                 ${error}
             `);
@@ -64,7 +65,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error sending a release command confirmation message.
 
-                Channel: ${JSON.stringify(parsedMessage.channel)}
+                Channel: ${inspect(parsedMessage.channel)}
             `);
         }
 
@@ -76,7 +77,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             throw new Error(stripIndent`
                 There was an error awaiting a user's next message in the release command.
 
-                Parsed message: ${JSON.stringify(parsedMessage)}
+                Parsed message: ${inspect(parsedMessage)}
                 
                 ${error}
             `);
@@ -133,7 +134,7 @@ class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(stripIndent`
                     There was an error editing a release confirmation message.
 
-                    Confirmation message: ${JSON.stringify(confirmMessage)}
+                    Confirmation message: ${inspect(confirmMessage)}
                     
                     ${error}
                 `);
@@ -158,7 +159,7 @@ class ReleaseAnimalCommand extends GuildCommand {
                 throw new Error(stripIndent`
                     There was an error editing a release confirmation message.
 
-                    Confirmation message: ${JSON.stringify(confirmMessage)}
+                    Confirmation message: ${inspect(confirmMessage)}
                     
                     ${error}
                 `);

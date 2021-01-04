@@ -9,6 +9,7 @@ import { SpeciesModel } from "../models/Species";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UnknownSpecies from "../structures/GameObject/GameObjects/UnknownSpecies";
 import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
+import { inspect } from "util";
 
 export default class SpeciesManager extends GameObjectCache<Species> {
     protected readonly model = SpeciesModel;
@@ -216,8 +217,8 @@ export default class SpeciesManager extends GameObjectCache<Species> {
                 throw new Error(stripIndent`
                     There was an error sending a species disambiguation message.
 
-                    Channel: ${JSON.stringify(channel)}
-                    Message: ${JSON.stringify(disambiguationMessage)}
+                    Channel: ${inspect(channel)}
+                    Message: ${inspect(disambiguationMessage)}
                     
                     ${error}
                 `);
