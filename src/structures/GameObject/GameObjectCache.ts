@@ -177,19 +177,17 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
             return;
         }
 
-        const gameObject = this.documentToGameObject(gameObjectDocument);
-
+        let gameObject: GameObjectType;
         try {
-            await this.addToCache(gameObject);
+            gameObject = await this.addDocumentToCache(gameObjectDocument);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a game object to the cache after finding it by its id.
+                There was an error adding a game to a cache by its document.
 
-                Game object: ${gameObject.debugString}
-                Cache: ${inspect(this)}
-                
-                ${error}
+                Document: ${gameObjectDocument.toString()}
+
+                ${id}
             `);
         }
 
