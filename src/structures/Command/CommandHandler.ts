@@ -52,6 +52,7 @@ import RefreshPremiumCommand from "../../commands/RefreshPremiumCommand";
 import GiveAnimalCommand from "../../commands/GiveAnimalCommand";
 import TradeCommand from "../../commands/TradeCommand";
 import { inspect } from "util";
+import ViewSpeciesRarityCommand from "../../commands/ViewSpeciesRarityCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -94,6 +95,7 @@ export default class CommandHandler {
         GivePremiumCommand,
         RemovePremiumCommand,
         TogglePremiumCommand,
+        ViewSpeciesRarityCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
