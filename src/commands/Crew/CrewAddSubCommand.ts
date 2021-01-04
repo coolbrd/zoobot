@@ -1,4 +1,5 @@
 import BeastiaryClient from "../../bot/BeastiaryClient";
+import gameConfig from "../../config/gameConfig";
 import { betterSend } from "../../discordUtility/messageMan";
 import { GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
@@ -38,7 +39,13 @@ class CrewAddSubCommand extends GuildCommand {
         }
 
         if (player.crewFull) {
-            betterSend(parsedMessage.channel, "Your crew is full, remove an animal and try again.");
+            let crewFullString = "Your crew is full, remove an animal and try again.";
+
+            if (!player.getPremium()) {
+                crewFullString += `\n\nPremium players get double the crew space. Check out <${gameConfig.patreonLink}> to learn more!`;
+            }
+
+            betterSend(parsedMessage.channel, crewFullString);
             return commandReceipt;
         }
 

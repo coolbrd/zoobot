@@ -317,8 +317,18 @@ export class Player extends GameObject {
         return this.collectionAnimalIds.list.length >= this.collectionSizeLimit;
     }
 
+    public get maxCrewSize(): number {
+        let maxCrewSize = gameConfig.maxCrewSize;
+
+        if (this.getPremium()) {
+            maxCrewSize *= premiumConfig.crewSizeMultiplier;
+        }
+
+        return maxCrewSize;
+    }
+
     public get crewFull(): boolean {
-        return this.crewAnimalIds.list.length >= gameConfig.maxCrewSize;
+        return this.crewAnimalIds.list.length >= this.maxCrewSize;
     }
 
     public get canCapture(): boolean {
@@ -842,6 +852,10 @@ export class Player extends GameObject {
         }
 
         this.playerPremium = hasPremium;
+
+        if (!this.getPremium()) {
+            this.crewAnimalIds.splice(2, 2);
+        }
     }
 
     public async loadFields(): Promise<void> {
@@ -850,8 +864,9 @@ export class Player extends GameObject {
         returnPromises.push(super.loadFields());
         returnPromises.push(this.loadGuildMember());
         returnPromises.push(this.loadAnimals());
-        returnPromises.push(this.applyPotentialPremium());
 
         await Promise.all(returnPromises);
+
+        await this.applyPotentialPremium();
     }
 }

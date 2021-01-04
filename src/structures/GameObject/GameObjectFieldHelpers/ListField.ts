@@ -18,7 +18,7 @@ export default class ListField<ElementType> {
     public push(...elements: ElementType[]): number {
         const newLength = this._list.push(...elements);
 
-        this.gameObject.modifyField(this.fieldName);
+        this.modify();
 
         return newLength;
     }
@@ -26,7 +26,13 @@ export default class ListField<ElementType> {
     public insert(position: number, ...elements: ElementType[]): void {
         this._list.splice(position, 0, ...elements);
 
-        this.gameObject.modifyField(this.fieldName);
+        this.modify();
+    }
+
+    public splice(startIndex: number, deleteCount?: number): void {
+        this._list.splice(startIndex, deleteCount);
+
+        this.modify();
     }
 
     public getPosition(position: number): ElementType | undefined {
@@ -47,7 +53,7 @@ export default class ListField<ElementType> {
 
         this._list.splice(indexInBaseList, 1);
 
-        this.gameObject.modifyField(this.fieldName);
+        this.modify();
     }
 
     public removePositional(positions: number[]): ElementType[] {
@@ -60,7 +66,7 @@ export default class ListField<ElementType> {
             this.remove(element);
         });
 
-        this.gameObject.modifyField(this.fieldName);
+        this.modify();
 
         return elements;
     }
