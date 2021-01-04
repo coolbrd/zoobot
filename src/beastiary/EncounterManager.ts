@@ -22,6 +22,7 @@ export default class EncounterManager {
     private sortedRarityList: number[] = [];
 
     private readonly guildsOnRandomEncounterCooldown = new Set<string>();
+    private readonly currentlyCapturingPlayers = new Set<Player>();
 
     private readonly beastiaryClient: BeastiaryClient;
 
@@ -262,5 +263,21 @@ export default class EncounterManager {
             color: tierColors[tierColors.length - 1],
             emojiName: "tu"
         }
+    }
+
+    public playerIsCapturing(player: Player): boolean {
+        return this.currentlyCapturingPlayers.has(player);
+    }
+
+    public setPlayerCapturing(player: Player, removeAfter: number): void {
+        this.currentlyCapturingPlayers.add(player);
+
+        setTimeout(() => {
+            this.unsetPlayerCapturing(player);
+        }, removeAfter);
+    }
+
+    public unsetPlayerCapturing(player: Player): void {
+        this.currentlyCapturingPlayers.delete(player);
     }
 }

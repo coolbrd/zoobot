@@ -322,7 +322,7 @@ export class Player extends GameObject {
     }
 
     public get canCapture(): boolean {
-        return this.hasCaptures && !this.collectionFull;
+        return this.hasCaptures && !this.collectionFull && !this.beastiaryClient.beastiary.encounters.playerIsCapturing(this);
     }
 
     public get encountersLeft(): number {

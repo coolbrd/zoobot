@@ -13,6 +13,7 @@ import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import gameConfig from "../config/gameConfig";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
+import { getWeightedRandom } from "../utility/weightedRarity";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -24,9 +25,12 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly species: Species;
     private readonly card: SpeciesCard;
 
-    private readonly player?: Player;
+    private readonly initiatingPlayer?: Player;
 
-    private readonly warnedUserIds: string[] = [];
+    private readonly capturingPlayers: Player[] = [];
+    private readonly multiplayerCaptureWindow = 5000;
+
+    private readonly warnedUserIds: Set<string> = new Set();
 
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, species: Species, player?: Player) {
         super(channel, beastiaryClient);
@@ -41,7 +45,7 @@ export default class EncounterMessage extends InteractiveMessage {
         this.species = species;
         this.card = this.species.getRandomCard();
 
-        this.player = player;
+        this.initiatingPlayer = player;
     }
 
     public async buildEmbed(): Promise<MessageEmbed> {
@@ -63,11 +67,11 @@ export default class EncounterMessage extends InteractiveMessage {
 
         embed.setFooter("Wild encounter");
 
-        if (this.player) {
-            if (this.player.freeEncounters.count === 2) {
+        if (this.initiatingPlayer) {
+            if (this.initiatingPlayer.freeEncounters.count === 2) {
                 embed.appendToFooter("\n2 free encounters left!");
             }
-            else if (this.player.freeEncounters.count === 0) {
+            else if (this.initiatingPlayer.freeEncounters.count === 0) {
                 embed.appendToFooter("\nLast free encounter!");
             }
         }
@@ -76,22 +80,85 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     private warnPlayer(player: Player): void {
-        if (!this.warnedUserIds.includes(player.member.user.id)) {
-            if (player.collectionFull) {
-                betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
-            }
-            else {
-                let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
-
-                if (!player.getPremium()) {
-                    noCapturesLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
-                }
-
-                betterSend(this.channel, noCapturesLeftString);
-            }
-
-            this.warnedUserIds.push(player.member.user.id);
+        if (this.warnedUserIds.has(player.member.user.id)) {
+            return;
         }
+
+        if (player.collectionFull) {
+            betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
+        }
+        else if (player.capturesLeft < 1) {
+            let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
+
+            if (!player.getPremium()) {
+                noCapturesLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
+            }
+
+            betterSend(this.channel, noCapturesLeftString);
+        }
+        else if (this.beastiaryClient.beastiary.encounters.playerIsCapturing(player)) {
+            betterSend(this.channel, `${player.member.user} you're already capturing another animal, you can only do one at a time!`);
+        }
+
+        this.warnedUserIds.add(player.member.user.id);
+    }
+
+    private async awardAnimal(player: Player): Promise<void> {
+        const commonName = this.species.commonNameObjects[0];
+        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
+
+        let captureString = stripIndent`
+            ${player.member.user}, you caught ${commonName.article} ${commonName.name}!
+            +**5**${essenceEmoji} (${this.species.commonNames[0]})
+        `;
+
+        if (player.totalCaptures <= 3) {
+            captureString += `\n\nView your new animal with the \`${ViewCollectionCommand.primaryName}\` command, and give them a name with the \`${ChangeAnimalNicknameCommand.primaryName}\` command!`;
+        }
+        
+        betterSend(this.channel, captureString);
+        
+        this.setDeactivationText("(caught)");
+
+        let newAnimal: Animal;
+        try {
+            newAnimal = await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
+        }
+        catch (error) {
+            betterSend(this.channel, "There was an error creating a new animal from this encounter, sorry if you didn't get your animal! Please report this and you can be compensated.");
+
+            throw new Error(stripIndent`
+                There was an error creating a new animal in an encounter message.
+
+                Player: ${player.debugString}
+                Species: ${this.species.debugString}
+                Card: ${JSON.stringify(this.card)}
+                
+                ${error}
+            `);
+        }
+
+        player.captureAnimal(newAnimal, this.channel);
+    }
+
+    private async awardToRandomPlayer(): Promise<void> {
+        const playerWeightedChanceMap = new Map<Player, number>();
+
+        const preferredPlayerWeight = Math.max(1, this.capturingPlayers.length - 1);
+        playerWeightedChanceMap.set(this.capturingPlayers[0], preferredPlayerWeight);
+
+        for (let i = 1; i < this.capturingPlayers.length; i++) {
+            playerWeightedChanceMap.set(this.capturingPlayers[i], 1);
+        }
+
+        const winningPlayer = getWeightedRandom(playerWeightedChanceMap);
+
+        this.awardAnimal(winningPlayer);
+        this.deactivate();
+
+        this.capturingPlayers.forEach(player => {
+            this.beastiaryClient.beastiary.encounters.unsetPlayerCapturing(player);
+        });
     }
 
     public async buttonPress(_buttonName: string, user: User): Promise<void> {
@@ -120,48 +187,34 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         const player = await this.beastiaryClient.beastiary.players.safeFetch(guildMember);
+
         if (!player.canCapture) {
             this.warnPlayer(player);
             return;
         }
 
-        const commonName = this.species.commonNameObjects[0];
+        this.beastiaryClient.beastiary.encounters.setPlayerCapturing(player, this.multiplayerCaptureWindow);
 
-        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
-
-        let captureString = stripIndent`
-            ${user}, you caught ${commonName.article} ${commonName.name}!
-            +**5**${essenceEmoji} (${this.species.commonNames[0]})
-        `;
-
-        if (player.totalCaptures <= 3) {
-            captureString += `\n\nView your new animal with the \`${ViewCollectionCommand.primaryName}\` command, and give them a name with the \`${ChangeAnimalNicknameCommand.primaryName}\` command!`;
-        }
-        
-        betterSend(this.channel, captureString);
-        
-        this.setDeactivationText("(caught)");
-
-        let newAnimal: Animal;
-        try {
-            newAnimal = await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
-        }
-        catch (error) {
-            betterSend(this.channel, "There was an error creating a new animal from an encounter, sorry if you didn't get your animal! Please report this to the developer and you can be compensated.");
-
-            throw new Error(stripIndent`
-                There was an error creating a new animal in an encounter message.
-
-                Player: ${player.debugString}
-                Species: ${this.species.debugString}
-                Card: ${JSON.stringify(this.card)}
-                
-                ${error}
-            `);
+        if (this.capturingPlayers.includes(player)) {
+            return;
         }
 
-        player.captureAnimal(newAnimal, this.channel);
+        const speciesName = this.species.commonNameObjects[0];
+        const speciesNameAndArticle = `${speciesName.article} ${speciesName.name}`;
 
-        this.deactivate();
+        const captureWindowInSeconds = (this.multiplayerCaptureWindow / 1000).toPrecision(1);
+
+        if (this.capturingPlayers.length === 0) {
+            betterSend(this.channel, `${player.member.user.username} is capturing ${speciesNameAndArticle}, and they will get it after ${captureWindowInSeconds} seconds if nobody else reacts!`);
+
+            setTimeout(() => {
+                this.awardToRandomPlayer();
+            }, this.multiplayerCaptureWindow);
+        }
+        else {
+            betterSend(this.channel, `${player.member.user.username} is contesting ${this.capturingPlayers[0].member.user.username}'s capture of ${speciesNameAndArticle}!`)
+        }
+
+        this.capturingPlayers.push(player);
     }
 }
