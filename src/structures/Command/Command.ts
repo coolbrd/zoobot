@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { BitFieldResolvable, PermissionString } from "discord.js";
+import { inspect } from "util";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import { betterSend } from "../../discordUtility/messageMan";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
@@ -89,7 +90,7 @@ export default abstract class Command {
             throw new Error(stripIndent`
                 There was an error running a command.
 
-                Command: ${JSON.stringify(this)}
+                Command: ${inspect(this)}
 
                 ${error}
             `);
@@ -118,7 +119,7 @@ export abstract class GuildCommand extends Command {
             throw new Error(stripIndent`
                 There was an error running a guild command's inherited execution information.
 
-                Command ${JSON.stringify(this)}
+                Command ${inspect(this)}
 
                 ${error}
             `);

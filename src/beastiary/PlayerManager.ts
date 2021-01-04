@@ -9,6 +9,7 @@ import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import UserError from "../structures/UserError";
 import { stripIndent } from "common-tags";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import { inspect } from "util";
 
 export default class PlayerManager extends GameObjectCache<Player> {
     protected readonly model = PlayerModel;
@@ -60,7 +61,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error finding an existing player document.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${inspect(guildMember)}
                 
                 ${error}
             `);
@@ -84,7 +85,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error getting a player document by a guild member.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${inspect(guildMember)}
                 
                 ${error}
             `);
@@ -120,7 +121,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error fetching an existing player from the cache.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${inspect(guildMember)}
                 
                 ${error}
             `);
@@ -134,7 +135,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 throw new Error(stripIndent`
                     There was an error creating a new player object.
 
-                    Guild member: ${JSON.stringify(guildMember)}
+                    Guild member: ${inspect(guildMember)}
                     
                     ${error}
                 `);
@@ -153,7 +154,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error fetching a player by a guild member.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${inspect(guildMember)}
 
                 ${error}
             `);
@@ -183,7 +184,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
                     There was an error fetching an existing player by a guild member in the view collection command.
 
                     Guild member: ${targetGuildMember.toString()}
-                    Parsed message: ${JSON.stringify(parsedMessage)}
+                    Parsed message: ${inspect(parsedMessage)}
                     
                     ${error}
                 `);
@@ -203,7 +204,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 throw new Error(stripIndent`
                     There was an error fetching a player by the guild member of a message sender.
 
-                    Parsed message: ${JSON.stringify(parsedMessage)}
+                    Parsed message: ${inspect(parsedMessage)}
                     
                     ${error}
                 `);
@@ -222,7 +223,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error fetching a player guild by a guild member's guild id.
 
-                Guild member: ${JSON.stringify(guildMember)}
+                Guild member: ${inspect(guildMember)}
 
                 ${error}
             `);
@@ -309,8 +310,8 @@ export default class PlayerManager extends GameObjectCache<Player> {
             throw new Error(stripIndent`
                 There was an error fetching a player after they sent a message.
                 
-                Guild member: ${JSON.stringify(guildMember)}
-                Message: ${JSON.stringify(message)}
+                Guild member: ${inspect(guildMember)}
+                Message: ${inspect(message)}
 
                 ${error}
             `);
