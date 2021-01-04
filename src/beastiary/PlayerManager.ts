@@ -18,6 +18,8 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
     private readonly playerUserIds = new Set<string>();
 
+    private readonly userRecentMessageCounts = new Map<string, number>();
+
     protected documentToGameObject(document: Document): Player {
         return new Player(document, this.beastiaryClient);
     }
@@ -38,6 +40,10 @@ export default class PlayerManager extends GameObjectCache<Player> {
         for (const playerDocument of playerDocuments) {
             this.playerUserIds.add(playerDocument.get(Player.fieldNames.userId));
         }
+
+        setInterval(() => {
+            this.userRecentMessageCounts.clear();
+        }, 180000);
     }
 
     private getCachedPlayerByGuildMember(guildMember: GuildMember): Player | undefined {
@@ -263,6 +269,18 @@ export default class PlayerManager extends GameObjectCache<Player> {
         return player;
     }
 
+    private incrementUserMessagesSent(userId: string): void {
+        const count = this.userRecentMessageCounts.get(userId) || 0;
+
+        this.userRecentMessageCounts.set(userId, count + 1);
+    }
+
+    private userAtMessageCap(userId: string): boolean {
+        const messageCount = this.userRecentMessageCounts.get(userId) || 0;
+
+        return messageCount >= 20;
+    }
+
     public async handleMessage(message: Message): Promise<void> {
         if (message.channel.type !== "text") {
             return;
@@ -271,10 +289,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
         const inGuild = Boolean(message.guild);
         const sentByBot = Boolean(message.author.bot);
         const isPlayer = this.playerUserIds.has(message.author.id);
+        const atMessageCap = this.userAtMessageCap(message.author.id);
 
-        if (!inGuild || sentByBot || !isPlayer) {
+        if (!inGuild || sentByBot || !isPlayer || atMessageCap) {
             return;
         }
+
+        this.incrementUserMessagesSent(message.author.id);
 
         const guild = message.guild as Guild;
 
