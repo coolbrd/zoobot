@@ -15,6 +15,10 @@ export const playerGuildSchemaDefinition: BeastiarySchemaDefinition = {
         type: String,
         required: false
     },
+    [PlayerGuild.fieldNames.announcementChannelId]: {
+        type: String,
+        required: false
+    },
     [PlayerGuild.fieldNames.premium]: {
         type: Boolean,
         required: true

@@ -13,6 +13,7 @@ export class PlayerGuild extends GameObject {
         guildId: "guildId",
         prefix: "prefix",
         encounterChannelId: "encounterChannelId",
+        announcementChannelId: "announcementChannelId",
         premium: "premium"
     };
 
@@ -56,6 +57,14 @@ export class PlayerGuild extends GameObject {
 
     public set encounterChannelId(encounterChannelId: string | undefined) {
         this.setDocumentField(PlayerGuild.fieldNames.encounterChannelId, encounterChannelId);
+    }
+
+    public get announcementChannelId(): string | undefined {
+        return this.document.get(PlayerGuild.fieldNames.announcementChannelId);
+    }
+
+    public set announcementChannelId(announcementChannelId: string | undefined) {
+        this.setDocumentField(PlayerGuild.fieldNames.announcementChannelId, announcementChannelId);
     }
 
     public get premium(): boolean {
