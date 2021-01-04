@@ -281,4 +281,30 @@ export default class EncounterManager {
     public unsetPlayerCapturing(player: Player): void {
         this.currentlyCapturingPlayers.delete(player);
     }
+
+    public async testRollSpecies(count: number): Promise<Map<Species, number>> {
+        const rolledSpecies = new Map<Species, number>();
+
+        const returnPromises: Promise<void>[] = [];
+
+        for (let i = 0; i < count; i++) {
+            const speciesId = getWeightedRandom(this.rarityMap);
+
+            const fetchPromise = this.beastiaryClient.beastiary.species.fetchById(speciesId).then(species => {
+                if (!species) {
+                    throw new Error(`Unknown species id: ${speciesId}`);
+                }
+
+                const count = rolledSpecies.get(species) || 0;
+
+                rolledSpecies.set(species, count + 1);
+            });
+
+            returnPromises.push(fetchPromise);
+        }
+
+        await Promise.all(returnPromises);
+
+        return rolledSpecies;
+    }
 }
