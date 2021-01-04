@@ -35,9 +35,6 @@ class EncounterCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        player.encounterAnimal();
-        player.awardCrewExperienceInChannel(gameConfig.xpPerEncounter, parsedMessage.channel);
-
         try {
             await beastiaryClient.beastiary.encounters.spawnAnimal(parsedMessage.channel, player);
         }
@@ -50,6 +47,9 @@ class EncounterCommand extends GuildCommand {
                 ${error}
             `);
         }
+
+        player.encounterAnimal();
+        player.awardCrewExperienceInChannel(gameConfig.xpPerEncounter, parsedMessage.channel);
 
         return commandReceipt;
     }

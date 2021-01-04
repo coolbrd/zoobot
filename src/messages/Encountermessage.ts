@@ -68,10 +68,10 @@ export default class EncounterMessage extends InteractiveMessage {
         embed.setFooter("Wild encounter");
 
         if (this.initiatingPlayer) {
-            if (this.initiatingPlayer.freeEncounters.count === 2) {
+            if (this.initiatingPlayer.freeEncounters.count === 3) {
                 embed.appendToFooter("\n2 free encounters left!");
             }
-            else if (this.initiatingPlayer.freeEncounters.count === 0) {
+            else if (this.initiatingPlayer.freeEncounters.count === 1) {
                 embed.appendToFooter("\nLast free encounter!");
             }
         }
