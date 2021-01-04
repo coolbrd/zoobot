@@ -83,7 +83,6 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
         required: false,
         fieldRestrictions: {
             defaultValue: [],
-            maxListSize: gameConfig.maxCrewSize,
             allowDuplicates: false
         }
     },
