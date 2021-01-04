@@ -6,6 +6,7 @@ import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 
 class TradeCommand extends GuildCommand {
@@ -54,6 +55,8 @@ class TradeCommand extends GuildCommand {
             ${targetPlayer.member.user}, ${initiatingPlayer.member.user.username} wants to trade you ${initiatingAnimal.displayName}.
 
             Type the identifier of the animal you'd like to trade to them, or type "deny" to cancel the trade.
+
+            Additionally, you can trade a sum of pep for their animal by stating a pep amount. E.g. "100 pep".
         `);
 
         const responseMessage = await awaitUserNextMessage(parsedMessage.channel, targetPlayer.member.user, 15000);
@@ -69,15 +72,45 @@ class TradeCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const offerAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(response, targetPlayer);
+        let offer: Animal | number | undefined;
+        if (response.endsWith("pep")) {
+            const pepAmountString = response.replace("pep", "").trim();
+            const pepAmount = Math.floor(Number(pepAmountString));
 
-        if (!offerAnimal) {
+            if (!isNaN(pepAmount)) {
+                if (pepAmount > targetPlayer.pep) {
+                    betterSend(parsedMessage.channel, `${targetPlayer.member.user.username}, you don't have enough pep to make that offer!`);
+                    return commandReceipt;
+                }
+                else if (pepAmount < 0) {
+                    betterSend(parsedMessage.channel, `${targetPlayer.member.user.username}, you can't offer a negative pep amount!`);
+                    return commandReceipt;
+                }
+
+                offer = pepAmount;
+            }
+        }
+
+        if (offer === undefined) {
+            offer = beastiaryClient.beastiary.animals.searchPlayerAnimal(response, targetPlayer);
+        }
+
+        if (!offer) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${response}' could be found.`);
             return commandReceipt;
         }
 
+        let offerString: string;
+        if (typeof offer === "number") {
+            const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
+            offerString = `**${offer}**${pepEmoji}`;
+        }
+        else {
+            offerString = offer.displayName;
+        }
+
         betterSend(parsedMessage.channel, stripIndent`
-            ${initiatingPlayer.member.user}, ${targetPlayer.member.user.username} has offered ${offerAnimal.displayName} for your ${initiatingAnimal.displayName}.
+            ${initiatingPlayer.member.user}, ${targetPlayer.member.user.username} has offered ${offerString} for your ${initiatingAnimal.displayName}.
 
             Type "yes" to accept this offer, ignore this or type anything else to deny it.
         `);
@@ -110,22 +143,28 @@ class TradeCommand extends GuildCommand {
             `);
         }
 
-        try {
-            await targetPlayer.giveAnimal(offerAnimal.id, initiatingPlayer);
+        if (typeof offer === "number") {
+            targetPlayer.pep -= offer;
+            initiatingPlayer.pep += offer;
         }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error giving a traded animal from the target player to the initiating player.
+        else {
+            try {
+                await targetPlayer.giveAnimal(offer.id, initiatingPlayer);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error giving a traded animal from the target player to the initiating player.
 
-                Animal: ${offerAnimal.debugString}
-                Target player: ${targetPlayer.debugString}
-                Initiating player: ${initiatingPlayer.debugString}
+                    Animal: ${offer.debugString}
+                    Target player: ${targetPlayer.debugString}
+                    Initiating player: ${initiatingPlayer.debugString}
 
-                ${error}
-            `);
+                    ${error}
+                `);
+            }
         }
 
-        betterSend(parsedMessage.channel, `Success, ${initiatingAnimal.displayName} was traded for ${offerAnimal.displayName}.`);
+        betterSend(parsedMessage.channel, `Success, ${initiatingAnimal.displayName} was traded for ${offerString}.`);
 
         return commandReceipt;
     }
