@@ -56,6 +56,12 @@ export default class ListField<ElementType> {
         this.modify();
     }
 
+    public clear(): void {
+        this._list = [];
+
+        this.modify();
+    }
+
     public removePositional(positions: number[]): ElementType[] {
         const elements: ElementType[] = [];
         positions.forEach(currentPosition => {

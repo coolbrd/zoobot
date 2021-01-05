@@ -8,13 +8,15 @@ import CrewAddSubCommand from "./CrewAddSubCommand";
 import CrewRemoveSubCommand from "./CrewRemoveSubCommand";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
 import BeastiaryClient from "../../bot/BeastiaryClient";
+import CrewClearSubCommand from "./CrewClearSubCommand";
 
 class CrewCommand extends GuildCommand {
     public readonly names = ["crew"];
 
     public readonly subCommands = [
         CrewAddSubCommand,
-        CrewRemoveSubCommand
+        CrewRemoveSubCommand,
+        CrewClearSubCommand
     ];
 
     public readonly info = "Manage your crew of selected animals";
