@@ -17,23 +17,8 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         return new Animal(document, this.beastiaryClient);
     }
 
-    public async createAnimal(species: Species, card: SpeciesCard, guildId: string, owner?: Player): Promise<Animal> {
-        const animalDocument = Animal.newDocument(species, card, guildId, owner);
-
-        if (owner) {
-            try {
-                await animalDocument.save();
-            }
-            catch (error) {
-                throw new Error(stripIndent`
-                    There was an error saving a new animal.
-                    
-                    Animal document: ${animalDocument.toString()}
-
-                    ${error}
-                `);
-            }
-        }
+    public async createAnimal(species: Species, card: SpeciesCard, guildId: string): Promise<Animal> {
+        const animalDocument = Animal.newDocument(species, card, guildId);
 
         let animal: Animal;
         try {
