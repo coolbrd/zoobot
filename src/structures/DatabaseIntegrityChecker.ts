@@ -198,6 +198,10 @@ export default class DatabaseIntegrityChecker {
         }
 
         for (const currentAnimalDocument of allAnimals) {
+            if (!currentAnimalDocument.get(Animal.fieldNames.userId)) {
+                continue;
+            }
+            
             const id: Types.ObjectId = currentAnimalDocument._id;
 
             const idKey = this.idToKey(id);
