@@ -167,17 +167,32 @@ export default class DatabaseIntegrityChecker {
                 const otherOwner = this.ownedAnimals.get(idKey);
 
                 if (otherOwner) {
-                    this.addError(
-                        stripIndent`
+                    this.addError(stripIndent`
                             An animal id that exists in the collections of two players was found.
 
-                            Id: ${this.keyToId(idKey)}
+                            Id: ${currentAnimalId}
                         `,
                         [otherOwner, currentPlayerDocument]
                     );
                 }
                 else {
                     this.ownedAnimals.set(idKey, currentPlayerDocument);
+                }
+
+                const existingAnimal = allAnimals.find(animal => currentAnimalId.equals(animal._id));
+
+                if (!existingAnimal) {
+                    this.addError(stripIndent`
+                        An animal id that doesn't match to any animal that exists was found in a player's collection. Fixing.
+
+                        Id: ${currentAnimalId}
+                    `, [currentPlayerDocument]);
+
+                    const invalidIdIndex = collectionAnimalIds.indexOf(currentAnimalId);
+
+                    collectionAnimalIds.splice(invalidIdIndex, 1);
+
+                    currentPlayerDocument.save();
                 }
             }
         }
