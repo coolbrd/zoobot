@@ -146,7 +146,7 @@ export class Species extends GameObject {
         return indexWhere(this.cards, card => card._id.equals(cardId));
     }
 
-    public getShowcaseDisplayName(player: Player, showCaptures = true): string {
+    public getShowcaseDisplayName(player: Player): string {
         let displayName = "";
 
         const playerEssence = player.getEssence(this.id);
@@ -180,13 +180,6 @@ export class Species extends GameObject {
         }
 
         displayName += ` ${speciesName}`;
-
-        if (showCaptures) {
-            const playerCaptures = player.getSpeciesRecord(this.id).data.captures;
-            if (playerCaptures > 0) {
-                displayName += ` (${playerCaptures})`;
-            }
-        }
 
         return displayName;
     }

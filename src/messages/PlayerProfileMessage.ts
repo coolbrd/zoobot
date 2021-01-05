@@ -82,7 +82,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
                 `);
             }
 
-            const speciesDisplayName = capitalizeFirstLetter(highestEssenceSpecies.getShowcaseDisplayName(this.player, false));
+            const speciesDisplayName = capitalizeFirstLetter(highestEssenceSpecies.getShowcaseDisplayName(this.player));
             const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
             highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**${essenceEmoji}`;
