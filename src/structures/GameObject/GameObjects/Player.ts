@@ -16,6 +16,7 @@ import { PlayerGuild } from "./PlayerGuild";
 import premiumConfig from "../../../config/premiumConfig";
 import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
 import ResetField from "../GameObjectFieldHelpers/ResetField";
+import { threadId } from "worker_threads";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -100,8 +101,6 @@ export class Player extends GameObject {
     public readonly freeCaptures: CountedResetField;
     public readonly freeXpBoosts: CountedResetField;
 
-    public readonly dailyPep: ResetField;
-
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
 
@@ -148,13 +147,6 @@ export class Player extends GameObject {
             baseCountPerPeriod: gameConfig.freeXpBoostsPerPeriod,
             baseMaxStack: gameConfig.freeXpBoostMaxStack,
             premiumPeriodModifier: premiumConfig.xpBoostPeriodMultiplier,
-            getPremium: this.getPremium.bind(this)
-        });
-
-        this.dailyPep = new ResetField({
-            gameObject: this,
-            lastResetFieldName: Player.fieldNames.lastDailyCurrencyReset,
-            basePeriod: gameConfig.dailyCurrencyPeriod,
             getPremium: this.getPremium.bind(this)
         });
     }
@@ -227,6 +219,14 @@ export class Player extends GameObject {
 
     public set lifetimePep(lifetimePep: number) {
         this.setDocumentField(Player.fieldNames.lifetimePep, lifetimePep);
+    }
+
+    public get lastDailyPepReset(): Date {
+        return this.document.get(Player.fieldNames.lastDailyCurrencyReset);
+    }
+
+    public set lastDailyPepReset(lastDailyPepReset: Date) {
+        this.setDocumentField(Player.fieldNames.lastDailyCurrencyReset, lastDailyPepReset);
     }
 
     public get collectionUpgradeLevel(): number {
@@ -363,6 +363,14 @@ export class Player extends GameObject {
         return total;
     }
 
+    public get hasDailyPepReset(): boolean {
+        const now = new Date();
+
+        const hasReset = this.lastDailyPepReset.getDate() !== now.getDate() || this.lastDailyPepReset.getMonth() !== now.getMonth() || this.lastDailyPepReset.getFullYear() !== now.getFullYear();
+
+        return hasReset;
+    }
+
     public getPremium(): boolean {
         return this.playerPremium || this.playerGuild.premium;
     }
@@ -428,8 +436,12 @@ export class Player extends GameObject {
         }
     }
 
-    public claimDailyCurrency(): void {
-        if (!this.dailyPep.hasReset) {
+    private applyDailyPepReset(): void {
+        this.lastDailyPepReset = new Date();
+    }
+
+    public claimDailyPep(): void {
+        if (!this.hasDailyPepReset) {
             throw new Error(stripIndent`
                 A player somehow attempted to claim daily currency when they didn't have a reset available.
 
@@ -437,7 +449,7 @@ export class Player extends GameObject {
             `);
         }
 
-        this.dailyPep.applyReset();
+        this.applyDailyPepReset();
     }
 
     public decrementCapturesLeft(): void {
