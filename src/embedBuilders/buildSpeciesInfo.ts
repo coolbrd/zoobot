@@ -10,7 +10,7 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
     embed.setThumbnail(card.url);
     embed.setDescription(`Commonly known as: ${species.commonNames.join(", ")}`);
 
-    embed.addField("Info", species.description);
+    embed.addField("Info", `${species.description} [More info](${species.wikiPage})`);
     
     if (species.naturalHabitat) {
         embed.addField("Habitat", species.naturalHabitat);
@@ -20,7 +20,6 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
 
     const pepEmoji = emojiManager.getByName("pep");
     embed.addField("Base value", `${species.baseValue}${pepEmoji}`, true);
-    embed.addField("More info", species.wikiPage, true);
 
     if (player) {
         const showToken = player.hasToken(species.id);
@@ -38,6 +37,6 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
 
         embed.addField("Max level", player.getSpeciesLevelCap(species.id), true);
 
-        embed.addField("Captured", speciesRecord.data.captures);
+        embed.addField("Captured", speciesRecord.data.captures, true);
     }
 }
