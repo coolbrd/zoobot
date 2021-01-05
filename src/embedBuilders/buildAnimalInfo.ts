@@ -39,7 +39,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     const pepEmoji = emojiManager.getByName("pep");
     embed.addField("Value", `${animal.value}${pepEmoji}`, true);
 
-    const showToken = animal.owner.hasToken(animal.species.id);
+    const showToken = animal.owner && animal.owner.hasToken(animal.species.id);
     let tokenString = "*Unknown*";
     if (showToken) {
         const tokenEmoji = emojiManager.getByName("token");

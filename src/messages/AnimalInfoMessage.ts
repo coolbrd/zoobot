@@ -45,8 +45,10 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
     
-        const userAvatar = this.animalObject.owner.member.user.avatarURL() || undefined;
-        embed.setAuthor(`Belongs to ${this.animalObject.owner.member.user.username}`, userAvatar);
+        if (this.animalObject.owner) {
+            const userAvatar = this.animalObject.owner.member.user.avatarURL() || undefined;
+            embed.setAuthor(`Belongs to ${this.animalObject.owner.member.user.username}`, userAvatar);
+        }
         
         if (!this.cardMode) {
             buildAnimalInfo(embed, this.animalObject, this.beastiaryClient.beastiary.emojis);

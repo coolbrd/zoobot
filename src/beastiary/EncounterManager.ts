@@ -11,6 +11,7 @@ import gameConfig from "../config/gameConfig";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { inspect } from "util";
+import { Animal } from "../structures/GameObject/GameObjects/Animal";
 
 export interface RarityInfo {
     tier: number,
@@ -73,7 +74,7 @@ export default class EncounterManager {
     }
 
     public async spawnAnimal(channel: TextChannel, player?: Player): Promise<void> {
-        if (this.rarityMap.size < 1) {
+        if (this.rarityMap.size <= 0) {
             throw new Error(stripIndent`
                 Tried to spawn an animal before the encounter rarity map was formed.
 
@@ -107,7 +108,20 @@ export default class EncounterManager {
             `);
         }
 
-        const encounterMessage = new EncounterMessage(channel, this.beastiaryClient, species, player);
+        let animal: Animal;
+        try {
+            animal = await this.beastiaryClient.beastiary.animals.createAnimal(species, species.getRandomCard(), channel.guild.id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error creating an animal for a random encounter.
+
+                Species: ${species.debugString}
+                Channel: ${inspect(channel)}
+            `);
+        }
+
+        const encounterMessage = new EncounterMessage(channel, this.beastiaryClient, animal, player);
         try {
             await encounterMessage.send();
         }

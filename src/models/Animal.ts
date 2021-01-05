@@ -13,7 +13,7 @@ export const animalSchemaDefinition: BeastiarySchemaDefinition = {
     },
     [Animal.fieldNames.userId]: {
         type: String,
-        required: true
+        required: false
     },
     [Animal.fieldNames.guildId]: {
         type: String,
@@ -21,7 +21,7 @@ export const animalSchemaDefinition: BeastiarySchemaDefinition = {
     },
     [Animal.fieldNames.ownerId]: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: false
     },
     [Animal.fieldNames.nickname]: {
         type: String,
@@ -34,10 +34,6 @@ export const animalSchemaDefinition: BeastiarySchemaDefinition = {
             defaultValue: 0,
             nonNegative: true
         }
-    },
-    [Animal.fieldNames.released]: {
-        type: Boolean,
-        required: false
     }
 };
 

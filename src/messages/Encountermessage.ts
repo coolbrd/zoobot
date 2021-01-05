@@ -3,7 +3,6 @@ import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import getGuildMember from "../discordUtility/getGuildMember";
 import { betterSend } from "../discordUtility/messageMan";
-import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import { remainingTimeString } from "../utility/timeStuff";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -14,7 +13,6 @@ import gameConfig from "../config/gameConfig";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
 import { getWeightedRandom } from "../utility/weightedRarity";
-import { inspect } from "util";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -23,8 +21,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
     protected deactivationText = "(fled)";
 
-    private readonly species: Species;
-    private readonly card: SpeciesCard;
+    private readonly animal: Animal;
 
     private readonly initiatingPlayer?: Player;
 
@@ -33,7 +30,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
     private readonly warnedUserIds: Set<string> = new Set();
 
-    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, species: Species, player?: Player) {
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animal: Animal, player?: Player) {
         super(channel, beastiaryClient);
 
         this.addButton({
@@ -43,27 +40,28 @@ export default class EncounterMessage extends InteractiveMessage {
         });
 
         this.channel = channel;
-        this.species = species;
-        this.card = this.species.getRandomCard();
-
+        this.animal = animal;
         this.initiatingPlayer = player;
     }
 
     public async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        embed.setTitle(capitalizeFirstLetter(this.species.commonNames[0]));
-        embed.setColor(this.species.rarityData.color);
+        const species = this.animal.species;
+        const card = this.animal.card;
 
-        embed.addField("――――――――", `${this.species.rarityData.emoji} ${capitalizeFirstLetter(this.species.scientificName)}`, true);
-        embed.setImage(this.card.url);
+        embed.setTitle(capitalizeFirstLetter(species.commonNames[0]));
+        embed.setColor(species.rarityData.color);
 
-        if (this.card.breed) {
-            embed.addField("Breed", capitalizeFirstLetter(this.card.breed), true);
+        embed.addField("――――――――", `${species.rarityData.emoji} ${capitalizeFirstLetter(species.scientificName)}`, true);
+        embed.setImage(card.url);
+
+        if (card.breed) {
+            embed.addField("Breed", capitalizeFirstLetter(card.breed), true);
         }
 
-        if (this.card.special) {
-            embed.addField("Special", capitalizeFirstLetter(this.card.special), true);
+        if (card.special) {
+            embed.addField("Special", capitalizeFirstLetter(card.special), true);
         }
 
         embed.setFooter("Wild encounter");
@@ -105,12 +103,25 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     private async awardAnimal(player: Player): Promise<void> {
-        const commonName = this.species.commonNameObjects[0];
+        try {
+            await this.animal.document.save();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                A newly captured animal's document was unable to be saved.
+
+                Animal: ${this.animal.debugString}
+            `);
+        }
+
+        player.captureAnimal(this.animal, this.channel);
+
+        const commonName = this.animal.species.commonNameObjects[0];
         const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
         let captureString = stripIndent`
             ${player.member.user}, you caught ${commonName.article} ${commonName.name}!
-            +**5**${essenceEmoji} (${this.species.commonNames[0]})
+            +**5**${essenceEmoji} (${commonName.name})
         `;
 
         if (player.totalCaptures <= 3) {
@@ -120,26 +131,7 @@ export default class EncounterMessage extends InteractiveMessage {
         betterSend(this.channel, captureString);
         
         this.setDeactivationText("(caught)");
-
-        let newAnimal: Animal;
-        try {
-            newAnimal = await this.beastiaryClient.beastiary.animals.createAnimal(player, this.species, this.card);
-        }
-        catch (error) {
-            betterSend(this.channel, "There was an error creating a new animal from this encounter, sorry if you didn't get your animal! Please report this and you can be compensated.");
-
-            throw new Error(stripIndent`
-                There was an error creating a new animal in an encounter message.
-
-                Player: ${player.debugString}
-                Species: ${this.species.debugString}
-                Card: ${inspect(this.card)}
-                
-                ${error}
-            `);
-        }
-
-        player.captureAnimal(newAnimal, this.channel);
+        this.deactivate();
     }
 
     private async awardToRandomPlayer(): Promise<void> {
@@ -163,7 +155,6 @@ export default class EncounterMessage extends InteractiveMessage {
         const winningPlayer = getWeightedRandom(playerWeightedChanceMap);
 
         this.awardAnimal(winningPlayer);
-        this.deactivate();
 
         this.capturingPlayers.forEach(player => {
             this.beastiaryClient.beastiary.encounters.unsetPlayerCapturing(player);
@@ -202,18 +193,19 @@ export default class EncounterMessage extends InteractiveMessage {
             return;
         }
 
-        this.beastiaryClient.beastiary.encounters.setPlayerCapturing(player, this.multiplayerCaptureWindow);
-
         if (this.capturingPlayers.includes(player)) {
             return;
         }
 
-        const speciesName = this.species.commonNameObjects[0];
+        this.capturingPlayers.push(player);
+        this.beastiaryClient.beastiary.encounters.setPlayerCapturing(player, this.multiplayerCaptureWindow);
+
+        const speciesName = this.animal.species.commonNameObjects[0];
         const speciesNameAndArticle = `${speciesName.article} ${speciesName.name}`;
 
         const captureWindowInSeconds = (this.multiplayerCaptureWindow / 1000).toPrecision(1);
 
-        if (this.capturingPlayers.length === 0) {
+        if (this.capturingPlayers.length === 1) {
             betterSend(this.channel, `${player.member.user.username} is capturing ${speciesNameAndArticle}, and they will get it after ${captureWindowInSeconds} seconds if nobody else reacts!`);
 
             setTimeout(() => {
@@ -223,7 +215,5 @@ export default class EncounterMessage extends InteractiveMessage {
         else {
             betterSend(this.channel, `${player.member.user.username} is contesting ${this.capturingPlayers[0].member.user.username}'s capture of ${speciesNameAndArticle}!`)
         }
-
-        this.capturingPlayers.push(player);
     }
 }

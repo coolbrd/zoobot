@@ -11,6 +11,7 @@ import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 import { randomWithinRange } from "../../../utility/numericalMisc";
+import { inspect } from "util";
 
 interface ExperienceGainReceipt {
     xpGiven: number,
@@ -32,8 +33,7 @@ export class Animal extends GameObject {
         guildId: "guildId",
         ownerId: "ownerId",
         nickname: "nickname",
-        experience: "experience",
-        released: "released"
+        experience: "experience"
     };
 
     protected referenceNames = {
@@ -41,13 +41,22 @@ export class Animal extends GameObject {
         owner: "owner"
     }
 
-    public static newDocument(owner: Player, species: Species, card: SpeciesCard): Document {
+    public static newDocument(species: Species, card: SpeciesCard, guildId: string, owner?: Player): Document {
+        if (owner && owner.guildId !== guildId) {
+            throw new Error(stripIndent`
+                An owner player whose guild id doesn't match the supplied guild id was found while creating a new animal document.
+
+                Guild id: ${guildId}
+                Owner: ${inspect(owner)}
+            `);
+
+        }
         return new AnimalModel({
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
-            [Animal.fieldNames.userId]: owner.member.user.id,
-            [Animal.fieldNames.guildId]: owner.member.guild.id,
-            [Animal.fieldNames.ownerId]: owner.id,
+            [Animal.fieldNames.userId]: owner ? owner.member.user.id : undefined,
+            [Animal.fieldNames.guildId]: guildId,
+            [Animal.fieldNames.ownerId]: owner? owner.id : undefined,
             [Animal.fieldNames.experience]: 0
         });
     }
@@ -56,13 +65,13 @@ export class Animal extends GameObject {
         super(document, beastiaryClient);
 
         this.references = {
-            [this.referenceNames.owner]: {
-                cache: beastiaryClient.beastiary.players,
-                id: this.ownerId
-            },
             [this.referenceNames.species]: {
                 cache: beastiaryClient.beastiary.species,
                 id: this.speciesId
+            },
+            [this.referenceNames.owner]: {
+                cache: beastiaryClient.beastiary.players,
+                id: this.ownerId
             }
         }
     }
@@ -75,11 +84,11 @@ export class Animal extends GameObject {
         return this.document.get(Animal.fieldNames.cardId);
     }
 
-    public get userId(): string {
+    public get userId(): string | undefined {
         return this.document.get(Animal.fieldNames.userId);
     }
 
-    public set userId(userId: string) {
+    public set userId(userId: string | undefined) {
         this.setDocumentField(Animal.fieldNames.userId, userId);
     }
 
@@ -87,11 +96,11 @@ export class Animal extends GameObject {
         return this.document.get(Animal.fieldNames.guildId);
     }
 
-    public get ownerId(): Types.ObjectId {
+    public get ownerId(): Types.ObjectId | undefined {
         return this.document.get(Animal.fieldNames.ownerId);
     }
 
-    public set ownerId(ownerId: Types.ObjectId) {
+    public set ownerId(ownerId: Types.ObjectId | undefined) {
         this.setDocumentField(Animal.fieldNames.ownerId, ownerId);
     }
 
@@ -111,14 +120,6 @@ export class Animal extends GameObject {
         this.setDocumentField(Animal.fieldNames.experience, experience);
     }
 
-    public get released(): boolean {
-        return this.document.get(Animal.fieldNames.released);
-    }
-
-    public set released(released: boolean) {
-        this.setDocumentField(Animal.fieldNames.released, released);
-    }
-
     public get value(): number {
         const levelScaler = 1 + (this.level - 1) / 10;
 
@@ -126,7 +127,7 @@ export class Animal extends GameObject {
     }
 
     public get isOwnersFavorite(): boolean {
-        if (this.owner.favoriteAnimalId) {
+        if (this.owner && this.owner.favoriteAnimalId) {
             return this.owner.favoriteAnimalId.equals(this.id);
         }
         return false;
@@ -148,8 +149,10 @@ export class Animal extends GameObject {
         return `${levelEmoji} ${this.displayName}`;
     }
 
-    public get owner(): Player {
-        return this.getReference(this.referenceNames.owner);
+    public get owner(): Player | undefined {
+        if (this.references[this.referenceNames.owner].id !== undefined) {
+            return this.getReference(this.referenceNames.owner);
+        }
     }
 
     public get species(): Species {
@@ -176,7 +179,10 @@ export class Animal extends GameObject {
     }
 
     public get levelCap(): number {
-        return this.owner.getSpeciesLevelCap(this.species.id);
+        if (this.owner) {
+            return this.owner.getSpeciesLevelCap(this.species.id);
+        }
+        return 5;
     }
 
     public get nextLevelXp(): number {
@@ -206,7 +212,10 @@ export class Animal extends GameObject {
     }
 
     private get ownerHasToken(): boolean {
-        return this.owner.hasToken(this.species.id);
+        if (this.owner) {
+            return this.owner.hasToken(this.species.id);
+        }
+        return false;
     }
 
     public getLevelXpRequirement(level: number): number {
@@ -227,10 +236,16 @@ export class Animal extends GameObject {
     }
 
     private giveOwnerToken(): void {
-        this.owner.giveToken(this.species);
+        if (this.owner) {
+            this.owner.giveToken(this.species);
+        }
     }
 
     private potentiallyDropTokenOrEssence(chance: number, channel: TextChannel): void {
+        if (!this.owner) {
+            return;
+        }
+
         const dropSuccess = this.performDropChance(chance);
 
         if (dropSuccess) {
@@ -286,7 +301,7 @@ export class Animal extends GameObject {
     public addExperienceInChannel(experience: number, channel: TextChannel): ExperienceGainReceipt {
         const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
-        if (xpReceipt.levelUp) {
+        if (xpReceipt.levelUp && this.owner) {
             xpReceipt.essence = this.levelEssenceReward;
             xpReceipt.encounters = this.getlevelEncounterRandomReward();
             xpReceipt.captures = this.getLevelCaptureRandomReward();
@@ -313,6 +328,13 @@ export class Animal extends GameObject {
         this.potentiallyDropTokenOrEssence(experience, channel);
 
         return xpReceipt;
+    }
+
+    public async disown(): Promise<void> {
+        this.ownerId = undefined;
+        this.userId = undefined;
+
+        this.deleteReference(this.referenceNames.owner);
     }
 
     public async changeOwner(newOwnerId: Types.ObjectId): Promise<void> {

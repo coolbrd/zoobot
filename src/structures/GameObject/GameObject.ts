@@ -13,7 +13,7 @@ export interface FieldRestriction {
 
 export interface ReferencedObject<GameObjectType extends GameObject> {
     cache: GameObjectCache<GameObjectType>,
-    id: Types.ObjectId,
+    id: Types.ObjectId | undefined,
     gameObject?: GameObjectType
 }
 
@@ -106,6 +106,10 @@ export default abstract class GameObject {
         const referenceFetchPromises: Promise<void>[] = [];
 
         for (const reference of Object.values(this.references)) {
+            if (!reference.id) {
+                continue;
+            }
+
             const fetchPromise = reference.cache.fetchReferenceById(reference.id).then(gameObject => {
                 reference.gameObject = gameObject;
             }).catch(error => {
@@ -125,7 +129,7 @@ export default abstract class GameObject {
         await Promise.all(referenceFetchPromises);
     }
 
-    protected getReference<GameObjectType>(referenceName: string): GameObjectType {
+    private ensureValidReferenceFieldName(referenceName: string): void {
         if (!(referenceName in this.references)) {
             throw new Error(stripIndent`
                 A reference field name that does not exist in a game object's references was attempted to be read.
@@ -134,6 +138,10 @@ export default abstract class GameObject {
                 Game object: ${this.debugString}
             `);
         }
+    }
+
+    protected getReference<GameObjectType>(referenceName: string): GameObjectType {
+        this.ensureValidReferenceFieldName(referenceName);
 
         const reference = this.references[referenceName];
 
@@ -147,6 +155,15 @@ export default abstract class GameObject {
         }
 
         return reference.gameObject as unknown as GameObjectType;
+    }
+
+    public deleteReference(referenceName: string): void {
+        this.ensureValidReferenceFieldName(referenceName);
+
+        const reference = this.references[referenceName];
+
+        reference.gameObject = undefined;
+        reference.id = undefined;
     }
 
     public async updateAllFields(): Promise<void> {
