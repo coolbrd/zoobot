@@ -23,7 +23,15 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
     protected formatElement(loadableSpecies: LoadableGameObject<Species>): string {
         const species = loadableSpecies.gameObject;
 
-        return species.getShowcaseDisplayName(this.player)
+        let showcaseName = species.getShowcaseDisplayName(this.player);
+
+        const hasBeenCaptured = this.player.getSpeciesRecord(species.id).data.captures > 0;
+
+        if (hasBeenCaptured) {
+            showcaseName += "*";
+        }
+
+        return showcaseName;
     }
 
     private sortElementsByEssence(): void {
