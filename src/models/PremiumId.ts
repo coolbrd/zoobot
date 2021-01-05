@@ -5,6 +5,10 @@ export const premiumIdSchemaDefinition: BeastiarySchemaDefinition = {
     id: {
         type: String,
         required: true
+    },
+    lastCheck: {
+        type: Schema.Types.Date,
+        required: true
     }
 };
 

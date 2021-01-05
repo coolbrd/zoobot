@@ -88,9 +88,9 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     }
 
     public async givePremium(id: string): Promise<void> {
-        let alreadyHasPremium: boolean;
+        let existingPremiumDocument: Document | null;
         try {
-            alreadyHasPremium = await this.hasPremium(id);
+            existingPremiumDocument = await PremiumIdModel.findOne({ id: id });
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -100,11 +100,16 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             `);
         }
 
-        if (alreadyHasPremium) {
+        if (existingPremiumDocument) {
+            existingPremiumDocument.updateOne({
+                $set: {
+                    lastCheck: new Date()
+                }
+            }).exec();
             return;
         }
 
-        const newPremiumIdDocument = new PremiumIdModel({ id: id });
+        const newPremiumIdDocument = new PremiumIdModel({ id: id, lastCheck: new Date() });
 
         try {
             await newPremiumIdDocument.save();
