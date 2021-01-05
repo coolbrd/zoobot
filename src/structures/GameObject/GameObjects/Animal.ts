@@ -32,7 +32,8 @@ export class Animal extends GameObject {
         guildId: "guildId",
         ownerId: "ownerId",
         nickname: "nickname",
-        experience: "experience"
+        experience: "experience",
+        released: "released"
     };
 
     protected referenceNames = {
@@ -108,6 +109,14 @@ export class Animal extends GameObject {
 
     public set experience(experience: number) {
         this.setDocumentField(Animal.fieldNames.experience, experience);
+    }
+
+    public get released(): boolean {
+        return this.document.get(Animal.fieldNames.released);
+    }
+
+    public set released(released: boolean) {
+        this.setDocumentField(Animal.fieldNames.released, released);
     }
 
     public get value(): number {

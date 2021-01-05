@@ -34,6 +34,10 @@ export const animalSchemaDefinition: BeastiarySchemaDefinition = {
             defaultValue: 0,
             nonNegative: true
         }
+    },
+    [Animal.fieldNames.released]: {
+        type: Boolean,
+        required: false
     }
 };
 
