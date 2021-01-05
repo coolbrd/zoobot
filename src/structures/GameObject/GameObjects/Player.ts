@@ -419,6 +419,7 @@ export class Player extends GameObject {
         this.animals.splice(this.animals.indexOf(animal), 1);
 
         this.collectionAnimalIds.remove(animal.id);
+        this.crewAnimalIds.remove(animal.id);
 
         if (this.favoriteAnimalId) {
             if (this.favoriteAnimalId.equals(animal.id)) {
@@ -625,7 +626,6 @@ export class Player extends GameObject {
         }
 
         this.removeAnimalFromCollection(releasedAnimal);
-        this.crewAnimalIds.remove(releasedAnimal.id);
 
         if (!releasedAnimal.playerIsOwner(this)) {
             throw new Error(stripIndent`
