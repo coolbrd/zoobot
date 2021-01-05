@@ -1,7 +1,6 @@
 import { stripIndent } from "common-tags";
-import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
+import { MessageEmbed, TextChannel, User } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
-import getGuildMember from "../discordUtility/getGuildMember";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
@@ -12,7 +11,6 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
 
     private readonly animalObject: Animal;
-    private _ownerUser: User | undefined;
     private cardMode = false;
 
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animalObject: Animal) {
@@ -29,22 +27,6 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         this.animalObject = animalObject;
     }
 
-    private get ownerUser(): User {
-        if (!this._ownerUser) {
-            throw new Error(stripIndent`
-                An animal info message attempted to access the animal's owner's user before it was found.
-
-                Info message: ${this.debugString}
-            `);
-        }
-
-        return this._ownerUser;
-    }
-
-    private set ownerUser(ownerUser: User) {
-        this._ownerUser = ownerUser;
-    }
-
     public async build(): Promise<void> {
         try {
             await this.animalObject.loadFields();
@@ -58,39 +40,13 @@ export default class AnimalInfoMessage extends InteractiveMessage {
                 ${error}
             `);
         }
-
-        let guildMember: GuildMember | undefined;
-        try {
-            guildMember = await getGuildMember(this.animalObject.userId, this.animalObject.guildId, this.beastiaryClient);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error getting a guild member by a player's information.
-
-                User id: ${this.animalObject.userId}
-                Guild id: ${this.animalObject.guildId}
-
-                ${error}
-            `);
-        }
-
-        if (!guildMember) {
-            throw new Error(stripIndent`
-                No guild member could be found according to an animal's owner information.
-
-                User id: ${this.animalObject.userId}
-                Guild id: ${this.animalObject.guildId}
-            `);
-        }
-
-        this._ownerUser = guildMember.user;
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
     
-        const userAvatar = this.ownerUser.avatarURL() || undefined;
-        embed.setAuthor(`Belongs to ${this.ownerUser.username}`, userAvatar);
+        const userAvatar = this.animalObject.owner.member.user.avatarURL() || undefined;
+        embed.setAuthor(`Belongs to ${this.animalObject.owner.member.user.username}`, userAvatar);
         
         if (!this.cardMode) {
             buildAnimalInfo(embed, this.animalObject, this.beastiaryClient.beastiary.emojis);
