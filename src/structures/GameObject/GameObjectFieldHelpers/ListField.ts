@@ -1,9 +1,9 @@
 import GameObject from "../GameObject";
 
 export default class ListField<ElementType> {
-    private gameObject: GameObject;
-    private fieldName: string;
-    private _list: ElementType[];
+    private readonly gameObject: GameObject;
+    private readonly fieldName: string;
+    private readonly _list: ElementType[];
 
     constructor(gameObject: GameObject, fieldName: string, listField: ElementType[]) {
         this.gameObject = gameObject;
@@ -57,7 +57,9 @@ export default class ListField<ElementType> {
     }
 
     public clear(): void {
-        this._list = [];
+        while (this._list.length) {
+            this._list.pop();
+        }
 
         this.modify();
     }
