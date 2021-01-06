@@ -1,7 +1,9 @@
 import BeastiaryClient from "../bot/BeastiaryClient";
+import handleUserError from "../discordUtility/handleUserError";
 import { GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 class CheatCommand extends GuildCommand {
     public readonly names = ["cheat"];
@@ -13,7 +15,16 @@ class CheatCommand extends GuildCommand {
     public readonly adminOnly = true;
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
-        const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
+        const commandReceipt = this.newReceipt();
+
+        let player: Player;
+        try {
+            player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
+        }
+        catch (error) {
+            handleUserError(parsedMessage.channel, error);
+            return commandReceipt;
+        }
 
         player.pep += 9999999999;
         player.collectionUpgradeLevel += 9999999999;
@@ -24,7 +35,6 @@ class CheatCommand extends GuildCommand {
 
         console.log(`${player.member.user.username} just cheated!`);
 
-        const commandReceipt = this.newReceipt();
         commandReceipt.reactConfirm = true;
         return commandReceipt;
     }
