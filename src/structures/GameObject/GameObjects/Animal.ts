@@ -342,6 +342,10 @@ export class Animal extends GameObject {
                 rewardString += `\n+**${xpReceipt.captures}** capture${xpReceipt.captures !== 1 ? "s" : ""}`;
             }
 
+            if (this.level === this.levelCap) {
+                rewardString += `\n\n${this.displayName} has reached its species' **max level**! Raise it by gaining more ${this.species.commonNames[0]} essence${essenceEmoji}.`;
+            }
+
             betterSend(channel, rewardString);
         }
 
