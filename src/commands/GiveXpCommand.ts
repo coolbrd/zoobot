@@ -70,7 +70,7 @@ class GiveXpCommand extends GuildCommand {
 
             resultString = stripIndent`
                 You gave ${animal.displayName} **${xpReceipt.xpGiven}**${xpEmoji}, but only **${xpReceipt.xpTaken}**${xpEmoji} was gained.
-                Earn more ${animal.species.commonNames[0]} essence ${essenceEmoji} to raise ${animal.displayName}'s level cap!
+                Earn more ${animal.species.commonNames[0]} essence${essenceEmoji} to raise ${animal.displayName}'s level cap!
             `;
         }
         betterSend(parsedMessage.channel, resultString);
