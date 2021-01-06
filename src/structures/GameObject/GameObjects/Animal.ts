@@ -33,7 +33,9 @@ export class Animal extends GameObject {
         guildId: "guildId",
         ownerId: "ownerId",
         nickname: "nickname",
-        experience: "experience"
+        experience: "experience",
+        away: "away",
+        returns: "returns"
     };
 
     protected referenceNames = {
@@ -57,7 +59,9 @@ export class Animal extends GameObject {
             [Animal.fieldNames.userId]: owner ? owner.member.user.id : undefined,
             [Animal.fieldNames.guildId]: guildId,
             [Animal.fieldNames.ownerId]: owner? owner.id : undefined,
-            [Animal.fieldNames.experience]: 0
+            [Animal.fieldNames.experience]: 0,
+            [Animal.fieldNames.away]: false,
+            [Animal.fieldNames.returns]: 0
         });
     }
 
@@ -118,6 +122,22 @@ export class Animal extends GameObject {
 
     public set experience(experience: number) {
         this.setDocumentField(Animal.fieldNames.experience, experience);
+    }
+
+    public get away(): boolean {
+        return this.document.get(Animal.fieldNames.away);
+    }
+
+    public set away(released: boolean) {
+        this.setDocumentField(Animal.fieldNames.away, released);
+    }
+
+    public get returns(): number {
+        return this.document.get(Animal.fieldNames.returns);
+    }
+
+    public set returns(returns: number) {
+        this.setDocumentField(Animal.fieldNames.returns, returns);
     }
 
     public get value(): number {
