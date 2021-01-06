@@ -13,6 +13,12 @@ class CheatCommand extends GuildCommand {
     public readonly adminOnly = true;
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
+        const testRolls = await beastiaryClient.beastiary.encounters.testRollSpecies(1000);
+
+        for (const [species, count] of testRolls.entries()) {
+            console.log(`${species.commonNames[0]}: ${count} (T${species.rarityTier})`);
+        }
+
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
         player.pep += 9999999999;

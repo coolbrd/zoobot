@@ -76,7 +76,7 @@ class EditSpeciesCommand extends Command {
             species.description = finalDocument[Species.fieldNames.description] as string;
             species.naturalHabitat = finalDocument[Species.fieldNames.naturalHabitat] as string;
             species.wikiPage = finalDocument[Species.fieldNames.wikiPage] as string;
-            species.rarity = finalDocument[Species.fieldNames.rarity] as number;
+            species.rarityTier = finalDocument[Species.fieldNames.rarityTier] as number;
             species.token = finalDocument[Species.fieldNames.token] as string;
             
             beastiaryClient.beastiary.species.refreshSpecies().catch(error => {

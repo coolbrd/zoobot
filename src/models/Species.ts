@@ -56,7 +56,7 @@ export const speciesSchemaDefinition: BeastiarySchemaDefinition = {
         type: String,
         required: true
     },
-    [Species.fieldNames.rarity]: {
+    [Species.fieldNames.rarityTier]: {
         type: Number,
         required: true,
         fieldRestrictions: {

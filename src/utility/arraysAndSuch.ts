@@ -89,3 +89,9 @@ export function safeListAccess<T>(list: T[], index: number): T | undefined {
 
     return list[index];
 }
+
+export function getRandomElement<T>(list: T[]): T {
+    const randomIndex = Math.floor(Math.random() * list.length);
+
+    return list[randomIndex];
+}

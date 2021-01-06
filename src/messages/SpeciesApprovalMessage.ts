@@ -104,11 +104,11 @@ export default class SpeciesApprovalMessage extends EDocMessage {
                 alias: "Wikipedia page",
                 prompt: "Enter the link that leads to this animal's page on Wikipedia:"
             },
-            [Species.fieldNames.rarity]: {
+            [Species.fieldNames.rarityTier]: {
                 type: Number,
                 required: true,
                 alias: "rarity",
-                prompt: "Enter this animal's weighted rarity:"
+                prompt: "Enter this animal's rarity tier:"
             },
             [Species.fieldNames.token]: {
                 type: String,

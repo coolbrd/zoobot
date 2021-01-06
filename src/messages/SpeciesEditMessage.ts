@@ -111,11 +111,11 @@ export default class SpeciesEditMessage extends EDocMessage {
                 alias: "Wikipedia page",
                 prompt: "Enter the link that leads to this animal's page on Wikipedia:"
             },
-            [Species.fieldNames.rarity]: {
+            [Species.fieldNames.rarityTier]: {
                 type: Number,
                 required: true,
-                alias: "rarity",
-                prompt: "Enter this animal's weighted rarity:"
+                alias: "rarity tier",
+                prompt: "Enter this animal's rarity tier:"
             },
             [Species.fieldNames.token]: {
                 type: String,
@@ -152,7 +152,7 @@ export default class SpeciesEditMessage extends EDocMessage {
         eDoc.setField(Species.fieldNames.description, speciesObject.description);
         eDoc.setField(Species.fieldNames.naturalHabitat, speciesObject.naturalHabitat);
         eDoc.setField(Species.fieldNames.wikiPage, speciesObject.wikiPage);
-        eDoc.setField(Species.fieldNames.rarity, speciesObject.rarity);
+        eDoc.setField(Species.fieldNames.rarityTier, speciesObject.rarityTier);
         eDoc.setField(Species.fieldNames.token, speciesObject.token);
 
         super(channel, beastiaryClient, eDoc, capitalizeFirstLetter(speciesObject.commonNames[0]));

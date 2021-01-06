@@ -22,7 +22,7 @@ export class Species extends GameObject {
         description: "description",
         naturalHabitat: "naturalHabitat",
         wikiPage: "wikiPage",
-        rarity: "rarity",
+        rarityTier: "rarityTier",
         token: "token"
     };
 
@@ -80,16 +80,16 @@ export class Species extends GameObject {
         this.setDocumentField(Species.fieldNames.wikiPage, wikiPage);
     }
 
-    public get rarity(): number {
-        return this.document.get(Species.fieldNames.rarity);
+    public get rarityTier(): number {
+        return this.document.get(Species.fieldNames.rarityTier);
     }
 
-    public set rarity(rarity: number) {
-        this.setDocumentField(Species.fieldNames.rarity, rarity);
+    public set rarityTier(rarityTier: number) {
+        this.setDocumentField(Species.fieldNames.rarityTier, rarityTier);
     }
 
     public get rarityData(): RarityInfoWithEmoji {
-        const rarityInfo = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.rarity);
+        const rarityInfo = this.beastiaryClient.beastiary.encounters.getRarityInfo(this.rarityTier);
 
         const rarityInfoWithEmoji: RarityInfoWithEmoji = {
             ...rarityInfo,

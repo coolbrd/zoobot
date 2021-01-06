@@ -12,6 +12,7 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { inspect } from "util";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
+import { getRandomElement } from "../utility/arraysAndSuch";
 
 export interface RarityInfo {
     tier: number,
@@ -20,8 +21,7 @@ export interface RarityInfo {
 }
 
 export default class EncounterManager {
-    private rarityMap: Map<Types.ObjectId, number> = new Map();
-    private sortedRarityList: number[] = [];
+    private rarityTiers = new Map<number, Types.ObjectId[]>();
 
     private readonly guildsOnRandomEncounterCooldown = new Set<string>();
     private readonly currentlyCapturingPlayers = new Set<Player>();
@@ -32,20 +32,10 @@ export default class EncounterManager {
         this.beastiaryClient = beastiaryClient;
     }
 
-    public getTotalRarityWeight(): number {
-        let totalRarityWeight = 0;
-
-        for (const currentRarityWeight of this.sortedRarityList) {
-            totalRarityWeight += currentRarityWeight;
-        }
-
-        return totalRarityWeight;
-    }
-
     public async loadRarityData(): Promise<void> {
         let speciesDocumentList: Document[];
         try {
-            speciesDocumentList = await SpeciesModel.find({}, { [Species.fieldNames.rarity]: 1 });
+            speciesDocumentList = await SpeciesModel.find({});
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -55,34 +45,57 @@ export default class EncounterManager {
             `);
         }
 
-        this.rarityMap = new Map();
-        const rarityList: number[] = [];
+        this.rarityTiers = new Map();
 
         speciesDocumentList.forEach(currentSpeciesDocument => {
-            this.rarityMap.set(currentSpeciesDocument._id, currentSpeciesDocument.get(Species.fieldNames.rarity));
+            const currentRarityTier = currentSpeciesDocument.get(Species.fieldNames.rarityTier);
 
-            rarityList.push(currentSpeciesDocument.get(Species.fieldNames.rarity));
-        });
+            let rarityList = this.rarityTiers.get(currentRarityTier);
 
-        this.sortedRarityList = rarityList.sort((a: number, b: number) => {
-            return b - a;
+            if (!rarityList) {
+                rarityList = [];
+                this.rarityTiers.set(currentRarityTier, rarityList);
+            }
+
+            rarityList.push(currentSpeciesDocument._id);
         });
     }
 
-    public getWeightedRarityMinimumOccurrence(weightedRarity: number): number {
-        return getWeightedRarityMinimumOccurrence(weightedRarity, this.sortedRarityList);
-    }
+    private getRandomRarityTier(): number {
+        const random = Math.random();
+        const startingRarity = 0.5;
 
-    public async spawnAnimal(channel: TextChannel, player?: Player): Promise<void> {
-        if (this.rarityMap.size <= 0) {
-            throw new Error(stripIndent`
-                Tried to spawn an animal before the encounter rarity map was formed.
+        let currentRarity = startingRarity;
+        let rarityTier = 0;
+        while (random > currentRarity) {
+            rarityTier++;
 
-                Channel: ${inspect(channel)}
-            `);
+            currentRarity += Math.pow(startingRarity, rarityTier + 1);
         }
 
-        const randomSpeciesId = getWeightedRandom(this.rarityMap);
+        rarityTier = Math.min(this.rarityTiers.size - 1, rarityTier);
+
+        if (!this.rarityTiers.has(rarityTier)) {
+            throw new Error(`An invalid rarity tier was selected. Tier: ${rarityTier}`);
+        }
+
+        return rarityTier;
+    }
+
+    private async getRandomSpecies(): Promise<Species> {
+        if (this.rarityTiers.size <= 0) {
+            throw new Error(stripIndent`Tried to spawn an animal before the encounter rarity map was formed.`);
+        }
+
+        const rarityTier = this.getRandomRarityTier();
+
+        const rarityTierList = this.rarityTiers.get(rarityTier);
+
+        if (!rarityTierList) {
+            throw new Error(`An undefined rarity tier was chosen when spawning an animal. Tier: ${rarityTier}`);
+        }
+
+        const randomSpeciesId = getRandomElement(rarityTierList);
 
         let species: Species | undefined;
         try {
@@ -93,7 +106,6 @@ export default class EncounterManager {
                 There was an error getting a species by an id.
 
                 Id: ${randomSpeciesId}
-                Channel: ${inspect(channel)}
                 
                 ${error}
             `);
@@ -104,7 +116,22 @@ export default class EncounterManager {
                 An invalid species id was chosen to be spawned randomly.
 
                 Id: ${randomSpeciesId}
-                Text channel: ${inspect(channel)}
+            `);
+        }
+
+        return species;
+    }
+
+    public async spawnAnimal(channel: TextChannel, player?: Player): Promise<void> {
+        let species: Species;
+        try {
+            species = await this.getRandomSpecies();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a random species for an encounter.
+
+                ${error}
             `);
         }
 
@@ -253,30 +280,28 @@ export default class EncounterManager {
     }
     
     // Gets some visual indication info for any given weighted rarity value
-    public getRarityInfo(rarity: number): RarityInfo {
-        const tierColors = [0x557480, 0x49798b, 0x3e6297, 0x2c67a9, 0x1a97bb, 0x0fc6c6, 0x07cd9c, 0x17bd52, 0x417c36, 0xbbae13, 0xf9da04, 0xf3850a, 0xef0e3a, 0xda23c8, 0xff80ff, 0xfffffe];
-    
-        const rarityOccurrence = this.getWeightedRarityMinimumOccurrence(rarity);
-    
-        let tier = 0;
-        while (tier < tierColors.length - 1) {
-            const tierMinimumChance = 1/(Math.pow(2, tier + 1));
-    
-            if (rarityOccurrence >= tierMinimumChance) {
-                return {
-                    tier: tier,
-                    color: tierColors[tier],
-                    emojiName: `t${tier}`
-                }
-            }
-    
-            tier += 1;
+    public getRarityInfo(rarityTier: number): RarityInfo {
+        if (rarityTier < 0) {
+            throw new Error(`A negative rarity tier was given to getRarityInfo. Tier: ${rarityTier}`);
         }
-    
+
+        const tierColors = [0x557480, 0x49798b, 0x3e6297, 0x2c67a9, 0x1a97bb, 0x0fc6c6, 0x07cd9c, 0x17bd52, 0x417c36, 0xbbae13, 0xf9da04, 0xf3850a, 0xef0e3a, 0xda23c8, 0xff80ff, 0xfffffe];
+
+        let name: string;
+        let color: number;
+        if (rarityTier >= tierColors.length) {
+            name = "tu";
+            color = tierColors[tierColors.length - 1];
+        }
+        else {
+            name = `t${rarityTier}`;
+            color = tierColors[rarityTier];
+        }
+
         return {
-            tier: tier,
-            color: tierColors[tierColors.length - 1],
-            emojiName: "tu"
+            tier: rarityTier,
+            color: color,
+            emojiName: name
         }
     }
 
@@ -302,13 +327,7 @@ export default class EncounterManager {
         const returnPromises: Promise<void>[] = [];
 
         for (let i = 0; i < count; i++) {
-            const speciesId = getWeightedRandom(this.rarityMap);
-
-            const fetchPromise = this.beastiaryClient.beastiary.species.fetchById(speciesId).then(species => {
-                if (!species) {
-                    throw new Error(`Unknown species id: ${speciesId}`);
-                }
-
+            const fetchPromise = this.getRandomSpecies().then(species => {
                 const count = rolledSpecies.get(species) || 0;
 
                 rolledSpecies.set(species, count + 1);
