@@ -78,7 +78,7 @@ export class EDocField<ValueType extends EDocValue> {
 
         switch (this.getTypeString()) {
             case "string": {
-                if (input === undefined) {
+                if (input === undefined || input === null) {
                     this.value = input as ValueType;
                     return;
                 }
