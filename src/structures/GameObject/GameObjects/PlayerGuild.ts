@@ -1,9 +1,11 @@
 import { Guild, GuildChannel } from "discord.js";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
 import { GuildModel, playerGuildSchemaDefinition } from '../../../models/PlayerGuild';
 import { stripIndent } from "common-tags";
+import ListField from "../GameObjectFieldHelpers/ListField";
+import BeastiaryClient from "../../../bot/BeastiaryClient";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
@@ -14,18 +16,28 @@ export class PlayerGuild extends GameObject {
         prefix: "prefix",
         encounterChannelId: "encounterChannelId",
         announcementChannelId: "announcementChannelId",
-        premium: "premium"
+        premium: "premium",
+        awayAnimalIds: "awayAnimalIds"
     };
 
     public static newDocument(guild: Guild): Document {
         return new GuildModel({
             [PlayerGuild.fieldNames.guildId]: guild.id,
             [PlayerGuild.fieldNames.prefix]: config.prefix,
-            [PlayerGuild.fieldNames.premium]: false
+            [PlayerGuild.fieldNames.premium]: false,
+            [PlayerGuild.fieldNames.awayAnimalIds]: []
         });
     }
 
     private _guild: Guild | undefined;
+
+    public readonly awayAnimalIds: ListField<Types.ObjectId>;
+
+    constructor(document: Document, beastiaryClient: BeastiaryClient) {
+        super(document, beastiaryClient);
+
+        this.awayAnimalIds = new ListField(this, PlayerGuild.fieldNames.awayAnimalIds, this.document.get(PlayerGuild.fieldNames.awayAnimalIds));
+    }
 
     public get guild(): Guild {
         if (!this._guild) {

@@ -22,6 +22,13 @@ export const playerGuildSchemaDefinition: BeastiarySchemaDefinition = {
     [PlayerGuild.fieldNames.premium]: {
         type: Boolean,
         required: true
+    },
+    [PlayerGuild.fieldNames.awayAnimalIds]: {
+        type: [Schema.Types.ObjectId],
+        required: true,
+        fieldRestrictions: {
+            defaultValue: []
+        }
     }
 };
 
