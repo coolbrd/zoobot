@@ -205,9 +205,10 @@ export default class DatabaseIntegrityChecker {
             const id: Types.ObjectId = currentAnimalDocument._id;
 
             const idKey = this.idToKey(id);
+            const animalIsAway = currentAnimalDocument.get(Animal.fieldNames.away);
 
-            if (!this.ownedAnimals.has(idKey)) {
-                this.addError("An animal whose id isn't in any collection was found. Fixing.", [currentAnimalDocument]);
+            if (!this.ownedAnimals.has(idKey) && !animalIsAway) {
+                this.addError("An animal that isn't away whose id isn't in any collection was found. Fixing.", [currentAnimalDocument]);
 
                 const ownerDocument = this.findPlayerByUserAndGuildId(
                     allPlayers,
