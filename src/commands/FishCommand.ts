@@ -31,7 +31,7 @@ class FishCommand extends GuildCommand {
 
     private fishingPlayers = new Map<string, TextChannel>();
 
-    private reelWindow = 20 * 1000;
+    private reelWindow = 30 * 1000;
 
     private distanceBounds = {
         min: 1,
