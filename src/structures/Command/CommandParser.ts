@@ -59,10 +59,11 @@ export default class CommandParser {
         for (const argument of splitMessage) {
             let userId: string | undefined;
             if (argument.length >= 18) {
-                const tagPosition = argument.search(/<@!.*>/);
+                const tagPosition = argument.search(/<@.*>/);
 
                 if (tagPosition !== -1) {
-                    userId = argument.slice(tagPosition + 3, tagPosition + 3 + 18);
+                    userId = argument.replace("!", "");
+                    userId = userId.slice(tagPosition + 2, tagPosition + 2 + 18);
                 }
                 else if (argument.length === 18 && !isNaN(Number(argument))) {
                     userId = argument;
