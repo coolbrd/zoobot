@@ -9,6 +9,10 @@ export const premiumIdSchemaDefinition: BeastiarySchemaDefinition = {
     lastCheck: {
         type: Schema.Types.Date,
         required: true
+    },
+    permanent: {
+        type: Boolean,
+        required: true
     }
 };
 

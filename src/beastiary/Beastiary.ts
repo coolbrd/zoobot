@@ -7,6 +7,7 @@ import EncounterManager from "./EncounterManager";
 import PlayerGuildManager from "./PlayerGuildManager";
 import PlayerManager from "./PlayerManager";
 import ResetManager from "./ResetManager";
+import ShardManager from "./ShardManager";
 import SpeciesManager from "./SpeciesManager";
 
 // The central cache holder/manager for all game object managers within The Beastiary
@@ -19,6 +20,7 @@ export default class Beastiary {
     public readonly channels: ChannelManager;
     public readonly resets: ResetManager;
     public readonly emojis: EmojiManager;
+    public readonly shards: ShardManager;
 
     constructor(beastiaryClient: BeastiaryClient) {
         this.players = new PlayerManager(beastiaryClient);
@@ -29,6 +31,7 @@ export default class Beastiary {
         this.channels = new ChannelManager(beastiaryClient);
         this.resets = new ResetManager();
         this.emojis = new EmojiManager(beastiaryClient);
+        this.shards = new ShardManager(beastiaryClient);
     }
 
     public async init(): Promise<void> {

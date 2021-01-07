@@ -6,6 +6,7 @@ import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import GameObjectCache from "../structures/GameObject/GameObjectCache";
 import { stripIndent } from "common-tags";
 import { PremiumIdModel } from "../models/PremiumId";
+import UserError from "../structures/UserError";
 
 export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     protected readonly model = GuildModel;
@@ -87,7 +88,15 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         return playerGuild;
     }
 
-    public async givePremium(id: string): Promise<void> {
+    public async givePremium(id: string, permanent: boolean): Promise<void> {
+        if (permanent) {
+            const idType = await this.beastiaryClient.beastiary.shards.getIdType(id);
+
+            if (idType !== "user") {
+                throw new UserError("Permanent premium status can only be given to users. This id is for something else.");
+            }
+        }
+
         let existingPremiumDocument: Document | null;
         try {
             existingPremiumDocument = await PremiumIdModel.findOne({ id: id });
@@ -103,13 +112,14 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         if (existingPremiumDocument) {
             existingPremiumDocument.updateOne({
                 $set: {
-                    lastCheck: new Date()
+                    lastCheck: new Date(),
+                    permanent: permanent
                 }
             }).exec();
             return;
         }
 
-        const newPremiumIdDocument = new PremiumIdModel({ id: id, lastCheck: new Date() });
+        const newPremiumIdDocument = new PremiumIdModel({ id: id, lastCheck: new Date(), permanent: permanent });
 
         try {
             await newPremiumIdDocument.save();

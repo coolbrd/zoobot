@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
 import Command from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -22,19 +23,30 @@ class GivePremiumCommand extends Command {
             return receipt;
         }
 
-        const id = parsedMessage.consumeArgument().text;
+        const idOrPermenent = parsedMessage.consumeArgument().text.toLowerCase();
+
+        let id: string;
+        let permanent: boolean;
+        if (idOrPermenent === "permanent") {
+            if (!parsedMessage.currentArgument) {
+                betterSend(parsedMessage.channel, "You need to specify the guild id to grant permanent premium status to.");
+                return receipt;
+            }
+
+            id = parsedMessage.consumeArgument().text;
+            permanent = true;
+        }
+        else {
+            id = idOrPermenent;
+            permanent = false;
+        }
 
         try {
-            await beastiaryClient.beastiary.playerGuilds.givePremium(id);
+            await beastiaryClient.beastiary.playerGuilds.givePremium(id, permanent);
         }
         catch (error) {
-            throw new Error(stripIndent`
-                There was an error giving an id premium.
-
-                Id: ${id}
-
-                ${error}
-            `);
+            handleUserError(parsedMessage.channel, error);
+            return receipt;
         }
         
         receipt.reactConfirm = true;
