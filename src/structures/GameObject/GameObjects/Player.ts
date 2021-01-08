@@ -491,6 +491,7 @@ export class Player extends GameObject {
             `);
         }
 
+        animal.changeOwner(this.id);
         this.addAnimalToCollection(animal);
         this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
         this.awardCrewExperienceInChannel(gameConfig.xpPerCapture, channel);

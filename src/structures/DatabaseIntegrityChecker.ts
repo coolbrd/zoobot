@@ -194,6 +194,38 @@ export default class DatabaseIntegrityChecker {
 
                     currentPlayerDocument.save();
                 }
+                else {
+                    const animalUserId = existingAnimal.get(Animal.fieldNames.userId);
+                    const animalOwnerId = existingAnimal.get(Animal.fieldNames.ownerId);
+
+                    if (!animalUserId) {
+                        this.addError(stripIndent`
+                            An owned animal with no user id was found. Fixing.
+                        `, [currentPlayerDocument, existingAnimal]);
+
+                        const playerUserId = currentPlayerDocument.get(Player.fieldNames.userId);
+
+                        existingAnimal.updateOne({
+                            $set: {
+                                [Animal.fieldNames.userId]: playerUserId
+                            }
+                        }).exec();
+                    }
+
+                    if (!animalOwnerId) {
+                        this.addError(stripIndent`
+                            An owned animal with no owner id was found. Fixing.
+                        `, [currentPlayerDocument, existingAnimal]);
+
+                        const playerOwnerId = currentPlayerDocument._id;
+
+                        existingAnimal.updateOne({
+                            $set: {
+                                [Animal.fieldNames.ownerId]: playerOwnerId
+                            }
+                        }).exec();
+                    }
+                }
             }
         }
 
