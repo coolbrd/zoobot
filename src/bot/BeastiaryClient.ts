@@ -144,6 +144,10 @@ export default class BeastiaryClient {
             this.beastiary.channels.sendFeedbackMessage(userTag, avatarUrl, content);
         });
 
+        this.discordClient.on("guildCreate", guild => {
+            console.log(`Joined guild ${guild.name}. Id: ${guild.id}. Members: ${guild.memberCount}`);
+        });
+
         this.discordClient.on("error", error => console.error("Discord client error: ", error));
 
         this.discordClient.on("exit", () => {
