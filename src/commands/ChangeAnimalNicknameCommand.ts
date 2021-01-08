@@ -9,7 +9,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
     public readonly info = "Change the nickname of one of your captured animals";
 
-    public readonly helpUseString = "`<animal number or nickname>` `<new nickname>` to change the nickname of an animal in your collection. Use quotation marks (\") for any names with spaces in them.";
+    public readonly helpUseString = "`<animal number or nickname>` `<new nickname>` to change the nickname of an animal in your collection. Use quotation marks (\") for any animal names/identifiers with spaces in them.";
 
     public readonly arguments: CommandArgumentInfo[] = [
         {
