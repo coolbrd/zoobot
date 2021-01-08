@@ -1,6 +1,6 @@
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
-import Command, { CommandSection } from "../structures/Command/Command";
+import Command, { CommandArgumentInfo, CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
@@ -9,9 +9,16 @@ class CommandAliasesCommand extends Command {
 
     public readonly info = "View the alternate names and abbreviations of a command";
 
-    public readonly helpUseString = "to view the valid aliases of a command.";
+    public readonly helpUseString = "`<command name>` to view the valid aliases of that command.";
 
     public readonly sections = [CommandSection.info];
+
+    public readonly arguments: CommandArgumentInfo[] = [
+        {
+            name: "command name",
+            info: "the name of the command"
+        }
+    ];
 
     public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
