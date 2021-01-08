@@ -8,7 +8,6 @@ export async function betterSend(channel: TextChannel | DMChannel, content: stri
         message = await channel.send(content);
     }
     catch (error) {
-        errorHandler.handleError(error, "There was an error sending a message.");
         return;
     }
 
