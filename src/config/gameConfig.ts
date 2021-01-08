@@ -20,6 +20,7 @@ const gameConfig = {
     cachedGameObjectTimeout: 180000,
     gameObjectFieldSaveDelay: 10000,
     patreonLink: "https://www.patreon.com/coolbrd",
-    supportServerInviteLink: "https://discord.gg/875FPDdRQk"
+    supportServerInviteLink: "https://discord.gg/875FPDdRQk",
+    botInviteLink: "https://discord.com/oauth2/authorize?client_id=737387258683850892&scope=bot&permissions=322624"
 };
 export default gameConfig;

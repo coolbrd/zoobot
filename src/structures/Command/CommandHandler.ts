@@ -54,6 +54,7 @@ import TradeCommand from "../../commands/TradeCommand";
 import { inspect } from "util";
 import SetAnnouncementChannelCommand from "../../commands/SetAnnouncementChannelCommand";
 import AnnounceCommand from "../../commands/AnnounceCommand";
+import SendInviteLinkCommand from "../../commands/SendInviteLinkCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -90,6 +91,7 @@ export default class CommandHandler {
         SendPatreonLinkCommand,
         FeedbackCommand,
         SuppportServerInviteCommand,
+        SendInviteLinkCommand,
         SubmitSpeciesCommand,
         PremiumInfoCommand,
         ApprovePendingSpeciesCommand,

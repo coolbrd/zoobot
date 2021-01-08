@@ -5,21 +5,21 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 
-class SupportServerInviteCommand extends GuildCommand {
-    public readonly names = ["support", "supportserver"];
+class SendInviteLinkCommand extends GuildCommand {
+    public readonly names = ["invite"];
 
-    public readonly info = "Get the link to the official support server";
+    public readonly info = "Get the bot's invite link";
 
-    public readonly helpUseString = "to get the link to the bot's official support server, where you can annoy the developer.";
+    public readonly helpUseString = "to get the link to invite me to other servers.";
 
     public readonly sections = [CommandSection.getInvolved];
 
     public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
         
-        betterSend(parsedMessage.channel, gameConfig.supportServerInviteLink);
+        betterSend(parsedMessage.channel, gameConfig.botInviteLink);
 
         return commandReceipt;
     }
 }
-export default new SupportServerInviteCommand();
+export default new SendInviteLinkCommand();
