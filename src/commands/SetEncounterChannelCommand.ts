@@ -16,7 +16,7 @@ class SetEncounterChannelCommand extends GuildCommand {
 
     public readonly helpUseString = "in the channel you want random encounters to spawn in.";
 
-    public readonly sections = [CommandSection.guildManagement];
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.guildManagement];
 
     public readonly permissionRequirement = "MANAGE_CHANNELS";
 
