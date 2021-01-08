@@ -59,7 +59,7 @@ export default class ShardManager {
 
     public announce(text: string): void {
         this.shard.broadcastEval(`
-            this.emit("announcementMessage", "${text}");
+            this.emit("announcementMessage", \`${text}\`);
         `);
     }
 }
