@@ -181,7 +181,7 @@ export default class EncounterManager {
 
         const encounterGuildChannel = playerGuild.encounterGuildChannel;
 
-        let encounterChannel: TextChannel;
+        let encounterChannel: TextChannel | undefined;
         if (encounterGuildChannel) {
             try {
                 encounterChannel = await encounterGuildChannel.fetch() as TextChannel;
@@ -195,27 +195,6 @@ export default class EncounterManager {
                     ${error}
                 `);
             }
-        }
-        else {
-            let potentialEncounterChannel: TextChannel | undefined
-            try {
-                potentialEncounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
-            }
-            catch (error) {
-                throw new Error(stripIndent`
-                    There was an error getting the first available text channel in a guild before spawning an animal.
-
-                    Guild: ${inspect(playerGuild.guild)}
-                    
-                    ${error}
-                `);
-            }
-
-            if (!potentialEncounterChannel) {
-                return;
-            }
-
-            encounterChannel = potentialEncounterChannel;
         }
 
         return encounterChannel;

@@ -137,20 +137,6 @@ export class PlayerGuild extends GameObject {
                 `);
             }
         }
-        else {
-            try {
-                announcementTextChannel = await getFirstAvailableTextChannel(this.guild);
-            }
-            catch (error) {
-                throw new Error(stripIndent`
-                    There was an error fetching the first available text channel in a player guild.
-
-                    Player guild: ${this.debugString}
-
-                    ${error}
-                `);
-            }
-        }
 
         return announcementTextChannel;
     }
