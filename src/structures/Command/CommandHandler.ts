@@ -130,6 +130,12 @@ export default class CommandHandler {
         const messagePrefix = this.getMessagePrefixUsed(message);
 
         if (messagePrefix) {
+            console.log(stripIndent`
+                Received message: ${message.content}
+                From: ${message.author.username}
+                In guild: ${message.guild ? message.guild.name : "N/A"}
+            `);
+
             const sendInGuild = Boolean(message.guild);
 
             let parsedMessage: CommandParser | GuildCommandParser;
