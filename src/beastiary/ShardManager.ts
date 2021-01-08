@@ -15,6 +15,10 @@ export default class ShardManager {
         }
 
         this.shard = beastiaryClient.discordClient.shard;
+
+        this.shard.client.on("announcementMessage", text => {
+            this.beastiaryClient.beastiary.playerGuilds.announceToAll(text);
+        });
     }
 
     public async getIdType(id: string): Promise<"user" | "guild" | "unknown"> {
@@ -51,5 +55,11 @@ export default class ShardManager {
             return definitiveResult;
         }
         else return "unknown";
+    }
+
+    public announce(text: string): void {
+        this.shard.broadcastEval(`
+            this.emit("announcementMessage", "${text}");
+        `);
     }
 }

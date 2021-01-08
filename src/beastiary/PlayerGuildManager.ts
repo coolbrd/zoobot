@@ -167,4 +167,30 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
 
         return isPremium;
     }
+
+    public async announceToAll(text: string): Promise<void> {
+        const allGuildIds = this.beastiaryClient.discordClient.guilds.cache.map(guild => guild.id);
+
+        const guildFetchPromises: Promise<PlayerGuild>[] = [];
+
+        for (const guildId of allGuildIds) {
+            const fetchPromise = this.fetchByGuildId(guildId);
+
+            guildFetchPromises.push(fetchPromise);
+        }
+
+        let allPlayerGuilds: PlayerGuild[];
+        try {
+            allPlayerGuilds = await Promise.all(guildFetchPromises);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching one of all the player guilds in a shard's cache.
+            `);
+        }
+
+        allPlayerGuilds.forEach(playerGuild => {
+            playerGuild.announce(text);
+        });
+    }
 }

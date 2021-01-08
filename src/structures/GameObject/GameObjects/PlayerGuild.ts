@@ -1,4 +1,4 @@
-import { Guild, GuildChannel } from "discord.js";
+import { Guild, GuildChannel, TextChannel } from "discord.js";
 import { Document, Types } from "mongoose";
 import config from "../../../config/BotConfig";
 import GameObject from "../GameObject";
@@ -6,6 +6,10 @@ import { GuildModel, playerGuildSchemaDefinition } from '../../../models/PlayerG
 import { stripIndent } from "common-tags";
 import ListField from "../GameObjectFieldHelpers/ListField";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
+import { inspect } from "util";
+import getFirstAvailableTextChannel from "../../../discordUtility/getFirstAvailableTextChannel";
+import { betterSend } from "../../../discordUtility/messageMan";
+import SmartEmbed from "../../../discordUtility/SmartEmbed";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
@@ -99,6 +103,82 @@ export class PlayerGuild extends GameObject {
         }
 
         return encounterGuildChannel;
+    }
+
+    public get announcementGuildChannel(): GuildChannel | undefined {
+        if (!this.announcementChannelId) {
+            return;
+        }
+
+        const announcementGuildChannel = this.guild.channels.resolve(this.announcementChannelId) || undefined;
+
+        if (!announcementGuildChannel) {
+            this.announcementChannelId = undefined;
+        }
+
+        return announcementGuildChannel;
+    }
+
+    public async fetchAnnouncementChannel(): Promise<TextChannel | undefined> {
+        const announcementGuildChannel = this.announcementGuildChannel;
+
+        let announcementTextChannel: TextChannel | undefined;
+        if (announcementGuildChannel) {
+            try {
+                announcementTextChannel = await announcementGuildChannel.fetch() as TextChannel;
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching a guild channel's text channel.
+
+                    Guild channel: ${inspect(announcementGuildChannel)}
+
+                    ${error}
+                `);
+            }
+        }
+        else {
+            try {
+                announcementTextChannel = await getFirstAvailableTextChannel(this.guild);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching the first available text channel in a player guild.
+
+                    Player guild: ${this.debugString}
+
+                    ${error}
+                `);
+            }
+        }
+
+        return announcementTextChannel;
+    }
+
+    public async announce(text: string): Promise<void> {
+        let announcementTextChannel: TextChannel | undefined;
+        try {
+            announcementTextChannel = await this.fetchAnnouncementChannel();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching an announcement text channel in a player guild.
+
+                ${error}
+            `);
+        }
+
+        if (!announcementTextChannel) {
+            return;
+        }
+
+        const embed = new SmartEmbed();
+
+        embed.setTitle("Announcement");
+        embed.setColor(0xFF0000);
+        embed.setDescription(text);
+
+        betterSend(announcementTextChannel, embed);
     }
 
     private async loadGuild(): Promise<void> {

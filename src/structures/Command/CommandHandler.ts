@@ -52,6 +52,8 @@ import RefreshPremiumCommand from "../../commands/RefreshPremiumCommand";
 import GiveAnimalCommand from "../../commands/GiveAnimalCommand";
 import TradeCommand from "../../commands/TradeCommand";
 import { inspect } from "util";
+import SetAnnouncementChannelCommand from "../../commands/SetAnnouncementChannelCommand";
+import AnnounceCommand from "../../commands/AnnounceCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -70,7 +72,9 @@ export default class CommandHandler {
         MoveAnimalsCommand,
         ReleaseAnimalCommand,
         GiveXpCommand,
+        FishCommand,
         SetEncounterChannelCommand,
+        SetAnnouncementChannelCommand,
         RefreshPremiumCommand,
         ChangeGuildPrefixCommand,
         ViewResetsCommand,
@@ -79,7 +83,6 @@ export default class CommandHandler {
         CommandAliasesCommand,
         SpeciesInfoCommand,
         AnimalInfoCommand,
-        FishCommand,
         CommandListCommand,
         EditSpeciesCommand,
         GiveAnimalCommand,
@@ -94,6 +97,7 @@ export default class CommandHandler {
         GivePremiumCommand,
         RemovePremiumCommand,
         TogglePremiumCommand,
+        AnnounceCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
