@@ -40,6 +40,8 @@ export default abstract class InteractiveMessage extends EventEmitter {
 
     private _deactivated = false;
 
+    private reactionFailWarned = false;
+
     constructor(channel: TextChannel | DMChannel, beastiaryClient: BeastiaryClient) {
         super();
 
@@ -197,13 +199,10 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 await safeReact(this.message, button.emoji);
             }
             catch (error) {
-                throw new Error(stripIndent`
-                    Error trying to add reactions to an interactive message.
-
-                    Interactive message: ${this.debugString}
-                    
-                    ${error}
-                `);
+                if (!this.reactionFailWarned) {
+                    betterSend(this.channel, "Hmm, I couldn't add reactions to a message. Do I have the proper permission to do that in this channel?");
+                    this.reactionFailWarned = true;
+                }
             }
         }
 
