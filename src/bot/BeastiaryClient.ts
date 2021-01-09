@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
-import { Client, ClientUser, Message, ShardClientUtil } from "discord.js";
+import { Client, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
 import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
@@ -23,6 +23,18 @@ export default class BeastiaryClient {
         this.interactiveMessageHandler = new InteractiveMessageHandler(this.discordClient);
 
         this.init();
+    }
+
+    private initialize_infinity_api(): void {
+        if (!this.discordClient.user) {
+            throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
+        }
+        
+        const stats = new IBL(this.discordClient.user.id, "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi");
+
+        setInterval(() => {
+            stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
+        }, 180000);
     }
 
     private async init(): Promise<void> {
@@ -87,11 +99,7 @@ export default class BeastiaryClient {
                     `);
                 });
 
-                const stats = new IBL(this.discordClient.user.id, "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi");
-
-                setInterval(() => {
-                    stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
-                }, 180000);
+                this.initialize_infinity_api();
             }
 
             preLoad.connectedToDiscord = true;
