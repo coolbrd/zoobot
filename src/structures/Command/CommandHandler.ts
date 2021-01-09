@@ -134,7 +134,7 @@ export default class CommandHandler {
         if (messagePrefix) {
             console.log(stripIndent`
                 Received message: ${message.content}
-                From: ${message.author.username}
+                From: ${message.author.tag}
                 In guild: ${message.guild ? message.guild.name : "N/A"}
             `);
 
