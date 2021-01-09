@@ -41,7 +41,7 @@ export default class CommandListMessage extends PagedListMessage<Command> {
 
         const prefixHelpString = `Prefix commands with "${this.beastiaryClient.commandHandler.getPrefixByGuild((this.channel as TextChannel).guild)}", or by pinging me!`;
         const footerText = embed.footer ? embed.footer.text : "";
-        const reactionInfoString = "Reactions now showing up? You may need to ensure that I have permission to react to messages in this channel.";
+        const reactionInfoString = "Reactions not showing up? You may need to ensure that I have permission to react to messages in this channel.";
         embed.setFooter(prefixHelpString + "\n" + footerText + "\n" + reactionInfoString);
 
         return embed;
