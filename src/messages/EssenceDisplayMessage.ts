@@ -33,6 +33,30 @@ export default class EssenceDisplayMessage extends LoadableGameObjectDisplayMess
         return speciesString;
     }
 
+    private sortElementsByEssence(): void {
+        this.elements.sort((a, b) => {
+            const essenceA = this.player.getEssence(a.id);
+            const essenceB = this.player.getEssence(b.id);
+
+            return essenceB - essenceA;
+        });
+    }
+
+    public async build(): Promise<void> {
+        this.sortElementsByEssence();
+
+        try {
+            await super.build();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error building the inherited information in an essence message.
+                
+                ${error}
+            `);
+        }
+    }
+
     protected async buildEmbed(): Promise<MessageEmbed> {
         let embed: MessageEmbed;
         try {
