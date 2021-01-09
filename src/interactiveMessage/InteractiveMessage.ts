@@ -195,15 +195,12 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.beastiaryClient.interactiveMessageHandler.addMessage(this);
 
         for (const button of this.buttons.values()) {
-            try {
-                await safeReact(this.message, button.emoji);
-            }
-            catch (error) {
+            safeReact(this.message, button.emoji).catch(() => {
                 if (!this.reactionFailWarned) {
                     betterSend(this.channel, "Hmm, I couldn't add reactions to a message. Do I have the proper permission to do that in this channel?");
                     this.reactionFailWarned = true;
                 }
-            }
+            });
         }
 
         this.timer = this.setTimer();
