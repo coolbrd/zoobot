@@ -56,8 +56,8 @@ class FishCommand extends GuildCommand {
         this.fishingPlayers.delete(player.id.toHexString());
     }
 
-    private playerIsFishing(player: Player): boolean {
-        return Boolean(this.fishingPlayers.get(player.id.toHexString()));
+    private playerFishingChannel(player: Player): TextChannel | undefined {
+        return this.fishingPlayers.get(player.id.toHexString());
     }
 
     private isReelMessage(message: Message): boolean {
@@ -97,7 +97,7 @@ class FishCommand extends GuildCommand {
         
         let player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        const fishingChannel = this.playerIsFishing(player);
+        const fishingChannel = this.playerFishingChannel(player);
         if (fishingChannel) {
             betterSend(parsedMessage.channel, `You're already fishing in ${fishingChannel}, reel in your line before trying to cast again!`);
             return commandReceipt;
