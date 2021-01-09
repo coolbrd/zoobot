@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
-import { Client, Message } from "discord.js";
+import { Client, ClientUser, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
 import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";
+import IBL from "infinity-api";
 
 export default class BeastiaryClient {
     public readonly discordClient: Client;
@@ -85,6 +86,12 @@ export default class BeastiaryClient {
                         ${error}
                     `);
                 });
+
+                const stats = new IBL(this.discordClient.user.id, "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi");
+
+                setInterval(() => {
+                    stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
+                }, 180000);
             }
 
             preLoad.connectedToDiscord = true;
