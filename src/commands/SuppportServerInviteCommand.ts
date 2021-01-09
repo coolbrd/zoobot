@@ -12,7 +12,7 @@ class SupportServerInviteCommand extends GuildCommand {
 
     public readonly helpUseString = "to get the link to the bot's official support server, where you can annoy the developer.";
 
-    public readonly sections = [CommandSection.getInvolved];
+    public readonly sections = [CommandSection.gettingStarted, CommandSection.getInvolved];
 
     public async run(parsedMessage: CommandParser, _beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();

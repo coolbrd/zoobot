@@ -193,7 +193,10 @@ export default abstract class InteractiveMessage extends EventEmitter {
         this.beastiaryClient.interactiveMessageHandler.addMessage(this);
 
         for (const button of this.buttons.values()) {
-            safeReact(this.message, button.emoji).catch(error => {
+            try {
+                await safeReact(this.message, button.emoji);
+            }
+            catch (error) {
                 throw new Error(stripIndent`
                     Error trying to add reactions to an interactive message.
 
@@ -201,7 +204,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                     
                     ${error}
                 `);
-            });
+            }
         }
 
         this.timer = this.setTimer();
