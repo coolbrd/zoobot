@@ -12,7 +12,7 @@ export class BeastiaryServer extends EventEmitter {
     constructor(port?: number) {
         super();
 
-        this.port = port || 3000;
+        this.port = port || 3001;
 
         this.app.use(express.json());
     }
