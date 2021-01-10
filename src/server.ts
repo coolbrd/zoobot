@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import express from "express";
 import localtunnel from "localtunnel";
 import { inspect } from "util";
-import { IBLwebAuth, webserverPort } from "./config/secrets";
+import { IBL_WEB_AUTH, WEBSERVER_PORT } from "./config/secrets";
 
 export class BeastiaryServer extends EventEmitter {
     public readonly app = express();
@@ -12,7 +12,7 @@ export class BeastiaryServer extends EventEmitter {
     constructor(port?: number) {
         super();
 
-        this.port = port || webserverPort;
+        this.port = port || WEBSERVER_PORT;
 
         this.app.use(express.json());
     }
@@ -44,7 +44,7 @@ export class BeastiaryServer extends EventEmitter {
 
     private registerIBLWebhook(): void {
         this.app.post("/IBLhook", (req, res) => {
-            if (req.headers['authorization'] !== IBLwebAuth) {
+            if (req.headers['authorization'] !== IBL_WEB_AUTH) {
                 res.status(401);
                 delete req.headers['authorization'];
                 console.error(stripIndent`
