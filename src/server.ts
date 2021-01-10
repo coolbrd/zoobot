@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import express from "express";
 import localtunnel from "localtunnel";
 import { inspect } from "util";
-import { IBLwebAuth } from "./config/secrets";
+import { IBLwebAuth, webserverPort } from "./config/secrets";
 
 export class BeastiaryServer extends EventEmitter {
     public readonly app = express();
@@ -12,7 +12,7 @@ export class BeastiaryServer extends EventEmitter {
     constructor(port?: number) {
         super();
 
-        this.port = port || 3001;
+        this.port = port || webserverPort;
 
         this.app.use(express.json());
     }
