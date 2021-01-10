@@ -55,6 +55,7 @@ import { inspect } from "util";
 import SetAnnouncementChannelCommand from "../../commands/SetAnnouncementChannelCommand";
 import AnnounceCommand from "../../commands/AnnounceCommand";
 import SendInviteLinkCommand from "../../commands/SendInviteLinkCommand";
+import VoteCommand from "../../commands/VoteCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -84,6 +85,7 @@ export default class CommandHandler {
         CommandAliasesCommand,
         SpeciesInfoCommand,
         AnimalInfoCommand,
+        VoteCommand,
         CommandListCommand,
         EditSpeciesCommand,
         GiveAnimalCommand,

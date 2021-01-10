@@ -8,7 +8,8 @@ export const ADMIN_SERVER_ID = process.env.adminserverid as string;
 export const EMOJI_SERVER_ID = process.env.emojiserverid as string;
 export const FEEDBACK_CHANNEL_ID = process.env.feedbackchannelid as string;
 export const DEVELOPER_ID = process.env.developerid as string;
+export const IBLwebAuth = process.env.IBLwebAuth as string;
 
-if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID) {
+if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBLwebAuth) {
     throw new Error("One or more environment variables failed to load.");
 }

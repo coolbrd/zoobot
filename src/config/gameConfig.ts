@@ -1,7 +1,6 @@
 const gameConfig = {
     randomEncounterChanceOnMessage: 0.01,
     randomEncounterGuildCooldown: 120000,
-    dailyCurrencyPeriod: 22 * 60 * 60 * 1000,
     freeEncounterPeriod: 1* 60 * 60 * 1000,
     freeEncountersPerPeriod: 2,
     freeEncounterMaxStack: 5,

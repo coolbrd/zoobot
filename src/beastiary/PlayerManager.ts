@@ -353,4 +353,83 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
     }
+
+    public async fetchAllAvailablePlayersByUserId(userId: string): Promise<Player[]> {
+        try {
+            await this.beastiaryClient.discordClient.users.fetch(userId);
+        }
+        catch (error) {
+            return [];
+        }
+
+        let playerDocuments: Document[];
+        try {
+            playerDocuments = await PlayerModel.find({
+                [Player.fieldNames.userId]: userId
+            });
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching all player documents that had one user id.
+
+                Id: ${userId}
+
+                ${error}
+            `);
+        }
+
+        const fetchPromises: Promise<void>[] = [];
+        const loadablePlayerDocuments: Document[] = [];
+        for (const playerDocument of playerDocuments) {
+            const guildId = playerDocument.get(Player.fieldNames.guildId) as string;
+
+            const guildFetchPromise = this.beastiaryClient.discordClient.guilds.fetch(guildId).then(() => {
+                loadablePlayerDocuments.push(playerDocument);
+            }).catch(() => undefined);
+
+            fetchPromises.push(guildFetchPromise);
+        }
+        await Promise.all(fetchPromises);
+
+        const cachePromises: Promise<void>[] = [];
+        const players: Player[] = [];
+        for (const playerDocument of loadablePlayerDocuments) {
+            const cachePromise = this.addDocumentToCache(playerDocument).then(player => {
+                players.push(player);
+            }).catch(error => {
+                console.error("There was an error caching a player document.", error);
+            });
+            cachePromises.push(cachePromise);
+        }
+        try {
+            await Promise.all(cachePromises);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error resolving all player cache promises while handling a vote.
+
+                ${error}
+            `);
+        }
+
+        return players;
+    }
+
+    public async handleVote(userId: string): Promise<void> {
+        let players: Player[];
+        try {
+            players = await this.fetchAllAvailablePlayersByUserId(userId);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching all available players by a user id after receiving a vote.
+            `);
+        }
+
+        console.log("Vote received!")
+        for (const player of players) {
+            console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${player.freeEncounters.maxStack} encounters.`)
+            player.extraEncountersLeft += player.freeEncounters.maxStack;
+        }
+    }
 }

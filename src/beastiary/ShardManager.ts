@@ -19,6 +19,10 @@ export default class ShardManager {
         this.shard.client.on("announcementMessage", text => {
             this.beastiaryClient.beastiary.playerGuilds.announceToAll(text);
         });
+
+        this.shard.client.on("IBLvote", async (userId: string) => {
+            this.beastiaryClient.beastiary.players.handleVote(userId);
+        });
     }
 
     public async getIdType(id: string): Promise<"user" | "guild" | "unknown"> {

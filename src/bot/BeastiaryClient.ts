@@ -29,8 +29,11 @@ export default class BeastiaryClient {
         if (!this.discordClient.user) {
             throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
         }
-        
-        const stats = new IBL(this.discordClient.user.id, "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi");
+
+        const stats = new IBL(
+            this.discordClient.user.id,
+            "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi"
+        );
 
         setInterval(() => {
             stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
@@ -84,7 +87,6 @@ export default class BeastiaryClient {
         preLoad.guildPrefixesLoaded = true;
         complete();
 
-
         this.discordClient.login(DISCORD_TOKEN);
 
         this.discordClient.on("ready", () => {
@@ -121,34 +123,43 @@ export default class BeastiaryClient {
         });
 
 
-        this.discordClient.on("message", (message: Message) => {
+        this.discordClient.on("message", async (message: Message) => {
             if (!this.readyForInput) {
                 return;
             }
 
-            this.commandHandler.handleMessage(message).then(() => {
-                this.beastiary.players.handleMessage(message).then(() => {
-                    this.beastiary.encounters.handleMessage(message).catch(error => {
-                        console.error(stripIndent`
-                            There was an error handling a message through the encounter handler.
-                            
-                            Message: ${inspect(message)}
-                        `, error);
-                    });
-                }).catch(error => {
-                    console.error(stripIndent`
-                        There was an error handling a message through the player manager.
-                        
-                        Message: ${inspect(message)}
-                    `, error);
-                });
-            }).catch(error => {
+            try {
+                await this.commandHandler.handleMessage(message);
+            }
+            catch (error) {
                 console.error(stripIndent`
                     There was an error handling a message through the command handler.
                     
                     Message: ${inspect(message)}
                 `, error);
-            });
+            }
+
+            try {
+                await this.beastiary.players.handleMessage(message);
+            }
+            catch (error) {
+                console.error(stripIndent`
+                    There was an error handling a message through the player manager.
+                    
+                    Message: ${inspect(message)}
+                `, error);
+            }
+
+            try {
+                await this.beastiary.encounters.handleMessage(message);
+            }
+            catch (error) {
+                console.error(stripIndent`
+                    There was an error handling a message through the encounter handler.
+                    
+                    Message: ${inspect(message)}
+                `, error);
+            }
         });
 
         this.discordClient.on("feedbackmessage", (userTag: string, avatarUrl: string, content: string) => {
