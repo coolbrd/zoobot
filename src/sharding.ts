@@ -68,7 +68,7 @@ mongoose.connect(MONGODB_PATH, { dbName: "zoobot", useNewUrlParser: true, useUni
         });
     });
 
-    beastiaryServer.on("IBLvote", userId => {
-        manager.broadcastEval(`this.emit("IBLvote", "${userId}")`);
+    beastiaryServer.on("vote", userId => {
+        manager.broadcastEval(`this.emit("vote", "${userId}")`);
     });
 });

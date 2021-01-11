@@ -2,11 +2,10 @@ import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
 import { Client, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
-import { DBL_WEB_AUTH, DISCORD_TOKEN, MONGODB_PATH, VULTREX_WEB_AUTH } from "../config/secrets";
+import { DBL_WEB_AUTH, DISCORD_TOKEN, IBL_TOKEN, MONGODB_PATH, VULTREX_WEB_AUTH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";
-import IBL from "infinity-api";
 import fetch from "node-fetch";
 
 export default class BeastiaryClient {
@@ -27,17 +26,22 @@ export default class BeastiaryClient {
     }
 
     private initializeIBLstats(): void {
-        if (!this.discordClient.user) {
-            throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
-        }
-
-        const stats = new IBL(
-            this.discordClient.user.id,
-            "b995qZJZLtfWXe4NG4SfBhhMtVu9ZFqjWvLKxwskDJD24hW3AObTKziLzqxzpYnf7BYQ438z5jEwlLlQ2OFJRF8wCwq712ZzPYAi"
-        );
-
         setInterval(() => {
-            stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
+            if (!this.discordClient.user) {
+                throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
+            }
+
+            fetch(`https://infinitybotlist.com/api/bots/737387258683850892`, {
+                method: "POST",
+                headers: {
+                    "authorization": IBL_TOKEN,
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    servers: this.discordClient.guilds.cache.size,
+                    shards: (this.discordClient.shard as ShardClientUtil).count
+                })
+            });
         }, 180000);
     }
 

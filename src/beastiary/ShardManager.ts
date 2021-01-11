@@ -20,7 +20,7 @@ export default class ShardManager {
             this.beastiaryClient.beastiary.playerGuilds.announceToAll(text);
         });
 
-        this.shard.client.on("IBLvote", async (userId: string) => {
+        this.shard.client.on("vote", async (userId: string) => {
             this.beastiaryClient.beastiary.players.handleVote(userId);
         });
     }
