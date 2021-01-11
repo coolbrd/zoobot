@@ -56,6 +56,7 @@ import SetAnnouncementChannelCommand from "../../commands/SetAnnouncementChannel
 import AnnounceCommand from "../../commands/AnnounceCommand";
 import SendInviteLinkCommand from "../../commands/SendInviteLinkCommand";
 import VoteCommand from "../../commands/VoteCommand";
+import ListGuildsCommand from "../../commands/ListGuildsCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -102,6 +103,7 @@ export default class CommandHandler {
         RemovePremiumCommand,
         TogglePremiumCommand,
         AnnounceCommand,
+        ListGuildsCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();

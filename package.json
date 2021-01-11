@@ -40,7 +40,6 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "heapdump": "^0.3.15",
-    "infinity-api": "^1.1.2",
     "localtunnel": "^2.0.1",
     "mongoose": "^5.10.17",
     "newrelic": "^7.0.0",

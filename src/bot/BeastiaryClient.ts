@@ -31,7 +31,7 @@ export default class BeastiaryClient {
                 throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
             }
 
-            fetch(`https://infinitybotlist.com/api/bots/737387258683850892`, {
+            fetch(`https://infinitybotlist.com/api/bots/${this.discordClient.user.id}`, {
                 method: "POST",
                 headers: {
                     "authorization": IBL_TOKEN,
