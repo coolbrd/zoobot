@@ -23,7 +23,7 @@ class SetAnnouncementChannelCommand extends GuildCommand {
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
 
-        let playerGuild: PlayerGuild;
+        let playerGuild: PlayerGuild | undefined;
         try {
             playerGuild = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
@@ -34,6 +34,12 @@ class SetAnnouncementChannelCommand extends GuildCommand {
                 Guild id: ${parsedMessage.guild.id}
                 
                 ${error}
+            `);
+        }
+
+        if (!playerGuild) {
+            throw new Error(stripIndent`
+                No player guild could be found for a guild in the change announcement channel command.
             `);
         }
 

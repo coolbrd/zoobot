@@ -32,9 +32,9 @@ class ChangeGuildPrefixCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        let guildObject: PlayerGuild;
+        let playerGuild: PlayerGuild | undefined;
         try {
-            guildObject = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
+            playerGuild = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -46,9 +46,15 @@ class ChangeGuildPrefixCommand extends GuildCommand {
             `);
         }
 
-        guildObject.prefix = prefix;
+        if (!playerGuild) {
+            throw new Error(stripIndent`
+                No player guild could be found for a guild in the change guild prefix command.
+            `);
+        }
 
-        beastiaryClient.commandHandler.changeGuildPrefix(guildObject.guildId, prefix);
+        playerGuild.prefix = prefix;
+
+        beastiaryClient.commandHandler.changeGuildPrefix(playerGuild.guildId, prefix);
 
         betterSend(parsedMessage.channel, `Success. My prefix is now \`${prefix}\`.`);
 

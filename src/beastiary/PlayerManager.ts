@@ -221,7 +221,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     }
 
     private async createNewPlayer(guildMember: GuildMember): Promise<Player> {
-        let playerGuild: PlayerGuild;
+        let playerGuild: PlayerGuild | undefined;
         try {
             playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(guildMember.guild.id);
         }
@@ -232,6 +232,12 @@ export default class PlayerManager extends GameObjectCache<Player> {
                 Guild member: ${inspect(guildMember)}
 
                 ${error}
+            `);
+        }
+
+        if (!playerGuild) {
+            throw new Error(stripIndent`
+                No player guild could be found for a newly created player.
             `);
         }
 

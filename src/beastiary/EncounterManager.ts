@@ -165,7 +165,7 @@ export default class EncounterManager {
     }
 
     private async fetchGuildEncounterChannel(guild: Guild): Promise<TextChannel | undefined> {
-        let playerGuild: PlayerGuild;
+        let playerGuild: PlayerGuild | undefined;
         try {
             playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(guild.id);
         }
@@ -176,6 +176,12 @@ export default class EncounterManager {
                 Guild id: ${guild.id}
                 
                 ${error}
+            `);
+        }
+
+        if (!playerGuild) {
+            throw new Error(stripIndent`
+                No player guild could be found for a guild id in fetchGuildEncounterChannel.
             `);
         }
 

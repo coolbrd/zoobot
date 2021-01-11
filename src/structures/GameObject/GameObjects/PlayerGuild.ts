@@ -137,6 +137,16 @@ export class PlayerGuild extends GameObject {
                 `);
             }
         }
+        else {
+            try {
+                announcementTextChannel = await getFirstAvailableTextChannel(this.guild);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error getting the first available text channel in a guild.
+                `);
+            }
+        }
 
         return announcementTextChannel;
     }

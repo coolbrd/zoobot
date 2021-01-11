@@ -1,4 +1,5 @@
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { betterSend } from "../discordUtility/messageMan";
 import { GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
@@ -14,6 +15,11 @@ class TogglePremiumCommand extends GuildCommand {
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const playerGuild = await beastiaryClient.beastiary.playerGuilds.fetchByGuildId(parsedMessage.guild.id);
+
+        if (!playerGuild) {
+            betterSend(parsedMessage.channel, "Invalid guild id.");
+            return this.newReceipt();
+        }
 
         playerGuild.premium = !playerGuild.premium;
 

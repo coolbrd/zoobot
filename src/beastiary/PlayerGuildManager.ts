@@ -17,7 +17,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         return new PlayerGuild(document, this.beastiaryClient);
     }
 
-    public async fetchByGuildId(guildId: string): Promise<PlayerGuild> {
+    public async fetchByGuildId(guildId: string): Promise<PlayerGuild | undefined> {
         const cachedMatchingGuild = this.getMatchingFromCache(guild => {
             return guild.guildId === guildId;
         });
@@ -46,13 +46,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
                 guild = await this.beastiaryClient.discordClient.guilds.fetch(guildId);
             }
             catch (error) {
-                throw new Error(stripIndent`
-                    There was an error fetching a guild by its id when creating a new guild document.
-
-                    Guild id: ${guildId}
-                    
-                    ${error}
-                `);
+                return undefined;
             }
 
             guildDocument = PlayerGuild.newDocument(guild);
@@ -171,7 +165,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
     public async announceToAll(text: string): Promise<void> {
         const allGuildIds = this.beastiaryClient.discordClient.guilds.cache.map(guild => guild.id);
 
-        const guildFetchPromises: Promise<PlayerGuild>[] = [];
+        const guildFetchPromises: Promise<PlayerGuild | undefined>[] = [];
 
         for (const guildId of allGuildIds) {
             const fetchPromise = this.fetchByGuildId(guildId);
@@ -179,7 +173,7 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
             guildFetchPromises.push(fetchPromise);
         }
 
-        let allPlayerGuilds: PlayerGuild[];
+        let allPlayerGuilds: (PlayerGuild | undefined)[];
         try {
             allPlayerGuilds = await Promise.all(guildFetchPromises);
         }
@@ -190,7 +184,9 @@ export default class PlayerGuildManager extends GameObjectCache<PlayerGuild> {
         }
 
         allPlayerGuilds.forEach(playerGuild => {
-            playerGuild.announce(text);
+            if (playerGuild) {
+                playerGuild.announce(text);
+            }
         });
     }
 }
