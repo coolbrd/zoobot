@@ -21,6 +21,7 @@ class VoteCommand extends Command {
         embed.setColor(0xf75142);
         embed.setDescription("Whenever you can, vote on any of these websites for free extra encounters!");
         embed.addField("Infinity Bot List", "[Vote](https://infinitybotlist.com/bots/737387258683850892/vote)", true);
+        embed.addField("DiscordBots", "[Vote](https://discordbots.co/bot/737387258683850892)", true);
         embed.setFooter("The number of extra encounters you are rewarded is equal to your max stack value of free encounters.");
 
         betterSend(parsedMessage.channel, embed);
