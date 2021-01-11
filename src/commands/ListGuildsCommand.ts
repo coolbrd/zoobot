@@ -16,7 +16,7 @@ class ListGuildsCommand extends Command {
     public async run(parsedMessage: CommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         let guildString = "";
         for (const guild of beastiaryClient.discordClient.guilds.cache.values()) {
-            guildString += `${guild.name}: \`${guild.id}\`\n (${guild.memberCount} members)`;
+            guildString += `${guild.name}: \`${guild.id}\`  (${guild.memberCount} members)\n`;
         }
 
         betterSend(parsedMessage.channel, guildString);
