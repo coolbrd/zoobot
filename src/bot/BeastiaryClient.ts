@@ -2,11 +2,12 @@ import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
 import { Client, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
-import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
+import { DBL_WEB_AUTH, DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";
 import IBL from "infinity-api";
+import fetch from "node-fetch";
 
 export default class BeastiaryClient {
     public readonly discordClient: Client;
@@ -25,7 +26,7 @@ export default class BeastiaryClient {
         this.init();
     }
 
-    private initialize_infinity_api(): void {
+    private initializeIBLstats(): void {
         if (!this.discordClient.user) {
             throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
         }
@@ -37,6 +38,27 @@ export default class BeastiaryClient {
 
         setInterval(() => {
             stats.postStats(this.discordClient.guilds.cache.size, (this.discordClient.shard as ShardClientUtil).count);
+        }, 180000);
+    }
+
+    private initializeDBLStats(): void {
+        setInterval(() => {
+            if (!this.discordClient.user) {
+                throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
+            }
+
+            fetch(`https://discordbotlist.com/api/v1/bots/${this.discordClient.user.id}/stats`, {
+                method: "POST",
+                headers: {
+                    "authorization": DBL_WEB_AUTH,
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    users: this.discordClient.users.cache.size,
+                    guilds: this.discordClient.guilds.cache.size,
+                    shard_id: (this.discordClient.shard as ShardClientUtil).count
+                })
+            });
         }, 180000);
     }
 
@@ -101,7 +123,8 @@ export default class BeastiaryClient {
                     `);
                 });
 
-                this.initialize_infinity_api();
+                this.initializeIBLstats();
+                this.initializeDBLStats();
             }
 
             preLoad.connectedToDiscord = true;
