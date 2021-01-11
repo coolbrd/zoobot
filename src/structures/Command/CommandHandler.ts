@@ -179,7 +179,6 @@ export default class CommandHandler {
             const commandResolver = new CommandResolver(parsedMessage, this.baseCommands);
 
             if (!commandResolver.command) {
-                betterSend(parsedMessage.channel, `I don't recognize that command. Try \`${displayPrefix}commands\`.`);
                 return;
             }
             else {
