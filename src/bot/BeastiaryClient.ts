@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
 import { Client, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
-import { DBL_WEB_AUTH, DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
+import { DBL_WEB_AUTH, DISCORD_TOKEN, MONGODB_PATH, VULTREX_WEB_AUTH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";
@@ -60,6 +60,26 @@ export default class BeastiaryClient {
                 })
             });
         }, 180000);
+    }
+
+    private initializeVultrexStats(): void {
+        setInterval(() => {
+            if (!this.discordClient.user) {
+                throw new Error("A Discord client with no user attempted to initialize a Vultrex connection.");
+            }
+
+            fetch(`https://api.discordbots.co/v1/public/bot/${this.discordClient.user.id}/stats`, {
+                method: "POST",
+                headers: {
+                    "authorization": VULTREX_WEB_AUTH,
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    serverCount: this.discordClient.guilds.cache.size,
+                    shardCount: (this.discordClient.shard as ShardClientUtil).count
+                })
+            });
+        }, 300000);
     }
 
     private async init(): Promise<void> {
@@ -125,6 +145,7 @@ export default class BeastiaryClient {
 
                 this.initializeIBLstats();
                 this.initializeDBLStats();
+                this.initializeVultrexStats();
             }
 
             preLoad.connectedToDiscord = true;
