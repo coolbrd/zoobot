@@ -435,7 +435,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         console.log("Vote received!")
         for (const player of players) {
             console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${player.freeEncounters.maxStack} encounters.`)
-            player.extraEncountersLeft += player.freeEncounters.maxStack;
+            player.extraEncountersLeft += Math.min(10, player.freeEncounters.maxStack);
         }
     }
 }
