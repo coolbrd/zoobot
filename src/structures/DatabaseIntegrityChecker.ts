@@ -262,7 +262,7 @@ export default class DatabaseIntegrityChecker {
         }
     }
 
-    public async run(): Promise<DatabaseIntegrityError[]> {
+    public async run(): Promise<void> {
         let allPlayers: Document[];
         try {
             allPlayers = await PlayerModel.find({});
@@ -308,6 +308,27 @@ export default class DatabaseIntegrityChecker {
 
         this.validateAnimalOwnership(allAnimals, allPlayers);
 
-        return this.errors;
+        this.logErrors(this.errors);
+    }
+
+    private logErrors(errors: DatabaseIntegrityError[]): void {
+        if (errors.length > 0) {
+            console.log("Database integrity error(s) detected:");
+            errors.forEach(currentError => {
+                let errorString = currentError.info;
+
+                currentError.documents.forEach(currentErrorDocument => {
+                    errorString += `\nDocument:\n${currentErrorDocument.toString()}`;
+                });
+                console.log(stripIndent`
+                    Error:
+
+                    ${errorString}
+                `);
+            });
+        }
+        else {
+            console.log("Database integrity check passed");
+        }
     }
 }

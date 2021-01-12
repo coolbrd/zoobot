@@ -25,67 +25,6 @@ export default class BeastiaryClient {
         this.init();
     }
 
-    private initializeIBLstats(): void {
-        setInterval(() => {
-            if (!this.discordClient.user) {
-                throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
-            }
-
-            fetch(`https://infinitybotlist.com/api/bots/${this.discordClient.user.id}`, {
-                method: "POST",
-                headers: {
-                    "authorization": IBL_TOKEN,
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    servers: this.discordClient.guilds.cache.size,
-                    shards: (this.discordClient.shard as ShardClientUtil).count
-                })
-            });
-        }, 180000);
-    }
-
-    private initializeDBLStats(): void {
-        setInterval(() => {
-            if (!this.discordClient.user) {
-                throw new Error("A Discord client with no user attempted to initialize an Infinity API connection.");
-            }
-
-            fetch(`https://discordbotlist.com/api/v1/bots/${this.discordClient.user.id}/stats`, {
-                method: "POST",
-                headers: {
-                    "authorization": DBL_WEB_AUTH,
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    users: this.discordClient.users.cache.size,
-                    guilds: this.discordClient.guilds.cache.size,
-                    shard_id: (this.discordClient.shard as ShardClientUtil).count
-                })
-            });
-        }, 180000);
-    }
-
-    private initializeVultrexStats(): void {
-        setInterval(() => {
-            if (!this.discordClient.user) {
-                throw new Error("A Discord client with no user attempted to initialize a Vultrex connection.");
-            }
-
-            fetch(`https://api.discordbots.co/v1/public/bot/${this.discordClient.user.id}/stats`, {
-                method: "POST",
-                headers: {
-                    "authorization": VULTREX_WEB_AUTH,
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    serverCount: this.discordClient.guilds.cache.size,
-                    shardCount: (this.discordClient.shard as ShardClientUtil).count
-                })
-            });
-        }, 300000);
-    }
-
     private async init(): Promise<void> {
         const preLoad = {
             connectedToDiscord: false,
@@ -146,10 +85,6 @@ export default class BeastiaryClient {
                         ${error}
                     `);
                 });
-
-                this.initializeIBLstats();
-                this.initializeDBLStats();
-                this.initializeVultrexStats();
             }
 
             preLoad.connectedToDiscord = true;
