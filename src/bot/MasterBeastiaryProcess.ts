@@ -125,16 +125,12 @@ export default class MasterBeastiaryProcess {
         return total;
     }
 
-    public async getShardCount(): Promise<number> {
-        const counts: number[] = await this.shardManager.broadcastEval(`this.guilds.cache.size`);
-
-        const total = counts.reduce((total, current) => total + current, 0);
-
-        return total;
+    public getShardCount(): number {
+        return this.shardManager.shards.size;
     }
 
     public async getUserCount(): Promise<number> {
-        const counts: number[] = await this.shardManager.broadcastEval(`this.guilds.cache.size`);
+        const counts: number[] = await this.shardManager.broadcastEval(`this.users.cache.size`);
 
         const total = counts.reduce((total, current) => total + current, 0);
 
