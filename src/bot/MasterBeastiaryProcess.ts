@@ -105,16 +105,13 @@ export default class MasterBeastiaryProcess {
         await this.initializeShards();
 
         const infinityBotList = new InfinityBotList();
-        infinityBotList.initializeStatsAutoPost(this);
-        infinityBotList.registerWebhook(this.server);
+        infinityBotList.init(this);
 
         const discordBotList = new DiscordBotList();
-        discordBotList.initializeStatsAutoPost(this);
-        discordBotList.registerWebhook(this.server);
+        discordBotList.init(this);
 
         const vultrexBotList = new VultrexBotList();
-        vultrexBotList.initializeStatsAutoPost(this);
-        vultrexBotList.registerWebhook(this.server);
+        vultrexBotList.init(this);
     }
 
     public async getGuildCount(): Promise<number> {

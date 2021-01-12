@@ -76,14 +76,14 @@ export default abstract class BotList {
         }
     }
 
-    public initializeStatsAutoPost(masterProcess: MasterBeastiaryProcess): void {
+    private initializeStatsAutoPost(masterProcess: MasterBeastiaryProcess): void {
         this.postStats(masterProcess);
         setInterval(() => {
             this.postStats(masterProcess)
         }, 300000);
     }
 
-    public registerWebhook(server: BeastiaryServer): void {
+    private registerWebhook(server: BeastiaryServer): void {
         server.app.post(`/${this.webhookName}`, (req, res) => {
             console.log("Received webhook POST");
             if (req.headers['authorization'] !== this.webhookAuth) {
@@ -102,5 +102,10 @@ export default abstract class BotList {
                 server.emit(this.webhookVoteEventName, req.body[this.webhookUserIdPropertyName]);
             }
         });
+    }
+
+    public init(masterProcess: MasterBeastiaryProcess): void {
+        this.initializeStatsAutoPost(masterProcess);
+        this.registerWebhook(masterProcess.server);
     }
 }
