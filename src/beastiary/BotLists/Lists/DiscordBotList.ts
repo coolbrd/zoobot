@@ -5,7 +5,7 @@ export default class DiscordBotList extends BotList {
     protected readonly APIpath = "https://discordbotlist.com/api/v1/bots/:id/stats";
     protected readonly APItoken = DBL_WEB_AUTH;
     protected readonly guildCountPropertyName = "guilds";
-    protected readonly shardCountPropertyName = "shard_id";
+    protected readonly shardCountPropertyName = undefined;
     protected readonly userCountPropertyName = "users";
 
     protected readonly webhookName = "DBLhook";
