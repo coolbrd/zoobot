@@ -7,6 +7,7 @@ import DatabaseIntegrityChecker from "../structures/DatabaseIntegrityChecker";
 import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
 import DiscordBotList from "../beastiary/BotLists/Lists/DiscordBotList";
 import VultrexBotList from "../beastiary/BotLists/Lists/VultrexBotList";
+import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
 
 export default class MasterBeastiaryProcess {
     private _server: BeastiaryServer | undefined;
@@ -112,6 +113,9 @@ export default class MasterBeastiaryProcess {
 
         const vultrexBotList = new VultrexBotList();
         vultrexBotList.init(this);
+
+        const discordBoatsList = new DiscordBoatsList();
+        discordBoatsList.init(this);
     }
 
     public async getGuildCount(): Promise<number> {

@@ -1,9 +1,9 @@
-import { VULTREX_WEBHOOK_TOKEN, VULTREX_WEB_AUTH } from "../../../config/secrets";
+import { VULTREX_WEBHOOK_TOKEN, VULTREX_TOKEN } from "../../../config/secrets";
 import BotList from "../BotList";
 
 export default class VultrexBotList extends BotList {
     protected readonly APIpath = "https://api.discordbots.co/v1/public/bot/:id/stats";
-    protected readonly APItoken = VULTREX_WEB_AUTH;
+    protected readonly APItoken = VULTREX_TOKEN;
     protected readonly guildCountPropertyName = "serverCount";
     protected readonly shardCountPropertyName = "shardCount";
     protected readonly userCountPropertyName = undefined;

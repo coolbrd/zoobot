@@ -8,6 +8,10 @@ interface StatPostBody {
     [statName: string]: number
 }
 
+interface NestedResponse {
+    [path: string]: string | NestedResponse
+}
+
 export default abstract class BotList {
     protected abstract readonly APIpath: string;
     protected abstract readonly APItoken: string;
@@ -17,7 +21,7 @@ export default abstract class BotList {
 
     protected abstract readonly webhookName: string;
     protected abstract readonly webhookAuth: string;
-    protected abstract readonly webhookUserIdPropertyName: string;
+    protected abstract readonly webhookUserIdPropertyName: string | string[];
     protected abstract readonly webhookVoteEventName: string;
 
     private getAPIpath(id: string): string {
@@ -83,9 +87,33 @@ export default abstract class BotList {
         }, 300000);
     }
 
+    private getUserIdFromBody(body: NestedResponse): string {
+        let propertyChain: string[];
+        if (typeof this.webhookUserIdPropertyName === "string") {
+            propertyChain = [this.webhookUserIdPropertyName];
+        }
+        else {
+            propertyChain = this.webhookUserIdPropertyName;
+        }
+
+        let field: NestedResponse | string | undefined;
+        while (propertyChain.length) {
+            field = body[propertyChain.shift() as string]
+        }
+
+        if (!field || typeof field !== "string") {
+            throw new Error(stripIndent`
+                A non-string value was found in the body of a response where an id was expected.
+
+                Value: ${field}
+            `);
+        }
+
+        return field;
+    }
+
     private registerWebhook(server: BeastiaryServer): void {
         server.app.post(`/${this.webhookName}`, (req, res) => {
-            console.log("Received webhook POST");
             if (req.headers['authorization'] !== this.webhookAuth) {
                 res.status(401);
                 delete req.headers['authorization'];
@@ -98,8 +126,10 @@ export default abstract class BotList {
             delete req.headers['authorization'];
             res.status(200).send();
 
-            if (typeof req.body[this.webhookUserIdPropertyName] === "string" && req.body[this.webhookUserIdPropertyName].length === 18) {
-                server.emit(this.webhookVoteEventName, req.body[this.webhookUserIdPropertyName]);
+            const id = this.getUserIdFromBody(req.body);
+
+            if (id.length === 18) {
+                server.emit(this.webhookVoteEventName, id);
             }
         });
     }

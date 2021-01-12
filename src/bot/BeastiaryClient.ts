@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
 import { Client, Message, ShardClientUtil } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
-import { DBL_WEB_AUTH, DISCORD_TOKEN, IBL_TOKEN, MONGODB_PATH, VULTREX_WEB_AUTH } from "../config/secrets";
+import { DBL_TOKEN, DISCORD_TOKEN, IBL_TOKEN, MONGODB_PATH, VULTREX_TOKEN } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";

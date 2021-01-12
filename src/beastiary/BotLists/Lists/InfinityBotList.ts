@@ -1,4 +1,4 @@
-import { IBL_TOKEN, IBL_WEBHOOK_SECRET } from "../../../config/secrets";
+import { CUSTOM_WEBHOOK_SECRET, IBL_TOKEN } from "../../../config/secrets";
 import BotList from "../BotList";
 
 export default class InfinityBotList extends BotList {
@@ -9,7 +9,7 @@ export default class InfinityBotList extends BotList {
     protected readonly userCountPropertyName = undefined;
 
     protected readonly webhookName = "IBLhook";
-    protected readonly webhookAuth = IBL_WEBHOOK_SECRET;
+    protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;
     protected readonly webhookUserIdPropertyName = "userID";
     protected readonly webhookVoteEventName = "vote";
 }
