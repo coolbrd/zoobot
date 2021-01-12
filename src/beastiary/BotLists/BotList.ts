@@ -93,11 +93,11 @@ export default abstract class BotList {
             propertyChain = [this.webhookUserIdPropertyName];
         }
         else {
-            propertyChain = this.webhookUserIdPropertyName;
+            propertyChain = Array.from(this.webhookUserIdPropertyName);
         }
 
         let field: NestedResponse | string | undefined;
-        while (propertyChain.length) {
+        while (propertyChain.length > 0) {
             field = body[propertyChain.shift() as string]
         }
 
@@ -106,6 +106,8 @@ export default abstract class BotList {
                 A non-string value was found in the body of a response where an id was expected.
 
                 Value: ${field}
+                Field chain: ${this.webhookUserIdPropertyName}
+                Whole body: ${inspect(body)}
             `);
         }
 
