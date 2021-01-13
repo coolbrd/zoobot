@@ -56,8 +56,7 @@ class ShopBuySubCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-        betterSend(parsedMessage.channel, `Purchase successful. You bought **${purchaseReceipt.nameAndQuantity}** for **${purchaseReceipt.totalPrice}**${pepEmoji}.`);
+        betterSend(parsedMessage.channel, purchaseReceipt.message);
         return commandReceipt;
     }
 }

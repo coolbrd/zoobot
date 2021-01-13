@@ -1,7 +1,7 @@
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
-export default class EncounterItem extends ShopItem {
+class EncounterItem extends ShopItem {
     public readonly simpleNames = ["encounter", "e"];
 
     public getName(_player: Player): string {
@@ -16,3 +16,4 @@ export default class EncounterItem extends ShopItem {
         player.extraEncountersLeft += quantity;
     }
 }
+export default new EncounterItem();

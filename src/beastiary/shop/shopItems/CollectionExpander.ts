@@ -1,7 +1,9 @@
+import { stripIndent } from "common-tags";
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
+import EmojiManager from "../../EmojiManager";
 import ShopItem from "../ShopItem";
 
-export default class CollectionExpander extends ShopItem {
+class CollectionExpander extends ShopItem {
     public readonly simpleNames = ["collection expander", "expander", "collection"];
 
     public readonly canBuyMultiple = false;
@@ -17,4 +19,13 @@ export default class CollectionExpander extends ShopItem {
     public purchaseAction(player: Player): void {
         player.collectionUpgradeLevel += 1;
     }
+
+    public getPurchaseMessage(player: Player, _quantity: number, price: number, emojiManager: EmojiManager): string {
+        const pepEmoji = emojiManager.getByName("pep");
+        return stripIndent`
+            Success, your collection is now level **${player.collectionUpgradeLevel}**, and can hold up to **${player.collectionSizeLimit}** animals.
+            -**${price}**${pepEmoji}
+        `;
+    }
 }
+export default new CollectionExpander();

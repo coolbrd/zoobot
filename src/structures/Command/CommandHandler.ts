@@ -60,6 +60,7 @@ import ListGuildsCommand from "../../commands/ListGuildsCommand";
 import AnnounceInGuildCommand from "../../commands/AnnounceInGuildCommand";
 import PrivacyCommand from "../../commands/PrivacyCommand";
 import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
+import UpgradeCommand from "../../commands/UpgradeCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -73,6 +74,7 @@ export default class CommandHandler {
         ViewPepCommand,
         DailyCurrencyCommand,
         ShopCommand,
+        UpgradeCommand,
         CrewCommand,
         FavoriteAnimalCommand,
         MoveAnimalsCommand,

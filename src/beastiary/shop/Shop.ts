@@ -9,7 +9,8 @@ export interface ShopReceipt {
     itemName: string,
     quantity: number,
     nameAndQuantity: string,
-    totalPrice: number
+    totalPrice: number,
+    message: string
 }
 
 export default abstract class Shop {
@@ -62,15 +63,15 @@ export default abstract class Shop {
             `);
         }
 
-        player.pep -= totalPrice;
-
         selectedItem.purchaseAction(player, quantity);
+        player.pep -= totalPrice;
 
         const purchaseReceipt: ShopReceipt = {
             itemName: itemName,
             quantity: quantity,
             nameAndQuantity: itemNameAndQuantity,
-            totalPrice: totalPrice
+            totalPrice: totalPrice,
+            message: selectedItem.getPurchaseMessage(player, quantity, totalPrice, emojiManager)
         };
 
         return purchaseReceipt;
