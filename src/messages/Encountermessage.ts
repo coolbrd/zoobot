@@ -13,6 +13,7 @@ import gameConfig from "../config/gameConfig";
 import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
 import { getWeightedRandom } from "../utility/weightedRarity";
+import UpgradeCommand from "../commands/UpgradeCommand";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -84,7 +85,7 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         if (player.collectionFull) {
-            betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size.`);
+            betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size with the \`${UpgradeCommand.primaryName}\` command.`);
         }
         else if (player.capturesLeft < 1) {
             let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
