@@ -96,9 +96,10 @@ export default abstract class BotList {
             propertyChain = Array.from(this.webhookUserIdPropertyName);
         }
 
-        let field: NestedResponse | string | undefined;
-        while (propertyChain.length > 0) {
-            field = body[propertyChain.shift() as string]
+        let field: NestedResponse | string = body;
+        while (propertyChain.length > 0 && typeof field !== "string") {
+            const fieldName = propertyChain.shift() as string;
+            field = field[fieldName];
         }
 
         if (!field || typeof field !== "string") {
