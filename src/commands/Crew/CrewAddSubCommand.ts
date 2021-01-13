@@ -41,7 +41,7 @@ class CrewAddSubCommand extends GuildCommand {
         if (player.crewFull) {
             let crewFullString = "Your crew is full, remove an animal and try again.";
 
-            if (!player.getPremium()) {
+            if (!player.premium) {
                 crewFullString += `\n\nPremium players get double the crew space. Check out <${gameConfig.patreonLink}> to learn more!`;
             }
 

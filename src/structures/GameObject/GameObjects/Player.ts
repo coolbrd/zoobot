@@ -128,7 +128,7 @@ export class Player extends GameObject {
             baseCountPerPeriod: gameConfig.freeEncountersPerPeriod,
             getMaxStack: (() => this.freeEnconterMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.encounterPeriodMultiplier,
-            getPremium: this.getPremium.bind(this)
+            getPremium: (() => this.premium ).bind(this)
         });
 
         this.freeCaptures = new CountedResetField({
@@ -139,7 +139,7 @@ export class Player extends GameObject {
             baseCountPerPeriod: gameConfig.freeCapturesPerPeriod,
             getMaxStack: (() => this.freeCaptureMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.capturePeriodMultiplier,
-            getPremium: this.getPremium.bind(this)
+            getPremium: (() => this.premium ).bind(this)
         });
 
         this.freeXpBoosts = new CountedResetField({
@@ -150,7 +150,7 @@ export class Player extends GameObject {
             baseCountPerPeriod: gameConfig.freeXpBoostsPerPeriod,
             getMaxStack: (() => this.freeXpBoostMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.xpBoostPeriodMultiplier,
-            getPremium: this.getPremium.bind(this)
+            getPremium: (() => this.premium ).bind(this)
         });
     }
 
@@ -351,7 +351,7 @@ export class Player extends GameObject {
     public get maxCrewSize(): number {
         let maxCrewSize = gameConfig.maxCrewSize;
 
-        if (this.getPremium()) {
+        if (this.premium) {
             maxCrewSize *= premiumConfig.crewSizeMultiplier;
         }
 
@@ -402,15 +402,15 @@ export class Player extends GameObject {
         return hasReset;
     }
 
+    public get premium(): boolean {
+        return this.playerPremium || this.playerGuild.premium;
+    }
+
     private applyPremiumModifier(baseValue: number, premiumModifier: number): number {
-        if (this.getPremium()) {
+        if (this.premium) {
             return baseValue * premiumModifier;
         }
         return baseValue;
-    }
-
-    public getPremium(): boolean {
-        return this.playerPremium || this.playerGuild.premium;
     }
 
     public hasToken(speciesId: Types.ObjectId): boolean {
@@ -904,7 +904,7 @@ export class Player extends GameObject {
 
         this.playerPremium = hasPremium;
 
-        if (!this.getPremium()) {
+        if (!this.premium) {
             this.crewAnimalIds.splice(2, 2);
         }
     }

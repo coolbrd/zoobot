@@ -29,7 +29,7 @@ class EncounterCommand extends GuildCommand {
             let noEncountersLeftString = `You don't have any encounters left. Next encounter reset: **${remainingTimeString(player.freeEncounters.nextReset)}**.`;
 
             noEncountersLeftString += "\n\nWant more?"
-            if (!player.getPremium()) {
+            if (!player.premium) {
                 noEncountersLeftString += `\nSubscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
             }
             noEncountersLeftString += `\nUse the \`${VoteCommand.primaryName}\` command to see all the places where you can vote for The Beastiary in exchange for more encounters.`;

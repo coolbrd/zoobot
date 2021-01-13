@@ -115,7 +115,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Total captures: **${this.player.totalCaptures}**
         `;
 
-        if (this.player.getPremium()) {
+        if (this.player.premium) {
             descriptionString += "\n";
 
             if (this.player.playerPremium) {

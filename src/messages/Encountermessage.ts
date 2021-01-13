@@ -90,7 +90,7 @@ export default class EncounterMessage extends InteractiveMessage {
         else if (player.capturesLeft < 1) {
             let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
 
-            if (!player.getPremium()) {
+            if (!player.premium) {
                 noCapturesLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
             }
 

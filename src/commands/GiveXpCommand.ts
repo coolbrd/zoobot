@@ -39,7 +39,7 @@ class GiveXpCommand extends GuildCommand {
         if (player.xpBoostsLeft <= 0) {
             let noXpBoostsLeftString = `You don't have any xp boosts left. Next xp boost reset: **${remainingTimeString(player.freeXpBoosts.nextReset)}**`;
 
-            if (!player.getPremium()) {
+            if (!player.premium) {
                 noXpBoostsLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
             }
 
