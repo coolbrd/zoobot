@@ -56,7 +56,8 @@ export class Player extends GameObject {
         tokenSpeciesIds: "tokenSpeciesIds",
         rarestTierCaught: "rarestTierCaught",
         favoriteAnimalId: "favoriteAnimalId",
-        speciesRecords: "speciesRecords"
+        speciesRecords: "speciesRecords",
+        prizeBalls: "prizeBalls"
     };
 
     protected referenceNames = {
@@ -85,7 +86,8 @@ export class Player extends GameObject {
             [Player.fieldNames.extraXpBoostsLeft]: 0,
             [Player.fieldNames.lastXpBoostReset]: new Date(0),
             [Player.fieldNames.totalXpBoosts]: 0,
-            [Player.fieldNames.rarestTierCaught]: 0
+            [Player.fieldNames.rarestTierCaught]: 0,
+            [Player.fieldNames.prizeBalls]: 0
         });
     }
 
@@ -299,6 +301,14 @@ export class Player extends GameObject {
 
     public set favoriteAnimalId(favoriteAnimalId: Types.ObjectId | undefined) {
         this.setDocumentField(Player.fieldNames.favoriteAnimalId, favoriteAnimalId);
+    }
+
+    public get prizeBalls(): number {
+        return this.document.get(Player.fieldNames.prizeBalls);
+    }
+
+    public set prizeBalls(prizeBalls: number) {
+        this.setDocumentField(Player.fieldNames.prizeBalls, prizeBalls);
     }
 
     public get collectionSizeLimit(): number {

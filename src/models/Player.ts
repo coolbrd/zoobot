@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import gameConfig from '../config/gameConfig';
 import { BeastiarySchemaDefinition } from '../structures/schema/BeastiarySchema';
 import { Player } from '../structures/GameObject/GameObjects/Player';
 
@@ -192,6 +191,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     },
     [Player.fieldNames.speciesRecords]: {
         type: [playerSpeciesRecordSchemaDefinition]
+    },
+    [Player.fieldNames.prizeBalls]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true,
+            defaultValue: 0
+        }
     }
 };
 
