@@ -6,7 +6,6 @@ export default class VultrexBotList extends BotList {
     protected readonly APItoken = VULTREX_TOKEN;
     protected readonly guildCountPropertyName = "serverCount";
     protected readonly shardCountPropertyName = "shardCount";
-    protected readonly userCountPropertyName = undefined;
 
     protected readonly webhookName = "vultrexHook";
     protected readonly webhookAuth = VULTREX_WEBHOOK_TOKEN;

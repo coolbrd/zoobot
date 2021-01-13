@@ -5,8 +5,6 @@ export default class DiscordBoatsList extends BotList {
     protected readonly APIpath = "https://discord.boats/api/bot/:id";
     protected readonly APItoken = DISCORD_BOATS_TOKEN;
     protected readonly guildCountPropertyName = "server_count";
-    protected readonly shardCountPropertyName = undefined;
-    protected readonly userCountPropertyName = undefined;
 
     protected readonly webhookName = "discordBoatsHook";
     protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;

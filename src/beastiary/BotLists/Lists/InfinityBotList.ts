@@ -6,7 +6,6 @@ export default class InfinityBotList extends BotList {
     protected readonly APItoken = IBL_TOKEN;
     protected readonly guildCountPropertyName = "servers";
     protected readonly shardCountPropertyName = "shards";
-    protected readonly userCountPropertyName = undefined;
 
     protected readonly webhookName = "IBLhook";
     protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;

@@ -8,21 +8,24 @@ interface StatPostBody {
     [statName: string]: number
 }
 
-interface NestedResponse {
-    [path: string]: string | NestedResponse
+interface NestedBody {
+    [path: string]: string | NestedBody
 }
 
 export default abstract class BotList {
     protected abstract readonly APIpath: string;
     protected abstract readonly APItoken: string;
-    protected abstract readonly guildCountPropertyName?: string;
-    protected abstract readonly shardCountPropertyName?: string;
-    protected abstract readonly userCountPropertyName?: string;
 
     protected abstract readonly webhookName: string;
     protected abstract readonly webhookAuth: string;
     protected abstract readonly webhookUserIdPropertyName: string | string[];
     protected abstract readonly webhookVoteEventName: string;
+
+    protected readonly loginHeaders?: NestedBody;
+    
+    protected readonly guildCountPropertyName?: string;
+    protected readonly shardCountPropertyName?: string;
+    protected readonly userCountPropertyName?: string;
 
     private getAPIpath(id: string): string {
         return this.APIpath.replace(":id", id);
@@ -41,7 +44,7 @@ export default abstract class BotList {
 
         if (this.shardCountPropertyName) {
             Object.defineProperty(stats, this.shardCountPropertyName, {
-                value: await masterProcess.getShardCount(),
+                value: masterProcess.getShardCount(),
                 writable: false,
                 enumerable: true
             });
@@ -87,7 +90,7 @@ export default abstract class BotList {
         }, 300000);
     }
 
-    private getUserIdFromBody(body: NestedResponse): string {
+    private getUserIdFromBody(body: NestedBody): string {
         let propertyChain: string[];
         if (typeof this.webhookUserIdPropertyName === "string") {
             propertyChain = [this.webhookUserIdPropertyName];
@@ -96,7 +99,7 @@ export default abstract class BotList {
             propertyChain = Array.from(this.webhookUserIdPropertyName);
         }
 
-        let field: NestedResponse | string = body;
+        let field: NestedBody | string = body;
         while (propertyChain.length > 0 && typeof field !== "string") {
             const fieldName = propertyChain.shift() as string;
             field = field[fieldName];
