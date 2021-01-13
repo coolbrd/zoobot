@@ -59,6 +59,7 @@ import VoteCommand from "../../commands/VoteCommand";
 import ListGuildsCommand from "../../commands/ListGuildsCommand";
 import AnnounceInGuildCommand from "../../commands/AnnounceInGuildCommand";
 import PrivacyCommand from "../../commands/PrivacyCommand";
+import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -78,6 +79,7 @@ export default class CommandHandler {
         ReleaseAnimalCommand,
         GiveXpCommand,
         FishCommand,
+        OpenPrizeBallCommand,
         SetEncounterChannelCommand,
         SetAnnouncementChannelCommand,
         RefreshPremiumCommand,

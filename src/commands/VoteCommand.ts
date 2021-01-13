@@ -4,6 +4,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import Command, { CommandSection } from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import OpenPrizeBallCommand from "./OpenPrizeBallCommand";
 
 class VoteCommand extends Command {
     public readonly names = ["vote"];
@@ -19,12 +20,12 @@ class VoteCommand extends Command {
 
         embed.setTitle("Voting");
         embed.setColor(0xf75142);
-        embed.setDescription("Whenever you can, vote on any of these websites for free extra encounters!");
+        embed.setDescription("Whenever you can, vote on any of these websites to earn prize balls!");
         embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
         embed.addField("Infinity Bot List", "[Vote](https://infinitybotlist.com/bots/737387258683850892/vote)", true);
         embed.addField("DiscordBots", "[Vote](https://discordbots.co/bot/737387258683850892)", true);
         embed.addField("Discord Bot List", "[Vote](https://discordbotlist.com/bots/the-beastiary/upvote)", true);
-        embed.setFooter("The number of extra encounters you are rewarded is equal to your max stack value of free encounters.");
+        embed.setFooter(`Each vote is rewarded with a single prize ball, which can be opened with the '${OpenPrizeBallCommand.primaryName}' command.`);
 
         betterSend(parsedMessage.channel, embed);
 

@@ -32,11 +32,13 @@ class ViewResetsCommand extends GuildCommand {
         messageString += `Next xp boost reset: **${remainingTimeString(player.freeXpBoosts.nextReset)}**\n\n`;
 
         if (player.hasDailyPepReset) {
-            messageString += `You can claim your daily pep right now!`;
+            messageString += `You can claim your daily pep right now!\n\n`;
         }
         else {
-            messageString += `You've claimed your daily pep today.`;
+            messageString += `You've claimed your daily pep today.\n\n`;
         }
+
+        messageString += `You have **${player.prizeBalls}** prize ball${player.prizeBalls === 1 ? "" : "s"} left. Have you voted today?`;
 
         betterSend(parsedMessage.channel, messageString);
 

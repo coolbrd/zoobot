@@ -107,6 +107,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Xp boosts remaining: **${this.player.xpBoostsLeft}**
             Encounters remaining: **${this.player.encountersLeft}**
             Captures remaining: **${this.player.capturesLeft}**
+            Prize balls remaining: **${this.player.prizeBalls}**
 
             Lifetime pep: **${this.player.lifetimePep}**${pepEmoji}
             Total xp boosts: **${this.player.totalXpBoosts}**

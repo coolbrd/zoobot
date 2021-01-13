@@ -5,6 +5,7 @@ import CrewCommand from "../../commands/Crew/CrewCommand";
 import EncounterCommand from "../../commands/EncounterCommand";
 import FishCommand from "../../commands/FishCommand";
 import GiveXpCommand from "../../commands/GiveXpCommand";
+import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
@@ -12,6 +13,7 @@ import ShopCommand from "../../commands/Shop/ShopCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
+import VoteCommand from "../../commands/VoteCommand";
 
 interface GameMechanicInfo {
     names: string[],
@@ -127,6 +129,15 @@ const mechanics: GameMechanicInfo[] = [
             also specify how far out you want to cast, between 1 and 100 feet. Every channel has a daily random sweet spot where the
             fish bite faster, the closer you are the faster they bite. It's like a little game of hot and cold, find it to really start
             reeling them in!
+        `
+    },
+    {
+        names: ["voting", "vote", "votes"],
+        info: oneLine`
+            Voting for the bot helps get it exposure to more people on lists of other Discord bots. Every time you vote, you get a
+            special **prize ball** to open, which could have a number of exciting rewards in it. Learn more about voting with the
+            \`${VoteCommand.primaryName}\` command, and open prize balls with the \`${OpenPrizeBallCommand.primaryName}\` command.
+            Remember, some websites let you vote more than once per day!
         `
     },
     {
