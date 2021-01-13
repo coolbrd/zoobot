@@ -57,7 +57,8 @@ export class Player extends GameObject {
         rarestTierCaught: "rarestTierCaught",
         favoriteAnimalId: "favoriteAnimalId",
         speciesRecords: "speciesRecords",
-        prizeBalls: "prizeBalls"
+        prizeBalls: "prizeBalls",
+        freeEncounterMaxStackUpgradeLevel: "freeEncounterMaxStackUpgradeLevel"
     };
 
     protected referenceNames = {
@@ -87,7 +88,8 @@ export class Player extends GameObject {
             [Player.fieldNames.lastXpBoostReset]: new Date(0),
             [Player.fieldNames.totalXpBoosts]: 0,
             [Player.fieldNames.rarestTierCaught]: 0,
-            [Player.fieldNames.prizeBalls]: 0
+            [Player.fieldNames.prizeBalls]: 0,
+            [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: 0
         });
     }
 
@@ -124,9 +126,8 @@ export class Player extends GameObject {
             lastResetFieldName: Player.fieldNames.lastEncounterReset,
             basePeriod: gameConfig.freeEncounterPeriod,
             baseCountPerPeriod: gameConfig.freeEncountersPerPeriod,
-            baseMaxStack: gameConfig.freeEncounterMaxStack,
+            getMaxStack: (() => this.freeEnconterMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.encounterPeriodMultiplier,
-            premiumMaxStackModifier: premiumConfig.freeEncounterMaxStackMultiplier,
             getPremium: this.getPremium.bind(this)
         });
 
@@ -136,7 +137,7 @@ export class Player extends GameObject {
             lastResetFieldName: Player.fieldNames.lastCaptureReset,
             basePeriod: gameConfig.freeCapturePeriod,
             baseCountPerPeriod: gameConfig.freeCapturesPerPeriod,
-            baseMaxStack: 1,
+            getMaxStack: (() => this.freeCaptureMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.capturePeriodMultiplier,
             getPremium: this.getPremium.bind(this)
         });
@@ -147,7 +148,7 @@ export class Player extends GameObject {
             lastResetFieldName: Player.fieldNames.lastXpBoostReset,
             basePeriod: gameConfig.freeXpBoostPeriod,
             baseCountPerPeriod: gameConfig.freeXpBoostsPerPeriod,
-            baseMaxStack: gameConfig.freeXpBoostMaxStack,
+            getMaxStack: (() => this.freeXpBoostMaxStack).bind(this),
             premiumPeriodModifier: premiumConfig.xpBoostPeriodMultiplier,
             getPremium: this.getPremium.bind(this)
         });
@@ -311,6 +312,26 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.prizeBalls, prizeBalls);
     }
 
+    public get freeEncounterMaxStackUpgradeLevel(): number {
+        return this.document.get(Player.fieldNames.freeEncounterMaxStackUpgradeLevel);
+    }
+
+    public set freeEncounterMaxStackUpgradeLevel(freeEncounterMaxStackUpgradeLevel: number) {
+        this.setDocumentField(Player.fieldNames.freeEncounterMaxStackUpgradeLevel, freeEncounterMaxStackUpgradeLevel);
+    }
+
+    public get freeEnconterMaxStack(): number {
+        return this.applyPremiumModifier(gameConfig.freeEncounterMaxStack, premiumConfig.freeEncounterMaxStackMultiplier) + this.freeEncounterMaxStackUpgradeLevel;
+    }
+
+    public get freeCaptureMaxStack(): number {
+        return 1;
+    }
+
+    public get freeXpBoostMaxStack(): number {
+        return gameConfig.freeXpBoostMaxStack;
+    }
+
     public get collectionSizeLimit(): number {
         return (this.collectionUpgradeLevel + 1) * 5;
     }
@@ -379,6 +400,13 @@ export class Player extends GameObject {
         const hasReset = this.lastDailyPepReset.getDate() !== now.getDate() || this.lastDailyPepReset.getMonth() !== now.getMonth() || this.lastDailyPepReset.getFullYear() !== now.getFullYear();
 
         return hasReset;
+    }
+
+    private applyPremiumModifier(baseValue: number, premiumModifier: number): number {
+        if (this.getPremium()) {
+            return baseValue * premiumModifier;
+        }
+        return baseValue;
     }
 
     public getPremium(): boolean {

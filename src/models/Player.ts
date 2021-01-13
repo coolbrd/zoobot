@@ -199,6 +199,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
             nonNegative: true,
             defaultValue: 0
         }
+    },
+    [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true,
+            defaultValue: 0
+        }
     }
 };
 

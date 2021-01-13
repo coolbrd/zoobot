@@ -1,5 +1,6 @@
 import { ShopReceipt } from "../beastiary/shop/Shop";
 import CollectionExpander from "../beastiary/shop/shopItems/CollectionExpander";
+import FreeEncounterMaxStackUpgrade from "../beastiary/shop/shopItems/FreeEncounterMaxStackUpgrade";
 import UpgradeShop from "../beastiary/shop/shops/UpgradeShop";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import handleUserError from "../discordUtility/handleUserError";
@@ -37,8 +38,9 @@ class UpgradeCommand extends GuildCommand {
             embed.setColor(0x5DB583);
             embed.setAuthor(`${player.member.user.username}'s upgrades`, player.member.user.avatarURL() || undefined);
             embed.setDescription(`Balance: **${player.pep}**${pepEmoji}\n---`);
-            embed.addField(`Collection level: ${player.collectionUpgradeLevel} (max ${player.collectionSizeLimit})`, `Next level: **${CollectionExpander.getPrice(player)}**${pepEmoji} (+5 max)`);
-            embed.setFooter(`Use '${this.primaryName} <name of upgrade>' to purchase a permanent upgrade.`);
+            embed.addField(`\`1)\` Collection level: ${player.collectionUpgradeLevel} (max ${player.collectionSizeLimit})`, `Next level: **${CollectionExpander.getPrice(player)}**${pepEmoji} (+**5** max)`);
+            embed.addField(`\`2)\` Free encounter max stack: ${player.freeEnconterMaxStack}`, `Next level: **${FreeEncounterMaxStackUpgrade.getPrice(player)}**${pepEmoji} (+**1** max)`);
+            embed.setFooter(`Use '${this.primaryName} <name/number of upgrade>' to purchase a permanent upgrade.`);
 
             betterSend(parsedMessage.channel, embed);
         }

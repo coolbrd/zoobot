@@ -4,9 +4,8 @@ import ResetField from "./ResetField";
 export default class CountedResetField extends ResetField {
     private countFieldName: string;
     private baseCountPerPeriod: number;
-    private baseMaxStack: number;
     private premiumCountPerPeriodModifier = 1;
-    private premiumMaxStackModifier = 1;
+    private getMaxStack: () => number;
 
     constructor(info: {
         gameObject: GameObject,
@@ -14,24 +13,20 @@ export default class CountedResetField extends ResetField {
         lastResetFieldName: string,
         basePeriod: number,
         baseCountPerPeriod: number,
-        baseMaxStack: number,
+        getMaxStack: () => number,
         premiumPeriodModifier?: number,
         premiumCountPerPeriodModifier?: number,
-        premiumMaxStackModifier?: number,
         getPremium?: () => boolean
     }) {
         super(info);
 
         this.countFieldName = info.countFieldName;
         this.baseCountPerPeriod = info.baseCountPerPeriod;
-        this.baseMaxStack = info.baseMaxStack;
+
+        this.getMaxStack = info.getMaxStack;
 
         if (info.premiumCountPerPeriodModifier) {
             this.premiumCountPerPeriodModifier = info.premiumCountPerPeriodModifier;
-        }
-
-        if (info.premiumMaxStackModifier) {
-            this.premiumMaxStackModifier = info.premiumMaxStackModifier;
         }
     }
 
@@ -53,17 +48,13 @@ export default class CountedResetField extends ResetField {
         return this.applyPremiumModifier(this.baseCountPerPeriod, this.premiumCountPerPeriodModifier);
     }
 
-    public get maxStack(): number {
-        return this.applyPremiumModifier(this.baseMaxStack, this.premiumMaxStackModifier);
-    }
-
     public applyReset(): void {
         const freePeriodsPassed = this.periodsSinceLastReset;
 
         if (freePeriodsPassed > 0) {
             const countToAdd = freePeriodsPassed * this.countPerPeriod;
 
-            this.count = Math.min(this.countNoReset + countToAdd, this.maxStack);
+            this.count = Math.min(this.countNoReset + countToAdd, this.getMaxStack());
 
             this.lastReset = new Date();
         }

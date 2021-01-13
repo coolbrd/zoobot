@@ -10,6 +10,7 @@ import PremiumInfoCommand from "../../commands/PremiumInfoCommand";
 import SendPatreonLinkCommand from "../../commands/SendPatreonLinkCommand";
 import SetEncounterChannelCommand from "../../commands/SetEncounterChannelCommand";
 import ShopCommand from "../../commands/Shop/ShopCommand";
+import UpgradeCommand from "../../commands/UpgradeCommand";
 import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
@@ -84,9 +85,17 @@ const mechanics: GameMechanicInfo[] = [
     {
         names: ["pep", "money"],
         info: oneLine`
-            "Pep" is the primary currency in The Beastiary. It's used in the shop to buy extra encounters, captures, xp boosts, and
-            collection expanders. The best way to earn pep is by capturing an animal (the more rare, the better), leveling it up a bit,
-            and releasing it back into the wild. You can also slowly earn pep by fishing, learn more in the \`fishing\` section.
+            Pep is the primary currency in The Beastiary. It's used in the shop to buy extra encounters, captures, xp boosts, permanent
+            upgrades like collection expanders and free encounter max stack boosters (see \`upgrades\` section). The best way to earn
+            pep is by capturing an animal (the more rare, the better), leveling it up a bit, and releasing it back into the wild. You
+            can also slowly earn pep by fishing, learn more in the \`fishing\` section.
+        `
+    },
+    {
+        names: ["upgrades", "upgrade"],
+        info: oneLine`
+            Upgrades are permanent boosts to certain stats. Access the upgrade shop with the \`${UpgradeCommand.primaryName}\` command
+            to see all the available options. These are the most expensive items in The Beastiary, so choose wisely!
         `
     },
     {
