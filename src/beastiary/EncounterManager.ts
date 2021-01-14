@@ -202,6 +202,18 @@ export default class EncounterManager {
                 `);
             }
         }
+        else {
+            try {
+                encounterChannel = await getFirstAvailableTextChannel(playerGuild.guild);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching the first available text channel in a guild.
+
+                    ${error}
+                `);
+            }
+        }
 
         return encounterChannel;
     }
@@ -245,6 +257,24 @@ export default class EncounterManager {
 
             if (!encounterChannel) {
                 return;
+            }
+
+            let playerGuild: PlayerGuild | undefined;
+            try {
+                playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(guildId);
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error fetching a player guild by its guild id.
+
+                    Guild id: ${guildId}
+
+                    ${error}
+                `);
+            }
+
+            if (playerGuild) {
+                playerGuild.randomEncounters++;
             }
 
             try {

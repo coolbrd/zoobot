@@ -14,6 +14,8 @@ import ViewCollectionCommand from "../commands/ViewCollectionCommand";
 import ChangeAnimalNicknameCommand from "../commands/ChangeAnimalNicknameCommand";
 import { getWeightedRandom } from "../utility/weightedRarity";
 import UpgradeCommand from "../commands/UpgradeCommand";
+import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
+import SetEncounterChannelCommand from "../commands/SetEncounterChannelCommand";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -25,6 +27,7 @@ export default class EncounterMessage extends InteractiveMessage {
     private readonly animal: Animal;
 
     private readonly initiatingPlayer?: Player;
+    private _playerGuild?: PlayerGuild;
 
     private readonly capturingPlayers: Player[] = [];
     private readonly multiplayerCaptureWindow = 5000;
@@ -43,6 +46,35 @@ export default class EncounterMessage extends InteractiveMessage {
         this.channel = channel;
         this.animal = animal;
         this.initiatingPlayer = player;
+
+        if (player) {
+            this._playerGuild = player.playerGuild;
+        }
+    }
+
+    public get playerGuild(): PlayerGuild {
+        if (!this._playerGuild) {
+            throw new Error(stripIndent`
+                An encounter message's player guild was attempted to be accessed before it was loaded.
+            `);
+        }
+
+        return this._playerGuild;
+    }
+
+    public async build(): Promise<void> {
+        if (this._playerGuild) {
+            return;
+        }
+
+        try {
+            this._playerGuild = await this.beastiaryClient.beastiary.playerGuilds.fetchByGuildId(this.channel.guild.id);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player guild by the guild id of a random encounter's text channel.
+            `);
+        }
     }
 
     public async buildEmbed(): Promise<MessageEmbed> {
@@ -74,6 +106,10 @@ export default class EncounterMessage extends InteractiveMessage {
             else if (this.initiatingPlayer.freeEncounters.count === 1) {
                 embed.appendToFooter("\nLast free encounter!");
             }
+        }
+
+        if (!this.initiatingPlayer && !this.playerGuild.encounterChannelId) {
+            embed.appendToFooter(`\n(Encounter spawned by message activity. Change the channel these appear in with the '${SetEncounterChannelCommand.primaryName}' command.)`);
         }
 
         return embed;
