@@ -127,7 +127,9 @@ export default abstract class BotList {
             return;
         }
 
+        console.log(`Registering webhook: ${this.webhookName}`);
         server.app.post(`/${this.webhookName}`, (req, res) => {
+            console.log("Received vote POST");
             console.log(req.body);
             if (this.webhookAuth && req.headers['authorization'] !== this.webhookAuth) {
                 res.status(401);
