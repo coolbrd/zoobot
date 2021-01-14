@@ -7,9 +7,4 @@ export default class BList extends BotList {
     protected readonly guildCountPropertyName = "server_count";
     protected readonly shardCountPropertyName = "shard_count";
     protected readonly method = "PATCH";
-
-    protected readonly webhookName = "BListHook";
-    protected readonly webhookAuth = BLIST_TOKEN;
-    protected readonly webhookUserIdPropertyName = "userId";
-    protected readonly webhookVoteEventName = "vote";
 }
