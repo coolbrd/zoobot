@@ -2,6 +2,7 @@ import { stripIndent } from "common-tags";
 import { BitFieldResolvable, PermissionString } from "discord.js";
 import { inspect } from "util";
 import BeastiaryClient from "../../bot/BeastiaryClient";
+import { DEVELOPER_ID } from "../../config/secrets";
 import { betterSend } from "../../discordUtility/messageMan";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
 import CommandParser, { GuildCommandParser } from "./CommandParser";
@@ -106,7 +107,7 @@ export abstract class GuildCommand extends Command {
 
     public async execute(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (this.permissionRequirement) {
-            if (!parsedMessage.member.hasPermission(this.permissionRequirement)) {
+            if (!parsedMessage.member.hasPermission(this.permissionRequirement) && parsedMessage.sender.id !== DEVELOPER_ID) {
                 betterSend(parsedMessage.channel, `You don't have adequate server permissions to run this command. Requirement: \`${this.permissionRequirement}\``);
                 return this.newReceipt();
             }
