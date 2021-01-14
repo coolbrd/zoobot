@@ -111,6 +111,14 @@ export default abstract class GameObject {
             }
 
             const fetchPromise = reference.cache.fetchReferenceById(reference.id).then(gameObject => {
+                if (!gameObject) {
+                    throw new Error(stripIndent`
+                        A game object's reference field id returned nothing when its game object was attempted to be fetched.
+
+                        Id: ${reference.id}
+                    `);
+                }
+                
                 reference.gameObject = gameObject;
             }).catch(error => {
                 throw new Error(stripIndent`
