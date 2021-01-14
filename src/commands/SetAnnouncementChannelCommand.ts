@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import { betterSend } from "../discordUtility/messageMan";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
@@ -43,7 +43,34 @@ class SetAnnouncementChannelCommand extends GuildCommand {
             `);
         }
 
-        betterSend(parsedMessage.channel, `Change pending, respond with "yes" to confirm ${parsedMessage.channel} as the new channel where announcements will be sent.`);
+        let channel: TextChannel | undefined;
+        if (!parsedMessage.currentArgument) {
+            channel = parsedMessage.channel;
+        }
+        else {
+            const channelText = parsedMessage.consumeArgument().text;
+
+            let potentialChannelId: string;
+            if (channelText.length > 18) {
+                potentialChannelId = channelText.slice(2, -1);
+            }
+            else {
+                potentialChannelId = channelText;
+            }
+
+            const potentialGuildChannel = parsedMessage.guild.channels.cache.get(potentialChannelId);
+
+            if (potentialGuildChannel) {
+                channel = await potentialGuildChannel.fetch() as TextChannel;
+            }
+        }
+
+        if (!channel) {
+            betterSend(parsedMessage.channel, "You must specify a valid channel tag/id for me to select.");
+            return commandReceipt;
+        }
+
+        betterSend(parsedMessage.channel, `Change pending, respond with "yes" to confirm ${channel} as the new channel where announcements will be sent.`);
 
         let userResponse: Message | undefined;
         try {
@@ -60,9 +87,9 @@ class SetAnnouncementChannelCommand extends GuildCommand {
         }
 
         if (userResponse && userResponse.content.toLowerCase() === "yes") {
-            playerGuild.announcementChannelId = parsedMessage.channel.id;
+            playerGuild.announcementChannelId = channel.id;
 
-            playerGuild.announce(`Success! All announcements will now be sent in ${parsedMessage.channel}.`);
+            playerGuild.announce(`Success! All announcements will now be sent in ${channel}.`);
         }
         else {
             betterSend(parsedMessage.channel, "Change canceled.");
