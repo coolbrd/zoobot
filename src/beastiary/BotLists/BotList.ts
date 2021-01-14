@@ -16,10 +16,10 @@ export default abstract class BotList {
     protected abstract readonly APIpath: string;
     protected abstract readonly APItoken: string;
 
-    protected abstract readonly webhookName: string;
-    protected abstract readonly webhookAuth: string;
-    protected abstract readonly webhookUserIdPropertyName: string | string[];
-    protected abstract readonly webhookVoteEventName: string;
+    protected readonly webhookName?: string;
+    protected readonly webhookAuth?: string;
+    protected readonly webhookUserIdPropertyName?: string | string[];
+    protected readonly webhookVoteEventName?: string;
 
     protected readonly loginHeaders?: NestedBody;
     
@@ -91,6 +91,10 @@ export default abstract class BotList {
     }
 
     private getUserIdFromBody(body: NestedBody): string {
+        if (!this.webhookUserIdPropertyName) {
+            throw new Error("A bot list's request body was attempted to be searched for a user id when no property was specified.");
+        }
+
         let propertyChain: string[];
         if (typeof this.webhookUserIdPropertyName === "string") {
             propertyChain = [this.webhookUserIdPropertyName];
@@ -119,8 +123,12 @@ export default abstract class BotList {
     }
 
     private registerWebhook(server: BeastiaryServer): void {
+        if (!this.webhookName) {
+            return;
+        }
+
         server.app.post(`/${this.webhookName}`, (req, res) => {
-            if (req.headers['authorization'] !== this.webhookAuth) {
+            if (this.webhookAuth && req.headers['authorization'] !== this.webhookAuth) {
                 res.status(401);
                 delete req.headers['authorization'];
                 console.error(stripIndent`
@@ -134,7 +142,7 @@ export default abstract class BotList {
 
             const id = this.getUserIdFromBody(req.body);
 
-            if (id.length === 18) {
+            if (this.webhookVoteEventName && id.length === 18) {
                 server.emit(this.webhookVoteEventName, id);
             }
         });
