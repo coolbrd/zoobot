@@ -286,6 +286,8 @@ export default class EncounterManager {
                 `);
             }
 
+            console.log(`Spawned a random animal encounter in ${message.guild.name}.`);
+
             this.applyGuildRandomEncounterCooldown(message.guild);
         }
     }
