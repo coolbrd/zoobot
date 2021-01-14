@@ -273,10 +273,6 @@ export default class EncounterManager {
                 `);
             }
 
-            if (playerGuild) {
-                playerGuild.randomEncounters++;
-            }
-
             try {
                 await this.spawnAnimal(encounterChannel);
             }
