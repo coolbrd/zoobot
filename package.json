@@ -11,7 +11,7 @@
     "prebuild": "rimraf ./build",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "pm2 start build/sharding.js -n zoobot",
+    "start": "node build/sharding.js",
     "test": "jest --coverage"
   },
   "devDependencies": {
