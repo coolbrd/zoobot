@@ -15,6 +15,7 @@ interface NestedBody {
 export default abstract class BotList {
     protected abstract readonly APIpath: string;
     protected abstract readonly APItoken: string;
+    protected readonly method: string = "POST";
 
     protected readonly webhookName?: string;
     protected readonly webhookAuth?: string;
@@ -66,7 +67,7 @@ export default abstract class BotList {
 
         try {
             await fetch(this.getAPIpath(masterProcess.clientId), {
-                method: "POST",
+                method: this.method,
                 headers: {
                     "authorization": this.APItoken,
                     "Content-type": "application/json"
