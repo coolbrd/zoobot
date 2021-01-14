@@ -76,7 +76,7 @@ export default abstract class BotList {
             });
         }
         catch (error) {
-            throw new Error(stripIndent`
+            console.error(stripIndent`
                 There was an error posting stats to a bot list.
 
                 ${error}
