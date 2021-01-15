@@ -49,6 +49,7 @@ export default class MasterBeastiaryProcess {
 
             shard.on("message", message => {
                 if (message === "exit") {
+                    console.log("Exiting master process.");
                     process.exit();
                 }
             });

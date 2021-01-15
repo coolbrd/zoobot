@@ -1,4 +1,3 @@
-import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import Command from "../structures/Command/Command";
 import CommandParser from "../structures/Command/CommandParser";
@@ -19,9 +18,7 @@ class ExitCommand extends Command {
         console.log("Exiting...");
 
         if (!beastiaryClient.discordClient.shard) {
-            throw new Error(stripIndent`
-                Client shard value undefined.
-            `);
+            throw new Error("A client's shard value was undefined at the time the exit command was run.");
         }
 
         beastiaryClient.discordClient.shard.broadcastEval(`
