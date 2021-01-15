@@ -24,16 +24,16 @@ class OpenPrizeBallCommand extends GuildCommand {
         }
 
         let x = Math.random() * 100;
-        const encounters = Math.max(Math.floor((35 / ((x / 3) + 1)) - (x / 20) + 10));
+        const encounters = Math.max(0, Math.floor((35 / (x + 1)) - (x / 20) + 8));
 
         x = Math.random() * 100;
-        const captures = Math.max(Math.floor((2 / ((x / 6) + 1)) - (x / 1000) + 0.5));
+        const captures = Math.max(0, Math.floor((2 / ((x / 6) + 1)) - (x / 1000) + 0.5));
 
         x = Math.random() * 100;
-        const xpBoosts = Math.max(0, Math.floor((10 / ((x / 6) + 1)) - (x / 10) + 5));
+        const xpBoosts = Math.max(0, Math.floor((10 / ((x / 4) + 1)) - (x / 10) + 5));
 
         x = Math.random() * 100;
-        const pep = Math.max(Math.floor((1000 / ((x / 2) + 1)) + 50));
+        const pep = Math.max(0, Math.floor((1000 / ((x / 2) + 1)) + 50));
 
         player.extraEncountersLeft += encounters;
         player.extraCapturesLeft += captures;
@@ -46,7 +46,7 @@ class OpenPrizeBallCommand extends GuildCommand {
 
         if (encounters) {
             prizeString += `\n+**${encounters}** encounters`;
-            if (encounters > 30) {
+            if (encounters > 20) {
                 prizeString += ", wow!"
             }
         }
