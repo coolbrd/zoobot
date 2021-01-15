@@ -4,13 +4,18 @@ import Command, { CommandArgumentInfo, CommandSection } from "../structures/Comm
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import CommandResolver from "../structures/Command/CommandResolver";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import CommandListCommand from "./CommandListCommand";
+import { stripIndent } from "common-tags";
 
 class HelpCommand extends Command {
     public readonly names = ["help", "h"];
 
     public readonly info = "View more information about the usage of a command";
 
-    public readonly helpUseString = "`<command name>` to see more information about the usage of that command.";
+    public readonly helpUseString = stripIndent`
+        \`<command name>\` to see more information about the usage of that command.
+        If you're looking for a full list of commands, try the \`${CommandListCommand.primaryName}\` command.
+    `;
 
     public readonly sections = [CommandSection.gettingStarted, CommandSection.info];
 
