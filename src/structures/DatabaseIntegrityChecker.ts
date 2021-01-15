@@ -89,7 +89,7 @@ export default class DatabaseIntegrityChecker {
         });
     }
 
-    private checkForDuplicateDocuments(allDocuments: Document[], duplicateInfoString: string, areDuplicates: (document1: Document, document2: Document) => boolean): void {
+    private checkForDuplicateDocuments(allDocuments: Document[], duplicateInfoString: string, areDuplicates: (document1: Document, document2: Document) => boolean, handleDuplicates?: (document1: Document, document2: Document) => void): void {
         const checkedDocuments: Document[] = [];
 
         allDocuments.forEach(currentDocument => {
@@ -99,10 +99,32 @@ export default class DatabaseIntegrityChecker {
 
             if (duplicateDocument) {
                 this.addError(duplicateInfoString, [currentDocument, duplicateDocument]);
+
+                if (handleDuplicates) {
+                    handleDuplicates(currentDocument, duplicateDocument);
+                }
             }
 
             checkedDocuments.push(currentDocument);
         });
+    }
+
+    private deleteLesserPlayerDocument(player1: Document, player2: Document): void {
+        const player1CollectionIds = player1.get(Player.fieldNames.collectionAnimalIds) as Types.ObjectId[];
+        const player2CollectionIds = player2.get(Player.fieldNames.collectionAnimalIds) as Types.ObjectId[];
+
+        let greaterPlayer: Document;
+        let lesserPlayer: Document;
+        if (player1CollectionIds.length > player2CollectionIds.length) {
+            greaterPlayer = player1;
+            lesserPlayer = player2;
+        }
+        else {
+            greaterPlayer = player2;
+            lesserPlayer = player1;
+        }
+        
+        lesserPlayer.deleteOne().then(() => console.log(`Deleted lesser duplicate player document: ${lesserPlayer._id}`));
     }
 
     private checkForDuplicatePlayers(allPlayers: Document[]): void {
@@ -118,7 +140,8 @@ export default class DatabaseIntegrityChecker {
         this.checkForDuplicateDocuments(
             allPlayers,
             "Two player documents that identified the same guild member were found.",
-            playerDocumentsAreDuplicates
+            playerDocumentsAreDuplicates,
+            this.deleteLesserPlayerDocument
         );
     }
 
