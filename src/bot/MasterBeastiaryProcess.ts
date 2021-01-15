@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import Discord, { ShardingManager } from "discord.js";
 import mongoose from "mongoose";
-import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
+import { MONGODB_PATH } from "../config/secrets";
 import { BeastiaryServer } from "./BeastiaryServer";
 import DatabaseIntegrityChecker from "../structures/DatabaseIntegrityChecker";
 import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
@@ -42,7 +42,7 @@ export default class MasterBeastiaryProcess {
     }
 
     private async initializeShards(): Promise<void> {
-        this._shardManager = new Discord.ShardingManager("./build/index.js", { respawn: false, token: DISCORD_TOKEN });
+        this._shardManager = new Discord.ShardingManager("./build/index.js", { respawn: false });
 
         this.shardManager.on("shardCreate", shard => {
             console.log(`- Spawned shard ${shard.id} -`);
@@ -60,7 +60,7 @@ export default class MasterBeastiaryProcess {
         });
 
         try {
-            await this.shardManager.spawn("auto");
+            await this.shardManager.spawn(1);
         }
         catch (error) {
             throw new Error(stripIndent`
