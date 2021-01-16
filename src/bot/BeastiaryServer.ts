@@ -26,10 +26,10 @@ export class BeastiaryServer extends EventEmitter {
     }
 
     private startLocalTunnel(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            localtunnel(this.port, { subdomain: "thebeastiary" }, error => {
+        return new Promise<void>(resolve => {
+            const tunnel = localtunnel(this.port, { subdomain: "thebeastiary" }, error => {
                 if (error) {
-                    reject(stripIndent`
+                    console.error(stripIndent`
                         There was an error initializing localtunnel.
             
                         ${error}
@@ -38,6 +38,8 @@ export class BeastiaryServer extends EventEmitter {
 
                 resolve();
             });
+
+            tunnel.on("erorr", error => console.error(error));
         });
     }
 
