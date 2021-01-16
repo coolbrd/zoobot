@@ -10,6 +10,7 @@ import { inspect } from "util";
 import getFirstAvailableTextChannel from "../../../discordUtility/getFirstAvailableTextChannel";
 import { betterSend } from "../../../discordUtility/messageMan";
 import SmartEmbed from "../../../discordUtility/SmartEmbed";
+import SetAnnouncementChannelCommand from "../../../commands/SetAnnouncementChannelCommand";
 
 export class PlayerGuild extends GameObject {
     public readonly model = GuildModel;
@@ -173,6 +174,7 @@ export class PlayerGuild extends GameObject {
         embed.setTitle("Announcement");
         embed.setColor(0xFF0000);
         embed.setDescription(text);
+        embed.setFooter(`You can change the channel these are sent in with the '${SetAnnouncementChannelCommand.primaryName}' command.`);
 
         betterSend(announcementTextChannel, embed);
     }
