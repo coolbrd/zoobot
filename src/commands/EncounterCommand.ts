@@ -12,7 +12,7 @@ import VoteCommand from "./VoteCommand";
 class EncounterCommand extends GuildCommand {
     public readonly names = ["encounter", "e"];
 
-    public readonly info = "Initiate an animal encounter";
+    public readonly info = "**The command to start with**, initiate an animal encounter";
 
     public readonly helpUseString = "to initiate an animal encounter.";
 
