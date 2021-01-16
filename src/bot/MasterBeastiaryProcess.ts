@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import Discord, { ShardingManager } from "discord.js";
 import mongoose from "mongoose";
-import { MONGODB_PATH } from "../config/secrets";
+import { MAIN_CLIENT_ID, MONGODB_PATH } from "../config/secrets";
 import { BeastiaryServer } from "./BeastiaryServer";
 import DatabaseIntegrityChecker from "../structures/DatabaseIntegrityChecker";
 import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
@@ -113,6 +113,10 @@ export default class MasterBeastiaryProcess {
         }
 
         await this.initializeShards();
+
+        if (this.clientId !== MAIN_CLIENT_ID) {
+            return;
+        }
 
         const infinityBotList = new InfinityBotList();
         infinityBotList.init(this);
