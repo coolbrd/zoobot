@@ -24,7 +24,7 @@ class OpenPrizeBallCommand extends GuildCommand {
         }
 
         let x = Math.random() * 100;
-        const encounters = Math.max(0, Math.floor((35 / (2 * x + 1)) - (x / 20) + 7));
+        const encounters = Math.max(0, Math.floor((30 / (4 * x + 1)) - (x / 20) + 7));
 
         x = Math.random() * 100;
         const captures = Math.max(0, Math.floor((2 / ((x / 6) + 1)) - (x / 1000) + 0.5));
@@ -46,7 +46,7 @@ class OpenPrizeBallCommand extends GuildCommand {
 
         if (encounters) {
             prizeString += `\n+**${encounters}** encounters`;
-            if (encounters > 20) {
+            if (encounters > 13) {
                 prizeString += ", wow!"
             }
         }
@@ -60,7 +60,7 @@ class OpenPrizeBallCommand extends GuildCommand {
 
         if (xpBoosts) {
             prizeString += `\n+**${xpBoosts}** xp boosts`;
-            if (xpBoosts > 11) {
+            if (xpBoosts > 8) {
                 prizeString += ", wow!"
             }
         }
@@ -68,7 +68,7 @@ class OpenPrizeBallCommand extends GuildCommand {
         if (pep) {
             const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
             prizeString += `\n+**${pep}**${pepEmoji}`;
-            if (pep > 600) {
+            if (pep > 700) {
                 prizeString += ", wow!"
             }
         }
