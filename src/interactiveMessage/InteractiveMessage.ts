@@ -183,11 +183,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
         const message = await betterSend(this.channel, this.content);
 
         if (!message) {
-            throw new Error(stripIndent`
-                An interactive message's message was unable to be sent.
-
-                Interactive message: ${this.debugString}
-            `);
+            return;
         }
 
         this.setMessage(message);
