@@ -47,6 +47,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
         let newNickname: string | undefined;
         if (!parsedMessage.currentArgument) {
+            betterSend(parsedMessage.channel, "Success, nickname reset.");
             // Set the animal's nickname as nothing, resetting it
             newNickname = undefined;
         }
