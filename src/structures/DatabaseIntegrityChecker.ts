@@ -145,6 +145,23 @@ export default class DatabaseIntegrityChecker {
         );
     }
 
+    private deleteLesserPlayerGuildDocument(guild1: Document, guild2: Document): void {
+        const guild1HasPrefix = guild1.get(PlayerGuild.fieldNames.prefix) !== "b/";
+
+        let greaterGuild: Document;
+        let lesserGuild: Document;
+        if (guild1HasPrefix) {
+            greaterGuild = guild1;
+            lesserGuild = guild2;
+        }
+        else {
+            greaterGuild = guild2;
+            lesserGuild = guild1;
+        }
+        
+        lesserGuild.deleteOne().then(() => console.log(`Deleted lesser duplicate guild document: ${lesserGuild._id}`));
+    }
+
     private checkForDuplicatePlayerGuilds(allGuilds: Document[]): void {
         const guildDocumentsAreDuplicates = (guildDocument1: Document, guildDocument2: Document) => {
             const guildIdMatch = guildDocument1.get(PlayerGuild.fieldNames.guildId) === guildDocument2.get(PlayerGuild.fieldNames.guildId);
@@ -157,7 +174,8 @@ export default class DatabaseIntegrityChecker {
         this.checkForDuplicateDocuments(
             allGuilds,
             "Two guild documents that identified the same guild were found.",
-            guildDocumentsAreDuplicates
+            guildDocumentsAreDuplicates,
+            this.deleteLesserPlayerGuildDocument
         );
     }
 
