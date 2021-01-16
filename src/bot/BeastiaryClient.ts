@@ -157,6 +157,10 @@ export default class BeastiaryClient {
             console.log(`Joined guild ${guild.name}. Id: ${guild.id}. Members: ${guild.memberCount}`);
         });
 
+        this.discordClient.on("guildDelete", guild => {
+            console.log(`Kicked from guild ${guild.name}. Id: ${guild.id}. Members: ${guild.memberCount}`);
+        });
+
         this.discordClient.on("error", error => console.error("Discord client error: ", error));
 
         this.discordClient.on("exit", () => {
