@@ -166,6 +166,8 @@ export default class EncounterMessage extends InteractiveMessage {
         }
         
         betterSend(this.channel, captureString);
+
+        console.log(`${player.member.user.tag} caught a ${this.animal.displayName}!`);
         
         this.setDeactivationText("(caught)");
         this.deactivate();
