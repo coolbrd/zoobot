@@ -32,7 +32,7 @@ class HelpCommand extends Command {
         const commandName = parsedMessage.restOfText.toLowerCase();
 
         if (!commandName) {
-            betterSend(parsedMessage.channel, this.help(parsedMessage.displayPrefix, parsedMessage.commandChain));
+            const commandReceipt = await CommandListCommand.execute(parsedMessage, beastiaryClient);
             return commandReceipt;
         }
 
