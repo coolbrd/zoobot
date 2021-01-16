@@ -61,7 +61,7 @@ class FishCommand extends GuildCommand {
     }
 
     private isReelMessage(message: Message): boolean {
-        return message.content.toLowerCase().startsWith("reel");
+        return message.content.toLowerCase().includes("reel");
     }
 
     private getSweetSpotDistance(channel: TextChannel): number {
