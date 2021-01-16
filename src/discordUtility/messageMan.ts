@@ -59,5 +59,13 @@ export async function safeEdit(message: Message, content: string | MessageEmbed)
         return;
     }
 
-    return message.edit(content);
+    let editedMessage: Message;
+    try {
+        editedMessage = await message.edit(content);
+    }
+    catch (error) {
+        return;
+    }
+
+    return editedMessage;
 }
