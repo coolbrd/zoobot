@@ -24,13 +24,13 @@ class OpenPrizeBallCommand extends GuildCommand {
         }
 
         let x = Math.random() * 100;
-        const encounters = Math.max(0, Math.floor((35 / (x + 1)) - (x / 20) + 8));
+        const encounters = Math.max(0, Math.floor((35 / (2 * x + 1)) - (x / 20) + 7));
 
         x = Math.random() * 100;
         const captures = Math.max(0, Math.floor((2 / ((x / 6) + 1)) - (x / 1000) + 0.5));
 
         x = Math.random() * 100;
-        const xpBoosts = Math.max(0, Math.floor((10 / ((x / 4) + 1)) - (x / 10) + 5));
+        const xpBoosts = Math.max(0, Math.floor((10 / (x + 1)) - (x / 10) + 5));
 
         x = Math.random() * 100;
         const pep = Math.max(0, Math.floor((1000 / ((x / 2) + 1)) + 50));
