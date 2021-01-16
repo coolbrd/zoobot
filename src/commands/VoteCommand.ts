@@ -21,6 +21,7 @@ class VoteCommand extends Command {
         embed.setTitle("Voting");
         embed.setColor(0xf75142);
         embed.setDescription("Whenever you can, vote on any of these websites to earn prize balls!");
+        embed.addField("Top.gg (worth triple!)", "[Vote](https://top.gg/bot/737387258683850892/vote)");
         embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
         embed.addField("Infinity Bot List", "[Vote](https://infinitybotlist.com/bots/737387258683850892/vote)", true);
         embed.addField("DiscordBots", "[Vote](https://discordbots.co/bot/737387258683850892)", true);

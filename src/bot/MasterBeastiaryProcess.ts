@@ -11,6 +11,7 @@ import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
 import DiscordBotsList from "../beastiary/BotLists/Lists/DiscordBotsList";
 import ArcaneList from "../beastiary/BotLists/Lists/ArcaneList";
 import BList from "../beastiary/BotLists/Lists/BList";
+import TopGGList from "../beastiary/BotLists/Lists/TopGGList";
 
 export default class MasterBeastiaryProcess {
     private _server: BeastiaryServer | undefined;
@@ -57,6 +58,10 @@ export default class MasterBeastiaryProcess {
 
         this.server.on("vote", userId => {
             this.shardManager.broadcastEval(`this.emit("vote", "${userId}")`);
+        });
+
+        this.server.on("topGGvote", userId => {
+            this.shardManager.broadcastEval(`this.emit("topGGvote", "${userId}")`);
         });
 
         try {
@@ -129,6 +134,9 @@ export default class MasterBeastiaryProcess {
 
         const bList = new BList();
         bList.init(this);
+
+        const topGGlist = new TopGGList();
+        topGGlist.init(this);
     }
 
     public async getGuildCount(): Promise<number> {

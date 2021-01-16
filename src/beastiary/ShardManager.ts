@@ -20,8 +20,12 @@ export default class ShardManager {
             this.beastiaryClient.beastiary.playerGuilds.announceToAll(text);
         });
 
-        this.shard.client.on("vote", async (userId: string) => {
+        this.shard.client.on("vote", (userId: string) => {
             this.beastiaryClient.beastiary.players.handleVote(userId);
+        });
+
+        this.shard.client.on("topGGvote", (userId: string) => {
+            this.beastiaryClient.beastiary.players.handleVote(userId, 3);
         });
     }
 

@@ -421,7 +421,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         return players;
     }
 
-    public async handleVote(userId: string): Promise<void> {
+    public async handleVote(userId: string, count = 1): Promise<void> {
         let players: Player[];
         try {
             players = await this.fetchAllAvailablePlayersByUserId(userId);
@@ -434,7 +434,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
 
         console.log(`${userId} voted!`);
         for (const player of players) {
-            player.prizeBalls++;
+            player.prizeBalls += count;
         }
     }
 }
