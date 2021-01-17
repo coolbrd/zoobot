@@ -12,6 +12,8 @@ export default class ListField<ElementType> {
     }
 
     public get list(): ElementType[] {
+        this.modify();
+
         return this._list;
     }
 
@@ -54,6 +56,14 @@ export default class ListField<ElementType> {
         this._list.splice(indexInBaseList, 1);
 
         this.modify();
+    }
+
+    public removeWhere(predicate: (element: ElementType) => boolean): void {
+        const elementToRemove = this._list.find(predicate);
+
+        if (elementToRemove) {
+            this.remove(elementToRemove);
+        }
     }
 
     public clear(): void {

@@ -17,6 +17,7 @@ import premiumConfig from "../../../config/premiumConfig";
 import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
 import ResetField from "../GameObjectFieldHelpers/ResetField";
 import { threadId } from "worker_threads";
+import { indexWhere } from "../../../utility/arraysAndSuch";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -462,10 +463,20 @@ export class Player extends GameObject {
     }
 
     public removeAnimalFromCollection(animal: Animal): void {
-        this.animals.splice(this.animals.indexOf(animal), 1);
+        const animalIndexInList = this.animals.findIndex(currentAnimal => currentAnimal.id.equals(animal.id));
+        if (animalIndexInList !== -1) {
+            this.animals.splice(animalIndexInList, 1);
+        }
+        else {
+            console.error(stripIndent`
+                An animal being removed from a player's collection didn't exist in that player's animal instances list.
 
-        this.collectionAnimalIds.remove(animal.id);
-        this.crewAnimalIds.remove(animal.id);
+                Id: ${animal.id}
+            `);
+        }
+
+        this.collectionAnimalIds.removeWhere(currentId => currentId.equals(animal.id));
+        this.crewAnimalIds.removeWhere(currentId => currentId.equals(animal.id));
 
         if (this.favoriteAnimalId) {
             if (this.favoriteAnimalId.equals(animal.id)) {
