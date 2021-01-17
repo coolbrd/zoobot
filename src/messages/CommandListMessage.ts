@@ -1,4 +1,5 @@
 import { MessageEmbed, TextChannel } from "discord.js";
+import config from "../config/BotConfig";
 import Command, { CommandSection } from "../structures/Command/Command";
 import PagedListMessage from "./PagedListMessage";
 
@@ -39,7 +40,15 @@ export default class CommandListMessage extends PagedListMessage<Command> {
         embed.setTitle("Command list");
         embed.setDescription("Here's a paged list of all the things I can do. Use the reaction emojis to navigate sections.");
 
-        const prefixHelpString = `Prefix commands with "${this.beastiaryClient.commandHandler.getPrefixByGuild((this.channel as TextChannel).guild)}", or by pinging me!`;
+        let prefix: string;
+        if (this.channel instanceof TextChannel) {
+            prefix = this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild);
+        }
+        else {
+            prefix = config.prefix;
+        }
+        
+        const prefixHelpString = `Prefix commands with "${prefix}", or by pinging me!`;
         const footerText = embed.footer ? embed.footer.text : "";
         const reactionInfoString = "Reactions not showing up? You may need to ensure that I have permission to react to messages in this channel.";
         embed.setFooter(prefixHelpString + "\n" + footerText + "\n" + reactionInfoString);

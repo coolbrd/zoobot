@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import { inspect } from "util";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import CommandListMessage from "../messages/CommandListMessage";
 import Command, { CommandSection } from "../structures/Command/Command";
@@ -23,9 +24,11 @@ class CommandListCommand extends Command {
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an errro sending a command list message.
+                There was an error sending a command list message.
 
-                Message: ${commandListMessage.debugString}
+                Message: ${inspect(commandListMessage)}
+
+                ${error}
             `);
         }
 
