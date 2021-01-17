@@ -18,6 +18,7 @@ import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
 import ResetField from "../GameObjectFieldHelpers/ResetField";
 import { threadId } from "worker_threads";
 import { indexWhere } from "../../../utility/arraysAndSuch";
+import { inspect } from "util";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -872,30 +873,28 @@ export class Player extends GameObject {
     }
 
     private async loadAnimals(): Promise<void> {
-        const loadedAnimals: Animal[] = [];
-
-        const animalLoadPromises: Promise<void>[] = [];
+        const animalLoadPromises: Promise<Animal>[] = [];
 
         this.collectionAnimalIds.list.forEach(animalId => {
             const animalPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
                 if (!animal) {
+                    this.collectionAnimalIds.remove(animalId);
+
                     throw new Error(stripIndent`
-                        An invalid animal id was found in a player's collection.
+                        An invalid animal id was found in a player's collection. Fixing.
 
                         Player: ${this.debugString}
                         Animal id: ${animalId}
                     `);
                 }
 
-                loadedAnimals.push(animal);
+                return animal;
             });
 
             animalLoadPromises.push(animalPromise);
         });
 
-        await Promise.all(animalLoadPromises);
-
-        this._animals = loadedAnimals;
+        this._animals = await Promise.all(animalLoadPromises);
     }
 
     public async applyPotentialPremium(): Promise<void> {
@@ -930,5 +929,13 @@ export class Player extends GameObject {
         await Promise.all(returnPromises);
 
         await this.applyPotentialPremium();
+    }
+
+    public get debugString(): string {
+        let debugSting = super.debugString;
+
+        debugSting += `\n${inspect(this.animals)}`;
+
+        return debugSting;
     }
 }
