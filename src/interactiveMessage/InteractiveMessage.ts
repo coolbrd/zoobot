@@ -120,14 +120,6 @@ export default abstract class InteractiveMessage extends EventEmitter {
     }
 
     private setDeactivated(): void {
-        if (this._deactivated) {
-            throw new Error(stripIndent`
-                Tried to redundantly set an interactive message's deactivation status.
-
-                Interactive message: ${this.debugString}
-            `);
-        }
-
         this._deactivated = true;
     }
 
