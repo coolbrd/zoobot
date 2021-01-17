@@ -39,7 +39,7 @@ export class BeastiaryServer extends EventEmitter {
                 resolve();
             });
 
-            tunnel.on("erorr", error => console.error(error));
+            tunnel.on("error", error => console.error(error));
         });
     }
 
