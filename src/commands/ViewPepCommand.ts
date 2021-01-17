@@ -7,7 +7,7 @@ import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 
 class ViewPepCommand extends GuildCommand {
-    public readonly names = ["pep", "vp"];
+    public readonly names = ["pep", "vp", "balance", "bal"];
 
     public readonly info = "View your current balance of pep";
 
