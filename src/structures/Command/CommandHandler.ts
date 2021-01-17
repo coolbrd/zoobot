@@ -61,6 +61,7 @@ import AnnounceInGuildCommand from "../../commands/AnnounceInGuildCommand";
 import PrivacyCommand from "../../commands/PrivacyCommand";
 import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 import UpgradeCommand from "../../commands/UpgradeCommand";
+import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -105,6 +106,7 @@ export default class CommandHandler {
         PremiumInfoCommand,
         ApprovePendingSpeciesCommand,
         CheatCommand,
+        RefreshPlayerCommand,
         GivePremiumCommand,
         RemovePremiumCommand,
         TogglePremiumCommand,
@@ -206,7 +208,10 @@ export default class CommandHandler {
                 catch (error) {
                     errorHandler.handleError(error, "Command execution failed.");
 
-                    betterSend(parsedMessage.channel, "Something went wrong while performing that command. Please report this to the developer.");
+                    betterSend(parsedMessage.channel, stripIndent`
+                        Something went wrong while performing that command. Please report this to the developer.
+                        If this error is recurring, and in relation to your player stats/data, try the \`${RefreshPlayerCommand.primaryName}\` command for a potential quick fix.
+                    `);
                     return;
                 }
                 finally {

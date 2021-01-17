@@ -99,6 +99,19 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const existingCachedGameObject = this.cacheGet(document._id);
 
         if (existingCachedGameObject) {
+            try {
+                await existingCachedGameObject.gameObject.loadFields();
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    An existing cached game object that was found while adding a document to a cache threw an error while reloading its fields.
+
+                    ${existingCachedGameObject}
+
+                    ${error}
+                `);
+            }
+
             return existingCachedGameObject.gameObject;
         }
 
