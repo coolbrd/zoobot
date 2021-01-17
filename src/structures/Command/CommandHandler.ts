@@ -62,6 +62,7 @@ import PrivacyCommand from "../../commands/PrivacyCommand";
 import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 import UpgradeCommand from "../../commands/UpgradeCommand";
 import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
+import gameConfig from "../../config/gameConfig";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -177,7 +178,7 @@ export default class CommandHandler {
 
             const displayPrefix = this.getDisplayPrefixByMessage(message);
 
-            if (!parsedMessage.currentArgument) {
+            if (messagePrefix === config.prefix && !parsedMessage.currentArgument) {
                 betterSend(parsedMessage.channel, `Yes? Try using \`${displayPrefix}commands\` to see a list of all my commands.`);
                 return;
             }
