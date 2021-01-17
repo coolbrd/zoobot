@@ -8,6 +8,7 @@ import { Player } from "./GameObject/GameObjects/Player";
 import { PlayerGuild } from "./GameObject/GameObjects/PlayerGuild";
 import { findRestrictedFieldValueErrors, IllegalValueError } from './schema/SchemaFieldRestrictions';
 import { Animal } from './GameObject/GameObjects/Animal';
+import { indexWhere } from "../utility/arraysAndSuch";
 
 interface DatabaseIntegrityError {
     info: string,
@@ -198,6 +199,23 @@ export default class DatabaseIntegrityChecker {
         return ownerDocument;
     }
 
+    private removeAnimalIdFromPlayer(animalId: Types.ObjectId, playerDocument: Document) {
+        const collectionIds = playerDocument.get(Player.fieldNames.collectionAnimalIds) as Types.ObjectId[];
+        const crewIds = playerDocument.get(Player.fieldNames.crewAnimalIds) as Types.ObjectId[];
+
+        const indexInCollection = indexWhere(collectionIds, id => id.equals(animalId));
+        if (indexInCollection !== -1) {
+            collectionIds.splice(indexInCollection, 1);
+        }
+
+        const indexInCrew = indexWhere(crewIds, id => id.equals(animalId));
+        if (indexInCrew !== -1) {
+            crewIds.splice(indexInCrew, 1);
+        }
+
+        playerDocument.save();
+    }
+
     private validateAnimalOwnership(allAnimals: Document[], allPlayers: Document[]): void {
         for (const currentPlayerDocument of allPlayers) {
             const collectionAnimalIds: Types.ObjectId[] = currentPlayerDocument.get(Player.fieldNames.collectionAnimalIds);
@@ -209,12 +227,41 @@ export default class DatabaseIntegrityChecker {
 
                 if (otherOwner) {
                     this.addError(stripIndent`
-                            An animal id that exists in the collections of two players was found.
+                            An animal id that exists in the collections of two players was found. Fixing.
 
                             Id: ${currentAnimalId}
                         `,
                         [otherOwner, currentPlayerDocument]
                     );
+
+                    const targetAnimalDocument = allAnimals.find(animal => currentAnimalId.equals(animal._id));
+
+                    if (!targetAnimalDocument) {
+                        this.addError(stripIndent`
+                            An animal id that exists in two players' collections doesn't map to an existing animal document. Removing from collections.
+
+                            Id: ${currentAnimalId}
+                        `, []);
+
+                        this.removeAnimalIdFromPlayer(currentAnimalId, currentPlayerDocument);
+                        this.removeAnimalIdFromPlayer(currentAnimalId, otherOwner);
+                    }
+                    else {
+                        const realOwnerId = targetAnimalDocument._id as Types.ObjectId;
+
+                        let realOwner: Document;
+                        let invalidOwner: Document;
+                        if (realOwnerId.equals(currentPlayerDocument._id)) {
+                            realOwner = currentPlayerDocument;
+                            invalidOwner = otherOwner;
+                        }
+                        else {
+                            realOwner = otherOwner;
+                            invalidOwner = currentPlayerDocument;
+                        }
+
+                        this.removeAnimalIdFromPlayer(currentAnimalId, invalidOwner);
+                    }
                 }
                 else {
                     this.ownedAnimals.set(idKey, currentPlayerDocument);
