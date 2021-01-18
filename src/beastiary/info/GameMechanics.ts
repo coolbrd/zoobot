@@ -46,9 +46,10 @@ const mechanics: GameMechanicInfo[] = [
         info: oneLine`
             Encounters are the primary way to obtain new animals. When you see an encounter, you have 60 seconds to react to it before
             the animal will flee. Make sure you react quickly, someone else could get it first! Standard players get 2 free encounters
-            every hour, and can buy more using the \`${ShopCommand.primaryName}\` command (for some pep, of course). Additionally,
-            encounters occur randomly when there's message activity in the server. You can change the channel these encounters occur in
-            using the \`${SetEncounterChannelCommand.primaryName}\` command.
+            every hour, can buy more using the \`${ShopCommand.primaryName}\` command (for some pep, of course), and can be received as
+            a reward from a prize ball or as an animal level up bonus. Additionally, encounters occur randomly when there's message
+            activity in the server. You can change the channel these encounters occur in using the
+            \`${SetEncounterChannelCommand.primaryName}\` command.
         `
     },
     {
@@ -58,7 +59,7 @@ const mechanics: GameMechanicInfo[] = [
             with the \`${AnimalInfoCommand.primaryName}\` command, and its species gets marked in your Beastiary. Captured animal
             species aren't exclusive to the user that has them, so be sure to make up for that by having the highest level of every
             species in your server! You get one free capture every 4 hours, so be sure to use it wisely. Additional captures can be
-            bought in the shop with pep.
+            bought in the shop, won from prize balls (earned from voting), and received as a reward for leveling your animals.
         `
     },
     {
