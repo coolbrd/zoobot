@@ -63,6 +63,7 @@ import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 import UpgradeCommand from "../../commands/UpgradeCommand";
 import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
 import gameConfig from "../../config/gameConfig";
+import TipCommand from "../../commands/TipCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -96,6 +97,7 @@ export default class CommandHandler {
         AnimalInfoCommand,
         VoteCommand,
         CommandListCommand,
+        TipCommand,
         EditSpeciesCommand,
         GiveAnimalCommand,
         TradeCommand,
