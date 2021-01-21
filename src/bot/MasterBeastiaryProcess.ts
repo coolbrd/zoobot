@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import Discord, { ShardingManager } from "discord.js";
 import mongoose from "mongoose";
-import { IS_TEST_BRANCH, MAIN_CLIENT_ID, MONGODB_PATH } from "../config/secrets";
+import { IS_TEST_BRANCH, MONGODB_PATH } from "../config/secrets";
 import { BeastiaryServer } from "./BeastiaryServer";
 import DatabaseIntegrityChecker from "../structures/DatabaseIntegrityChecker";
 import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
@@ -9,7 +9,6 @@ import DiscordBotList from "../beastiary/BotLists/Lists/DiscordBotList";
 import VultrexBotList from "../beastiary/BotLists/Lists/VultrexBotList";
 import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
 import DiscordBotsList from "../beastiary/BotLists/Lists/DiscordBotsList";
-import ArcaneList from "../beastiary/BotLists/Lists/ArcaneList";
 import BList from "../beastiary/BotLists/Lists/BList";
 import TopGGList from "../beastiary/BotLists/Lists/TopGGList";
 
@@ -133,9 +132,6 @@ export default class MasterBeastiaryProcess {
 
         const discordBotsList = new DiscordBotsList();
         discordBotsList.init(this);
-
-        const arcaneBotList = new ArcaneList();
-        arcaneBotList.init(this);
 
         const bList = new BList();
         bList.init(this);
