@@ -220,6 +220,56 @@ export default class PlayerManager extends GameObjectCache<Player> {
         return player;
     }
 
+    public async getAllPlayersByIds(options: { userId?: string, guildId?: string }): Promise<Player[]> {
+        if (!options.userId && !options.guildId) {
+            throw new Error("Either a user or guild id must be provided when getting all players by one/both of those criteria.");
+        }
+
+        const search = {};
+
+        if (options.userId) {
+            Object.defineProperty(search, Player.fieldNames.userId, {
+                writable: false,
+                enumerable: true,
+                value: options.userId
+            });
+        }
+
+        if (options.guildId) {
+            Object.defineProperty(search, Player.fieldNames.guildId, {
+                writable: false,
+                enumerable: true,
+                value: options.guildId
+            });
+        }
+
+        let playerDocuments: Document[];
+        try {
+            playerDocuments = await PlayerModel.find(search);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting all player documents by user id and/or guild id.
+
+                ${error}
+            `);
+        }
+
+        const addPromises: Promise<Player | undefined>[] = [];
+
+        for (const playerDocument of playerDocuments) {
+            const addPromise = this.addDocumentToCache(playerDocument).catch(() => undefined);
+
+            addPromises.push(addPromise);
+        }
+
+        const potentialPlayers = await Promise.all(addPromises);
+
+        const players: Player[] = potentialPlayers.filter(potentialPlayer => potentialPlayer !== undefined) as Player[];
+
+        return players;
+    }
+
     private async createNewPlayer(guildMember: GuildMember): Promise<Player> {
         let playerGuild: PlayerGuild | undefined;
         try {

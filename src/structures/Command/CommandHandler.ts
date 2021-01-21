@@ -64,6 +64,7 @@ import UpgradeCommand from "../../commands/UpgradeCommand";
 import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
 import gameConfig from "../../config/gameConfig";
 import TipCommand from "../../commands/TipCommand";
+import ModifyPlayerCommand from "../../commands/ModifyPlayerCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -117,6 +118,7 @@ export default class CommandHandler {
         ListGuildsCommand,
         AnnounceInGuildCommand,
         PrivacyCommand,
+        ModifyPlayerCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
