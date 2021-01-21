@@ -111,7 +111,7 @@ class ModifyPlayerCommand extends Command {
                 }
 
                 players.forEach(player => {
-                    console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${prizeBalls} encounters.`);
+                    console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${prizeBalls} prize balls.`);
                     player.prizeBalls += prizeBalls;
                 });
 
