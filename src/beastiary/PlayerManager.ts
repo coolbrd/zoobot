@@ -482,7 +482,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
 
-        console.log(`${userId} voted!`);
+        console.log(`${players[0].member.user.tag} voted!`);
         for (const player of players) {
             player.prizeBalls += count;
         }
