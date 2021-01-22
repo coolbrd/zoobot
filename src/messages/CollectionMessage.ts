@@ -13,12 +13,14 @@ export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly numbered = true;
     
     private readonly player: Player;
+    private readonly tag?: string;
     public readonly channel: TextChannel;
 
-    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player) {
-        super(channel, beastiaryClient, player.getCollectionAsLoadableAnimals());
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player, tag?: string) {
+        super(channel, beastiaryClient, player.getAnimalsByTag(tag));
 
         this.player = player;
+        this.tag = tag;
         this.channel = channel;
     }
 
@@ -30,20 +32,41 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
         const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
 
-        embed.setAuthor(`${this.player.member.user.username}'s collection`, userAvatar);
+        let headerString: string;
+        if (!this.tag) {
+            headerString = `${this.player.member.user.username}'s collection`;
+        }
+        else {
+            headerString = `Animals with "${this.tag}" tag`;
+        }
+        embed.setAuthor(headerString, userAvatar);
 
+        let footerString: string;
+        if (!this.tag) {
+            footerString = `${collection.length} in collection (max ${this.player.collectionSizeLimit})`;
+        }
+        else {
+            footerString = `${collection.length} tagged animals`;
+        }
         embed.setFooter(stripIndent`
-            ${collection.length} in collection (max ${this.player.collectionSizeLimit})
+            ${footerString}
             ${this.getButtonHelpString()}
         `);
 
         if (collection.length < 1) {
-            embed.setDescription(`It's empty in here. Try catching an animal with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}encounter\`!`);
+            if (!this.tag) {
+                embed.setDescription(`It's empty in here. Try catching an animal with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}encounter\`!`);
+            }
+            else {
+                embed.setDescription("You don't have any animals marked with this tag.");
+            }
             return embed;
         }
 
         if (this.state === AnimalDisplayMessageState.page) {
-            embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
+            if (!this.tag) {
+                embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
+            }
         }
         else {
             embed.setTitle(`\`${collection.pointerPosition + 1})\` ${embed.title}`);

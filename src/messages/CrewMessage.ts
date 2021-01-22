@@ -18,7 +18,7 @@ export default class CrewMessage extends AnimalDisplayMessage {
     public readonly channel: TextChannel;
 
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, player: Player) {
-        super(channel, beastiaryClient, player.getCrewAsLoadableAnimals());
+        super(channel, beastiaryClient, player.crewAnimals);
 
         this.player = player;
         this.channel = channel;

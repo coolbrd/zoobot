@@ -6,6 +6,8 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import handleUserError from "../discordUtility/handleUserError";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import { getCleanIdFromText } from "../discordUtility/idUtility";
+import { betterSend } from "../discordUtility/messageMan";
 
 class ViewCollectionCommand extends GuildCommand {
     public readonly names = ["collection", "col", "c"];
@@ -20,6 +22,12 @@ class ViewCollectionCommand extends GuildCommand {
             info: "the tag or plain user id of the user you want to select",
             optional: true,
             default: "you"
+        },
+        {
+            name: "tag",
+            info: "the tag of animal you want to filter your collection by",
+            optional: true,
+            default: "none"
         }
     ];
 
@@ -27,6 +35,15 @@ class ViewCollectionCommand extends GuildCommand {
 
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
+
+        let tag: string | undefined;
+        if (parsedMessage.currentArgument) {
+            const potentialId = getCleanIdFromText(parsedMessage.currentArgument.text);
+
+            if (!potentialId) {
+                tag = parsedMessage.consumeArgument().text.toLowerCase();
+            }
+        }
         
         let player: Player;
         try {
@@ -37,7 +54,7 @@ class ViewCollectionCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const collectionMessage = new CollectionMessage(parsedMessage.channel, beastiaryClient, player);
+        const collectionMessage = new CollectionMessage(parsedMessage.channel, beastiaryClient, player, tag);
 
         try {
             await collectionMessage.send();

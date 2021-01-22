@@ -41,3 +41,20 @@ export async function getIdType(id: string, client: Client): Promise<"user" | "g
 
     return "unknown";
 }
+
+export function getCleanIdFromText(text: string): string | undefined {
+    let userId: string | undefined;
+
+    if (text.length >= 18) {
+        const tagPosition = text.search(/<@.*>/);
+
+        if (tagPosition !== -1) {
+            userId = text.replace("!", "");
+            userId = userId.slice(tagPosition + 2, tagPosition + 2 + 18);
+        }
+        else if (text.length === 18 && !isNaN(Number(text))) {
+            userId = text;
+        }
+    }
+    return userId;
+}

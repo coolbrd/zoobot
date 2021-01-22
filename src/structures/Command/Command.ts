@@ -37,10 +37,10 @@ export default abstract class Command {
     public readonly adminOnly?: boolean = false;
 
     public help(displayPrefix: string, commandChain: string[]): string {
-        let helpString = `Use \`${displayPrefix}${commandChain.join(" ")}\` ${this.helpUseString}`;
+        let helpString = `Use \`${displayPrefix}${commandChain.join(" ")}\` ${this.helpUseString}\n`;
 
         if (this.arguments.length > 0) {
-            helpString += "\n\n__Arguments__\n";
+            helpString += "\n__Arguments__\n";
             this.arguments.forEach(currentArgument => {
                 let argumentString = `\`${currentArgument.name}\``;
                 if (currentArgument.info) {
@@ -60,7 +60,7 @@ export default abstract class Command {
         }
 
         if (this.subCommands.length > 0) {
-            helpString += "\n\n__Options__\n";
+            helpString += "\n__Options__\n";
             this.subCommands.forEach(currentSubCommand => {
                 helpString += `\`${currentSubCommand.names[0]}\`: ${currentSubCommand.info}\n`;
             });

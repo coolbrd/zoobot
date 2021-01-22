@@ -65,6 +65,7 @@ import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
 import gameConfig from "../../config/gameConfig";
 import TipCommand from "../../commands/TipCommand";
 import ModifyPlayerCommand from "../../commands/ModifyPlayerCommand";
+import TagsCommand from "../../commands/Tag/TagsCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -83,6 +84,7 @@ export default class CommandHandler {
         FavoriteAnimalCommand,
         MoveAnimalsCommand,
         ReleaseAnimalCommand,
+        TagsCommand,
         GiveXpCommand,
         FishCommand,
         OpenPrizeBallCommand,

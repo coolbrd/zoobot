@@ -12,6 +12,7 @@ import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 import { randomWithinRange } from "../../../utility/numericalMisc";
 import { inspect } from "util";
+import ListField from "../GameObjectFieldHelpers/ListField";
 
 interface ExperienceGainReceipt {
     xpGiven: number,
@@ -35,7 +36,8 @@ export class Animal extends GameObject {
         nickname: "nickname",
         experience: "experience",
         away: "away",
-        returns: "returns"
+        returns: "returns",
+        tags: "tags"
     };
 
     protected referenceNames = {
@@ -61,9 +63,12 @@ export class Animal extends GameObject {
             [Animal.fieldNames.ownerId]: owner? owner.id : undefined,
             [Animal.fieldNames.experience]: 0,
             [Animal.fieldNames.away]: false,
-            [Animal.fieldNames.returns]: 0
+            [Animal.fieldNames.returns]: 0,
+            [Animal.fieldNames.tags]: []
         });
     }
+
+    public readonly tags: ListField<string>;
 
     constructor(document: Document, beastiaryClient: BeastiaryClient) {
         super(document, beastiaryClient);
@@ -78,6 +83,8 @@ export class Animal extends GameObject {
                 id: this.ownerId
             }
         }
+
+        this.tags = new ListField(this, Animal.fieldNames.tags, this.document.get(Animal.fieldNames.tags));
     }
 
     public get speciesId(): Types.ObjectId {
@@ -153,8 +160,14 @@ export class Animal extends GameObject {
         return false;
     }
 
+    public get displayNameSimple(): string {
+        const displayName = this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
+
+        return displayName;
+    }
+
     public get displayName(): string {
-        let displayName = this.nickname || capitalizeFirstLetter(this.species.commonNames[0]);
+        let displayName = this.displayNameSimple;
 
         if (this.isOwnersFavorite) {
             displayName += " 💕";
@@ -354,9 +367,15 @@ export class Animal extends GameObject {
         return xpReceipt;
     }
 
+    private clearTags(): void {
+        this.tags.clear();
+    }
+
     public async disown(): Promise<void> {
         this.ownerId = undefined;
         this.userId = undefined;
+
+        this.clearTags();
 
         this.deleteReference(this.referenceNames.owner);
     }
@@ -388,6 +407,8 @@ export class Animal extends GameObject {
 
         this.ownerId = newOwner.id;
         this.userId = newOwner.member.user.id;
+
+        this.clearTags();
 
         try {
             await this.loadFields();

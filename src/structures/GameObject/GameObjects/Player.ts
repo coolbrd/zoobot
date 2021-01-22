@@ -408,6 +408,17 @@ export class Player extends GameObject {
         return this.playerPremium || this.playerGuild.premium;
     }
 
+    public get crewAnimals(): Animal[] {
+        return this.animals.filter(animal => this.crewAnimalIds.list.some(id => id.equals(animal.id)));
+    }
+
+    public getAnimalsByTag(tag?: string): Animal[] {
+        if (!tag) {
+            return this.animals;
+        }
+        return this.animals.filter(animal => animal.tags.list.includes(tag));
+    }
+
     private applyPremiumModifier(baseValue: number, premiumModifier: number): number {
         if (this.premium) {
             return baseValue * premiumModifier;
@@ -422,22 +433,6 @@ export class Player extends GameObject {
     public hasSpecies(speciesId: Types.ObjectId): boolean {
         const animalOfSpecies = this.animals.find(animal => animal.species.id.equals(speciesId));
         return Boolean(animalOfSpecies);
-    }
-
-    private idToLoadableAnimal(animalId: Types.ObjectId): LoadableOwnedAnimal {
-        return new LoadableOwnedAnimal(animalId, this);
-    }
-
-    public getCollectionAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.collectionAnimalIds.list.map(animalId => {
-            return this.idToLoadableAnimal(animalId);
-        });
-    }
-
-    public getCrewAsLoadableAnimals(): LoadableOwnedAnimal[] {
-        return this.crewAnimalIds.list.map(animalId => {
-            return this.idToLoadableAnimal(animalId);
-        });
     }
 
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {

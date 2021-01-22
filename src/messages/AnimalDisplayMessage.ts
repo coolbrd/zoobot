@@ -15,27 +15,26 @@ export enum AnimalDisplayMessageState {
     card
 }
 
-export default abstract class AnimalDisplayMessage extends PointedMessage<LoadableGameObject<Animal>> {
+export default abstract class AnimalDisplayMessage extends PointedMessage<Animal> {
     protected abstract readonly numbered: boolean;
 
     protected state: AnimalDisplayMessageState;
 
-    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, loadableAnimals: LoadableGameObject<Animal>[]) {
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animals: Animal[]) {
         super(channel, beastiaryClient);
 
         this.state = AnimalDisplayMessageState.page;
 
-        this.elements = new PointedArray(loadableAnimals);
+        this.elements = new PointedArray(animals);
     }
 
-    protected formatElement(loadedAnimal: LoadableGameObject<Animal>): string {
+    protected formatElement(animal: Animal): string {
         let animalString = "";
-        
-        const currentAnimal = loadedAnimal.gameObject;
-        const card = currentAnimal.card;
+
+        const card = animal.card;
 
         let specialText = "";
-        if (!currentAnimal.nickname) {
+        if (!animal.nickname) {
             if (card.special) {
                 specialText = card.special;
             }
@@ -47,13 +46,13 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
             }
         }
 
-        const animalIndex = this.elements.indexOf(loadedAnimal);
+        const animalIndex = this.elements.indexOf(animal);
 
         if (this.numbered) {
             animalString += `\`${animalIndex + 1})\` `;
         }
 
-        animalString += `${currentAnimal.showcaseDisplayName}${specialText}`;
+        animalString += `${animal.showcaseDisplayName}${specialText}`;
 
         if (animalIndex === this.elements.pointerPosition) {
             animalString += " 🔹";
@@ -83,45 +82,14 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Loadab
         }
     }
 
-    private get allVisibleAnimalsLoaded(): boolean {
-        return this.visibleElements.every(animal => animal.loaded );
-    }
-
-    private pruneVisibleAnimalsThatFailedToLoad(): void {
-        this.visibleElements.forEach(animal => {
-            if (animal.loadFailed) {
-                const unloadableAnimalIndex = this.elements.indexOf(animal);
-
-                this.elements.splice(unloadableAnimalIndex, 1);
-            }
-        });
-    }
-
     protected async buildEmbed(): Promise<MessageEmbed> {
-        while (this.allVisibleAnimalsLoaded === false) {
-            try {
-                await bulkLoad(this.visibleElements);
-            }
-            catch (error) {
-                throw new Error(stripIndent`
-                    There was an error bulk loading all the animals on a page of an animal display message.
-
-                    Animals on page: ${inspect(this.visibleElements)}
-                    
-                    ${error}
-                `);
-            }
-
-            this.pruneVisibleAnimalsThatFailedToLoad();
-        }
-
         let embed = new MessageEmbed();
 
         if (this.visibleElements.length === 0) {
             return embed;
         }
 
-        const selectedAnimal = this.selection.gameObject;
+        const selectedAnimal = this.selection;
 
         switch (this.state) {
             case AnimalDisplayMessageState.page: {

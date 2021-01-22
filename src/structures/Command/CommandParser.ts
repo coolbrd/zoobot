@@ -3,6 +3,7 @@ import { Message, TextChannel, DMChannel, User, GuildMember, Guild } from "disco
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import getGuildMember from '../../discordUtility/getGuildMember';
 import { inspect } from "util";
+import { getCleanIdFromText } from "../../discordUtility/idUtility";
 
 export interface Argument {
     text: string,
@@ -57,18 +58,7 @@ export default class CommandParser {
         });
 
         for (const argument of splitMessage) {
-            let userId: string | undefined;
-            if (argument.length >= 18) {
-                const tagPosition = argument.search(/<@.*>/);
-
-                if (tagPosition !== -1) {
-                    userId = argument.replace("!", "");
-                    userId = userId.slice(tagPosition + 2, tagPosition + 2 + 18);
-                }
-                else if (argument.length === 18 && !isNaN(Number(argument))) {
-                    userId = argument;
-                }
-            }
+            const userId = getCleanIdFromText(argument);
 
             this.arguments.push({
                 text: argument,
