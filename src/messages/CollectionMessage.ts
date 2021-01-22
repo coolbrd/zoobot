@@ -10,7 +10,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly fieldsPerPage = 3;
     protected readonly elementsPerField = 10;
 
-    protected readonly numbered = true;
+    protected numbered = true;
     
     private readonly player: Player;
     private readonly tag?: string;
@@ -22,6 +22,10 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         this.player = player;
         this.tag = tag;
         this.channel = channel;
+
+        if (this.tag) {
+            this.numbered = false;
+        }
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
