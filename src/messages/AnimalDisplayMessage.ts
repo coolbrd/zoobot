@@ -2,12 +2,10 @@ import { MessageEmbed, TextChannel, User } from "discord.js";
 import buildAnimalInfo from "../embedBuilders/buildAnimalInfo";
 import buildAnimalCard from "../embedBuilders/buildAnimalCard";
 import PointedMessage from './PointedMessage';
-import LoadableGameObject, { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import PointedArray from "../structures/PointedArray";
-import { inspect } from "util";
 
 export enum AnimalDisplayMessageState {
     page,
