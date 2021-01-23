@@ -157,6 +157,8 @@ class FishCommand extends GuildCommand {
                 const rewardString = rewardPep >= 100 ? "Wow! You reeled in" : "Success, you reeled in";
                 betterSend(parsedMessage.channel, `${rewardString} ${rewardPep}${pepEmoji}`);
 
+                console.log(`${player.member.user.tag} reeled in ${rewardPep} after ${fishingTime / 1000} seconds.`);
+
                 player.awardCrewExperienceInChannel(gameConfig.xpPerFish, parsedMessage.channel);
             }
             else {
