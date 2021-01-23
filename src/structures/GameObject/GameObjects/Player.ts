@@ -552,6 +552,8 @@ export class Player extends GameObject {
                 +**${pepReward}**${pepEmoji}
             `);
 
+            console.log(`Retroactively rewarded ${this.member.user.tag} with ${pepReward} pep.`);
+
             this.canClaimRetroactiveRecordRewards = false;
         }
     }
