@@ -13,7 +13,7 @@ class FreeEncounterMaxStackUpgrade extends ShopItem {
     }
 
     public getPrice(player: Player): number {
-        return 3000 + player.freeEncounterMaxStackUpgradeLevel * 1000;
+        return 3000 + player.freeEncounterMaxStackUpgradeLevel * 1500;
     }
 
     public purchaseAction(player: Player): void {
