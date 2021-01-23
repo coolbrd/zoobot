@@ -178,7 +178,17 @@ export class Player extends GameObject {
             `);
         }
 
-        return this._animals;
+        const sortedAnimals: Animal[] = [];
+
+        for (const id of this.collectionAnimalIds.list) {
+            const animal = this._animals.find(animal => animal.id.equals(id));
+
+            if (animal) {
+                sortedAnimals.push(animal);
+            }
+        }
+
+        return sortedAnimals;
     }
 
     public get playerGuild(): PlayerGuild {

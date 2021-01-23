@@ -66,6 +66,7 @@ import gameConfig from "../../config/gameConfig";
 import TipCommand from "../../commands/TipCommand";
 import ModifyPlayerCommand from "../../commands/ModifyPlayerCommand";
 import TagsCommand from "../../commands/Tag/TagsCommand";
+import SortCollectionCommand from "../../commands/SortCollectionCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -83,6 +84,7 @@ export default class CommandHandler {
         CrewCommand,
         FavoriteAnimalCommand,
         MoveAnimalsCommand,
+        SortCollectionCommand,
         ReleaseAnimalCommand,
         TagsCommand,
         GiveXpCommand,

@@ -22,7 +22,8 @@ export interface CommandArgumentInfo {
     optional?: boolean,
     info?: string,
     default?: string,
-    continuous?: boolean
+    continuous?: boolean,
+    options?: string[]
 }
 
 export default abstract class Command {
@@ -45,6 +46,9 @@ export default abstract class Command {
                 let argumentString = `\`${currentArgument.name}\``;
                 if (currentArgument.info) {
                     argumentString += `: ${capitalizeFirstLetter(currentArgument.info)}`;
+                }
+                if (currentArgument.options) {
+                    argumentString += ` Options: ${currentArgument.options.map(option => `\`${option}\``).join(", ")}`;
                 }
                 if (currentArgument.optional) {
                     argumentString += " (optional)";
