@@ -75,7 +75,6 @@ export default class MasterBeastiaryProcess {
         }
 
         this._clientId = await this.shardManager.fetchClientValues("user.id", 0);
-        this._clientId = "737387258683850892";
     }
 
     public async init(): Promise<void> {
