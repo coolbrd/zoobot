@@ -65,8 +65,7 @@ class FishCommand extends GuildCommand {
     }
 
     private getSweetSpotDistance(channel: TextChannel): number {
-        const channelIdNumber = Number(channel.id);
-        const sweetSpotSeed = getDaysSinceEpoch() + channelIdNumber;
+        const sweetSpotSeed = getDaysSinceEpoch() + channel.id;
         const seededRandom = seedrandom(sweetSpotSeed.toString());
         const primeFishingDistance = randomWithinRange(seededRandom(), this.distanceBounds.min, this.distanceBounds.max);
 
@@ -148,12 +147,15 @@ class FishCommand extends GuildCommand {
             const reelMessage = await messageCollector.collectOne(this.reelWindow);
 
             if (reelMessage) {
-                const rewardPep = Math.floor(Math.random() * 15) + 5;
+                const x = Math.random() * 100;
+                const rewardPep = Math.floor(150 / ((x / 2) + 1) - (x / 1000) + 10);
 
                 player.pep += rewardPep;
 
                 const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-                betterSend(parsedMessage.channel, `Success, you reeled in ${rewardPep}${pepEmoji}`);
+
+                const rewardString = rewardPep >= 100 ? "Wow! You reeled in" : "Success, you reeled in";
+                betterSend(parsedMessage.channel, `${rewardString} ${rewardPep}${pepEmoji}`);
 
                 player.awardCrewExperienceInChannel(gameConfig.xpPerFish, parsedMessage.channel);
             }
