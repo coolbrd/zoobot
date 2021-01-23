@@ -15,6 +15,8 @@ const gameConfig = {
     xpPerEncounter: 5,
     xpPerCapture: 30,
     xpPerFish: 10,
+    newSpeciesPepReward: 150,
+    newSpeciesExperienceReward: 5,
     maxCrewSize: 2,
     cachedGameObjectTimeout: 180000,
     gameObjectFieldSaveDelay: 10000,

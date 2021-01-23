@@ -4,7 +4,6 @@ import { Document, Types } from "mongoose";
 import gameConfig from "../../../config/gameConfig";
 import getGuildMember from "../../../discordUtility/getGuildMember";
 import GameObject from "../GameObject";
-import LoadableOwnedAnimal from "./LoadableGameObject/LoadableGameObjects/LoadableOwnedAnimal";
 import { Animal } from "./Animal";
 import { PlayerModel, playerSchemaDefinition } from '../../../models/Player';
 import LoadableCacheableGameObject from "./LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
@@ -15,10 +14,9 @@ import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
 import { PlayerGuild } from "./PlayerGuild";
 import premiumConfig from "../../../config/premiumConfig";
 import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
-import ResetField from "../GameObjectFieldHelpers/ResetField";
-import { threadId } from "worker_threads";
-import { indexWhere } from "../../../utility/arraysAndSuch";
 import { inspect } from "util";
+import { config } from "dotenv/types";
+import { betterSend } from "../../../discordUtility/messageMan";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -60,7 +58,9 @@ export class Player extends GameObject {
         favoriteAnimalId: "favoriteAnimalId",
         speciesRecords: "speciesRecords",
         prizeBalls: "prizeBalls",
-        freeEncounterMaxStackUpgradeLevel: "freeEncounterMaxStackUpgradeLevel"
+        freeEncounterMaxStackUpgradeLevel: "freeEncounterMaxStackUpgradeLevel",
+        experience: "experience",
+        canClaimRetroactiveRecordRewards: "canClaimRetroactiveRecordRewards"
     };
 
     protected referenceNames = {
@@ -91,7 +91,8 @@ export class Player extends GameObject {
             [Player.fieldNames.totalXpBoosts]: 0,
             [Player.fieldNames.rarestTierCaught]: 0,
             [Player.fieldNames.prizeBalls]: 0,
-            [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: 0
+            [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: 0,
+            [Player.fieldNames.experience]: 0
         });
     }
 
@@ -322,6 +323,22 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.freeEncounterMaxStackUpgradeLevel, freeEncounterMaxStackUpgradeLevel);
     }
 
+    public get experience(): number {
+        return this.document.get(Player.fieldNames.experience);
+    }
+
+    public set experience(experience: number) {
+        this.setDocumentField(Player.fieldNames.experience, experience);
+    }
+
+    public get canClaimRetroactiveRecordRewards(): boolean {
+        return Boolean(this.document.get(Player.fieldNames.canClaimRetroactiveRecordRewards));
+    }
+
+    public set canClaimRetroactiveRecordRewards(canClaimRetroactiveRecordRewards: boolean) {
+        this.setDocumentField(Player.fieldNames.canClaimRetroactiveRecordRewards, canClaimRetroactiveRecordRewards);
+    }
+
     public get freeEnconterMaxStack(): number {
         return this.applyPremiumModifier(gameConfig.freeEncounterMaxStack, premiumConfig.freeEncounterMaxStackMultiplier) + this.freeEncounterMaxStackUpgradeLevel;
     }
@@ -519,6 +536,26 @@ export class Player extends GameObject {
         }
     }
 
+    private applyPotentialRetroactiveRewards(channel: TextChannel): void {
+        if (this.canClaimRetroactiveRecordRewards) {
+            const speciesCaught = this.speciesRecords.list.length;
+
+            const pepReward = speciesCaught * gameConfig.newSpeciesPepReward;
+            const xpReward = speciesCaught * gameConfig.newSpeciesExperienceReward;
+
+            this.pep += pepReward;
+            this.experience += xpReward;
+
+            const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
+            betterSend(channel, stripIndent`
+                ${this.member.user}, since you've caught **${speciesCaught}** unique species of animals before these rewards existed, you're entitled to retroactive compensation!
+                +**${pepReward}**${pepEmoji}
+            `);
+
+            this.canClaimRetroactiveRecordRewards = false;
+        }
+    }
+
     public captureAnimal(animal: Animal, channel: TextChannel): void {
         if (!this.hasCaptures) {
             throw new Error(stripIndent`
@@ -537,6 +574,7 @@ export class Player extends GameObject {
         }
 
         animal.changeOwner(this.id);
+        this.applyPotentialRetroactiveRewards(channel);
         this.addAnimalToCollection(animal);
         this.applyPotentialNewRarestTierCaught(animal.species.rarityData.tier);
         this.awardCrewExperienceInChannel(gameConfig.xpPerCapture, channel);
@@ -796,6 +834,11 @@ export class Player extends GameObject {
     public captureSpecies(speciesId: Types.ObjectId): void {
         this.addCapture(speciesId);
         this.addEssence(speciesId, 5);
+
+        if (this.getCaptures(speciesId) === 1) {
+            this.pep += gameConfig.newSpeciesPepReward;
+            this.experience += 5;
+        }
     }
 
     public getSpeciesRecord(speciesId: Types.ObjectId): PlayerSpeciesRecord {
@@ -818,6 +861,11 @@ export class Player extends GameObject {
     public getEssence(speciesId: Types.ObjectId): number {
         const record = this.getSpeciesRecord(speciesId);
         return record.data.essence;
+    }
+
+    public getCaptures(speciesId: Types.ObjectId): number {
+        const record = this.getSpeciesRecord(speciesId);
+        return record.data.captures;
     }
 
     public getHighestEssenceSpeciesRecord(): PlayerSpeciesRecord | undefined {

@@ -151,8 +151,6 @@ export default class EncounterMessage extends InteractiveMessage {
             `);
         }
 
-        player.captureAnimal(this.animal, this.channel);
-
         const commonName = this.animal.species.commonNameObjects[0];
         const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
@@ -161,11 +159,18 @@ export default class EncounterMessage extends InteractiveMessage {
             +**5**${essenceEmoji} (${commonName.name})
         `;
 
+        if (player.getCaptures(this.animal.species.id) === 0) {
+            const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
+            captureString += `\n+**${gameConfig.newSpeciesPepReward}**${pepEmoji} (caught new species)`;
+        }
+
         if (player.totalCaptures <= 3) {
             captureString += `\n\nView your new animal with the \`${ViewCollectionCommand.primaryName}\` command, and give them a name with the \`${ChangeAnimalNicknameCommand.primaryName}\` command!`;
         }
         
         betterSend(this.channel, captureString);
+
+        player.captureAnimal(this.animal, this.channel);
 
         console.log(`${player.member.user.tag} caught a ${this.animal.displayName} in ${this.channel.guild.name}!`);
         
