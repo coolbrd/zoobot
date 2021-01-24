@@ -178,17 +178,14 @@ export class Player extends GameObject {
             `);
         }
 
-        const sortedAnimals: Animal[] = [];
+        this._animals.sort((animal1, animal2) => {
+            const animal1Pos = this.collectionAnimalIds.list.findIndex(id => animal1.id.equals(id));
+            const animal2Pos = this.collectionAnimalIds.list.findIndex(id => animal2.id.equals(id));
 
-        for (const id of this.collectionAnimalIds.list) {
-            const animal = this._animals.find(animal => animal.id.equals(id));
+            return animal1Pos - animal2Pos;
+        });
 
-            if (animal) {
-                sortedAnimals.push(animal);
-            }
-        }
-
-        return sortedAnimals;
+        return this._animals;
     }
 
     public get playerGuild(): PlayerGuild {
@@ -989,7 +986,7 @@ export class Player extends GameObject {
     public get debugString(): string {
         let debugSting = super.debugString;
 
-        debugSting += `\n${inspect(this.animals)}`;
+        debugSting += `\nAnimals list length: ${this.animals.length}`;
 
         return debugSting;
     }
