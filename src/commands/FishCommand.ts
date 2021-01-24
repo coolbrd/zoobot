@@ -148,7 +148,7 @@ class FishCommand extends GuildCommand {
 
             if (reelMessage) {
                 const x = Math.random() * 100;
-                const rewardPep = Math.floor(150 / ((x / 2) + 1) - (x / 1000) + 10);
+                const rewardPep = Math.floor(150 / ((x / 2) + 1) - (x / 10) + 20);
 
                 player.pep += rewardPep;
 
