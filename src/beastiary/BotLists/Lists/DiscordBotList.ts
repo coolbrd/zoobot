@@ -11,4 +11,5 @@ export default class DiscordBotList extends BotList {
     protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;
     protected readonly webhookUserIdPropertyName = "id";
     protected readonly webhookVoteEventName = "vote";
+    protected readonly voteRewardAmount = 2;
 }

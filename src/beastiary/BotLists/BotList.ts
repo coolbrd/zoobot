@@ -21,6 +21,7 @@ export default abstract class BotList {
     protected readonly webhookAuth?: string;
     protected readonly webhookUserIdPropertyName?: string | string[];
     protected readonly webhookVoteEventName?: string;
+    protected readonly voteRewardAmount: number = 1;
 
     protected readonly loginHeaders?: NestedBody;
     
@@ -144,7 +145,7 @@ export default abstract class BotList {
             const id = this.getUserIdFromBody(req.body);
 
             if (this.webhookVoteEventName && id.length === 18) {
-                server.emit(this.webhookVoteEventName, id);
+                server.emit(this.webhookVoteEventName, id, this.voteRewardAmount);
             }
         });
     }

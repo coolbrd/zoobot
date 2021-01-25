@@ -20,13 +20,15 @@ class VoteCommand extends Command {
 
         embed.setTitle("Voting");
         embed.setColor(0xf75142);
-        embed.setDescription("Whenever you can, vote on any of these websites to earn prize balls!");
-        embed.addField("Top.gg (worth triple!)", "[Vote](https://top.gg/bot/737387258683850892/vote)");
-        embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
+        embed.setDescription("Whenever you can, vote on any of these websites to earn rewards!");
+        embed.addField("---", "**3 prize balls** for voting on these sites:");
+        embed.addField("Top.gg", "[Vote](https://top.gg/bot/737387258683850892/vote)", true);
         embed.addField("Infinity Bot List", "[Vote](https://infinitybotlist.com/bots/737387258683850892/vote)", true);
+        embed.addField("---", "**2 prize balls** for voting on these sites:");
+        embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
         embed.addField("DiscordBots", "[Vote](https://discordbots.co/bot/737387258683850892)", true);
         embed.addField("Discord Bot List", "[Vote](https://discordbotlist.com/bots/the-beastiary/upvote)", true);
-        embed.setFooter(`Each vote is rewarded with a single prize ball, which can be opened with the '${OpenPrizeBallCommand.primaryName}' command.`);
+        embed.setFooter(`Prize balls can be opened with the '${OpenPrizeBallCommand.primaryName}' command.`);
 
         betterSend(parsedMessage.channel, embed);
 

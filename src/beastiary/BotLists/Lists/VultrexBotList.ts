@@ -11,4 +11,5 @@ export default class VultrexBotList extends BotList {
     protected readonly webhookAuth = VULTREX_WEBHOOK_TOKEN;
     protected readonly webhookUserIdPropertyName = "userId";
     protected readonly webhookVoteEventName = "vote";
+    protected readonly voteRewardAmount = 2;
 }

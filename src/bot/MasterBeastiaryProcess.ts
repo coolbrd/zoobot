@@ -56,12 +56,8 @@ export default class MasterBeastiaryProcess {
             });
         });
 
-        this.server.on("vote", userId => {
-            this.shardManager.broadcastEval(`this.emit("vote", "${userId}")`);
-        });
-
-        this.server.on("topGGvote", userId => {
-            this.shardManager.broadcastEval(`this.emit("topGGvote", "${userId}")`);
+        this.server.on("vote", (userId, rewardCount) => {
+            this.shardManager.broadcastEval(`this.emit("vote", "${userId}", ${rewardCount})`);
         });
 
         try {
