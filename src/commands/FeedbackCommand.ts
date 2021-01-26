@@ -37,7 +37,7 @@ class FeedbackCommand extends Command {
         }
 
         beastiaryClient.discordClient.shard.broadcastEval(`
-            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", "${parsedMessage.restOfText}");
+            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", \`${parsedMessage.restOfText}\`);
         `);
 
         betterSend(parsedMessage.channel, "Feedback sent!");
