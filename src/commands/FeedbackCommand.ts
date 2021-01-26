@@ -36,8 +36,12 @@ class FeedbackCommand extends Command {
             `);
         }
 
+        let feedbackMessage = parsedMessage.restOfText.replace(/`/g, "\"");
+        feedbackMessage = feedbackMessage.replace(/\${.*}/, "ESCAPE DETECTED");
+        feedbackMessage = stripIndent`${feedbackMessage}`;
+
         beastiaryClient.discordClient.shard.broadcastEval(`
-            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", \`${parsedMessage.restOfText}\`);
+            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", \`${feedbackMessage}\`);
         `);
 
         betterSend(parsedMessage.channel, "Feedback sent!");
