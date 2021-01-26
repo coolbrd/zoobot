@@ -3,7 +3,7 @@ import { Document, Types } from "mongoose";
 import { SpeciesModel } from "../models/Species";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import EncounterMessage from "../messages/Encountermessage";
-import { getWeightedRandom, getWeightedRarityMinimumOccurrence } from "../utility/weightedRarity";
+import { getWeightedRandom } from "../utility/weightedRarity";
 import getFirstAvailableTextChannel from "../discordUtility/getFirstAvailableTextChannel";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import { stripIndent } from "common-tags";
@@ -12,7 +12,6 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { inspect } from "util";
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
-import { getRandomElement } from "../utility/arraysAndSuch";
 
 export interface RarityInfo {
     tier: number,
@@ -21,7 +20,7 @@ export interface RarityInfo {
 }
 
 export default class EncounterManager {
-    private rarityTiers = new Map<number, Types.ObjectId[]>();
+    private rarityTiers = new Map<number, string[]>();
 
     private readonly guildsOnRandomEncounterCooldown = new Set<string>();
     private readonly currentlyCapturingPlayers = new Set<Player>();
@@ -45,7 +44,7 @@ export default class EncounterManager {
             `);
         }
 
-        this.rarityTiers = new Map();
+        this.rarityTiers = new Map<number, string[]>();
 
         speciesDocumentList.forEach(currentSpeciesDocument => {
             const currentRarityTier = currentSpeciesDocument.get(Species.fieldNames.rarityTier);
@@ -57,7 +56,7 @@ export default class EncounterManager {
                 this.rarityTiers.set(currentRarityTier, rarityList);
             }
 
-            rarityList.push(currentSpeciesDocument._id);
+            rarityList.push((currentSpeciesDocument._id as Types.ObjectId).toHexString());
         });
     }
 
@@ -82,7 +81,7 @@ export default class EncounterManager {
         return rarityTier;
     }
 
-    private async getRandomSpecies(): Promise<Species> {
+    private async getRandomSpecies(player?: Player): Promise<Species> {
         if (this.rarityTiers.size <= 0) {
             throw new Error(stripIndent`Tried to spawn an animal before the encounter rarity map was formed.`);
         }
@@ -95,11 +94,30 @@ export default class EncounterManager {
             throw new Error(`An undefined rarity tier was chosen when spawning an animal. Tier: ${rarityTier}`);
         }
 
-        const randomSpeciesId = getRandomElement(rarityTierList);
+        const rarityTierMap = new Map<string, number>();
+        rarityTierList.forEach(id => rarityTierMap.set(id, 1));
+
+        if (player) {
+            player.wishedSpeciesIds.list.forEach(id => {
+                const idString = id.toHexString();
+
+                if (rarityTierMap.has(idString)) {
+                    rarityTierMap.set(idString, 3);
+                }
+                else {
+                    const nextRarityLevelList = this.rarityTiers.get(rarityTier + 1);
+                    if (nextRarityLevelList && nextRarityLevelList.includes(idString)) {
+                        rarityTierMap.set(idString, 1);
+                    }
+                }
+            });
+        }
+
+        const randomSpeciesId = getWeightedRandom(rarityTierMap);
 
         let species: Species | undefined;
         try {
-            species = await this.beastiaryClient.beastiary.species.fetchById(randomSpeciesId);
+            species = await this.beastiaryClient.beastiary.species.fetchById(new Types.ObjectId(randomSpeciesId));
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -125,7 +143,7 @@ export default class EncounterManager {
     public async spawnAnimal(channel: TextChannel, player?: Player): Promise<void> {
         let species: Species;
         try {
-            species = await this.getRandomSpecies();
+            species = await this.getRandomSpecies(player);
         }
         catch (error) {
             throw new Error(stripIndent`

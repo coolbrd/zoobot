@@ -62,11 +62,11 @@ import PrivacyCommand from "../../commands/PrivacyCommand";
 import OpenPrizeBallCommand from "../../commands/OpenPrizeBallCommand";
 import UpgradeCommand from "../../commands/UpgradeCommand";
 import RefreshPlayerCommand from "../../commands/RefreshPlayerCommand";
-import gameConfig from "../../config/gameConfig";
 import TipCommand from "../../commands/TipCommand";
 import ModifyPlayerCommand from "../../commands/ModifyPlayerCommand";
 import TagsCommand from "../../commands/Tag/TagsCommand";
 import SortCollectionCommand from "../../commands/SortCollectionCommand";
+import WishlistCommand from "../../commands/Wishlist/WishlistCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -100,6 +100,7 @@ export default class CommandHandler {
         CommandAliasesCommand,
         SpeciesInfoCommand,
         AnimalInfoCommand,
+        WishlistCommand,
         VoteCommand,
         CommandListCommand,
         TipCommand,

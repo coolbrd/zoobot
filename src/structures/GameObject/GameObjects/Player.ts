@@ -14,8 +14,6 @@ import LoadableGameObject from "./LoadableGameObject/LoadableGameObject";
 import { PlayerGuild } from "./PlayerGuild";
 import premiumConfig from "../../../config/premiumConfig";
 import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
-import { inspect } from "util";
-import { config } from "dotenv/types";
 import { betterSend } from "../../../discordUtility/messageMan";
 
 interface PlayerSpeciesRecord {
@@ -60,7 +58,8 @@ export class Player extends GameObject {
         prizeBalls: "prizeBalls",
         freeEncounterMaxStackUpgradeLevel: "freeEncounterMaxStackUpgradeLevel",
         experience: "experience",
-        canClaimRetroactiveRecordRewards: "canClaimRetroactiveRecordRewards"
+        canClaimRetroactiveRecordRewards: "canClaimRetroactiveRecordRewards",
+        wishedSpeciesIds: "wishedSpeciesIds"
     };
 
     protected referenceNames = {
@@ -103,6 +102,7 @@ export class Player extends GameObject {
     public readonly crewAnimalIds: ListField<Types.ObjectId>;
     public readonly tokenSpeciesIds: ListField<Types.ObjectId>;
     public readonly speciesRecords: ListField<PlayerSpeciesRecord>;
+    public readonly wishedSpeciesIds: ListField<Types.ObjectId>;
 
     public readonly freeEncounters: CountedResetField;
     public readonly freeCaptures: CountedResetField;
@@ -122,6 +122,7 @@ export class Player extends GameObject {
         this.crewAnimalIds = new ListField(this, Player.fieldNames.crewAnimalIds, this.document.get(Player.fieldNames.crewAnimalIds));
         this.tokenSpeciesIds = new ListField(this, Player.fieldNames.tokenSpeciesIds, this.document.get(Player.fieldNames.tokenSpeciesIds));
         this.speciesRecords = new ListField(this, Player.fieldNames.speciesRecords, this.document.get(Player.fieldNames.speciesRecords));
+        this.wishedSpeciesIds = new ListField(this, Player.fieldNames.wishedSpeciesIds, this.document.get(Player.fieldNames.wishedSpeciesIds));
 
         this.freeEncounters = new CountedResetField({
             gameObject: this,
@@ -436,6 +437,19 @@ export class Player extends GameObject {
         return this.animals.filter(animal => this.crewAnimalIds.list.some(id => id.equals(animal.id)));
     }
 
+    public get maxWishlistSize(): number {
+        if (!this.premium) {
+            return 2;
+        }
+        else {
+            return 6;
+        }
+    }
+
+    public get wishlistFull(): boolean {
+        return this.wishedSpeciesIds.list.length >= this.maxWishlistSize;
+    }
+
     public getAnimalsByTag(tag?: string): Animal[] {
         if (!tag) {
             return this.animals;
@@ -462,6 +476,28 @@ export class Player extends GameObject {
     public getTokenLoadableSpecies(): LoadableCacheableGameObject<Species>[] {
         const speciesIdToLoadableSpecies = (speciesId: Types.ObjectId) => new LoadableCacheableGameObject<Species>(speciesId, this.beastiaryClient.beastiary.species);
         return this.tokenSpeciesIds.list.map(speciesIdToLoadableSpecies);
+    }
+
+    public async getWishedSpecies(): Promise<Species[]> {
+        const fetchPromises: Promise<Species>[] = [];
+
+        this.wishedSpeciesIds.list.forEach(id => fetchPromises.push(this.beastiaryClient.beastiary.species.fetchById(id)));
+
+        let species: Species[];
+        try {
+            species = await Promise.all(fetchPromises);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an erorr loading all of a player's wished species.
+
+                Player: ${this.debugString}
+
+                ${error}
+            `);
+        }
+
+        return species;
     }
 
     public addAnimalToCollection(animal: Animal): void {

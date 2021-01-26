@@ -219,6 +219,13 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
     [Player.fieldNames.canClaimRetroactiveRecordRewards]: {
         type: Boolean,
         required: false
+    },
+    [Player.fieldNames.wishedSpeciesIds]: {
+        type: [Schema.Types.ObjectId],
+        required: true,
+        fieldRestrictions: {
+            defaultValue: []
+        }
     }
 };
 
