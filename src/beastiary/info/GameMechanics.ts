@@ -15,6 +15,7 @@ import ViewCollectionCommand from "../../commands/ViewCollectionCommand";
 import ViewEssenceCommand from "../../commands/ViewEssenceCommand";
 import ViewTokensCommand from "../../commands/ViewTokensCommand";
 import VoteCommand from "../../commands/VoteCommand";
+import WishlistCommand from "../../commands/Wishlist/WishlistCommand";
 
 interface GameMechanicInfo {
     names: string[],
@@ -139,6 +140,17 @@ const mechanics: GameMechanicInfo[] = [
             also specify how far out you want to cast, between 1 and 100 feet. Every channel has a daily random sweet spot where the
             fish bite faster, the closer you are the faster they bite. It's like a little game of hot and cold, find it to really start
             reeling them in!
+        `
+    },
+    {
+        names: ["wishlist", "wishes", "wish"],
+        info: oneLine`
+            Everybody has their favorite animals, but some are a lot more rare than others! If your dream animal is in a really high
+            tier, or you just want as many of one species of animal as possible, the wishlist is your friend. All species in your
+            wishlist are more common to encounter, but only for you. Wished animals are treated like they're one tier lower than they
+            actually are, effectively doubling the rate at which they can be encountered. On top of that, wished species are three
+            times as likely to be encountered within their base tier as any other species in that tier, so don't worry if all your
+            wishes are in low tiers! View and manage your wishlist with the \`${WishlistCommand.primaryName}\` command.
         `
     },
     {
