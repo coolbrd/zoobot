@@ -8,7 +8,6 @@ import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
 import DiscordBotList from "../beastiary/BotLists/Lists/DiscordBotList";
 import VultrexBotList from "../beastiary/BotLists/Lists/VultrexBotList";
 import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
-import DiscordBotsList from "../beastiary/BotLists/Lists/DiscordBotsList";
 import BList from "../beastiary/BotLists/Lists/BList";
 import TopGGList from "../beastiary/BotLists/Lists/TopGGList";
 import DiscordBotsGGList from "../beastiary/BotLists/Lists/DiscordBotsGGList";
@@ -125,9 +124,6 @@ export default class MasterBeastiaryProcess {
 
         const discordBoatsList = new DiscordBoatsList();
         discordBoatsList.init(this);
-
-        const discordBotsList = new DiscordBotsList();
-        discordBotsList.init(this);
 
         const bList = new BList();
         bList.init(this);
