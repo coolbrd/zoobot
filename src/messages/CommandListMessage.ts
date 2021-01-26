@@ -6,7 +6,7 @@ import PagedListMessage from "./PagedListMessage";
 export default class CommandListMessage extends PagedListMessage<Command> {
     protected readonly lifetime = 180000;
 
-    protected readonly elementsPerField = 15;
+    protected readonly elementsPerField = 10;
     protected readonly fieldsPerPage = 2;
 
     private readonly commandSections: CommandSection[] = [
