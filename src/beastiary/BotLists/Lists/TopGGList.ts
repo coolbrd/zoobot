@@ -10,6 +10,6 @@ export default class TopGGList extends BotList {
     protected readonly webhookName = "topGGhook";
     protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;
     protected readonly webhookUserIdPropertyName = "user";
-    protected readonly webhookVoteEventName = "topGGvote";
+    protected readonly webhookVoteEventName = "vote";
     protected readonly voteRewardAmount = 3;
 }
