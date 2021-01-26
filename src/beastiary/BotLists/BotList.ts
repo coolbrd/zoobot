@@ -130,6 +130,7 @@ export default abstract class BotList {
         }
 
         server.app.post(`/${this.webhookName}`, (req, res) => {
+            console.log(req.body);
             if (this.webhookAuth && req.headers['authorization'] !== this.webhookAuth) {
                 res.status(401);
                 delete req.headers['authorization'];
