@@ -154,6 +154,17 @@ const mechanics: GameMechanicInfo[] = [
         `
     },
     {
+        names: ["rarity"],
+        info: oneLine`
+            Every species has a set "rarity tier," which determines how often they'll be encountered. Tiers start at T0, and go all
+            the way up to T13! Each tier is twice as rare to encounter than the tier below it, so for example, T3 is 2x as rare as T2,
+            4x as rare as T1, and 8x as rare as T0. This explains the exceedingly low encounter rates of high-tiered species,
+            espceially those above T10. Rarity is indicated by a species' colored icon that usually appears next to their scientific
+            name, whose color is mirrored in the sidebar of any message displaying it. Rarity also decides the base value of a species,
+            so catch something rare if you're looking to cash out!
+        `
+    },
+    {
         names: ["voting", "vote", "votes"],
         info: oneLine`
             Voting for the bot helps get it exposure to more people on lists of other Discord bots. Every time you vote, you get a
