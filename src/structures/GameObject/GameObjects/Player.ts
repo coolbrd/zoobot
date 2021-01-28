@@ -92,7 +92,8 @@ export class Player extends GameObject {
             [Player.fieldNames.rarestTierCaught]: 0,
             [Player.fieldNames.prizeBalls]: 0,
             [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: 0,
-            [Player.fieldNames.experience]: 0
+            [Player.fieldNames.experience]: 0,
+            [Player.fieldNames.freeXpBoostMaxStackUpgradeLevel]: 0
         });
     }
 
