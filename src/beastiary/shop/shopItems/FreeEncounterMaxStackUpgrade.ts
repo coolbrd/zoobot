@@ -9,7 +9,7 @@ class FreeEncounterMaxStackUpgrade extends ShopItem {
     public readonly canBuyMultiple = false;
 
     public getName(player: Player): string {
-        return `free encounter max stack upgrade (lvl ${player.freeEncounterMaxStackUpgradeLevel + 1})`;
+        return `free encounter max stack lvl ${player.freeEncounterMaxStackUpgradeLevel + 1}`;
     }
 
     public getPrice(player: Player): number {
@@ -26,6 +26,10 @@ class FreeEncounterMaxStackUpgrade extends ShopItem {
             Success, your free encounter max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeEnconterMaxStack}**!
             -**${price}**${pepEmoji}
         `;
+    }
+
+    public getPlayerCurrentAmount(player: Player): number {
+        return player.freeEnconterMaxStack;
     }
 }
 export default new FreeEncounterMaxStackUpgrade();

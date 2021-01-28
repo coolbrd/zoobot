@@ -7,12 +7,15 @@ export default abstract class ShopItem {
     public readonly canBuyMultiple: boolean = true;
 
     public readonly purchaseAmount: number = 1;
+    public readonly effectiveUpgradeAmount: number = 1;
 
     public abstract getName(player: Player): string;
 
     public abstract getPrice(player: Player): number;
 
     public abstract purchaseAction(player: Player, quantity?: number): void;
+
+    public abstract getPlayerCurrentAmount(player: Player): number;
 
     public getPurchaseMessage(player: Player, quantity: number, price: number, emojiManager: EmojiManager): string {
         const pepEmoji = emojiManager.getByName("pep");

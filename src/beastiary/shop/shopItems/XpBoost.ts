@@ -15,5 +15,9 @@ class XpBoostItem extends ShopItem {
     public purchaseAction(player: Player, quantity: number): void {
         player.extraXpBoostsLeft += quantity;
     }
+
+    public getPlayerCurrentAmount(player: Player): number {
+        return player.xpBoostsLeft;
+    }
 }
 export default new XpBoostItem();

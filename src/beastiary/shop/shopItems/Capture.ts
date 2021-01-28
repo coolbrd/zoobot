@@ -15,5 +15,9 @@ class CaptureItem extends ShopItem {
     public purchaseAction(player: Player, quantity: number): void {
         player.extraCapturesLeft += quantity;
     }
+
+    public getPlayerCurrentAmount(player: Player): number {
+        return player.capturesLeft;
+    }
 }
 export default new CaptureItem();

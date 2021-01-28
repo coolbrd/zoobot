@@ -15,5 +15,9 @@ class EncounterItem extends ShopItem {
     public purchaseAction(player: Player, quantity: number): void {
         player.extraEncountersLeft += quantity;
     }
+
+    public getPlayerCurrentAmount(player: Player): number {
+        return player.encountersLeft;
+    }
 }
 export default new EncounterItem();

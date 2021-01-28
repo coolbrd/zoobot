@@ -1,3 +1,4 @@
+import { stripIndent } from "common-tags";
 import { ShopReceipt } from "../beastiary/shop/Shop";
 import CollectionExpander from "../beastiary/shop/shopItems/CollectionExpander";
 import FreeEncounterMaxStackUpgrade from "../beastiary/shop/shopItems/FreeEncounterMaxStackUpgrade";
@@ -10,6 +11,7 @@ import SmartEmbed from "../discordUtility/SmartEmbed";
 import { CommandArgumentInfo, CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
+import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
 class UpgradeCommand extends GuildCommand {
     public readonly names = ["upgrade", "u"];
@@ -39,9 +41,19 @@ class UpgradeCommand extends GuildCommand {
             embed.setColor(0x5DB583);
             embed.setAuthor(`${player.member.user.username}'s upgrades`, player.member.user.avatarURL() || undefined);
             embed.setDescription(`Balance: **${player.pep}**${pepEmoji}\n---`);
-            embed.addField(`\`1)\` Collection level: ${player.collectionUpgradeLevel} (max ${player.collectionSizeLimit})`, `Next level: **${CollectionExpander.getPrice(player)}**${pepEmoji} (+**5** max)`);
-            embed.addField(`\`2)\` Free encounter max stack: ${player.freeEnconterMaxStack}`, `Next level: **${FreeEncounterMaxStackUpgrade.getPrice(player)}**${pepEmoji} (+**1** max)`, true);
-            embed.addField(`\`3)\` Free xp boost max stack: ${player.freeXpBoostMaxStack}`, `Next level: **${FreeXpBoostMaxStackUpgrade.getPrice(player)}**${pepEmoji} (+**1** max)`, true);
+            
+            for (let i = 0; i < UpgradeShop.items.length; i++) {
+                const item = UpgradeShop.items[i];
+                embed.addField(
+                    `\`${i + 1})\` ${capitalizeFirstLetter(item.getName(player))}`,
+                    stripIndent`
+                        Next level: **${item.getPrice(player)}**${pepEmoji}
+                        (+**${item.effectiveUpgradeAmount}** max)
+                    `,
+                    true
+                );
+            }
+
             embed.setFooter(`Use '${this.primaryName} <name/number of upgrade>' to purchase a permanent upgrade.`);
 
             betterSend(parsedMessage.channel, embed);

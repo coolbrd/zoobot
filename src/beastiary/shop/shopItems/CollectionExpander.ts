@@ -8,6 +8,8 @@ class CollectionExpander extends ShopItem {
 
     public readonly canBuyMultiple = false;
 
+    public readonly effectiveUpgradeAmount = 5;
+
     public getName(player: Player): string {
         return `collection expander (lvl ${player.collectionUpgradeLevel + 1})`;
     }
@@ -26,6 +28,10 @@ class CollectionExpander extends ShopItem {
             Success, your collection is now level **${player.collectionUpgradeLevel}**, and can hold up to **${player.collectionSizeLimit}** animals.
             -**${price}**${pepEmoji}
         `;
+    }
+
+    public getPlayerCurrentAmount(player: Player): number {
+        return player.collectionSizeLimit;
     }
 }
 export default new CollectionExpander();
