@@ -9,7 +9,7 @@ class EncounterItem extends ShopItem {
     }
 
     public getPrice(_player: Player): number {
-        return 40;
+        return 50;
     }
 
     public purchaseAction(player: Player, quantity: number): void {
