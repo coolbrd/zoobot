@@ -188,7 +188,7 @@ export default class CommandHandler {
             const displayPrefix = this.getDisplayPrefixByMessage(message);
 
             if (messagePrefix === config.prefix && !parsedMessage.currentArgument) {
-                betterSend(parsedMessage.channel, `Yes? Try using \`${displayPrefix}commands\` to see a list of all my commands.`);
+                // betterSend(parsedMessage.channel, `Yes? Try using \`${displayPrefix}commands\` to see a list of all my commands.`);
                 return;
             }
 
