@@ -208,6 +208,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
             defaultValue: 0
         }
     },
+    [Player.fieldNames.freeXpBoostMaxStackUpgradeLevel]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true,
+            defaultValue: 0
+        }
+    },
     [Player.fieldNames.experience]: {
         type: Number,
         required: true,

@@ -59,7 +59,8 @@ export class Player extends GameObject {
         freeEncounterMaxStackUpgradeLevel: "freeEncounterMaxStackUpgradeLevel",
         experience: "experience",
         canClaimRetroactiveRecordRewards: "canClaimRetroactiveRecordRewards",
-        wishedSpeciesIds: "wishedSpeciesIds"
+        wishedSpeciesIds: "wishedSpeciesIds",
+        freeXpBoostMaxStackUpgradeLevel: "freeXpBoostMaxStackUpgradeLevel"
     };
 
     protected referenceNames = {
@@ -331,6 +332,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.freeEncounterMaxStackUpgradeLevel, freeEncounterMaxStackUpgradeLevel);
     }
 
+    public get freeXpBoostMaxStackUpgradeLevel(): number {
+        return this.document.get(Player.fieldNames.freeXpBoostMaxStackUpgradeLevel);
+    }
+
+    public set freeXpBoostMaxStackUpgradeLevel(freeXpBoostMaxStackUpgradeLevel: number) {
+        this.setDocumentField(Player.fieldNames.freeXpBoostMaxStackUpgradeLevel, freeXpBoostMaxStackUpgradeLevel);
+    }
+
     public get experience(): number {
         return this.document.get(Player.fieldNames.experience);
     }
@@ -356,7 +365,7 @@ export class Player extends GameObject {
     }
 
     public get freeXpBoostMaxStack(): number {
-        return gameConfig.freeXpBoostMaxStack;
+        return gameConfig.freeXpBoostMaxStack + this.freeXpBoostMaxStackUpgradeLevel;
     }
 
     public get collectionSizeLimit(): number {
