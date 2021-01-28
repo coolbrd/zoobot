@@ -17,13 +17,13 @@ class FreeXpBoostMaxStackUpgrade extends ShopItem {
     }
 
     public purchaseAction(player: Player): void {
-        player.freeXpBoostMaxStackUpgradeLevel += 1;
+        player.freeXpBoostMaxStackUpgradeLevel += this.purchaseAmount;
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number, emojiManager: EmojiManager): string {
         const pepEmoji = emojiManager.getByName("pep");
         return stripIndent`
-            Success, your free xp boost max stack has been upgraded by +**1**, and is now **${player.freeXpBoostMaxStack}**!
+            Success, your free xp boost max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeXpBoostMaxStack}**!
             -**${price}**${pepEmoji}
         `;
     }

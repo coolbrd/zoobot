@@ -17,13 +17,13 @@ class FreeEncounterMaxStackUpgrade extends ShopItem {
     }
 
     public purchaseAction(player: Player): void {
-        player.freeEncounterMaxStackUpgradeLevel += 1;
+        player.freeEncounterMaxStackUpgradeLevel += this.purchaseAmount;
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number, emojiManager: EmojiManager): string {
         const pepEmoji = emojiManager.getByName("pep");
         return stripIndent`
-            Success, your free encounter max stack has been upgraded by +**1**, and is now **${player.freeEnconterMaxStack}**!
+            Success, your free encounter max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeEnconterMaxStack}**!
             -**${price}**${pepEmoji}
         `;
     }

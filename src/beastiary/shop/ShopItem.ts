@@ -6,6 +6,8 @@ export default abstract class ShopItem {
 
     public readonly canBuyMultiple: boolean = true;
 
+    public readonly purchaseAmount: number = 1;
+
     public abstract getName(player: Player): string;
 
     public abstract getPrice(player: Player): number;
