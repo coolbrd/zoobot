@@ -20,7 +20,7 @@ class SortCollectionCommand extends GuildCommand {
             name: "sort option",
             info: "the factor to sort your animals by.",
             optional: false,
-            options: ["level", "rarity"]
+            options: ["level", "rarity", "species", "name"]
         }
     ];
 
@@ -34,15 +34,21 @@ class SortCollectionCommand extends GuildCommand {
 
         const sortOption = parsedMessage.consumeArgument().text.toLowerCase();
 
-        let sortCriterion: (animal: Animal) => number;
+        let sortCriterion: (animal: Animal) => number | string;
         if (sortOption === "level") {
             sortCriterion = animal => animal.experience;
         }
         else if (sortOption === "rarity") {
             sortCriterion = animal => animal.species.rarityTier;
         }
+        else if (sortOption === "species") {
+            sortCriterion = animal => animal.species.commonNames[0]
+        }
+        else if (sortOption === "name") {
+            sortCriterion = animal => animal.displayNameSimple;
+        }
         else {
-            betterSend(parsedMessage.channel, `'${sortOption}' is not a valid option to sort your animals by. Try either \`level\` or \`rarity\`.`);
+            betterSend(parsedMessage.channel, `'${sortOption}' is not a valid option to sort your animals by. Try either \`level\`, \`rarity\`, \`species\`, or \`name\`.`);
             return receipt;
         }
 
@@ -63,10 +69,18 @@ class SortCollectionCommand extends GuildCommand {
                 `);
             }
 
-            const number1 = sortCriterion(animal1);
-            const number2 = sortCriterion(animal2);
+            const sort1 = sortCriterion(animal1);
+            const sort2 = sortCriterion(animal2);
 
-            return number2 - number1;
+            if (typeof sort1 === "number" && typeof sort2 === "number") {
+                return sort2 - sort1;
+            }
+            else if (typeof sort1 === "string" && typeof sort2 === "string") {
+                return sort1.localeCompare(sort2);
+            }
+            else {
+                throw new Error("A number and string were attempted to be compared in the sort collection command.");
+            }
         });
 
         receipt.reactConfirm = true;
