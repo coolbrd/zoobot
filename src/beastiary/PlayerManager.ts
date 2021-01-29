@@ -410,82 +410,10 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
     }
 
-    public async fetchAllAvailablePlayersByCriteria(options: { userId?: string, guildId?: string }): Promise<Player[]> {
-        if (!options.userId && !options.guildId) {
-            throw new Error("You need to specify one of the criteria to search.");
-        }
-
-        const searchQuery = {};
-
-        if (options.userId) {
-            Object.defineProperty(searchQuery, Player.fieldNames.userId, {
-                writable: false,
-                enumerable: true,
-                value: options.userId
-            });
-        }
-
-        if (options.guildId) {
-            Object.defineProperty(searchQuery, Player.fieldNames.guildId, {
-                writable: false,
-                enumerable: true,
-                value: options.guildId
-            });
-        }
-
-        let playerDocuments: Document[];
-        try {
-            playerDocuments = await PlayerModel.find(searchQuery);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error fetching all player documents by some criteria.
-
-                ${error}
-            `);
-        }
-
-        const fetchPromises: Promise<void>[] = [];
-        const loadablePlayerDocuments: Document[] = [];
-        for (const playerDocument of playerDocuments) {
-            const guildId = playerDocument.get(Player.fieldNames.guildId) as string;
-
-            const guildFetchPromise = this.beastiaryClient.discordClient.guilds.fetch(guildId).then(() => {
-                loadablePlayerDocuments.push(playerDocument);
-            }).catch(() => undefined);
-
-            fetchPromises.push(guildFetchPromise);
-        }
-        await Promise.all(fetchPromises);
-
-        const cachePromises: Promise<void>[] = [];
-        const players: Player[] = [];
-        for (const playerDocument of loadablePlayerDocuments) {
-            const cachePromise = this.addDocumentToCache(playerDocument).then(player => {
-                players.push(player);
-            }).catch(error => {
-                console.error("There was an error caching a player document.", error);
-            });
-            cachePromises.push(cachePromise);
-        }
-        try {
-            await Promise.all(cachePromises);
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error resolving all player cache promises while fetching all players by some criteria.
-
-                ${error}
-            `);
-        }
-
-        return players;
-    }
-
     public async handleVote(userId: string, count = 1): Promise<void> {
         let players: Player[];
         try {
-            players = await this.fetchAllAvailablePlayersByCriteria({ userId: userId });
+            players = await this.getAllPlayersByIds({ userId: userId });
         }
         catch (error) {
             throw new Error(stripIndent`
