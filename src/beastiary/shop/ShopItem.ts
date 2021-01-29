@@ -8,6 +8,7 @@ export default abstract class ShopItem {
 
     public readonly canBuyMultiple: boolean = true;
     public readonly effectiveChangeAmount: number = 1;
+    public readonly inline: boolean = true;
 
     constructor(shop: Shop) {
         this.shop = shop;

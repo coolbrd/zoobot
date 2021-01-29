@@ -6,6 +6,7 @@ export default class WishlistSlotsUpgrade extends ShopItem {
     public readonly simpleNames = ["wishlist slots", "wish slots", "wishlist size", "wish size"];
 
     public readonly canBuyMultiple = false;
+    public readonly inline = false;
 
     public getName(player: Player): string {
         return `wishlist size lvl ${player.wishlistSlotsUpgradeLevel + 1}`;

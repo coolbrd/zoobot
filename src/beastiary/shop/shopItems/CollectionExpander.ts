@@ -6,6 +6,7 @@ export default class CollectionExpander extends ShopItem {
     public readonly simpleNames = ["collection expander", "expander", "collection"];
 
     public readonly canBuyMultiple = false;
+    public readonly inline = false;
 
     public readonly effectiveChangeAmount = 5;
 

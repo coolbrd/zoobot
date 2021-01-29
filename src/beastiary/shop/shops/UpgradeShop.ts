@@ -35,7 +35,7 @@ export default class UpgradeShop extends Shop {
                     Next level: **${item.getPrice(player)}**${pepEmoji}
                     (+**${item.effectiveChangeAmount}** max)
                 `,
-                true
+                item.inline
             );
         }
 

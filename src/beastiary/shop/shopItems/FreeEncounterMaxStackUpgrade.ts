@@ -6,6 +6,7 @@ export default class FreeEncounterMaxStackUpgrade extends ShopItem {
     public readonly simpleNames = ["free encounter max stack", "encounter max stack", "encounter max", "encounter"];
 
     public readonly canBuyMultiple = false;
+    public readonly inline = true;
 
     public getName(player: Player): string {
         return `free encounter max stack lvl ${player.freeEncounterMaxStackUpgradeLevel + 1}`;
