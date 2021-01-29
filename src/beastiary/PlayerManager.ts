@@ -410,25 +410,36 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
     }
 
-    public async fetchAllAvailablePlayersByUserId(userId: string): Promise<Player[]> {
-        try {
-            await this.beastiaryClient.discordClient.users.fetch(userId);
+    public async fetchAllAvailablePlayersByCriteria(options: { userId?: string, guildId?: string }): Promise<Player[]> {
+        if (!options.userId && !options.guildId) {
+            throw new Error("You need to specify one of the criteria to search.");
         }
-        catch (error) {
-            return [];
+
+        const searchQuery = {};
+
+        if (options.userId) {
+            Object.defineProperty(searchQuery, Player.fieldNames.userId, {
+                writable: false,
+                enumerable: true,
+                value: options.userId
+            });
+        }
+
+        if (options.guildId) {
+            Object.defineProperty(searchQuery, Player.fieldNames.guildId, {
+                writable: false,
+                enumerable: true,
+                value: options.guildId
+            });
         }
 
         let playerDocuments: Document[];
         try {
-            playerDocuments = await PlayerModel.find({
-                [Player.fieldNames.userId]: userId
-            });
+            playerDocuments = await PlayerModel.find(searchQuery);
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error fetching all player documents that had one user id.
-
-                Id: ${userId}
+                There was an error fetching all player documents by some criteria.
 
                 ${error}
             `);
@@ -462,7 +473,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error resolving all player cache promises while handling a vote.
+                There was an error resolving all player cache promises while fetching all players by some criteria.
 
                 ${error}
             `);
@@ -474,7 +485,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     public async handleVote(userId: string, count = 1): Promise<void> {
         let players: Player[];
         try {
-            players = await this.fetchAllAvailablePlayersByUserId(userId);
+            players = await this.fetchAllAvailablePlayersByCriteria({ userId: userId });
         }
         catch (error) {
             throw new Error(stripIndent`
