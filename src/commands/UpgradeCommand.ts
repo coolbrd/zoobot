@@ -1,8 +1,5 @@
 import { stripIndent } from "common-tags";
 import { ShopReceipt } from "../beastiary/shop/Shop";
-import CollectionExpander from "../beastiary/shop/shopItems/CollectionExpander";
-import FreeEncounterMaxStackUpgrade from "../beastiary/shop/shopItems/FreeEncounterMaxStackUpgrade";
-import FreeXpBoostMaxStackUpgrade from "../beastiary/shop/shopItems/FreeXpBoostMaxStackUpgrade";
 import UpgradeShop from "../beastiary/shop/shops/UpgradeShop";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import handleUserError from "../discordUtility/handleUserError";
@@ -59,7 +56,7 @@ class UpgradeCommand extends GuildCommand {
             betterSend(parsedMessage.channel, embed);
         }
         else {
-            const upgradeIdentifier = parsedMessage.consumeArgument().text;
+            const upgradeIdentifier = parsedMessage.restOfText.toLowerCase();
 
             let purchaseReceipt: ShopReceipt;
             try {

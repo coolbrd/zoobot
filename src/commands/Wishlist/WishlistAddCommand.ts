@@ -57,7 +57,7 @@ class WishlistAddCommand extends GuildCommand {
             let wishlistFullString = "Your wishlist is full. Remove something and try again!";
 
             if (!player.premium) {
-                wishlistFullString += `\n\nWant more space?\nSubscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more wish list space, encounters, and xp!`;
+                wishlistFullString += `\n\nWant more space?\nSubscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more wishlist space, encounters, and xp!`;
             }
 
             betterSend(parsedMessage.channel, wishlistFullString);

@@ -60,7 +60,8 @@ export class Player extends GameObject {
         experience: "experience",
         canClaimRetroactiveRecordRewards: "canClaimRetroactiveRecordRewards",
         wishedSpeciesIds: "wishedSpeciesIds",
-        freeXpBoostMaxStackUpgradeLevel: "freeXpBoostMaxStackUpgradeLevel"
+        freeXpBoostMaxStackUpgradeLevel: "freeXpBoostMaxStackUpgradeLevel",
+        wishlistSlotsUpgradeLevel: "wishlistSlotsUpgradeLevel"
     };
 
     protected referenceNames = {
@@ -93,7 +94,8 @@ export class Player extends GameObject {
             [Player.fieldNames.prizeBalls]: 0,
             [Player.fieldNames.freeEncounterMaxStackUpgradeLevel]: 0,
             [Player.fieldNames.experience]: 0,
-            [Player.fieldNames.freeXpBoostMaxStackUpgradeLevel]: 0
+            [Player.fieldNames.freeXpBoostMaxStackUpgradeLevel]: 0,
+            [Player.fieldNames.wishlistSlotsUpgradeLevel]: 0
         });
     }
 
@@ -357,6 +359,14 @@ export class Player extends GameObject {
         this.setDocumentField(Player.fieldNames.canClaimRetroactiveRecordRewards, canClaimRetroactiveRecordRewards);
     }
 
+    public get wishlistSlotsUpgradeLevel(): number {
+        return this.document.get(Player.fieldNames.wishlistSlotsUpgradeLevel);
+    }
+
+    public set wishlistSlotsUpgradeLevel(wishlistSlotsUpgradeLevel: number) {
+        this.setDocumentField(Player.fieldNames.wishlistSlotsUpgradeLevel, wishlistSlotsUpgradeLevel);
+    }
+
     public get freeEnconterMaxStack(): number {
         return this.applyPremiumModifier(gameConfig.freeEncounterMaxStack, premiumConfig.freeEncounterMaxStackMultiplier) + this.freeEncounterMaxStackUpgradeLevel;
     }
@@ -448,12 +458,15 @@ export class Player extends GameObject {
     }
 
     public get maxWishlistSize(): number {
+        let baseSize: number;
         if (!this.premium) {
-            return 2;
+            baseSize = 2;
         }
         else {
-            return 6;
+            baseSize = 6;
         }
+
+        return baseSize + this.wishlistSlotsUpgradeLevel;
     }
 
     public get wishlistFull(): boolean {

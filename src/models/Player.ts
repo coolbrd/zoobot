@@ -234,6 +234,14 @@ export const playerSchemaDefinition: BeastiarySchemaDefinition = {
         fieldRestrictions: {
             defaultValue: []
         }
+    },
+    [Player.fieldNames.wishlistSlotsUpgradeLevel]: {
+        type: Number,
+        required: true,
+        fieldRestrictions: {
+            nonNegative: true,
+            defaultValue: 0
+        }
     }
 };
 
