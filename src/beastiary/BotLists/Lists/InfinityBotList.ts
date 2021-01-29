@@ -11,5 +11,5 @@ export default class InfinityBotList extends BotList {
     protected readonly webhookAuth = CUSTOM_WEBHOOK_SECRET;
     protected readonly webhookUserIdPropertyName = "userID";
     protected readonly webhookVoteEventName = "vote";
-    protected readonly voteRewardAmount = 2;
+    protected readonly voteRewardAmount = 3;
 }
