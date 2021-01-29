@@ -1,9 +1,8 @@
 import { stripIndent } from "common-tags";
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
-import EmojiManager from "../../EmojiManager";
 import ShopItem from "../ShopItem";
 
-class CollectionExpander extends ShopItem {
+export default class CollectionExpander extends ShopItem {
     public readonly simpleNames = ["collection expander", "expander", "collection"];
 
     public readonly canBuyMultiple = false;
@@ -22,8 +21,8 @@ class CollectionExpander extends ShopItem {
         player.collectionUpgradeLevel += 1;
     }
 
-    public getPurchaseMessage(player: Player, _quantity: number, price: number, emojiManager: EmojiManager): string {
-        const pepEmoji = emojiManager.getByName("pep");
+    public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
+        const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
             Success, your collection is now level **${player.collectionUpgradeLevel}**, and can hold up to **${player.collectionSizeLimit}** animals.
             -**${price}**${pepEmoji}
@@ -34,4 +33,3 @@ class CollectionExpander extends ShopItem {
         return player.collectionSizeLimit;
     }
 }
-export default new CollectionExpander();

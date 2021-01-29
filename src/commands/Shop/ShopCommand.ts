@@ -1,8 +1,4 @@
-import { TextChannel } from "discord.js";
 import { betterSend } from "../../discordUtility/messageMan";
-import SmartEmbed from "../../discordUtility/SmartEmbed";
-import buildItemShopEmbed from "../../embedBuilders/buildItemShop";
-import { Player } from "../../structures/GameObject/GameObjects/Player";
 import { CommandSection, GuildCommand } from "../../structures/Command/Command";
 import { GuildCommandParser } from "../../structures/Command/CommandParser";
 import CommandReceipt from "../../structures/Command/CommandReceipt";
@@ -22,17 +18,13 @@ class ShopCommand extends GuildCommand {
 
     public readonly sections = [CommandSection.gettingStarted, CommandSection.gameplay];
 
-    private buildAndSendShopMessage(channel: TextChannel, player: Player, beastiaryClient: BeastiaryClient): void {
-        const shopEmbed = new SmartEmbed();
-        buildItemShopEmbed(shopEmbed, player, beastiaryClient);
-
-        betterSend(channel, shopEmbed);
-    }
-
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        this.buildAndSendShopMessage(parsedMessage.channel, player, beastiaryClient);
+        const shopEmbed = beastiaryClient.beastiary.shops.itemShop.buildEmbed(player);
+
+        betterSend(parsedMessage.channel, shopEmbed);
+
         return this.newReceipt();
     }
 }

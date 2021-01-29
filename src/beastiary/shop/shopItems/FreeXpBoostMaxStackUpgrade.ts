@@ -1,9 +1,8 @@
 import { stripIndent } from "common-tags";
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
-import EmojiManager from "../../EmojiManager";
 import ShopItem from "../ShopItem";
 
-class FreeXpBoostMaxStackUpgrade extends ShopItem {
+export default class FreeXpBoostMaxStackUpgrade extends ShopItem {
     public readonly simpleNames = ["free xp boost max stack", "xp boost max stack", "xp boost max", "xp boost"];
 
     public readonly canBuyMultiple = false;
@@ -20,8 +19,8 @@ class FreeXpBoostMaxStackUpgrade extends ShopItem {
         player.freeXpBoostMaxStackUpgradeLevel += this.purchaseAmount;
     }
 
-    public getPurchaseMessage(player: Player, _quantity: number, price: number, emojiManager: EmojiManager): string {
-        const pepEmoji = emojiManager.getByName("pep");
+    public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
+        const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
             Success, your free xp boost max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeXpBoostMaxStack}**!
             -**${price}**${pepEmoji}
@@ -32,4 +31,3 @@ class FreeXpBoostMaxStackUpgrade extends ShopItem {
         return player.freeXpBoostMaxStack;
     }
 }
-export default new FreeXpBoostMaxStackUpgrade();

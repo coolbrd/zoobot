@@ -1,7 +1,7 @@
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
-class XpBoostItem extends ShopItem {
+export default class XpBoostItem extends ShopItem {
     public readonly simpleNames = ["xp boost", "xp", "xp booster"];
 
     public getName(_player: Player): string {
@@ -20,4 +20,3 @@ class XpBoostItem extends ShopItem {
         return player.xpBoostsLeft;
     }
 }
-export default new XpBoostItem();

@@ -1,5 +1,4 @@
 import { ShopReceipt } from "../../beastiary/shop/Shop";
-import itemShop from "../../beastiary/shop/shops/ItemShop";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import handleUserError from "../../discordUtility/handleUserError";
 import { betterSend } from "../../discordUtility/messageMan";
@@ -49,7 +48,7 @@ class ShopBuySubCommand extends GuildCommand {
 
         let purchaseReceipt: ShopReceipt;
         try {
-            purchaseReceipt = itemShop.attemptToPurchase(beastiaryClient.beastiary.emojis, itemIdentifier, player, itemQuantity);
+            purchaseReceipt = beastiaryClient.beastiary.shops.itemShop.attemptToPurchase(itemIdentifier, player, itemQuantity);
         }
         catch (error) {
             handleUserError(parsedMessage.channel, error);

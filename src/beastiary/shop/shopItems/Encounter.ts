@@ -1,7 +1,7 @@
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
-class EncounterItem extends ShopItem {
+export default class EncounterItem extends ShopItem {
     public readonly simpleNames = ["encounter", "e"];
 
     public getName(_player: Player): string {
@@ -20,4 +20,3 @@ class EncounterItem extends ShopItem {
         return player.encountersLeft;
     }
 }
-export default new EncounterItem();

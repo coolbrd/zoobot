@@ -1,7 +1,7 @@
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import ShopItem from "../ShopItem";
 
-class CaptureItem extends ShopItem {
+export default class CaptureItem extends ShopItem {
     public readonly simpleNames = ["capture", "c"];
 
     public getName(_player: Player): string {
@@ -20,4 +20,3 @@ class CaptureItem extends ShopItem {
         return player.capturesLeft;
     }
 }
-export default new CaptureItem();

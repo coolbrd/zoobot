@@ -1,8 +1,9 @@
 import { stripIndent } from "common-tags";
+import { MessageEmbed } from "discord.js";
+import BeastiaryClient from "../../bot/BeastiaryClient";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
-import EmojiManager from '../EmojiManager';
 import ShopItem from "./ShopItem";
 
 export interface ShopReceipt {
@@ -14,7 +15,22 @@ export interface ShopReceipt {
 }
 
 export default abstract class Shop {
-    protected abstract readonly items: ShopItem[];
+    protected abstract readonly itemClasses: (new (shop: Shop) => ShopItem)[] = [];
+
+    public abstract buildEmbed(player: Player): MessageEmbed;
+
+    public beastiaryClient: BeastiaryClient;
+
+    public items: ShopItem[] = [];
+
+    constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+    }
+
+    public init(): this {
+        this.items = this.itemClasses.map(itemClass => new itemClass(this));
+        return this;
+    }
 
     private resolveStringToItem(itemString: string): ShopItem | undefined {
         const itemNumber = Number(itemString) - 1;
@@ -32,7 +48,7 @@ export default abstract class Shop {
         });
     }
 
-    public attemptToPurchase(emojiManager: EmojiManager, itemString: string, player: Player, quantity = 1): ShopReceipt {
+    public attemptToPurchase(itemString: string, player: Player, quantity = 1): ShopReceipt {
         const selectedItem = this.resolveStringToItem(itemString);
 
         if (!selectedItem) {
@@ -54,7 +70,7 @@ export default abstract class Shop {
 
         const itemNameAndQuantity = `${itemName} (x${quantity})`;
 
-        const pepEmoji = emojiManager.getByName("pep");
+        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
 
         if (totalPrice > player.pep) {
             throw new UserError(stripIndent`
@@ -71,7 +87,7 @@ export default abstract class Shop {
             quantity: quantity,
             nameAndQuantity: itemNameAndQuantity,
             totalPrice: totalPrice,
-            message: selectedItem.getPurchaseMessage(player, quantity, totalPrice, emojiManager)
+            message: selectedItem.getPurchaseMessage(player, quantity, totalPrice)
         };
 
         return purchaseReceipt;
