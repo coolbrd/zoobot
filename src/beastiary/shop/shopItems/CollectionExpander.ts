@@ -11,7 +11,7 @@ export default class CollectionExpander extends ShopItem {
     public readonly effectiveChangeAmount = 5;
 
     public getName(player: Player): string {
-        return `collection expander (lvl ${player.collectionUpgradeLevel + 1})`;
+        return `collection expander: lvl ${player.collectionUpgradeLevel + 1}`;
     }
 
     public getPrice(player: Player): number {

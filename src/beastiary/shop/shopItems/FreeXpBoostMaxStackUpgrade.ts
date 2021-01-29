@@ -9,7 +9,7 @@ export default class FreeXpBoostMaxStackUpgrade extends ShopItem {
     public readonly inline = true;
 
     public getName(player: Player): string {
-        return `free xp boost max stack lvl ${player.freeXpBoostMaxStackUpgradeLevel + 1}`;
+        return `free xp boost max stack: lvl ${player.freeXpBoostMaxStackUpgradeLevel + 1}`;
     }
 
     public getPrice(player: Player): number {

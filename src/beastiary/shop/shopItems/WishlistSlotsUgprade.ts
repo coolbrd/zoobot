@@ -9,7 +9,7 @@ export default class WishlistSlotsUpgrade extends ShopItem {
     public readonly inline = false;
 
     public getName(player: Player): string {
-        return `wishlist size lvl ${player.wishlistSlotsUpgradeLevel + 1}`;
+        return `wishlist size: lvl ${player.wishlistSlotsUpgradeLevel + 1}`;
     }
 
     public getPrice(player: Player): number {

@@ -9,7 +9,7 @@ export default class FreeEncounterMaxStackUpgrade extends ShopItem {
     public readonly inline = true;
 
     public getName(player: Player): string {
-        return `free encounter max stack lvl ${player.freeEncounterMaxStackUpgradeLevel + 1}`;
+        return `free encounter max stack: lvl ${player.freeEncounterMaxStackUpgradeLevel + 1}`;
     }
 
     public getPrice(player: Player): number {
