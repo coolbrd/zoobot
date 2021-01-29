@@ -33,7 +33,7 @@ export default class UpgradeShop extends Shop {
                 `\`${i + 1})\` ${capitalizeFirstLetter(item.getName(player))}`,
                 stripIndent`
                     Next level: **${item.getPrice(player)}**${pepEmoji}
-                    (+**${item.effectiveUpgradeAmount}** max)
+                    (+**${item.effectiveChangeAmount}** max)
                 `,
                 true
             );

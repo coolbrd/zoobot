@@ -2,13 +2,12 @@ import { Player } from "../../structures/GameObject/GameObjects/Player";
 import Shop from "./Shop";
 
 export default abstract class ShopItem {
-    protected shop: Shop;
-
     public abstract readonly simpleNames: string[];
 
+    protected shop: Shop;
+
     public readonly canBuyMultiple: boolean = true;
-    public readonly purchaseAmount: number = 1;
-    public readonly effectiveUpgradeAmount: number = 1;
+    public readonly effectiveChangeAmount: number = 1;
 
     constructor(shop: Shop) {
         this.shop = shop;

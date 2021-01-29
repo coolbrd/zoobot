@@ -16,13 +16,13 @@ export default class WishlistSlotsUpgrade extends ShopItem {
     }
 
     public purchaseAction(player: Player): void {
-        player.wishlistSlotsUpgradeLevel += this.purchaseAmount;
+        player.wishlistSlotsUpgradeLevel += 1;
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
         const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
-            Success, your wishlist size has been increased by +**${this.purchaseAmount}**, and is now **${player.maxWishlistSize}**!
+            Success, your wishlist size has been increased by +**1**, and is now **${player.maxWishlistSize}**!
             -**${price}**${pepEmoji}
         `;
     }

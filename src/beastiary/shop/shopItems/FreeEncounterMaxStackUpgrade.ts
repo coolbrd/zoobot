@@ -16,13 +16,13 @@ export default class FreeEncounterMaxStackUpgrade extends ShopItem {
     }
 
     public purchaseAction(player: Player): void {
-        player.freeEncounterMaxStackUpgradeLevel += this.purchaseAmount;
+        player.freeEncounterMaxStackUpgradeLevel += 1;
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
         const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
-            Success, your free encounter max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeEnconterMaxStack}**!
+            Success, your free encounter max stack has been upgraded by +**1**, and is now **${player.freeEnconterMaxStack}**!
             -**${price}**${pepEmoji}
         `;
     }

@@ -16,13 +16,13 @@ export default class FreeXpBoostMaxStackUpgrade extends ShopItem {
     }
 
     public purchaseAction(player: Player): void {
-        player.freeXpBoostMaxStackUpgradeLevel += this.purchaseAmount;
+        player.freeXpBoostMaxStackUpgradeLevel += 1;
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
         const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
-            Success, your free xp boost max stack has been upgraded by +**${this.purchaseAmount}**, and is now **${player.freeXpBoostMaxStack}**!
+            Success, your free xp boost max stack has been upgraded by +**1**, and is now **${player.freeXpBoostMaxStack}**!
             -**${price}**${pepEmoji}
         `;
     }
