@@ -15,6 +15,7 @@ import { PlayerGuild } from "./PlayerGuild";
 import premiumConfig from "../../../config/premiumConfig";
 import CountedResetField from "../GameObjectFieldHelpers/CountedResetField";
 import { betterSend } from "../../../discordUtility/messageMan";
+import Emojis from "../../../beastiary/Emojis";
 
 interface PlayerSpeciesRecord {
     speciesId: Types.ObjectId,
@@ -612,10 +613,9 @@ export class Player extends GameObject {
             this.pep += pepReward;
             this.experience += xpReward;
 
-            const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
             betterSend(channel, stripIndent`
                 ${this.member.user}, since you've caught **${speciesCaught}** unique species of animals before these rewards existed, you're entitled to retroactive compensation!
-                +**${pepReward}**${pepEmoji}
+                +**${pepReward}**${Emojis.pep}
             `);
 
             console.log(`Retroactively rewarded ${this.member.user.tag} with ${pepReward} pep.`);

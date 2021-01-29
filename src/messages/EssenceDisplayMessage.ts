@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import { Player } from "../structures/GameObject/GameObjects/Player";
@@ -26,9 +27,7 @@ export default class EssenceDisplayMessage extends LoadableGameObjectDisplayMess
 
         let speciesString = capitalizeFirstLetter(species.commonNames[0]);
 
-        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
-
-        speciesString += `: ${this.player.getEssence(species.id)}${essenceEmoji}`;
+        speciesString += `: ${this.player.getEssence(species.id)}${Emojis.essence}`;
 
         return speciesString;
     }

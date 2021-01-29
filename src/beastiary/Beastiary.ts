@@ -2,7 +2,7 @@ import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import AnimalManager from "./AnimalManager";
 import ChannelManager from "./ChannelManager";
-import EmojiManager from './EmojiManager';
+import Emojis from './Emojis';
 import EncounterManager from "./EncounterManager";
 import PlayerGuildManager from "./PlayerGuildManager";
 import PlayerManager from "./PlayerManager";
@@ -13,6 +13,8 @@ import SpeciesManager from "./SpeciesManager";
 
 // The central cache holder/manager for all game object managers within The Beastiary
 export default class Beastiary {
+    public readonly beastiaryClient: BeastiaryClient;
+
     public readonly players: PlayerManager;
     public readonly animals: AnimalManager;
     public readonly playerGuilds: PlayerGuildManager;
@@ -20,11 +22,12 @@ export default class Beastiary {
     public readonly encounters: EncounterManager;
     public readonly channels: ChannelManager;
     public readonly resets: ResetManager;
-    public readonly emojis: EmojiManager;
     public readonly shards: ShardManager;
     public readonly shops: ShopManager;
 
     constructor(beastiaryClient: BeastiaryClient) {
+        this.beastiaryClient = beastiaryClient;
+
         this.players = new PlayerManager(beastiaryClient);
         this.animals = new AnimalManager(beastiaryClient);
         this.playerGuilds = new PlayerGuildManager(beastiaryClient);
@@ -32,7 +35,6 @@ export default class Beastiary {
         this.encounters = new EncounterManager(beastiaryClient);
         this.channels = new ChannelManager(beastiaryClient);
         this.resets = new ResetManager();
-        this.emojis = new EmojiManager(beastiaryClient);
         this.shards = new ShardManager(beastiaryClient);
         this.shops = new ShopManager(beastiaryClient);
     }
@@ -72,7 +74,7 @@ export default class Beastiary {
         }
 
         try {
-            await this.emojis.init();
+            await Emojis.init(this.beastiaryClient);
         }
         catch (error) {
             throw new Error(stripIndent`

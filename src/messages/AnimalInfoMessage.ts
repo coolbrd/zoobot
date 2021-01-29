@@ -51,7 +51,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         }
         
         if (!this.cardMode) {
-            buildAnimalInfo(embed, this.animalObject, this.beastiaryClient.beastiary.emojis);
+            buildAnimalInfo(embed, this.animalObject);
         }
         else {
             buildAnimalCard(embed, this.animalObject);

@@ -1,4 +1,5 @@
 import { Player } from "../../structures/GameObject/GameObjects/Player";
+import Emojis from "../Emojis";
 import Shop from "./Shop";
 
 export default abstract class ShopItem {
@@ -23,7 +24,6 @@ export default abstract class ShopItem {
     public abstract getPlayerCurrentAmount(player: Player): number;
 
     public getPurchaseMessage(player: Player, quantity: number, price: number): string {
-        const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
-        return `Purchase successful. You bought **${this.getName(player)} (x${quantity})** for **${price}**${pepEmoji}.`
+        return `Purchase successful. You bought **${this.getName(player)} (x${quantity})** for **${price}**${Emojis.pep}.`
     }
 }

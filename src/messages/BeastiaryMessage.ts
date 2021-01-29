@@ -5,6 +5,7 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import LoadableGameObjectDisplayMessage from "./LoadableGameObjectDisplayMessage";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
+import Emojis from "../beastiary/Emojis";
 
 export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<Species> {
     protected readonly lifetime = 60000;
@@ -89,13 +90,13 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
 
         let medalString = "";
         if (beastiaryCompletion >= 80) {
-            medalString = this.beastiaryClient.beastiary.emojis.getByName("medalgold");
+            medalString = Emojis.medalGold;
         }
         else if (beastiaryCompletion >= 40) {
-            medalString = this.beastiaryClient.beastiary.emojis.getByName("medalsilver");
+            medalString = Emojis.medalSilver;
         }
         else if (beastiaryCompletion >= 20) {
-            medalString = this.beastiaryClient.beastiary.emojis.getByName("medalbronze");
+            medalString = Emojis.medalBronze;
         }
 
         embed.setDescription(`${medalString} ${beastiaryCompletion.toPrecision(3)}% of all species recorded. (${playerSpeciesRecorded}/${totalSpeciesCount})`);

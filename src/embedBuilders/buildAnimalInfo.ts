@@ -1,9 +1,9 @@
 import { MessageEmbed } from "discord.js";
-import EmojiManager from '../beastiary/EmojiManager';
+import Emojis from '../beastiary/Emojis';
 import { Animal } from "../structures/GameObject/GameObjects/Animal";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emojiManager: EmojiManager): void {
+export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal): void {
     embed.setThumbnail(animal.card.url);
     embed.setTitle(`${animal.showcaseDisplayName}`);
 
@@ -26,8 +26,7 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     }
 
     let levelText = `Level ${animal.level}`;
-    const experienceEmoji = emojiManager.getByName("xp");
-    let experienceText = `${experienceEmoji}${animal.experience}`;
+    let experienceText = `${Emojis.xp}${animal.experience}`;
     if (animal.level >= animal.levelCap) {
         levelText += " (MAX)";
     }
@@ -36,14 +35,12 @@ export default function buildAnimalInfo(embed: MessageEmbed, animal: Animal, emo
     }
     embed.addField(levelText, experienceText);
 
-    const pepEmoji = emojiManager.getByName("pep");
-    embed.addField("Value", `${animal.value}${pepEmoji}`, true);
+    embed.addField("Value", `${animal.value}${Emojis.pep}`, true);
 
     const showToken = animal.owner && animal.owner.hasToken(animal.species.id);
     let tokenString = "*Unknown*";
     if (showToken) {
-        const tokenEmoji = emojiManager.getByName("token");
-        tokenString = `${animal.species.token} ${tokenEmoji}`;
+        tokenString = `${animal.species.token} ${Emojis.token}`;
     }
     embed.addField("Token", capitalizeFirstLetter(tokenString), true);
 }

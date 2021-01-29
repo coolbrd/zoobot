@@ -13,6 +13,7 @@ import BeastiaryClient from "../../../bot/BeastiaryClient";
 import { randomWithinRange } from "../../../utility/numericalMisc";
 import { inspect } from "util";
 import ListField from "../GameObjectFieldHelpers/ListField";
+import Emojis from "../../../beastiary/Emojis";
 
 interface ExperienceGainReceipt {
     xpGiven: number,
@@ -177,7 +178,7 @@ export class Animal extends GameObject {
     }
 
     public get showcaseDisplayName(): string {
-        const levelEmoji = this.beastiaryClient.beastiary.emojis.getAnimalLevelEmoji(this.level);
+        const levelEmoji = Emojis.getAnimalLevelEmoji(this.level);
 
         return `${levelEmoji} ${this.displayName}`;
     }
@@ -287,14 +288,12 @@ export class Animal extends GameObject {
             if (!this.ownerHasToken) {
                 this.giveOwnerToken();
 
-                const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-                dropString += `${tokenEmoji} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!`;
+                dropString += `${Emojis.token} **${capitalizeFirstLetter(this.species.token)}** was added to your token collection!`;
             }
             else {
                 this.owner.addEssence(this.species.id, 5);
-                const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-                dropString += `+**5**${essenceEmoji} (${this.species.commonNames[0]})`;
+                dropString += `+**5**${Emojis.essence} (${this.species.commonNames[0]})`;
             }
 
             betterSend(channel, dropString);
@@ -343,11 +342,9 @@ export class Animal extends GameObject {
             this.owner.extraEncountersLeft += xpReceipt.encounters;
             this.owner.extraCapturesLeft += xpReceipt.captures;
 
-            const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
-
             let rewardString = stripIndent`
                 Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
-                +**${xpReceipt.essence}**${essenceEmoji} (${this.species.commonNames[0]})
+                +**${xpReceipt.essence}**${Emojis.essence} (${this.species.commonNames[0]})
                 +**${xpReceipt.encounters}** encounter${xpReceipt.encounters !== 1 ? "s" : ""}
             `;
 
@@ -356,7 +353,7 @@ export class Animal extends GameObject {
             }
 
             if (this.level === this.levelCap) {
-                rewardString += `\n\n${this.displayName} has reached its species' **max level**! Raise it by gaining more ${this.species.commonNames[0]} essence${essenceEmoji}.`;
+                rewardString += `\n\n${this.displayName} has reached its species' **max level**! Raise it by gaining more ${this.species.commonNames[0]} essence${Emojis.essence}.`;
             }
 
             betterSend(channel, rewardString);

@@ -8,6 +8,7 @@ import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { inspect } from "util";
+import Emojis from "../beastiary/Emojis";
 
 class ReleaseAnimalCommand extends GuildCommand {
     public readonly names = ["release", "r"];
@@ -140,12 +141,9 @@ class ReleaseAnimalCommand extends GuildCommand {
                 `);
             }
 
-            const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-            const essenceEmoji = beastiaryClient.beastiary.emojis.getByName("essence");
-
             betterSend(parsedMessage.channel, stripIndent`
                 ${animal.displayName} was released.
-                +**${animal.value}**${pepEmoji}, +**${animal.level * 2}**${essenceEmoji} (${animal.species.commonNames[0]}).
+                +**${animal.value}**${Emojis.pep}, +**${animal.level * 2}**${Emojis.essence} (${animal.species.commonNames[0]}).
             `);
         }
         // If the user didn't respond, or responded with anything other than yes

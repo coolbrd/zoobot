@@ -3,6 +3,7 @@ import { Player } from "../structures/GameObject/GameObjects/Player";
 import AnimalDisplayMessage, { AnimalDisplayMessageState } from "./AnimalDisplayMessage";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { stripIndent } from "common-tags";
+import Emojis from "../beastiary/Emojis";
 
 export default class CollectionMessage extends AnimalDisplayMessage {
     protected readonly lifetime = 90000;
@@ -33,8 +34,6 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
         const collection = this.elements;
         const userAvatar = this.player.member.user.avatarURL() || undefined;
-
-        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
 
         let headerString: string;
         if (!this.tag) {
@@ -69,7 +68,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
 
         if (this.state === AnimalDisplayMessageState.page) {
             if (!this.tag) {
-                embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${pepEmoji}`);
+                embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${Emojis.pep}`);
             }
         }
         else {

@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import awaitUserNextMessage from "../discordUtility/awaitUserNextMessage";
 import handleUserError from "../discordUtility/handleUserError";
@@ -102,8 +103,7 @@ class TradeCommand extends GuildCommand {
 
         let offerString: string;
         if (typeof offer === "number") {
-            const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-            offerString = `**${offer}**${pepEmoji}`;
+            offerString = `**${offer}**${Emojis.pep}`;
         }
         else {
             offerString = offer.displayName;

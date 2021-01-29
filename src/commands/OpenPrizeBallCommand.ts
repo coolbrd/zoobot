@@ -1,3 +1,4 @@
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -66,8 +67,7 @@ class OpenPrizeBallCommand extends GuildCommand {
         }
 
         if (pep) {
-            const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-            prizeString += `\n+**${pep}**${pepEmoji}`;
+            prizeString += `\n+**${pep}**${Emojis.pep}`;
             if (pep > 700) {
                 prizeString += ", wow!"
             }

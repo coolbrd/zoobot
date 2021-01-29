@@ -1,10 +1,10 @@
 import { MessageEmbed } from "discord.js";
-import EmojiManager from '../beastiary/EmojiManager';
+import Emojis from '../beastiary/Emojis';
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species, SpeciesCard } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 
-export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: MessageEmbed, species: Species, card: SpeciesCard, player?: Player): void {
+export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, card: SpeciesCard, player?: Player): void {
     embed.setColor(species.rarityData.color);
     embed.setTitle(capitalizeFirstLetter(species.scientificName));
     embed.setThumbnail(card.url);
@@ -18,22 +18,19 @@ export default function buildSpeciesInfo(emojiManager: EmojiManager, embed: Mess
 
     embed.addField("Rarity", `${species.rarityData.emoji} T${species.rarityData.tier}`, true);
 
-    const pepEmoji = emojiManager.getByName("pep");
-    embed.addField("Base value", `${species.baseValue}${pepEmoji}`, true);
+    embed.addField("Base value", `${species.baseValue}${Emojis.pep}`, true);
 
     if (player) {
         const showToken = player.hasToken(species.id);
         let tokenString = "*Unknown*";
         if (showToken) {
-            const tokenEmoji = emojiManager.getByName("token");
-            tokenString = `${species.token} ${tokenEmoji}`;
+            tokenString = `${species.token} ${Emojis.token}`;
         }
         embed.addField("Token", capitalizeFirstLetter(tokenString), true);
 
         const speciesRecord = player.getSpeciesRecord(species.id);
 
-        const essenceEmoji = emojiManager.getByName("essence");
-        embed.addField("Essence", `${speciesRecord.data.essence}${essenceEmoji}`, true);
+        embed.addField("Essence", `${speciesRecord.data.essence}${Emojis.essence}`, true);
 
         embed.addField("Max level", player.getSpeciesLevelCap(species.id), true);
 

@@ -1,5 +1,6 @@
 import { stripIndent } from "common-tags";
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
+import Emojis from "../../Emojis";
 import ShopItem from "../ShopItem";
 
 export default class FreeEncounterMaxStackUpgrade extends ShopItem {
@@ -21,10 +22,9 @@ export default class FreeEncounterMaxStackUpgrade extends ShopItem {
     }
 
     public getPurchaseMessage(player: Player, _quantity: number, price: number): string {
-        const pepEmoji = this.shop.beastiaryClient.beastiary.emojis.getByName("pep");
         return stripIndent`
             Success, your free encounter max stack has been upgraded by +**1**, and is now **${player.freeEnconterMaxStack}**!
-            -**${price}**${pepEmoji}
+            -**${price}**${Emojis.pep}
         `;
     }
 

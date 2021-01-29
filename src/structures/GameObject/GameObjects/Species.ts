@@ -5,6 +5,7 @@ import { getWeightedRandom } from "../../../utility/weightedRarity";
 import { SpeciesModel, speciesSchemaDefinition } from '../../../models/Species';
 import { RarityInfo } from "../../../beastiary/EncounterManager";
 import { Player } from "./Player";
+import Emojis from "../../../beastiary/Emojis";
 
 export interface RarityInfoWithEmoji extends RarityInfo {
     emoji: string
@@ -93,7 +94,7 @@ export class Species extends GameObject {
 
         const rarityInfoWithEmoji: RarityInfoWithEmoji = {
             ...rarityInfo,
-            emoji: this.beastiaryClient.beastiary.emojis.getByName(rarityInfo.emojiName)
+            emoji: Emojis.getRarity(rarityInfo.tier)
         };
 
         return rarityInfoWithEmoji;
@@ -154,13 +155,13 @@ export class Species extends GameObject {
         if (playerEssence >= 15) {
             let medalEmoji: string;
             if (playerEssence >= 150) {
-                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalgold");
+                medalEmoji = Emojis.medalGold;
             }
             else if (playerEssence >= 50) {
-                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalsilver");
+                medalEmoji = Emojis.medalSilver;
             }
             else {
-                medalEmoji = this.beastiaryClient.beastiary.emojis.getByName("medalbronze");
+                medalEmoji = Emojis.medalBronze;
             }
 
             displayName += medalEmoji;
@@ -170,8 +171,7 @@ export class Species extends GameObject {
         displayName += rarityEmoji;
 
         if (player.hasToken(this.id)) {
-            const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-            displayName += tokenEmoji;
+            displayName += Emojis.token;
         }
 
         let speciesName = capitalizeFirstLetter(this.commonNames[0]);

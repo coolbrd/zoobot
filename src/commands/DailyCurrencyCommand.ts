@@ -1,3 +1,4 @@
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { betterSend } from "../discordUtility/messageMan";
 import { CommandSection, GuildCommand } from "../structures/Command/Command";
@@ -47,8 +48,7 @@ class DailyCurrencyCommand extends GuildCommand {
 
         player.pep += dailyAmount;
 
-        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-        betterSend(parsedMessage.channel, `Success, you got **${dailyAmount}**${pepEmoji}!`);
+        betterSend(parsedMessage.channel, `Success, you got **${dailyAmount}**${Emojis.pep}!`);
         return commandReceipt;
     }
 }

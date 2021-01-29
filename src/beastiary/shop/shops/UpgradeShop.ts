@@ -4,6 +4,7 @@ import UpgradeCommand from "../../../commands/UpgradeCommand";
 import SmartEmbed from "../../../discordUtility/SmartEmbed";
 import { Player } from "../../../structures/GameObject/GameObjects/Player";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
+import Emojis from "../../Emojis";
 import Shop from "../Shop";
 import CollectionExpander from "../shopItems/CollectionExpander";
 import FreeEncounterMaxStackUpgrade from "../shopItems/FreeEncounterMaxStackUpgrade";
@@ -20,19 +21,17 @@ export default class UpgradeShop extends Shop {
 
     public buildEmbed(player: Player): MessageEmbed {
         const embed = new SmartEmbed();
-
-        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
         
         embed.setColor(0x5DB583);
         embed.setAuthor(`${player.member.user.username}'s upgrades`, player.member.user.avatarURL() || undefined);
-        embed.setDescription(`Balance: **${player.pep}**${pepEmoji}\n---`);
+        embed.setDescription(`Balance: **${player.pep}**${Emojis.pep}\n---`);
         
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             embed.addField(
                 `\`${i + 1})\` ${capitalizeFirstLetter(item.getName(player))}`,
                 stripIndent`
-                    Next level: **${item.getPrice(player)}**${pepEmoji}
+                    Next level: **${item.getPrice(player)}**${Emojis.pep}
                     (+**${item.effectiveChangeAmount}** max)
                 `,
                 item.inline

@@ -8,19 +8,45 @@ interface EmojiCollection {
     [emojiName: string]: string
 }
 
-export default class EmojiManager {
-    private readonly beastiaryClient: BeastiaryClient;
-
+class Emojis {
     private emojis: EmojiCollection = {};
 
-    constructor(beastiaryClient: BeastiaryClient) {
-        this.beastiaryClient = beastiaryClient;
+    public get pep(): string {
+        return this.getByName("pep");
     }
 
-    public async init(): Promise<void> {
+    public get essence(): string {
+        return this.getByName("essence");
+    }
+
+    public get token(): string {
+        return this.getByName("token");
+    }
+
+    public get xp(): string {
+        return this.getByName("xp");
+    }
+
+    public get medalBronze(): string {
+        return this.getByName("medalbronze");
+    }
+
+    public get medalSilver(): string {
+        return this.getByName("medalsilver");
+    }
+
+    public get medalGold(): string {
+        return this.getByName("medalgold");
+    }
+
+    public getRarity(rarity: number): string {
+        return this.getByName(`t${rarity}`);
+    }
+
+    public async init(beastiaryClient: BeastiaryClient): Promise<void> {
         let emojiGuild: Guild;
         try {
-            emojiGuild = await this.beastiaryClient.discordClient.guilds.fetch(EMOJI_SERVER_ID);
+            emojiGuild = await beastiaryClient.discordClient.guilds.fetch(EMOJI_SERVER_ID);
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -39,18 +65,18 @@ export default class EmojiManager {
                 });
             }
 
-            if (!this.beastiaryClient.discordClient.shard) {
+            if (!beastiaryClient.discordClient.shard) {
                 throw new Error(stripIndent`
                     A BeastiaryClient's Discord client has an undefined shard.
                 `);
             }
 
-            this.beastiaryClient.discordClient.shard.broadcastEval(`
+            beastiaryClient.discordClient.shard.broadcastEval(`
                 this.emit("emojisfound", ${inspect(this.emojis)});
             `);
         }
         else {
-            this.beastiaryClient.discordClient.once("emojisfound", emojis => {
+            beastiaryClient.discordClient.once("emojisfound", emojis => {
                 this.emojis = emojis;
             });
 
@@ -84,3 +110,4 @@ export default class EmojiManager {
         return this.getByName(emojiName);
     }
 }
+export default new Emojis();

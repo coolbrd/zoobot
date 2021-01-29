@@ -4,6 +4,7 @@ import BeastiaryClient from "../../bot/BeastiaryClient";
 import { Player } from "../../structures/GameObject/GameObjects/Player";
 import UserError from "../../structures/UserError";
 import { capitalizeFirstLetter } from "../../utility/arraysAndSuch";
+import Emojis from "../Emojis";
 import ShopItem from "./ShopItem";
 
 export interface ShopReceipt {
@@ -70,12 +71,10 @@ export default abstract class Shop {
 
         const itemNameAndQuantity = `${itemName} (x${quantity})`;
 
-        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
-
         if (totalPrice > player.pep) {
             throw new UserError(stripIndent`
                 You don't have enough pep to buy **${itemNameAndQuantity}**.
-                Cost: **${totalPrice}**${pepEmoji}. You have: **${player.pep}**${pepEmoji}.
+                Cost: **${totalPrice}**${Emojis.pep}. You have: **${player.pep}**${Emojis.pep}.
             `);
         }
 

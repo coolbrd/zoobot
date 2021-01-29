@@ -1,5 +1,6 @@
 import { Message, TextChannel } from "discord.js";
 import seedrandom from "seedrandom";
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
@@ -152,10 +153,8 @@ class FishCommand extends GuildCommand {
 
                 player.pep += rewardPep;
 
-                const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-
                 const rewardString = rewardPep >= 100 ? "Wow! You reeled in" : "Success, you reeled in";
-                betterSend(parsedMessage.channel, `${rewardString} ${rewardPep}${pepEmoji}`);
+                betterSend(parsedMessage.channel, `${rewardString} ${rewardPep}${Emojis.pep}`);
 
                 console.log(`${player.member.user.tag} reeled in ${rewardPep} after ${fishingTime / 1000} seconds.`);
 

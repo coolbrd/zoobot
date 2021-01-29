@@ -1,4 +1,5 @@
 import { stripIndent } from "common-tags";
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import gameConfig from "../config/gameConfig";
 import { betterSend } from "../discordUtility/messageMan";
@@ -59,18 +60,14 @@ class GiveXpCommand extends GuildCommand {
 
         const xpReceipt = animal.addExperienceInChannel(gameConfig.xpPerBoost, parsedMessage.channel);
 
-        const xpEmoji = beastiaryClient.beastiary.emojis.getByName("xp");
-
         let resultString: string;
         if (xpReceipt.xpTaken === xpReceipt.xpGiven) {
-            resultString = `Success, you gave ${animal.displayName} +**${xpReceipt.xpGiven}**${xpEmoji}`;
+            resultString = `Success, you gave ${animal.displayName} +**${xpReceipt.xpGiven}**${Emojis.xp}`;
         }
         else {
-            const essenceEmoji = beastiaryClient.beastiary.emojis.getByName("essence");
-
             resultString = stripIndent`
-                You gave ${animal.displayName} **${xpReceipt.xpGiven}**${xpEmoji}, but only **${xpReceipt.xpTaken}**${xpEmoji} was gained.
-                Earn more ${animal.species.commonNames[0]} essence${essenceEmoji} to raise ${animal.displayName}'s level cap!
+                You gave ${animal.displayName} **${xpReceipt.xpGiven}**${Emojis.xp}, but only **${xpReceipt.xpTaken}**${Emojis.xp} was gained.
+                Earn more ${animal.species.commonNames[0]} essence${Emojis.essence} to raise ${animal.displayName}'s level cap!
             `;
         }
         betterSend(parsedMessage.channel, resultString);

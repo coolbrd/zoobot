@@ -16,6 +16,7 @@ import { getWeightedRandom } from "../utility/weightedRarity";
 import UpgradeCommand from "../commands/UpgradeCommand";
 import { PlayerGuild } from "../structures/GameObject/GameObjects/PlayerGuild";
 import SetEncounterChannelCommand from "../commands/SetEncounterChannelCommand";
+import Emojis from "../beastiary/Emojis";
 
 export default class EncounterMessage extends InteractiveMessage {
     protected readonly lifetime = 60000;
@@ -39,7 +40,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         this.addButton({
             name: "capture",
-            emoji: beastiaryClient.beastiary.emojis.getReactionVersionByName("capture"),
+            emoji: Emojis.getReactionVersionByName("capture"),
             helpMessage: "Capture"
         });
 
@@ -152,16 +153,14 @@ export default class EncounterMessage extends InteractiveMessage {
         }
 
         const commonName = this.animal.species.commonNameObjects[0];
-        const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
         let captureString = stripIndent`
             ${player.member.user}, you caught ${commonName.article} ${commonName.name}!
-            +**5**${essenceEmoji} (${commonName.name})
+            +**5**${Emojis.essence} (${commonName.name})
         `;
 
         if (player.getCaptures(this.animal.species.id) === 0) {
-            const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
-            captureString += `\n+**${gameConfig.newSpeciesPepReward}**${pepEmoji} (caught new species)`;
+            captureString += `\n+**${gameConfig.newSpeciesPepReward}**${Emojis.pep} (caught new species)`;
         }
 
         if (player.totalCaptures <= 3) {

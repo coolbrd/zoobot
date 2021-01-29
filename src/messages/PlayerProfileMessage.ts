@@ -1,6 +1,7 @@
 import { stripIndent } from "common-tags";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { Types } from "mongoose";
+import Emojis from "../beastiary/Emojis";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import SmartEmbed from "../discordUtility/SmartEmbed";
 import InteractiveMessage from "../interactiveMessage/InteractiveMessage";
@@ -47,8 +48,6 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
         }
 
-        const rarestTierCaughtEmoji = this.beastiaryClient.beastiary.emojis.getByName(`t${this.player.rarestTierCaught}`);
-
         embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
 
         let descriptionString = "";
@@ -83,24 +82,20 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
 
             const speciesDisplayName = capitalizeFirstLetter(highestEssenceSpecies.getShowcaseDisplayName(this.player));
-            const essenceEmoji = this.beastiaryClient.beastiary.emojis.getByName("essence");
 
-            highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**${essenceEmoji}`;
+            highestEssenceSpeciesString = `${speciesDisplayName}: **${highestEssenceRecord.data.essence}**${Emojis.essence}`;
         }
         else {
             highestEssenceSpeciesString = "*None*";
         }
 
-        const pepEmoji = this.beastiaryClient.beastiary.emojis.getByName("pep");
-        const tokenEmoji = this.beastiaryClient.beastiary.emojis.getByName("token");
-
         descriptionString += stripIndent`
-            **${this.player.pep}**${pepEmoji}
-            Total collection value: **${this.player.totalCollectionValue}**${pepEmoji}
+            **${this.player.pep}**${Emojis.pep}
+            Total collection value: **${this.player.totalCollectionValue}**${Emojis.pep}
             
             Collection size: **${this.player.collectionAnimalIds.list.length}**
-            Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${tokenEmoji}
-            Highest tier caught: **${rarestTierCaughtEmoji} T${this.player.rarestTierCaught}**
+            Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${Emojis.token}
+            Highest tier caught: **${Emojis.getRarity(this.player.rarestTierCaught)} T${this.player.rarestTierCaught}**
             Beastiary complete: **${this.player.beastiaryPercentComplete.toPrecision(3)}%**
             Top species: ${highestEssenceSpeciesString}
 
@@ -109,7 +104,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             Captures remaining: **${this.player.capturesLeft}**
             Prize balls remaining: **${this.player.prizeBalls}**
 
-            Lifetime pep: **${this.player.lifetimePep}**${pepEmoji}
+            Lifetime pep: **${this.player.lifetimePep}**${Emojis.pep}
             Total xp boosts: **${this.player.totalXpBoosts}**
             Total encounters: **${this.player.totalEncounters}**
             Total captures: **${this.player.totalCaptures}**

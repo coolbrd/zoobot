@@ -5,6 +5,7 @@ import { CommandSection, GuildCommand } from "../structures/Command/Command";
 import { GuildCommandParser } from "../structures/Command/CommandParser";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
+import Emojis from "../beastiary/Emojis";
 
 class ViewPepCommand extends GuildCommand {
     public readonly names = ["pep", "vp", "balance", "bal"];
@@ -27,8 +28,7 @@ class ViewPepCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const pepEmoji = beastiaryClient.beastiary.emojis.getByName("pep");
-        betterSend(parsedMessage.channel, `${player.member.displayName}'s balance: **${player.pep}**${pepEmoji}.`);
+        betterSend(parsedMessage.channel, `${player.member.displayName}'s balance: **${player.pep}**${Emojis.pep}.`);
 
         return commandReceipt;
     }
