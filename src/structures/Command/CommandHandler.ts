@@ -67,6 +67,7 @@ import ModifyPlayerCommand from "../../commands/ModifyPlayerCommand";
 import TagsCommand from "../../commands/Tag/TagsCommand";
 import SortCollectionCommand from "../../commands/SortCollectionCommand";
 import WishlistCommand from "../../commands/Wishlist/WishlistCommand";
+import LeaderboardCommand from "../../commands/LeaderboardCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -107,6 +108,7 @@ export default class CommandHandler {
         EditSpeciesCommand,
         GiveAnimalCommand,
         TradeCommand,
+        LeaderboardCommand,
         SendPatreonLinkCommand,
         FeedbackCommand,
         SuppportServerInviteCommand,
