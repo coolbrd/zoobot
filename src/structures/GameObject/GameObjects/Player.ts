@@ -474,6 +474,23 @@ export class Player extends GameObject {
         return this.wishedSpeciesIds.list.length >= this.maxWishlistSize;
     }
 
+    public get beastiaryCompletionMedal(): string {
+        const beastiaryCompletion = this.beastiaryPercentComplete;
+
+        let medalString = "";
+        if (beastiaryCompletion >= 80) {
+            medalString = Emojis.medalGold;
+        }
+        else if (beastiaryCompletion >= 40) {
+            medalString = Emojis.medalSilver;
+        }
+        else if (beastiaryCompletion >= 20) {
+            medalString = Emojis.medalBronze;
+        }
+
+        return medalString;
+    }
+
     public getAnimalsByTag(tag?: string): Animal[] {
         if (!tag) {
             return this.animals;

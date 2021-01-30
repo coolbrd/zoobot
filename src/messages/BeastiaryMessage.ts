@@ -88,18 +88,7 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
 
         const beastiaryCompletion = this.player.beastiaryPercentComplete;
 
-        let medalString = "";
-        if (beastiaryCompletion >= 80) {
-            medalString = Emojis.medalGold;
-        }
-        else if (beastiaryCompletion >= 40) {
-            medalString = Emojis.medalSilver;
-        }
-        else if (beastiaryCompletion >= 20) {
-            medalString = Emojis.medalBronze;
-        }
-
-        embed.setDescription(`${medalString} ${beastiaryCompletion.toPrecision(3)}% of all species recorded. (${playerSpeciesRecorded}/${totalSpeciesCount})`);
+        embed.setDescription(`${this.player.beastiaryCompletionMedal} ${beastiaryCompletion.toPrecision(3)}% of all species recorded. (${playerSpeciesRecorded}/${totalSpeciesCount})`);
 
         embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
         embed.setColor(0x9e6734);
