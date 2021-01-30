@@ -101,6 +101,10 @@ export default class EncounterMessage extends InteractiveMessage {
         embed.setFooter("Wild encounter");
 
         if (this.initiatingPlayer) {
+            if (this.initiatingPlayer.getCaptures(this.animal.species.id) > 0) {
+                embed.appendToFooter(" (recorded)");
+            }
+            
             if (this.initiatingPlayer.freeEncounters.count === 3) {
                 embed.appendToFooter("\n2 free encounters left!");
             }
