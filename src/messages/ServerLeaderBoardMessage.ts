@@ -62,7 +62,7 @@ export default class ServerLeaderBoardMessage extends PagedMessage {
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, players: Player[]) {
         super(channel, beastiaryClient);
 
-        this.players = players;
+        this.players = players.filter(player => player.potentialMember);
     }
 
     protected get pageCount(): number {
