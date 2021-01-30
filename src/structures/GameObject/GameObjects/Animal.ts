@@ -54,8 +54,8 @@ export class Animal extends GameObject {
                 Guild id: ${guildId}
                 Owner: ${inspect(owner)}
             `);
-
         }
+        
         return new AnimalModel({
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
@@ -333,7 +333,15 @@ export class Animal extends GameObject {
     public addExperienceInChannel(experience: number, channel: TextChannel): ExperienceGainReceipt {
         const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
-        if (xpReceipt.levelUp && this.owner) {
+        if (!this.owner) {
+            throw new Error(stripIndent`
+                An animal with no owner was given experience.
+
+                Animal: ${this.debugString}
+            `);
+        }
+
+        if (xpReceipt.levelUp) {
             xpReceipt.essence = this.levelEssenceReward;
             xpReceipt.encounters = this.getlevelEncounterRandomReward();
             xpReceipt.captures = this.getLevelCaptureRandomReward();
