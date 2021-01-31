@@ -184,8 +184,11 @@ export default class EncounterMessage extends InteractiveMessage {
     private async awardToRandomPlayer(): Promise<void> {
         const playerWeightedChanceMap = new Map<Player, number>();
 
-        let preferredPlayerWeight: number;
+        for (const player of this.capturingPlayers) {
+            playerWeightedChanceMap.set(player, 1);
+        }
 
+        let preferredPlayerWeight: number;
         if (this.capturingPlayers.length === 2) {
             preferredPlayerWeight = 2;
         }
@@ -193,10 +196,8 @@ export default class EncounterMessage extends InteractiveMessage {
             preferredPlayerWeight = Math.max(1, this.capturingPlayers.length - 1);
         }
         
-        playerWeightedChanceMap.set(this.capturingPlayers[0], preferredPlayerWeight);
-
-        for (let i = 1; i < this.capturingPlayers.length; i++) {
-            playerWeightedChanceMap.set(this.capturingPlayers[i], 1);
+        if (this.initiatingPlayer && this.capturingPlayers.includes(this.initiatingPlayer)) {
+            playerWeightedChanceMap.set(this.initiatingPlayer, preferredPlayerWeight);
         }
 
         const winningPlayer = getWeightedRandom(playerWeightedChanceMap);
