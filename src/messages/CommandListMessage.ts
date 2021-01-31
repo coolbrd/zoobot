@@ -50,8 +50,7 @@ export default class CommandListMessage extends PagedListMessage<Command> {
         
         const prefixHelpString = `Prefix commands with "${prefix}", or by pinging me!`;
         const footerText = embed.footer ? embed.footer.text : "";
-        const reactionInfoString = "Reactions not showing up? You may need to ensure that I have permission to react to messages in this channel.";
-        embed.setFooter(prefixHelpString + "\n" + footerText + "\n" + reactionInfoString);
+        embed.setFooter(prefixHelpString + "\n" + footerText);
 
         return embed;
     }
