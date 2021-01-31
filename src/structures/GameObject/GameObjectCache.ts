@@ -138,11 +138,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         const cachedGameObject = this.cacheGet(gameObjectId);
 
         if (!cachedGameObject) {
-            throw new Error(stripIndent`
-                Attempted to delete a value that isn't in the specified cache.
-
-                Id: ${gameObjectId}
-            `);
+            return;
         }
 
         cachedGameObject.stopTimer();
