@@ -45,6 +45,12 @@ export class BeastiaryServer extends EventEmitter {
 
                     ${error}
                 `);
+
+                setTimeout(() => {
+                    tunnel.close();
+
+                    this.startLocalTunnel();
+                }, 30 * 1000);
             });
         });
     }
