@@ -421,7 +421,13 @@ export default class PlayerManager extends GameObjectCache<Player> {
             `);
         }
 
-        console.log(`${players[0].member.user.tag} voted!`);
+        if (players.length > 0) {
+            console.log(`${players[0].member.user.tag} voted!`);
+        }
+        else {
+            console.log(`No players were found after a user id voted: ${userId}`);
+        }
+
         for (const player of players) {
             player.prizeBalls += count;
         }
