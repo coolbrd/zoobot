@@ -42,7 +42,7 @@ export default class MasterBeastiaryProcess {
     }
 
     private async initializeShards(): Promise<void> {
-        this._shardManager = new Discord.ShardingManager("./build/index.js", { respawn: false });
+        this._shardManager = new Discord.ShardingManager("./build/index.js", { respawn: false, mode: "worker" });
 
         this.shardManager.on("shardCreate", shard => {
             console.log(`- Spawned shard ${shard.id} -`);
