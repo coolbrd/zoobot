@@ -39,12 +39,8 @@ export class BeastiaryServer extends EventEmitter {
                 resolve();
             });
 
-            tunnel.on("error", error => {
-                console.error(stripIndent`
-                    There was an error establishing a connection with LocalTunnel. Reconnecting.
-
-                    ${error}
-                `);
+            tunnel.on("error", () => {
+                console.log("Reconnecting to localtunnel...");
 
                 setTimeout(() => {
                     tunnel.close();
