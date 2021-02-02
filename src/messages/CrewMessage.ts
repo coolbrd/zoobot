@@ -29,9 +29,9 @@ export default class CrewMessage extends AnimalDisplayMessage {
 
         const crew = this.elements;
 
-        const userAvatar = this.player.member.user.avatarURL() || undefined;
+        const userAvatar = this.player.avatarURL;
 
-        embed.setAuthor(`${this.player.member.user.username}'s crew`, userAvatar);
+        embed.setAuthor(`${this.player.username}'s crew`, userAvatar);
         embed.setFooter(stripIndent`
             ${crew.length} in crew
             ${this.getButtonHelpString()}

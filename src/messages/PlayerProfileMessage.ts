@@ -48,7 +48,7 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             }
         }
 
-        embed.setAuthor(`${this.player.member.user.username}'s profile`, this.player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`${this.player.username}'s profile`, this.player.avatarURL);
 
         let descriptionString = "";
 

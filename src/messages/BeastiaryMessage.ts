@@ -90,7 +90,7 @@ export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<S
 
         embed.setDescription(`${this.player.beastiaryCompletionMedal} ${beastiaryCompletion.toPrecision(3)}% of all species recorded. (${playerSpeciesRecorded}/${totalSpeciesCount})`);
 
-        embed.setAuthor(`${this.player.member.user.username}'s Beastiary`, this.player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`${this.player.username}'s Beastiary`, this.player.avatarURL);
         embed.setColor(0x9e6734);
 
         return embed;

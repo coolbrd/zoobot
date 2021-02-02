@@ -83,7 +83,7 @@ class ModifyPlayerCommand extends Command {
                 }
 
                 players.forEach(player => {
-                    console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${pep} pep.`);
+                    console.log(`Giving ${player.tag} in ${player.guildName} ${pep} pep.`);
                     player.pep += pep;
                 });
 
@@ -97,7 +97,7 @@ class ModifyPlayerCommand extends Command {
                 }
 
                 players.forEach(player => {
-                    console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${encounters} encounters.`);
+                    console.log(`Giving ${player.tag} in ${player.guildName} ${encounters} encounters.`);
                     player.extraEncountersLeft += encounters;
                 });
 
@@ -111,7 +111,7 @@ class ModifyPlayerCommand extends Command {
                 }
 
                 players.forEach(player => {
-                    console.log(`Giving ${player.member.user.tag} in ${player.member.guild.name} ${prizeBalls} prize balls.`);
+                    console.log(`Giving ${player.tag} in ${player.guildName} ${prizeBalls} prize balls.`);
                     player.prizeBalls += prizeBalls;
                 });
 

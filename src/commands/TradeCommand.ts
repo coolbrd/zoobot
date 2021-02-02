@@ -53,12 +53,20 @@ class TradeCommand extends GuildCommand {
         }
 
         betterSend(parsedMessage.channel, stripIndent`
-            ${targetPlayer.member.user}, ${initiatingPlayer.member.user.username} wants to trade you ${initiatingAnimal.displayName}.
+            ${targetPlayer.pingString}, ${initiatingPlayer.username} wants to trade you ${initiatingAnimal.displayName}.
 
             Type the identifier of the animal you'd like to trade to them, or type "deny" to cancel the trade.
 
             Additionally, you can trade a sum of pep for their animal by stating a pep amount. E.g. "100 pep".
         `);
+
+        if (!targetPlayer.member) {
+            throw new Error(stripIndent`
+                A player with no member attempted to make a trade.
+
+                Player: ${targetPlayer.debugString}
+            `);
+        }
 
         const responseMessage = await awaitUserNextMessage(parsedMessage.channel, targetPlayer.member.user, 15000);
 
@@ -69,7 +77,7 @@ class TradeCommand extends GuildCommand {
         }
 
         if (!response || response === "deny") {
-            betterSend(parsedMessage.channel, `${targetPlayer.member.user.username} denied the trade.`);
+            betterSend(parsedMessage.channel, `${targetPlayer.username} denied the trade.`);
             return commandReceipt;
         }
 
@@ -80,11 +88,11 @@ class TradeCommand extends GuildCommand {
 
             if (!isNaN(pepAmount)) {
                 if (pepAmount > targetPlayer.pep) {
-                    betterSend(parsedMessage.channel, `${targetPlayer.member.user.username}, you don't have enough pep to make that offer!`);
+                    betterSend(parsedMessage.channel, `${targetPlayer.username}, you don't have enough pep to make that offer!`);
                     return commandReceipt;
                 }
                 else if (pepAmount < 0) {
-                    betterSend(parsedMessage.channel, `${targetPlayer.member.user.username}, you can't offer a negative pep amount!`);
+                    betterSend(parsedMessage.channel, `${targetPlayer.username}, you can't offer a negative pep amount!`);
                     return commandReceipt;
                 }
 
@@ -110,10 +118,18 @@ class TradeCommand extends GuildCommand {
         }
 
         betterSend(parsedMessage.channel, stripIndent`
-            ${initiatingPlayer.member.user}, ${targetPlayer.member.user.username} has offered ${offerString} for your ${initiatingAnimal.displayName}.
+            ${initiatingPlayer.pingString}, ${targetPlayer.username} has offered ${offerString} for your ${initiatingAnimal.displayName}.
 
             Type "yes" to accept this offer, ignore this or type anything else to deny it.
         `);
+
+        if (!initiatingPlayer.member) {
+            throw new Error(stripIndent`
+                A player with no member attempted to make a trade.
+
+                Player: ${initiatingPlayer.debugString}
+            `);
+        }
 
         const finalConfirmation = await awaitUserNextMessage(parsedMessage.channel, initiatingPlayer.member.user, 15000);
 
@@ -124,7 +140,7 @@ class TradeCommand extends GuildCommand {
         }
 
         if (!finalResponse || finalResponse !== "yes") {
-            betterSend(parsedMessage.channel, `${initiatingPlayer.member.user.username} denied the trade.`);
+            betterSend(parsedMessage.channel, `${initiatingPlayer.username} denied the trade.`);
             return commandReceipt;
         }
 

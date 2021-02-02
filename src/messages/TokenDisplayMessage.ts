@@ -3,11 +3,11 @@ import { MessageEmbed, TextChannel } from "discord.js";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { bulkLoad } from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
 import LoadableCacheableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObjects/LoadableCacheableGameObject";
-import { Player } from "../structures/GameObject/GameObjects/Player";
 import { Species } from "../structures/GameObject/GameObjects/Species";
 import { capitalizeFirstLetter } from "../utility/arraysAndSuch";
 import PagedListMessage from "./PagedListMessage";
 import { inspect } from "util";
+import { Player } from "../structures/GameObject/GameObjects/Player";
 
 export default class TokenDisplayMessage extends PagedListMessage<LoadableCacheableGameObject<Species>> {
     public readonly fieldsPerPage = 1;
@@ -44,7 +44,7 @@ export default class TokenDisplayMessage extends PagedListMessage<LoadableCachea
 
         const embed = await super.buildEmbed();
 
-        embed.setAuthor(`${this.player.member.user.username}'s tokens`, this.player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`${this.player.username}'s tokens`, this.player.avatarURL);
         embed.setColor(0x008888);
         embed.setFooter(`${this.elements.length} tokens collected`);
 

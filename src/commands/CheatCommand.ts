@@ -33,7 +33,7 @@ class CheatCommand extends GuildCommand {
         player.extraXpBoostsLeft += 9999999999;
         player.playerPremium = !player.playerPremium;
 
-        console.log(`${player.member.user.username} just cheated!`);
+        console.log(`${player.username} just cheated!`);
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;

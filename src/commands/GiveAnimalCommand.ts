@@ -51,15 +51,23 @@ class GiveAnimalCommand extends GuildCommand {
         }
 
         if (receivingPlayer.collectionFull) {
-            betterSend(parsedMessage.channel, `${receivingPlayer.member.user.username}'s collection is full, they can't be given any animals right now.`);
+            betterSend(parsedMessage.channel, `${receivingPlayer.username}'s collection is full, they can't be given any animals right now.`);
             return commandReceipt;
         }
 
         betterSend(parsedMessage.channel, stripIndent`
-            ${receivingPlayer.member.user}, ${givingPlayer.member.user.username} wants to give you ${givenAnimal.displayName}.
+            ${receivingPlayer.pingString}, ${givingPlayer.username} wants to give you ${givenAnimal.displayName}.
 
             Type "yes" or "y" to accept, ignore or type anything else to deny.
         `);
+
+        if (!receivingPlayer.member) {
+            throw new Error(stripIndent`
+                A player with no member attempted to receive an animal.
+
+                Player: ${receivingPlayer.debugString}
+            `);
+        }
 
         const consentMessage = await awaitUserNextMessage(parsedMessage.channel, receivingPlayer.member.user, 15000);
 
@@ -70,7 +78,7 @@ class GiveAnimalCommand extends GuildCommand {
         }
 
         if (response !== "yes" && response !== "y") {
-            betterSend(parsedMessage.channel, `${receivingPlayer.member.user.username} denied the gift.`);
+            betterSend(parsedMessage.channel, `${receivingPlayer.username} denied the gift.`);
             return commandReceipt;
         }
 
@@ -85,7 +93,7 @@ class GiveAnimalCommand extends GuildCommand {
             `);
         }
 
-        betterSend(parsedMessage.channel, `Success, ${givenAnimal.displayName} was given to ${receivingPlayer.member.user.username}.`);
+        betterSend(parsedMessage.channel, `Success, ${givenAnimal.displayName} was given to ${receivingPlayer.username}.`);
 
         return commandReceipt;
     }

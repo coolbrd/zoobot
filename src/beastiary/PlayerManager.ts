@@ -424,8 +424,8 @@ export default class PlayerManager extends GameObjectCache<Player> {
         if (players.length > 0) {
             const player = players[0];
 
-            if (player.potentialMember) {
-                console.log(`${player.potentialMember.user.tag} voted!`);
+            if (player.member) {
+                console.log(`${player.member.user.tag} voted!`);
             }
         }
         else {

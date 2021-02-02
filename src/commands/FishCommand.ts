@@ -1,3 +1,4 @@
+import { stripIndent } from "common-tags";
 import { Message, TextChannel } from "discord.js";
 import seedrandom from "seedrandom";
 import Emojis from "../beastiary/Emojis";
@@ -130,6 +131,14 @@ class FishCommand extends GuildCommand {
 
         const fishingTime = this.calculateFishingTime(parsedMessage.channel, distance);
 
+        if (!player.member) {
+            throw new Error(stripIndent`
+                A player with no member attempted to fish.
+
+                Player: ${player.debugString}
+            `);
+        }
+
         const messageCollector = new TimedMessageCollector();
         const earlyReelMessage = await messageCollector
             .collectIn(parsedMessage.channel)
@@ -143,7 +152,7 @@ class FishCommand extends GuildCommand {
             betterSend(parsedMessage.channel, "You reel your line back in.");
         }
         else {
-            betterSend(parsedMessage.channel, `${player.member.user}, you've got a bite!`);
+            betterSend(parsedMessage.channel, `${player.pingString}, you've got a bite!`);
 
             const reelMessage = await messageCollector.collectOne(this.reelWindow);
 
@@ -156,7 +165,7 @@ class FishCommand extends GuildCommand {
                 const rewardString = rewardPep >= 100 ? "Wow! You reeled in" : "Success, you reeled in";
                 betterSend(parsedMessage.channel, `${rewardString} ${rewardPep}${Emojis.pep}`);
 
-                console.log(`${player.member.user.tag} reeled in ${rewardPep} after ${(fishingTime / 1000).toFixed(0)} seconds.`);
+                console.log(`${player.tag} reeled in ${rewardPep} after ${(fishingTime / 1000).toFixed(0)} seconds.`);
 
                 player.awardCrewExperienceInChannel(gameConfig.xpPerFish, parsedMessage.channel);
             }

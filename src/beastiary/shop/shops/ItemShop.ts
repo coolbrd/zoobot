@@ -20,7 +20,7 @@ export default class ItemShop extends Shop {
     public buildEmbed(player: Player): MessageEmbed {
         const embed = new SmartEmbed();
 
-        embed.setAuthor(`Balance: ${player.pep} pep`, player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`Balance: ${player.pep} pep`, player.avatarURL);
         embed.setTitle("Item Shop");
         embed.setColor(0xaf7028);
 

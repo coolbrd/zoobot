@@ -100,7 +100,7 @@ export class Player extends GameObject {
         });
     }
 
-    public potentialMember: GuildMember | undefined;
+    public member: GuildMember | undefined;
     private _animals: Animal[] | undefined;
 
     public readonly collectionAnimalIds: ListField<Types.ObjectId>;
@@ -163,16 +163,49 @@ export class Player extends GameObject {
         });
     }
 
-    public get member(): GuildMember {
-        if (!this.potentialMember) {
-            throw new Error(stripIndent`
-                A player object's member field was attempted to be accessed before it was loaded.
-
-                Player: ${this.debugString}
-            `);
+    public get pingString(): string {
+        if (this.member) {
+            return String(this.member.user);
         }
+        else {
+            return "@**unknown user**";
+        }
+    }
 
-        return this.potentialMember;
+    public get tag(): string {
+        if (this.member) {
+            return this.member.user.tag;
+        }
+        else {
+            return "unknown user#0000";
+        }
+    }
+
+    public get username(): string {
+        if (this.member) {
+            return this.member.user.username;
+        }
+        else {
+            return "unknown user";
+        }
+    }
+
+    public get avatarURL(): string | undefined {
+        if (this.member) {
+            return this.member.user.avatarURL() || undefined;
+        }
+        else {
+            return undefined;
+        }
+    }
+
+    public get guildName(): string {
+        if (this.member) {
+            return this.member.guild.name;
+        }
+        else {
+            return "unknown server";
+        }
     }
 
     public get animals(): Animal[] {
@@ -630,14 +663,16 @@ export class Player extends GameObject {
             this.pep += pepReward;
             this.experience += xpReward;
 
-            betterSend(channel, stripIndent`
-                ${this.member.user}, since you've caught **${speciesCaught}** unique species of animals before these rewards existed, you're entitled to retroactive compensation!
-                +**${pepReward}**${Emojis.pep}
-            `);
-
-            console.log(`Retroactively rewarded ${this.member.user.tag} with ${pepReward} pep.`);
-
             this.canClaimRetroactiveRecordRewards = false;
+
+            if (this.member) {
+                betterSend(channel, stripIndent`
+                    ${this.member.user}, since you've caught **${speciesCaught}** unique species of animals before these rewards existed, you're entitled to retroactive compensation!
+                    +**${pepReward}**${Emojis.pep}
+                `);
+
+                console.log(`Retroactively rewarded ${this.member.user.tag} with ${pepReward} pep.`);
+            }
         }
     }
 
@@ -981,7 +1016,7 @@ export class Player extends GameObject {
 
     private async loadGuildMember(): Promise<void> {
         try {
-            this.potentialMember = await getGuildMember(this.userId, this.guildId, this.beastiaryClient);
+            this.member = await getGuildMember(this.userId, this.guildId, this.beastiaryClient);
         }
         catch (error) {
             throw new Error(stripIndent`

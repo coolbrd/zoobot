@@ -46,8 +46,8 @@ export default class AnimalInfoMessage extends InteractiveMessage {
         const embed = new SmartEmbed();
     
         if (this.animalObject.owner) {
-            const userAvatar = this.animalObject.owner.member.user.avatarURL() || undefined;
-            embed.setAuthor(`Belongs to ${this.animalObject.owner.member.user.username}`, userAvatar);
+            const userAvatar = this.animalObject.owner.avatarURL;
+            embed.setAuthor(`Belongs to ${this.animalObject.owner.username}`, userAvatar);
         }
         
         if (!this.cardMode) {

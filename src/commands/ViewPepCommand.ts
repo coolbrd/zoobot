@@ -28,7 +28,7 @@ class ViewPepCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        betterSend(parsedMessage.channel, `${player.member.displayName}'s balance: **${player.pep}**${Emojis.pep}.`);
+        betterSend(parsedMessage.channel, `${player.username}'s balance: **${player.pep}**${Emojis.pep}.`);
 
         return commandReceipt;
     }

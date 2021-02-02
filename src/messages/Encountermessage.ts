@@ -121,15 +121,15 @@ export default class EncounterMessage extends InteractiveMessage {
     }
 
     private warnPlayer(player: Player): void {
-        if (this.warnedUserIds.has(player.member.user.id)) {
+        if (this.warnedUserIds.has(player.userId)) {
             return;
         }
 
         if (player.collectionFull) {
-            betterSend(this.channel, `${player.member.user}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size with the \`${UpgradeCommand.primaryName}\` command.`);
+            betterSend(this.channel, `${player.pingString}, your collection is full! Either release some animals with \`${this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild)}release\`, or upgrade your collection size with the \`${UpgradeCommand.primaryName}\` command.`);
         }
         else if (player.capturesLeft < 1) {
-            let noCapturesLeftString = `${player.member.user}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
+            let noCapturesLeftString = `${player.pingString}, you can't capture an animal for another **${remainingTimeString(player.freeCaptures.nextReset)}**.`;
 
             if (!player.premium) {
                 noCapturesLeftString += `\n\nWant more? Subscribe at <${gameConfig.patreonLink}> for exclusive premium features such as more encounters, captures, and xp!`;
@@ -138,10 +138,10 @@ export default class EncounterMessage extends InteractiveMessage {
             betterSend(this.channel, noCapturesLeftString);
         }
         else if (this.beastiaryClient.beastiary.encounters.playerIsCapturing(player)) {
-            betterSend(this.channel, `${player.member.user} you're already capturing another animal, you can only do one at a time!`);
+            betterSend(this.channel, `${player.pingString} you're already capturing another animal, you can only do one at a time!`);
         }
 
-        this.warnedUserIds.add(player.member.user.id);
+        this.warnedUserIds.add(player.userId);
     }
 
     private async awardAnimal(player: Player): Promise<void> {
@@ -159,7 +159,7 @@ export default class EncounterMessage extends InteractiveMessage {
         const commonName = this.animal.species.commonNameObjects[0];
 
         let captureString = stripIndent`
-            ${player.member.user}, you caught ${commonName.article} ${commonName.name}!
+            ${player.pingString}, you caught ${commonName.article} ${commonName.name}!
             +**5**${Emojis.essence} (${commonName.name})
         `;
 
@@ -175,7 +175,7 @@ export default class EncounterMessage extends InteractiveMessage {
 
         player.captureAnimal(this.animal, this.channel);
 
-        console.log(`${player.member.user.tag} caught a ${this.animal.displayName} in ${this.channel.guild.name}!`);
+        console.log(`${player.tag} caught a ${this.animal.displayName} in ${this.channel.guild.name}!`);
         
         this.setDeactivationText("(caught)");
         this.deactivate();
@@ -254,14 +254,14 @@ export default class EncounterMessage extends InteractiveMessage {
         const captureWindowInSeconds = (this.multiplayerCaptureWindow / 1000).toPrecision(1);
 
         if (this.capturingPlayers.length === 1) {
-            betterSend(this.channel, `${player.member.user.username} is capturing ${speciesNameAndArticle}, and they will get it after ${captureWindowInSeconds} seconds if nobody else reacts!`);
+            betterSend(this.channel, `${player.username} is capturing ${speciesNameAndArticle}, and they will get it after ${captureWindowInSeconds} seconds if nobody else reacts!`);
 
             setTimeout(() => {
                 this.awardToRandomPlayer();
             }, this.multiplayerCaptureWindow);
         }
         else {
-            betterSend(this.channel, `${player.member.user.username} is contesting ${this.capturingPlayers[0].member.user.username}'s capture of ${speciesNameAndArticle}!`)
+            betterSend(this.channel, `${player.username} is contesting ${this.capturingPlayers[0].username}'s capture of ${speciesNameAndArticle}!`)
         }
     }
 }

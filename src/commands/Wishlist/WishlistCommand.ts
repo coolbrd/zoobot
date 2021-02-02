@@ -40,7 +40,7 @@ class WishlistCommand extends GuildCommand {
 
         const embed = new SmartEmbed();
         embed.setColor(0xfffb38);
-        embed.setAuthor(`${player.member.user.username}'s wishlist`, player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`${player.username}'s wishlist`, player.avatarURL);
 
         let descriptionString: string;
         if (wishedSpecies.length > 0) {

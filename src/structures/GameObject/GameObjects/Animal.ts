@@ -7,13 +7,13 @@ import { unknownCard } from './UnknownSpecies';
 import { stripIndent } from "common-tags";
 import { betterSend } from "../../../discordUtility/messageMan";
 import { capitalizeFirstLetter } from "../../../utility/arraysAndSuch";
-import { Player } from "./Player";
 import gameConfig from "../../../config/gameConfig";
 import BeastiaryClient from "../../../bot/BeastiaryClient";
 import { randomWithinRange } from "../../../utility/numericalMisc";
 import { inspect } from "util";
 import ListField from "../GameObjectFieldHelpers/ListField";
 import Emojis from "../../../beastiary/Emojis";
+import { Player } from "./Player";
 
 interface ExperienceGainReceipt {
     xpGiven: number,
@@ -47,19 +47,28 @@ export class Animal extends GameObject {
     }
 
     public static newDocument(species: Species, card: SpeciesCard, guildId: string, owner?: Player): Document {
-        if (owner && owner.guildId !== guildId) {
-            throw new Error(stripIndent`
-                An owner player whose guild id doesn't match the supplied guild id was found while creating a new animal document.
+        let userId: string | undefined;
+        if (owner) {
+            if (owner.guildId !== guildId) {
+                throw new Error(stripIndent`
+                    An owner player whose guild id doesn't match the supplied guild id was found while creating a new animal document.
+    
+                    Guild id: ${guildId}
+                    Owner: ${inspect(owner)}
+                `);
+            }
 
-                Guild id: ${guildId}
-                Owner: ${inspect(owner)}
-            `);
+            if (!owner.member) {
+                throw new Error("A new animal's owner has no guild member.");
+            }
+
+            userId = owner.member.user.id;
         }
         
         return new AnimalModel({
             [Animal.fieldNames.speciesId]: species.id,
             [Animal.fieldNames.cardId]: card._id,
-            [Animal.fieldNames.userId]: owner ? owner.member.user.id : undefined,
+            [Animal.fieldNames.userId]: userId,
             [Animal.fieldNames.guildId]: guildId,
             [Animal.fieldNames.ownerId]: owner? owner.id : undefined,
             [Animal.fieldNames.experience]: 0,
@@ -257,6 +266,10 @@ export class Animal extends GameObject {
     }
 
     public playerIsOwner(player: Player): boolean {
+        if (!player.member) {
+            return false;
+        }
+
         return this.userId === player.member.user.id && this.guildId === player.member.guild.id;
     }
 
@@ -283,7 +296,7 @@ export class Animal extends GameObject {
         const dropSuccess = this.performDropChance(chance);
 
         if (dropSuccess) {
-            let dropString = `Oh? ${this.owner.member.user}, ${this.displayName} dropped something!\n\n`;
+            let dropString = `Oh? ${this.owner.pingString}, ${this.displayName} dropped something!\n\n`;
 
             if (!this.ownerHasToken) {
                 this.giveOwnerToken();
@@ -351,7 +364,7 @@ export class Animal extends GameObject {
             this.owner.extraCapturesLeft += xpReceipt.captures;
 
             let rewardString = stripIndent`
-                Congratulations ${this.owner.member.user}, ${this.displayName} grew to level ${this.level}!
+                Congratulations ${this.owner.pingString}, ${this.displayName} grew to level ${this.level}!
                 +**${xpReceipt.essence}**${Emojis.essence} (${this.species.commonNames[0]})
                 +**${xpReceipt.encounters}** encounter${xpReceipt.encounters !== 1 ? "s" : ""}
             `;
@@ -406,6 +419,15 @@ export class Animal extends GameObject {
                 An invalid player id was given to an animal when attempting to change its owner.
 
                 New owner id: ${newOwnerId}
+                Animal: ${this.debugString}
+            `);
+        }
+
+        if (!newOwner.member) {
+            throw new Error(stripIndent`
+                An animal was attempted to be transferred to a player with no member.
+
+                Player: ${newOwner.debugString}
                 Animal: ${this.debugString}
             `);
         }

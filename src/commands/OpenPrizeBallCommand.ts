@@ -43,7 +43,7 @@ class OpenPrizeBallCommand extends GuildCommand {
 
         player.prizeBalls--;
 
-        let prizeString = `${player.member.user} opened a **prize ball** and got...`;
+        let prizeString = `${player.pingString} opened a **prize ball** and got...`;
 
         if (encounters) {
             prizeString += `\n+**${encounters}** encounters`;

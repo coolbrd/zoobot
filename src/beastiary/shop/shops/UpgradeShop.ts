@@ -23,7 +23,7 @@ export default class UpgradeShop extends Shop {
         const embed = new SmartEmbed();
         
         embed.setColor(0x5DB583);
-        embed.setAuthor(`${player.member.user.username}'s upgrades`, player.member.user.avatarURL() || undefined);
+        embed.setAuthor(`${player.username}'s upgrades`, player.avatarURL);
         embed.setDescription(`Balance: **${player.pep}**${Emojis.pep}\n---`);
         
         for (let i = 0; i < this.items.length; i++) {

@@ -33,11 +33,11 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         const embed = await super.buildEmbed();
 
         const collection = this.elements;
-        const userAvatar = this.player.member.user.avatarURL() || undefined;
+        const userAvatar = this.player.avatarURL;
 
         let headerString: string;
         if (!this.tag) {
-            headerString = `${this.player.member.user.username}'s collection`;
+            headerString = `${this.player.username}'s collection`;
         }
         else {
             headerString = `Animals with "${this.tag}" tag`;

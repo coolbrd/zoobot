@@ -62,7 +62,7 @@ export default class ServerLeaderBoardMessage extends PagedMessage {
     constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, players: Player[]) {
         super(channel, beastiaryClient);
 
-        this.players = players.filter(player => player.potentialMember);
+        this.players = players.filter(player => player.member);
     }
 
     protected get pageCount(): number {
@@ -94,7 +94,7 @@ export default class ServerLeaderBoardMessage extends PagedMessage {
                 currentPlace++;
             }
 
-            leaderboardString += `\`${currentPlace})\` ${player.member.user.tag}: **${ranking.display(player)}**\n`;
+            leaderboardString += `\`${currentPlace})\` ${player.tag}: **${ranking.display(player)}**\n`;
 
             lastValue = value;
         }
