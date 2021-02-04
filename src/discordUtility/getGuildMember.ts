@@ -16,7 +16,7 @@ export default async function getGuildMember(userId: string, guildId: string, be
         return undefined;
     }
 
-    let guild: Guild | undefined;
+    let guild: Guild;
     try {
         guild = await beastiaryClient.discordClient.guilds.fetch(guildId);
     }
@@ -27,10 +27,6 @@ export default async function getGuildMember(userId: string, guildId: string, be
             ${error}
         `);
         return undefined;
-    }
-
-    if (!guild) {
-        return;
     }
 
     let member: GuildMember | undefined;
