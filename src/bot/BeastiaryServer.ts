@@ -40,9 +40,11 @@ export class BeastiaryServer extends EventEmitter {
             });
 
             tunnel.on("error", () => {
-                console.log("Reconnecting to localtunnel...");
+                console.error("Localtunnel error!");
 
                 setTimeout(() => {
+                    console.error("Reconnecting to localtunnel...");
+                    
                     tunnel.close();
 
                     this.startLocalTunnel();
