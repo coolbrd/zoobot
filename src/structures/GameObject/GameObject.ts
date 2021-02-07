@@ -165,15 +165,6 @@ export default abstract class GameObject {
         return reference.gameObject as unknown as GameObjectType;
     }
 
-    public deleteReference(referenceName: string): void {
-        this.ensureValidReferenceFieldName(referenceName);
-
-        const reference = this.references[referenceName];
-
-        reference.gameObject = undefined;
-        reference.id = undefined;
-    }
-
     public async updateAllFields(): Promise<void> {
         const allFieldUpdates: Promise<void>[] = [];
 

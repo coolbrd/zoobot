@@ -389,15 +389,6 @@ export class Animal extends GameObject {
         this.tags.clear();
     }
 
-    public async disown(): Promise<void> {
-        this.ownerId = undefined;
-        this.userId = undefined;
-
-        this.clearTags();
-
-        this.deleteReference(this.referenceNames.owner);
-    }
-
     public async changeOwner(newOwnerId: Types.ObjectId): Promise<void> {
         let newOwner: Player | undefined;
         try {
