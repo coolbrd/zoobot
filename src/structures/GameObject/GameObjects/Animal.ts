@@ -70,7 +70,7 @@ export class Animal extends GameObject {
             [Animal.fieldNames.cardId]: card._id,
             [Animal.fieldNames.userId]: userId,
             [Animal.fieldNames.guildId]: guildId,
-            [Animal.fieldNames.ownerId]: owner? owner.id : undefined,
+            [Animal.fieldNames.ownerId]: owner ? owner.id : undefined,
             [Animal.fieldNames.experience]: 0,
             [Animal.fieldNames.away]: false,
             [Animal.fieldNames.returns]: 0,
@@ -92,7 +92,7 @@ export class Animal extends GameObject {
                 cache: beastiaryClient.beastiary.players,
                 id: this.ownerId
             }
-        }
+        };
 
         this.tags = new ListField(this, Animal.fieldNames.tags, this.document.get(Animal.fieldNames.tags));
     }
