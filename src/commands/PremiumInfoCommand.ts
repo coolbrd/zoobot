@@ -34,7 +34,8 @@ class PremiumInfoCommand extends Command {
         embed.addField("Xp boost reset rate: **x2**", "Twice the xp boosts, from 1 every hour to **1 every 30 minutes**. Boost your animals to the max!", true);
         embed.addField("Crew size: **x2**", "Double the space in your crew, allowing more of your animals to passively gain xp!", true);
         embed.addField("Crew animals gain xp for __every__ message you send", "Want a reward for being extra active in your server? This is it.", true);
-        embed.addField("Wishlist size: **x3**", "Three times as many slots for those species that you just gotta have.");
+        embed.addField("Wishlist size: **x3**", "Three times as many slots for those species that you just gotta have.", true);
+        embed.addField("More prize balls", "The daily pep command gets an upgrade, and gives you a random number of prize balls too!", true);
         embed.addField("*Support the creator!*", "Hey, this all takes a lot of effort to make, not to mention the fees for keeping it up! If you help me out in this way, I'd really appreciate it. :)");
 
         embed.setFooter("Pretty please?");

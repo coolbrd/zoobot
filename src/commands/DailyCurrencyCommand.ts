@@ -25,6 +25,14 @@ class DailyCurrencyCommand extends GuildCommand {
         return dailyAmount;
     }
 
+    private getRandomPrizeBallAmount(): number {
+        const x = Math.random() * 100;
+
+        const amount = Math.max(10, Math.floor((25 / (x + 1)) - (x / 18) + 15));
+
+        return amount;
+    }
+
     public async run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         const commandReceipt = this.newReceipt();
         
@@ -48,7 +56,17 @@ class DailyCurrencyCommand extends GuildCommand {
 
         player.pep += dailyAmount;
 
-        betterSend(parsedMessage.channel, `Success, you got **${dailyAmount}**${Emojis.pep}!`);
+        let rewardString = `Success, you got **${dailyAmount}**${Emojis.pep}!`;
+
+        if (player.premium) {
+            const prizeBallAmount = this.getRandomPrizeBallAmount();
+
+            player.prizeBalls += prizeBallAmount;
+
+            rewardString += `\nAnd, +**${prizeBallAmount}** prize balls! *(Premium bonus)*`;
+        }
+
+        betterSend(parsedMessage.channel, rewardString);
         return commandReceipt;
     }
 }
