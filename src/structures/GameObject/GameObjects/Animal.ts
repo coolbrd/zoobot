@@ -347,11 +347,7 @@ export class Animal extends GameObject {
         const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
         if (!this.owner) {
-            throw new Error(stripIndent`
-                An animal with no owner was given experience.
-
-                Animal: ${this.debugString}
-            `);
+            return xpReceipt;
         }
 
         if (xpReceipt.levelUp) {
