@@ -6,7 +6,6 @@ import { BeastiaryServer } from "./BeastiaryServer";
 import DatabaseIntegrityChecker from "../structures/DatabaseIntegrityChecker";
 import InfinityBotList from "../beastiary/BotLists/Lists/InfinityBotList";
 import DiscordBotList from "../beastiary/BotLists/Lists/DiscordBotList";
-import VultrexBotList from "../beastiary/BotLists/Lists/VultrexBotList";
 import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
 import BList from "../beastiary/BotLists/Lists/BList";
 import TopGGList from "../beastiary/BotLists/Lists/TopGGList";
@@ -118,9 +117,6 @@ export default class MasterBeastiaryProcess {
 
         const discordBotList = new DiscordBotList();
         discordBotList.init(this);
-
-        const vultrexBotList = new VultrexBotList();
-        vultrexBotList.init(this);
 
         const discordBoatsList = new DiscordBoatsList();
         discordBoatsList.init(this);
