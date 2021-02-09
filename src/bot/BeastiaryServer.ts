@@ -39,8 +39,12 @@ export class BeastiaryServer extends EventEmitter {
                 resolve();
             });
 
-            tunnel.on("error", () => {
-                console.error("Localtunnel error!");
+            tunnel.on("error", error => {
+                console.error(stripIndent`
+                    Localtunnel error
+
+                    ${error}
+                `);
 
                 setTimeout(() => {
                     console.error("Reconnecting to localtunnel...");
@@ -48,7 +52,7 @@ export class BeastiaryServer extends EventEmitter {
                     tunnel.close();
 
                     this.startLocalTunnel();
-                }, 30 * 1000);
+                }, 10 * 1000);
             });
         });
     }
