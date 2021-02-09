@@ -192,7 +192,7 @@ export default abstract class GameObjectCache<GameObjectType extends GameObject>
         }
         catch (error) {
             throw new Error(stripIndent`
-                There was an error adding a game to a cache by its document.
+                There was an error adding a game object to a cache by its document.
 
                 Document: ${gameObjectDocument.toString()}
 
