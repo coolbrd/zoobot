@@ -435,7 +435,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
         for (const player of players) {
             player.prizeBalls += count;
             if (player.member) {
-                console.log(`Gave ${player.member.user.tag} in '${player.member.guild.name} ${count}' prize balls.`);
+                console.log(`Gave ${player.member.user.tag} in '${player.member.guild.name}' ${count} prize balls.`);
             }
             else {
                 console.log(`Gave a player with an unknown member ${count} prize balls.`);
