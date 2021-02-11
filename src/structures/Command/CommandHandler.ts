@@ -68,6 +68,7 @@ import TagsCommand from "../../commands/Tag/TagsCommand";
 import SortCollectionCommand from "../../commands/SortCollectionCommand";
 import WishlistCommand from "../../commands/Wishlist/WishlistCommand";
 import LeaderboardCommand from "../../commands/LeaderboardCommand";
+import FakeVoteCommand from "../../commands/FakeVoteCommand";
 
 export default class CommandHandler {
     public readonly baseCommands = [
@@ -126,6 +127,7 @@ export default class CommandHandler {
         AnnounceInGuildCommand,
         PrivacyCommand,
         ModifyPlayerCommand,
+        FakeVoteCommand,
         ExitCommand
     ];
     private readonly usersLoadingCommands = new Set<string>();
