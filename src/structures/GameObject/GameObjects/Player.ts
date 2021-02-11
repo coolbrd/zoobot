@@ -101,7 +101,6 @@ export class Player extends GameObject {
     }
 
     public member: GuildMember | undefined;
-    private _animals: Animal[] | undefined;
 
     public readonly collectionAnimalIds: ListField<Types.ObjectId>;
     public readonly crewAnimalIds: ListField<Types.ObjectId>;
@@ -206,25 +205,6 @@ export class Player extends GameObject {
         else {
             return "unknown server";
         }
-    }
-
-    public get animals(): Animal[] {
-        if (this._animals === undefined) {
-            throw new Error(stripIndent`
-                A player object's animals field was attempted to be accessed before it was loaded.
-
-                Player: ${this.debugString}
-            `);
-        }
-
-        this._animals.sort((animal1, animal2) => {
-            const animal1Pos = this.collectionAnimalIds.list.findIndex(id => animal1.id.equals(id));
-            const animal2Pos = this.collectionAnimalIds.list.findIndex(id => animal2.id.equals(id));
-
-            return animal1Pos - animal2Pos;
-        });
-
-        return this._animals;
     }
 
     public get playerGuild(): PlayerGuild {
@@ -467,14 +447,6 @@ export class Player extends GameObject {
         return recordedRatio;
     }
 
-    public get totalCollectionValue(): number {
-        let total = 0;
-
-        this.animals.forEach(animal => total += animal.value);
-
-        return total;
-    }
-
     public get hasDailyPepReset(): boolean {
         const now = new Date();
 
@@ -485,10 +457,6 @@ export class Player extends GameObject {
 
     public get premium(): boolean {
         return this.playerPremium || this.playerGuild.premium;
-    }
-
-    public get crewAnimals(): Animal[] {
-        return this.animals.filter(animal => this.crewAnimalIds.list.some(id => id.equals(animal.id)));
     }
 
     public get maxWishlistSize(): number {
@@ -524,11 +492,54 @@ export class Player extends GameObject {
         return medalString;
     }
 
-    public getAnimalsByTag(tag?: string): Animal[] {
+    public async getAnimals(): Promise<Animal[]> {
+        const animalLoadPromises: Promise<Animal>[] = [];
+
+        this.collectionAnimalIds.list.forEach(animalId => {
+            const animalPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
+                if (!animal) {
+                    this.collectionAnimalIds.remove(animalId);
+
+                    throw new Error(stripIndent`
+                        An invalid animal id was found in a player's collection. Fixing.
+
+                        Player: ${this.debugString}
+                        Animal id: ${animalId}
+                    `);
+                }
+
+                return animal;
+            });
+
+            animalLoadPromises.push(animalPromise);
+        });
+
+        return await Promise.all(animalLoadPromises);
+    }
+
+    public async getCrewAnimals(): Promise<Animal[]> {
+        const animals = await this.getAnimals();
+
+        return animals.filter(animal => this.crewAnimalIds.list.some(id => id.equals(animal.id)));
+    }
+
+    public async getTotalCollectionValue(): Promise<number> {
+        const animals = await this.getAnimals();
+
+        let total = 0;
+
+        animals.forEach(animal => total += animal.value);
+
+        return total;
+    }
+
+    public async getAnimalsByTag(tag?: string): Promise<Animal[]> {
+        const animals = await this.getAnimals();
+
         if (!tag) {
-            return this.animals;
+            return animals;
         }
-        return this.animals.filter(animal => animal.tags.list.includes(tag));
+        return animals.filter(animal => animal.tags.list.includes(tag));
     }
 
     private applyPremiumModifier(baseValue: number, premiumModifier: number): number {
@@ -542,8 +553,10 @@ export class Player extends GameObject {
         return this.tokenSpeciesIds.list.includes(speciesId);
     }
 
-    public hasSpecies(speciesId: Types.ObjectId): boolean {
-        const animalOfSpecies = this.animals.find(animal => animal.species.id.equals(speciesId));
+    public async hasSpecies(speciesId: Types.ObjectId): Promise<boolean> {
+        const animals = await this.getAnimals();
+
+        const animalOfSpecies = animals.find(animal => animal.species.id.equals(speciesId));
         return Boolean(animalOfSpecies);
     }
 
@@ -575,7 +588,6 @@ export class Player extends GameObject {
     }
 
     public addAnimalToCollection(animal: Animal): void {
-        this.animals.push(animal);
         this.collectionAnimalIds.push(animal.id);
     }
 
@@ -593,18 +605,6 @@ export class Player extends GameObject {
     }
 
     public removeAnimalFromCollection(animal: Animal): void {
-        const animalIndexInList = this.animals.findIndex(currentAnimal => currentAnimal.id.equals(animal.id));
-        if (animalIndexInList !== -1) {
-            this.animals.splice(animalIndexInList, 1);
-        }
-        else {
-            console.error(stripIndent`
-                An animal being removed from a player's collection didn't exist in that player's animal instances list.
-
-                Id: ${animal.id}
-            `);
-        }
-
         this.collectionAnimalIds.removeWhere(currentId => currentId.equals(animal.id));
         this.crewAnimalIds.removeWhere(currentId => currentId.equals(animal.id));
 
@@ -1027,31 +1027,6 @@ export class Player extends GameObject {
         }
     }
 
-    private async loadAnimals(): Promise<void> {
-        const animalLoadPromises: Promise<Animal>[] = [];
-
-        this.collectionAnimalIds.list.forEach(animalId => {
-            const animalPromise = this.beastiaryClient.beastiary.animals.fetchById(animalId).then(animal => {
-                if (!animal) {
-                    this.collectionAnimalIds.remove(animalId);
-
-                    throw new Error(stripIndent`
-                        An invalid animal id was found in a player's collection. Fixing.
-
-                        Player: ${this.debugString}
-                        Animal id: ${animalId}
-                    `);
-                }
-
-                return animal;
-            });
-
-            animalLoadPromises.push(animalPromise);
-        });
-
-        this._animals = await Promise.all(animalLoadPromises);
-    }
-
     public async applyPotentialPremium(): Promise<void> {
         let hasPremium: boolean;
         try {
@@ -1079,18 +1054,9 @@ export class Player extends GameObject {
 
         returnPromises.push(super.loadFields());
         returnPromises.push(this.loadGuildMember());
-        returnPromises.push(this.loadAnimals());
 
         await Promise.all(returnPromises);
 
         await this.applyPotentialPremium();
-    }
-
-    public get debugString(): string {
-        let debugSting = super.debugString;
-
-        debugSting += `\nAnimals list length: ${this.animals.length}`;
-
-        return debugSting;
     }
 }

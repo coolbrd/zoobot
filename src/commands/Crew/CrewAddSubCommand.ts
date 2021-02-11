@@ -26,7 +26,7 @@ class CrewAddSubCommand extends GuildCommand {
 
         const animalIdentifier = parsedMessage.restOfText;
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname/number exists in your collection.");

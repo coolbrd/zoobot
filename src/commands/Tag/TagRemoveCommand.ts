@@ -41,7 +41,7 @@ class TagRemoveCommand extends GuildCommand {
 
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the name/number "${animalIdentifier}" could be found in your collection.`);

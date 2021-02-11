@@ -18,12 +18,14 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Animal
 
     protected state: AnimalDisplayMessageState;
 
-    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animals: Animal[]) {
+    private animalsOrAnimalsPromise: Animal[] | Promise<Animal[]>;
+
+    constructor(channel: TextChannel, beastiaryClient: BeastiaryClient, animals: Animal[] | Promise<Animal[]>) {
         super(channel, beastiaryClient);
 
         this.state = AnimalDisplayMessageState.page;
 
-        this.elements = new PointedArray(animals);
+        this.animalsOrAnimalsPromise = animals;
     }
 
     protected formatElement(animal: Animal): string {
@@ -60,6 +62,20 @@ export default abstract class AnimalDisplayMessage extends PointedMessage<Animal
     }
 
     public async build(): Promise<void> {
+        let animals: Animal[];
+        try {
+            animals = await this.animalsOrAnimalsPromise;
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error loading a player's crew animals in a crew display message.
+
+                ${error}
+            `);
+        }
+
+        this.elements = new PointedArray(animals);
+
         if (this.elements.length > 0) {
             this.addButton({
                 emoji: "Ⓜ️",

@@ -28,11 +28,6 @@ export default class ServerLeaderBoardMessage extends PagedMessage {
             display: player => player.beastiaryCompletionMedal + " " + player.beastiaryPercentComplete.toFixed(1) + "%"
         },
         {
-            name: "collection value",
-            value: player => player.totalCollectionValue,
-            display: player => String(player.totalCollectionValue) + Emojis.pep
-        },
-        {
             name: "tokens collected",
             value: player => player.tokenSpeciesIds.list.length,
             display: player => String(player.tokenSpeciesIds.list.length) + " " + Emojis.token

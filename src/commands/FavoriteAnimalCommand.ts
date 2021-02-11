@@ -25,7 +25,7 @@ class FavoriteAnimalCommand extends GuildCommand {
 
         const searchTerm = parsedMessage.restOfText.toLowerCase();
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the nickname/number \`${searchTerm}\` exists in your collection.`);

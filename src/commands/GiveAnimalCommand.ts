@@ -29,7 +29,7 @@ class GiveAnimalCommand extends GuildCommand {
 
         const animalIdentifier = parsedMessage.consumeArgument().text;
 
-        const givenAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, givingPlayer);
+        const givenAnimal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, givingPlayer);
 
         if (!givenAnimal) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${animalIdentifier}' could be found.`);

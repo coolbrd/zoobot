@@ -89,9 +89,21 @@ export default class PlayerProfileMessage extends InteractiveMessage {
             highestEssenceSpeciesString = "*None*";
         }
 
+        let totalValue: number;
+        try {
+            totalValue = await this.player.getTotalCollectionValue();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a player's total collection value.
+
+                ${error}
+            `);
+        }
+
         descriptionString += stripIndent`
             **${this.player.pep}**${Emojis.pep}
-            Total collection value: **${this.player.totalCollectionValue}**${Emojis.pep}
+            Total collection value: **${totalValue}**${Emojis.pep}
             
             Collection size: **${this.player.collectionAnimalIds.list.length}**
             Tokens collected: **${this.player.tokenSpeciesIds.list.length}** ${Emojis.token}

@@ -25,7 +25,7 @@ class CrewRemoveSubCommand extends GuildCommand {
 
         const searchTerm = parsedMessage.restOfText;
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(searchTerm, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that nickname or number exists in your crew.");

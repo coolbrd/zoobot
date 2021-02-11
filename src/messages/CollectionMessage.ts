@@ -66,9 +66,21 @@ export default class CollectionMessage extends AnimalDisplayMessage {
             return embed;
         }
 
+        let totalValue: number;
+        try {
+            totalValue = await this.player.getTotalCollectionValue();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error getting a player's total collection value.
+
+                ${error}
+            `);
+        }
+
         if (this.state === AnimalDisplayMessageState.page) {
             if (!this.tag) {
-                embed.setDescription(`Total value: **${this.player.totalCollectionValue}**${Emojis.pep}`);
+                embed.setDescription(`Total value: **${totalValue}**${Emojis.pep}`);
             }
         }
         else {

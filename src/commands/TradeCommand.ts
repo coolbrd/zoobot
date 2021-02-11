@@ -31,7 +31,7 @@ class TradeCommand extends GuildCommand {
 
         const initiatingAnimalIdentifier = parsedMessage.consumeArgument().text;
 
-        const initiatingAnimal = beastiaryClient.beastiary.animals.searchPlayerAnimal(initiatingAnimalIdentifier, initiatingPlayer);
+        const initiatingAnimal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(initiatingAnimalIdentifier, initiatingPlayer);
 
         if (!initiatingAnimal) {
             betterSend(parsedMessage.channel, `No animal you own with the identifier '${initiatingAnimalIdentifier}' could be found.`);
@@ -101,7 +101,7 @@ class TradeCommand extends GuildCommand {
         }
 
         if (offer === undefined) {
-            offer = beastiaryClient.beastiary.animals.searchPlayerAnimal(response, targetPlayer);
+            offer = await beastiaryClient.beastiary.animals.searchPlayerAnimal(response, targetPlayer);
         }
 
         if (!offer) {

@@ -33,7 +33,7 @@ class ReleaseAnimalCommand extends GuildCommand {
 
         const animalIdentifier = parsedMessage.restOfText.toLowerCase();
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal with the nickname or number "${animalIdentifier}" exists in your collection.`);

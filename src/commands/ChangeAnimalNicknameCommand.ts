@@ -38,7 +38,7 @@ class ChangeAnimalNicknameCommand extends GuildCommand {
 
         const animalIdentifier = parsedMessage.consumeArgument().text;
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
 
         if (!animal) {
             betterSend(parsedMessage.channel, `No animal by the name/number '${animalIdentifier}' exists in your collection. Make sure to put multi-word animal names in quotes!`);

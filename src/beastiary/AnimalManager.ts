@@ -37,10 +37,22 @@ export default class AnimalManager extends GameObjectCache<Animal> {
         return animal;
     }
 
-    public searchPlayerAnimal(searchTerm: string, player: Player): Animal | undefined {
+    public async searchPlayerAnimal(searchTerm: string, player: Player): Promise<Animal | undefined> {
         searchTerm = searchTerm.toLowerCase();
 
-        const matchedAnimal = player.animals.find(animal => {
+        let animals: Animal[];
+        try {
+            animals = await player.getAnimals();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player's animals in the sort collection command.
+
+                ${error}
+            `);
+        }
+
+        const matchedAnimal = animals.find(animal => {
             const nicknameMatch = animal.nickname && animal.nickname.toLowerCase() === searchTerm;
             const commonNameMatch = animal.species.commonNamesLower.includes(searchTerm);
 
@@ -66,7 +78,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
                 return undefined;
             }
 
-            const targetAnimal = player.animals.find(animal => animal.id.equals(targetAnimalId));
+            const targetAnimal = animals.find(animal => animal.id.equals(targetAnimalId));
 
             if (!targetAnimal) {
                 throw new Error(stripIndent`

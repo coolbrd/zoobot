@@ -54,9 +54,21 @@ class SortCollectionCommand extends GuildCommand {
 
         const player = await beastiaryClient.beastiary.players.safeFetch(parsedMessage.member);
 
+        let animals: Animal[];
+        try {
+            animals = await player.getAnimals();
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error fetching a player's animals in the sort collection command.
+
+                ${error}
+            `);
+        }
+
         player.collectionAnimalIds.list.sort((id1, id2) => {
-            const animal1 = player.animals.find(animal => animal.id.equals(id1));
-            const animal2 = player.animals.find(animal => animal.id.equals(id2));
+            const animal1 = animals.find(animal => animal.id.equals(id1));
+            const animal2 = animals.find(animal => animal.id.equals(id2));
 
             if (!animal1 || !animal2) {
                 throw new Error(stripIndent`

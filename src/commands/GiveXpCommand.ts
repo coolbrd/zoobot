@@ -49,7 +49,7 @@ class GiveXpCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        const animal = beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
+        const animal = await beastiaryClient.beastiary.animals.searchPlayerAnimal(animalIdentifier, player);
         
         if (!animal) {
             betterSend(parsedMessage.channel, "No animal with that name/identifier could be found in your collection.");
