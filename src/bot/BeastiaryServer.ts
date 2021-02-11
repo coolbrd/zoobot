@@ -2,7 +2,7 @@ import { stripIndent } from "common-tags";
 import { EventEmitter } from "events";
 import express from "express";
 import localtunnel from "localtunnel";
-import { WEBSERVER_PORT } from "../config/secrets";
+import { IS_TEST_BRANCH, WEBSERVER_PORT } from "../config/secrets";
 
 export class BeastiaryServer extends EventEmitter {
     public readonly app = express();
@@ -61,7 +61,10 @@ export class BeastiaryServer extends EventEmitter {
         const returnPromises: Promise<void>[] = [];
         
         returnPromises.push(this.startWebServer());
-        returnPromises.push(this.startLocalTunnel());
+
+        if (!IS_TEST_BRANCH) {
+            returnPromises.push(this.startLocalTunnel());
+        }
 
         try {
             await Promise.all(returnPromises);

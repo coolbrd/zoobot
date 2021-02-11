@@ -80,17 +80,22 @@ export default class MasterBeastiaryProcess {
             throw new Error("Couldn't connect to MongoDB.");
         }
 
-        console.log("Beginning database integrity check");
-        const integrityChecker = new DatabaseIntegrityChecker();
-        try {
-            await integrityChecker.run()
-        }
-        catch (error) {
-            throw new Error(stripIndent`
-                There was an error running the database integrity check.
+        if (!IS_TEST_BRANCH) {
+            console.log("Beginning database integrity check");
+            const integrityChecker = new DatabaseIntegrityChecker();
+            try {
+                await integrityChecker.run()
+            }
+            catch (error) {
+                throw new Error(stripIndent`
+                    There was an error running the database integrity check.
 
-                ${error}
-            `);
+                    ${error}
+                `);
+            }
+        }
+        else {
+            console.log("Skipping database integrity check...");
         }
 
         this._server = new BeastiaryServer();
