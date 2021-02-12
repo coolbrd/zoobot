@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import { Types } from "mongoose";
-import GameObject from "../../GameObject";
 import { inspect } from "util";
+import GameObject from "../../GameObject";
 
 export default abstract class LoadableGameObject<GameObjectType extends GameObject> {
     public readonly id: Types.ObjectId;
@@ -54,7 +54,15 @@ export async function bulkLoad(loadableGameObjects: LoadableGameObject<GameObjec
     const loadPromises: Promise<void>[] = [];
 
     loadableGameObjects.forEach(loadableGameObject => {
-        const loadPromise = loadableGameObject.load();
+        const loadPromise = loadableGameObject.load().catch(error => {
+            throw new Error(stripIndent`
+                There was an error loading a loadable game object.
+
+                Game object: ${inspect(loadableGameObject)}
+
+                ${error}
+            `);
+        });
 
         loadPromises.push(loadPromise);
     });
