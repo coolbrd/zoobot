@@ -5,7 +5,6 @@ import BeastiaryClient from "../bot/BeastiaryClient";
 import { Player } from "../structures/GameObject/GameObjects/Player";
 import LoadableGameObjectDisplayMessage from "./LoadableGameObjectDisplayMessage";
 import LoadableGameObject from "../structures/GameObject/GameObjects/LoadableGameObject/LoadableGameObject";
-import Emojis from "../beastiary/Emojis";
 
 export default class BeastiaryMessage extends LoadableGameObjectDisplayMessage<Species> {
     protected readonly lifetime = 60000;

@@ -174,10 +174,7 @@ export class Species extends GameObject {
             displayName += Emojis.token;
         }
 
-        let speciesName = capitalizeFirstLetter(this.commonNames[0]);
-        if (player.hasSpecies(this.id)) {
-            speciesName = `**${speciesName}**`;
-        }
+        const speciesName = capitalizeFirstLetter(this.commonNames[0]);
 
         displayName += ` ${speciesName}`;
 
