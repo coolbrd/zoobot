@@ -50,27 +50,23 @@ export default abstract class LoadableGameObject<GameObjectType extends GameObje
     public abstract loadGameObject(): Promise<GameObjectType | undefined>;
 }
 
-export function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-        let completed = 0;
-        if (loadableGameObjects.length === 0) {
-            resolve();
-        }
-        loadableGameObjects.forEach(currentLoadableGameObject => {
-            currentLoadableGameObject.load().then(() => {
-                completed += 1;
-                if (completed >= loadableGameObjects.length) {
-                    resolve();
-                }
-            }).catch(error => {
-                reject(stripIndent`
-                    There was an error loading a game object from a loadable game object.
+export async function bulkLoad(loadableGameObjects: LoadableGameObject<GameObject>[]): Promise<void> {
+    const loadPromises: Promise<void>[] = [];
 
-                    LoadableGameObject: ${inspect(currentLoadableGameObject)}
+    loadableGameObjects.forEach(loadableGameObject => {
+        const loadPromise = loadableGameObject.load();
 
-                    ${error}
-                `);
-            });
-        });
+        loadPromises.push(loadPromise);
     });
+    
+    try {
+        await Promise.all(loadPromises);
+    }
+    catch (error) {
+        throw new Error(stripIndent`
+            There was an error loading at least one loadable game object's game object.
+
+            ${error}
+        `);
+    }
 }
