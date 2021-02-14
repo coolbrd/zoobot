@@ -68,7 +68,7 @@ export const speciesSchemaDefinition: BeastiarySchemaDefinition = {
         type: String,
         required: true
     }
-};
+} as BeastiarySchemaDefinition;
 
 const speciesSchema = new Schema(speciesSchemaDefinition);
 
