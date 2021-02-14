@@ -10,6 +10,7 @@ import DiscordBoatsList from "../beastiary/BotLists/Lists/DiscordBoatsList";
 import BList from "../beastiary/BotLists/Lists/BList";
 import TopGGList from "../beastiary/BotLists/Lists/TopGGList";
 import DiscordBotsGGList from "../beastiary/BotLists/Lists/DiscordBotsGGList";
+import BotsForDiscordList from "../beastiary/BotLists/Lists/BotsForDiscordList";
 
 export default class MasterBeastiaryProcess {
     private _server: BeastiaryServer | undefined;
@@ -129,6 +130,9 @@ export default class MasterBeastiaryProcess {
 
         const discordBotsGGlist = new DiscordBotsGGList();
         discordBotsGGlist.init(this);
+
+        const botsForDiscordList = new BotsForDiscordList();
+        botsForDiscordList.init(this);
     }
 
     public async getGuildCount(): Promise<number> {

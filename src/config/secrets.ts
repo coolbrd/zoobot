@@ -21,7 +21,8 @@ export const ARCANE_TOKEN = process.env.arcaneToken as string;
 export const BLIST_TOKEN = process.env.BListToken as string;
 export const TOP_GG_TOKEN = process.env.topGGtoken as string;
 export const DISCORD_BOTS_GG_TOKEN = process.env.discordBotsGGtoken as string;
+export const BOTS_FOR_DISCORD_TOKEN = process.env.botsForDiscordToken as string;
 
-if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !NGROK_AUTH || !MAIN_CLIENT_ID || !DBL_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN) {
+if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !NGROK_AUTH || !MAIN_CLIENT_ID || !DBL_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN || !BOTS_FOR_DISCORD_TOKEN) {
     throw new Error("One or more environment variables failed to load.");
 }
