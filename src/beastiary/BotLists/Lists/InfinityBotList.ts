@@ -2,7 +2,7 @@ import { CUSTOM_WEBHOOK_SECRET, IBL_TOKEN } from "../../../config/secrets";
 import BotList from "../BotList";
 
 export default class InfinityBotList extends BotList {
-    protected readonly APIpath = "https://infinitybotlist.com/api/bots/:id";
+    protected readonly APIpath = "https://api.infinitybotlist.com/bot/:id";
     protected readonly APItoken = IBL_TOKEN;
     protected readonly guildCountPropertyName = "servers";
     protected readonly shardCountPropertyName = "shards";
