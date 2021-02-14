@@ -12,10 +12,8 @@ export const DEVELOPER_ID = process.env.developerid as string;
 export const WEBSERVER_PORT = Number(process.env.webserverPort as string);
 export const MAIN_CLIENT_ID = process.env.mainClientId as string;
 export const CUSTOM_WEBHOOK_SECRET = process.env.customWebhookSecret as string;
-export const VULTREX_WEBHOOK_TOKEN = process.env.vultrexWebhookToken as string;
 export const IBL_TOKEN = process.env.IBLtoken as string;
 export const DBL_TOKEN = process.env.DBLtoken as string;
-export const VULTREX_TOKEN = process.env.vultrexToken as string;
 export const DISCORD_BOATS_TOKEN = process.env.discordBoatsToken as string;
 export const DISCORD_BOTS_TOKEN = process.env.discordBotsToken as string;
 export const ARCANE_TOKEN = process.env.arcaneToken as string;
@@ -23,6 +21,6 @@ export const BLIST_TOKEN = process.env.BListToken as string;
 export const TOP_GG_TOKEN = process.env.topGGtoken as string;
 export const DISCORD_BOTS_GG_TOKEN = process.env.discordBotsGGtoken as string;
 
-if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !MAIN_CLIENT_ID || !DBL_TOKEN || !VULTREX_TOKEN || !VULTREX_WEBHOOK_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !ARCANE_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN) {
+if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !MAIN_CLIENT_ID || !DBL_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !ARCANE_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN) {
     throw new Error("One or more environment variables failed to load.");
 }
