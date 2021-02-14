@@ -11,7 +11,6 @@ export const FEEDBACK_CHANNEL_ID = process.env.feedbackchannelid as string;
 export const DEVELOPER_ID = process.env.developerid as string;
 export const WEBSERVER_PORT = Number(process.env.webserverPort as string);
 export const NGROK_AUTH = process.env.ngrokauth as string;
-export const NGROK_PORT = Number(process.env.ngrokport as string);
 export const MAIN_CLIENT_ID = process.env.mainClientId as string;
 export const CUSTOM_WEBHOOK_SECRET = process.env.customWebhookSecret as string;
 export const IBL_TOKEN = process.env.IBLtoken as string;
@@ -23,6 +22,6 @@ export const BLIST_TOKEN = process.env.BListToken as string;
 export const TOP_GG_TOKEN = process.env.topGGtoken as string;
 export const DISCORD_BOTS_GG_TOKEN = process.env.discordBotsGGtoken as string;
 
-if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !NGROK_AUTH || !NGROK_PORT || !MAIN_CLIENT_ID || !DBL_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN) {
+if (!DISCORD_TOKEN || !MONGODB_PATH || !ADMIN_SERVER_ID || !DEVELOPER_ID || !IBL_TOKEN || !CUSTOM_WEBHOOK_SECRET || !WEBSERVER_PORT || !NGROK_AUTH || !MAIN_CLIENT_ID || !DBL_TOKEN || !DISCORD_BOATS_TOKEN || !DISCORD_BOTS_TOKEN || !BLIST_TOKEN || !TOP_GG_TOKEN || !DISCORD_BOTS_GG_TOKEN) {
     throw new Error("One or more environment variables failed to load.");
 }

@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import { EventEmitter } from "events";
 import express from "express";
-import { NGROK_AUTH, NGROK_PORT, WEBSERVER_PORT } from "../config/secrets";
+import { NGROK_AUTH, WEBSERVER_PORT } from "../config/secrets";
 import ngrok from "ngrok";
 
 export class BeastiaryServer extends EventEmitter {
