@@ -142,7 +142,7 @@ export default class AnimalManager extends GameObjectCache<Animal> {
     }
 
     public async searchPlayerOrGuildAnimal(searchTerm: string, player: Player, guildId: string): Promise<Animal | undefined> {
-        const playerAnimal = this.searchPlayerAnimal(searchTerm, player);
+        const playerAnimal = await this.searchPlayerAnimal(searchTerm, player);
 
         if (playerAnimal) {
             return playerAnimal;
