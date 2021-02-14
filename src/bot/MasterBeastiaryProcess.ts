@@ -112,11 +112,6 @@ export default class MasterBeastiaryProcess {
 
         await this.initializeShards();
 
-        if (IS_TEST_BRANCH) {
-            console.log("Skipping bot list initialization...");
-            return;
-        }
-
         const infinityBotList = new InfinityBotList();
         infinityBotList.init(this);
 

@@ -1,8 +1,8 @@
 import { stripIndent } from "common-tags";
 import { EventEmitter } from "events";
 import express from "express";
-import localtunnel from "localtunnel";
-import { IS_TEST_BRANCH, WEBSERVER_PORT } from "../config/secrets";
+import { NGROK_AUTH, NGROK_PORT, WEBSERVER_PORT } from "../config/secrets";
+import ngrok from "ngrok";
 
 export class BeastiaryServer extends EventEmitter {
     public readonly app = express();
@@ -25,36 +25,31 @@ export class BeastiaryServer extends EventEmitter {
         });
     }
 
-    private startLocalTunnel(): Promise<void> {
-        return new Promise<void>(resolve => {
-            const tunnel = localtunnel(this.port, { subdomain: "thebeastiary" }, error => {
-                if (error) {
-                    console.error(stripIndent`
-                        There was an error initializing localtunnel.
-            
-                        ${error}
-                    `);
-                }
+    private async startNgrok(): Promise<void> {
+        try {
+            await ngrok.authtoken(NGROK_AUTH);
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error setting the authorization token for Ngrok.
 
-                resolve();
+                ${error}
+            `);
+        }
+
+        try {
+            await ngrok.connect({
+                addr: this.port,
+                subdomain: "thebeastiary"
             });
+        }
+        catch (error) {
+            throw new Error(stripIndent`
+                There was an error connecting to Ngrok.
 
-            tunnel.on("error", error => {
-                console.error(stripIndent`
-                    Localtunnel error
-
-                    ${error}
-                `);
-
-                setTimeout(() => {
-                    console.error("Reconnecting to localtunnel...");
-                    
-                    tunnel.close();
-
-                    this.startLocalTunnel();
-                }, 10 * 1000);
-            });
-        });
+                ${error}
+            `);
+        }
     }
 
     public async start(): Promise<void> {
@@ -62,9 +57,7 @@ export class BeastiaryServer extends EventEmitter {
         
         returnPromises.push(this.startWebServer());
 
-        if (!IS_TEST_BRANCH) {
-            returnPromises.push(this.startLocalTunnel());
-        }
+        returnPromises.push(this.startNgrok());
 
         try {
             await Promise.all(returnPromises);

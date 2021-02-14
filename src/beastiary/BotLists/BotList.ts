@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import { inspect } from "util";
 import { BeastiaryServer } from "../../bot/BeastiaryServer";
 import MasterBeastiaryProcess from "../../bot/MasterBeastiaryProcess";
+import { IS_TEST_BRANCH } from "../../config/secrets";
 
 interface StatPostBody {
     [statName: string]: number
@@ -152,7 +153,9 @@ export default abstract class BotList {
     }
 
     public init(masterProcess: MasterBeastiaryProcess): void {
-        this.initializeStatsAutoPost(masterProcess);
+        if (!IS_TEST_BRANCH) {
+            this.initializeStatsAutoPost(masterProcess);
+        }
         this.registerWebhook(masterProcess.server);
     }
 }

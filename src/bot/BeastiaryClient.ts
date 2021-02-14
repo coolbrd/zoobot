@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 import { stripIndent } from "common-tags";
-import { Client, Message, ShardClientUtil } from "discord.js";
+import { Client, Message } from "discord.js";
 import Beastiary from "../beastiary/Beastiary";
-import { DBL_TOKEN, DISCORD_TOKEN, IBL_TOKEN, MONGODB_PATH, VULTREX_TOKEN } from "../config/secrets";
+import { DISCORD_TOKEN, MONGODB_PATH } from "../config/secrets";
 import InteractiveMessageHandler from "../interactiveMessage/InteractiveMessageHandler";
 import CommandHandler from "../structures/Command/CommandHandler";
 import { inspect } from "util";
-import fetch from "node-fetch";
 
 export default class BeastiaryClient {
     public readonly discordClient: Client;
