@@ -1,7 +1,7 @@
 import { stripIndent } from "common-tags";
 import { EventEmitter } from "events";
 import express from "express";
-import { NGROK_AUTH, WEBSERVER_PORT } from "../config/secrets";
+import { IS_TEST_BRANCH, NGROK_AUTH, WEBSERVER_PORT } from "../config/secrets";
 import ngrok from "ngrok";
 
 export class BeastiaryServer extends EventEmitter {
@@ -57,7 +57,9 @@ export class BeastiaryServer extends EventEmitter {
         
         returnPromises.push(this.startWebServer());
 
-        returnPromises.push(this.startNgrok());
+        if (!IS_TEST_BRANCH) {
+            returnPromises.push(this.startNgrok());
+        }
 
         try {
             await Promise.all(returnPromises);
