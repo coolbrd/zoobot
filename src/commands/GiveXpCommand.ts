@@ -56,9 +56,9 @@ class GiveXpCommand extends GuildCommand {
             return commandReceipt;
         }
 
-        player.useXpBoost();
-
         const xpReceipt = animal.addExperienceInChannel(gameConfig.xpPerBoost, parsedMessage.channel);
+
+        player.useXpBoost();
 
         let resultString: string;
         if (xpReceipt.xpTaken === xpReceipt.xpGiven) {

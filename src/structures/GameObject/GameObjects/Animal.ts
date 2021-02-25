@@ -324,8 +324,6 @@ export class Animal extends GameObject {
     }
 
     public addExperienceInChannel(experience: number, channel: TextChannel): ExperienceGainReceipt {
-        const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
-
         if (!this.owner) {
             throw new Error(stripIndent`
                 An animal with no owner was given experience.
@@ -333,6 +331,8 @@ export class Animal extends GameObject {
                 Animal: ${this.debugString}
             `);
         }
+
+        const xpReceipt = this.addExperienceAndCheckForLevelUp(experience);
 
         if (xpReceipt.levelUp) {
             xpReceipt.essence = this.levelEssenceReward;
