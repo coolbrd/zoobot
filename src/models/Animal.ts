@@ -35,18 +35,6 @@ export const animalSchemaDefinition: BeastiarySchemaDefinition = {
             nonNegative: true
         }
     },
-    [Animal.fieldNames.away]: {
-        type: Boolean,
-        required: false
-    },
-    [Animal.fieldNames.returns]: {
-        type: Number,
-        required: true,
-        fieldRestrictions: {
-            defaultValue: 0,
-            nonNegative: true
-        }
-    },
     [Animal.fieldNames.tags]: {
         type: [String],
         required: true,
