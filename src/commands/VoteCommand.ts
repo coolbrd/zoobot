@@ -23,7 +23,7 @@ class VoteCommand extends Command {
         embed.setDescription("Whenever you can, vote on any of these websites to earn rewards!");
         embed.addField("---", "**3 prize balls** for voting on these sites:");
         embed.addField("Top.gg", "[Vote](https://top.gg/bot/737387258683850892/vote)", true);
-        embed.addField("Infinity Bot List", "[Vote](https://infinitybotlist.com/bots/737387258683850892/vote)", true);
+        embed.addField("Infinity Bot List", "[Vote](https://infinitybots.xyz/bots/737387258683850892/vote)", true);
         embed.addField("---", "**2 prize balls** for voting on these sites:");
         embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
         embed.addField("Discord Bot List", "[Vote](https://discordbotlist.com/bots/the-beastiary/upvote)", true);
