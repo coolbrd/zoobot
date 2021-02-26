@@ -2,7 +2,7 @@ import { MessageEmbed } from "discord.js";
 import PagedMessage from "./PagedMessage";
 
 export default abstract class PagedListMessage<ElementType> extends PagedMessage {
-    protected readonly abstract elementsPerField: number;
+    protected abstract elementsPerField: number;
     protected abstract fieldsPerPage: number;
 
     protected abstract formatElement(element: ElementType): string;
@@ -58,11 +58,11 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
         }
 
         if (embed.length > 6000) {
-            if (this.fieldsPerPage === 1) {
-                throw new Error("A PagedListMessage's single field was too large to be sent, number of fields could not be reduced.");
+            if (this.elementsPerField === 1) {
+                throw new Error("A PagedListMessage's set of single-element fields were too large to send, number of elements per field could not be reduced.");
             }
 
-            this.fieldsPerPage--;
+            this.elementsPerField--;
 
             embed = await this.buildEmbed();
         }
