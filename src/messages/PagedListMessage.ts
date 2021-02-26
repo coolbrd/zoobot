@@ -3,7 +3,7 @@ import PagedMessage from "./PagedMessage";
 
 export default abstract class PagedListMessage<ElementType> extends PagedMessage {
     protected readonly abstract elementsPerField: number;
-    protected readonly abstract fieldsPerPage: number;
+    protected abstract fieldsPerPage: number;
 
     protected abstract formatElement(element: ElementType): string;
 
@@ -32,7 +32,7 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
     }
 
     protected async buildEmbed(): Promise<MessageEmbed> {
-        const embed = await super.buildEmbed();
+        let embed = await super.buildEmbed();
 
         let currentFieldElementCount = 0;
         let currentFieldString = "";
@@ -55,6 +55,16 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
 
         if (currentFieldElementCount) {
             addFieldAndReset();
+        }
+
+        if (embed.length > 6000) {
+            if (this.fieldsPerPage === 1) {
+                throw new Error("A PagedListMessage's single field was too large to be sent, number of fields could not be reduced.");
+            }
+
+            this.fieldsPerPage--;
+
+            embed = await this.buildEmbed();
         }
 
         return embed;
