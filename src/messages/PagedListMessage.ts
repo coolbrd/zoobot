@@ -57,7 +57,7 @@ export default abstract class PagedListMessage<ElementType> extends PagedMessage
             addFieldAndReset();
         }
 
-        if (embed.length > 6000) {
+        if (embed.length > 5000) {
             if (this.elementsPerField === 1) {
                 throw new Error("A PagedListMessage's set of single-element fields were too large to send, number of elements per field could not be reduced.");
             }
