@@ -139,6 +139,12 @@ class FishCommand extends GuildCommand {
             `);
         }
 
+        // Automatically remove the player from the list of fishing players shortly after their time should be up, in case a message somehow
+        // never gets collected
+        setTimeout(() => {
+            this.unsetPlayerFishing(player);
+        }, fishingTime + this.reelWindow + 5000);
+
         const messageCollector = new TimedMessageCollector();
         const earlyReelMessage = await messageCollector
             .collectIn(parsedMessage.channel)
