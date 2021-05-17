@@ -393,8 +393,6 @@ export default class DatabaseIntegrityChecker {
         this.checkAllDocumentsForIllegalValues(allPlayerGuilds, playerGuildSchemaDefinition);
         this.checkAllDocumentsForIllegalValues(allAnimals, animalSchemaDefinition);
 
-        this.validateAnimalOwnership(allAnimals, allPlayers);
-
         this.logErrors(this.errors);
     }
 
