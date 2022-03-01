@@ -1,4 +1,7 @@
 import MasterBeastiaryProcess from "./bot/MasterBeastiaryProcess";
 
 const master = new MasterBeastiaryProcess();
-master.init();
+
+master.init().catch(() => {
+    process.exit();
+});
