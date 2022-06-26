@@ -56,11 +56,11 @@ export default class MasterBeastiaryProcess {
         });
 
         this.server.on("vote", (userId, rewardCount) => {
-            this.shardManager.broadcastEval(`this.emit("vote", "${userId}", ${rewardCount})`);
+            this.shardManager.broadcastEval(async client => client.emit("vote", userId, rewardCount));
         });
 
         try {
-            await this.shardManager.spawn(1);
+            await this.shardManager.spawn({amount: 1});
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -70,7 +70,7 @@ export default class MasterBeastiaryProcess {
             `);
         }
 
-        this._clientId = await this.shardManager.fetchClientValues("user.id", 0);
+        this._clientId = (await this.shardManager.fetchClientValues("user.id", 0)) as string;
     }
 
     public async init(): Promise<void> {
@@ -136,7 +136,7 @@ export default class MasterBeastiaryProcess {
     }
 
     public async getGuildCount(): Promise<number> {
-        const counts: number[] = await this.shardManager.broadcastEval(`this.guilds.cache.size`);
+        const counts: number[] = await this.shardManager.broadcastEval(async client => client.guilds.cache.size);
 
         const total = counts.reduce((total, current) => total + current, 0);
 
@@ -148,7 +148,7 @@ export default class MasterBeastiaryProcess {
     }
 
     public async getUserCount(): Promise<number> {
-        const counts: number[] = await this.shardManager.broadcastEval(`this.users.cache.size`);
+        const counts: number[] = await this.shardManager.broadcastEval(async client => client.users.cache.size);
 
         const total = counts.reduce((total, current) => total + current, 0);
 

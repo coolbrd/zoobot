@@ -31,9 +31,9 @@ export default class TimedMessageCollector {
             throw new Error("A TimedUserMessageCollector was started before its user was initialized.");
         }
 
-         const collector = new MessageCollector(this.channel, (message: Message) => {
+         const collector = new MessageCollector(this.channel, { filter: (message: Message) => {
             return message.author === this.user;
-        });
+         }});
 
         return new Promise(resolve => {
             const stopAndResolve = (resolution: Message | undefined) => {

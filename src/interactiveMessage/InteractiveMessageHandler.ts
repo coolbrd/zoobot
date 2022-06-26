@@ -9,11 +9,11 @@ export default class InteractiveMessageHandler {
 
     constructor(client: Client) {
         client.on("messageReactionAdd", (messageReaction, user) => {
-            this.handleReaction(messageReaction, user);
+            this.handleReaction(messageReaction as MessageReaction, user);
         });
 
         client.on("messageReactionRemove", (messageReaction, user) => {
-            this.handleReaction(messageReaction, user);
+            this.handleReaction(messageReaction as MessageReaction, user);
         });
 
         client.on("rateLimit", info => {
@@ -50,7 +50,7 @@ export default class InteractiveMessageHandler {
             await interactiveMessage.pressButtonByEmojiAndRefresh(emojiString, user);
         }
         catch (error) {
-            errorHandler.handleError(error, "Error activating an interactive message's button.");
+            errorHandler.handleError(error as Error, "Error activating an interactive message's button.");
 
             betterSend(interactiveMessage.channel, "There was a problem processing input for an interactive message. Please report this to the developer.");
         }

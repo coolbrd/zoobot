@@ -266,7 +266,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedNestedField.setValue(userInput);
                             }
                             catch (error) {
-                                handleUserError(this.channel, error, 10000);
+                                handleUserError(this.channel, error as Error, 10000);
                             }
                             break;
                         }
@@ -336,7 +336,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedElement.setValue(userInput);
                             }
                             catch (error) {
-                                handleUserError(this.channel, error, 10000);
+                                handleUserError(this.channel, error as Error, 10000);
                             }
                             break;
                         }
@@ -378,7 +378,7 @@ export default class EDocMessage extends InteractiveMessage {
                                 selectedField.push(userInput);
                             }
                             catch (error) {
-                                handleUserError(this.channel, error, 10000);
+                                handleUserError(this.channel, error as Error, 10000);
                             }
                             break;
                         }

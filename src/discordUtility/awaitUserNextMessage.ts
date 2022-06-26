@@ -5,11 +5,11 @@ export default async function awaitUserNextMessage(channel: TextChannel | DMChan
     const messageCollectorFilter = (response: Message) => {
         return response.author === user;
     };
-    const messageCollectorOptions = { max: 1, time: timeout, errors: ["time"] };
+    const messageCollectorOptions = { filter: messageCollectorFilter, max: 1, time: timeout, errors: ["time"] };
 
     let userResponse;
     try {
-        userResponse = await channel.awaitMessages(messageCollectorFilter, messageCollectorOptions);
+        userResponse = await channel.awaitMessages(messageCollectorOptions);
     }
     // If we enter this that means the user didn't provide an answer
     catch {

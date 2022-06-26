@@ -5,7 +5,12 @@ import { errorHandler } from "../structures/ErrorHandler";
 export async function betterSend(channel: TextChannel | DMChannel, content: string | MessageEmbed, lifetime?: number): Promise<Message | undefined> {
     let message: Message;
     try {
-        message = await channel.send(content);
+        if (typeof content == "string") {
+            message = await channel.send(content);
+        }
+        else {
+            message = await channel.send({ embeds: [content] })
+        }
     }
     catch (error) {
         return;
@@ -35,7 +40,7 @@ export function safeDeleteMessage(message: Message | undefined): boolean {
         message.delete();
     }
     catch (error) {
-        errorHandler.handleError(error, "There was an error deleting a message.");
+        errorHandler.handleError(error as Error, "There was an error deleting a message.");
         return false;
     }
 
@@ -61,7 +66,12 @@ export async function safeEdit(message: Message, content: string | MessageEmbed)
 
     let editedMessage: Message;
     try {
-        editedMessage = await message.edit(content);
+        if (typeof content == "string") {
+            editedMessage = await message.edit(content);
+        }
+        else {
+            editedMessage = await message.edit({ embeds: [content] })
+        }
     }
     catch (error) {
         return;

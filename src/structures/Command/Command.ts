@@ -1,5 +1,5 @@
 import { stripIndent } from "common-tags";
-import { BitFieldResolvable, PermissionString } from "discord.js";
+import { BitFieldResolvable, PermissionResolvable, PermissionString } from "discord.js";
 import { inspect } from "util";
 import BeastiaryClient from "../../bot/BeastiaryClient";
 import { DEVELOPER_ID } from "../../config/secrets";
@@ -105,13 +105,13 @@ export default abstract class Command {
 
 export abstract class GuildCommand extends Command {
     public readonly guildOnly = true;
-    public readonly permissionRequirement?: BitFieldResolvable<PermissionString>;
+    public readonly permissionRequirement?: PermissionResolvable;
 
     protected abstract run(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt>;
 
     public async execute(parsedMessage: GuildCommandParser, beastiaryClient: BeastiaryClient): Promise<CommandReceipt> {
         if (this.permissionRequirement) {
-            if (!parsedMessage.member.hasPermission(this.permissionRequirement) && parsedMessage.sender.id !== DEVELOPER_ID) {
+            if (!parsedMessage.member.permissions.has(this.permissionRequirement) && parsedMessage.sender.id !== DEVELOPER_ID) {
                 betterSend(parsedMessage.channel, `You don't have adequate server permissions to run this command. Requirement: \`${this.permissionRequirement}\``);
                 return this.newReceipt();
             }

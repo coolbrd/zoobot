@@ -151,7 +151,7 @@ export default class CommandHandler {
 
     public async handleMessage(message: Message): Promise<void> {
         const sentByBot = Boolean(message.author.bot);
-        const sentInNewsChannel = message.channel.type === "news";
+        const sentInNewsChannel = message.channel.type === "GUILD_NEWS";
 
         if (sentByBot || sentInNewsChannel) {
             return;
@@ -189,8 +189,6 @@ export default class CommandHandler {
                 `);
             }
 
-            const displayPrefix = this.getDisplayPrefixByMessage(message);
-
             if (messagePrefix === config.prefix && !parsedMessage.currentArgument) {
                 // betterSend(parsedMessage.channel, `Yes? Try using \`${displayPrefix}commands\` to see a list of all my commands.`);
                 return;
@@ -220,7 +218,7 @@ export default class CommandHandler {
                     commandReceipt = await commandResolver.command.execute(commandResolver.commandParser, this.beastiaryClient);
                 }
                 catch (error) {
-                    errorHandler.handleError(error, "Command execution failed.");
+                    errorHandler.handleError(error as Error, "Command execution failed.");
 
                     betterSend(parsedMessage.channel, stripIndent`
                         Something went wrong while performing that command. Please report this to the developer.

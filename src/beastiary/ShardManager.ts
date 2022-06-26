@@ -28,20 +28,19 @@ export default class ShardManager {
     public async getIdType(id: string): Promise<"user" | "guild" | "unknown"> {
         let resultPromises: Promise<"user" | "guild" | "unknown">[];
         try {
-            resultPromises = await this.shard.broadcastEval(`
-                (async () => {
+            resultPromises = await this.shard.broadcastEval(async client => {
                     const idUtility = require("../../../../build/discordUtility/idUtility");
 
                     let result;
                     try {
-                        result = await idUtility.getIdType("${id}", this);
+                        result = await idUtility.getIdType(`${id}`, client);
                     }
                     catch (error) {
-                        throw new Error(\`There was an error getting the id type of an id across shards.\\n\\n\${error}\`);
+                        throw new Error(`There was an error getting the id type of an id across shards.\n\n${error}`);
                     }
                     return result;
-                })()
-            `);
+                }
+            );
         }
         catch (error) {
             throw new Error(stripIndent`
@@ -62,8 +61,6 @@ export default class ShardManager {
     }
 
     public announce(text: string): void {
-        this.shard.broadcastEval(`
-            this.emit("announcementMessage", \`${text}\`);
-        `);
+        this.shard.broadcastEval(async client => client.emit("announcementMessage", `${text}`));
     }
 }

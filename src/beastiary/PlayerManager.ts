@@ -338,7 +338,7 @@ export default class PlayerManager extends GameObjectCache<Player> {
     }
 
     public async handleMessage(message: Message): Promise<void> {
-        if (message.channel.type !== "text") {
+        if (message.channel.type !== "GUILD_TEXT") {
             return;
         }
 

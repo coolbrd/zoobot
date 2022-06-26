@@ -40,9 +40,7 @@ class FeedbackCommand extends Command {
         feedbackMessage = feedbackMessage.replace(/\${.*}/, "ESCAPE DETECTED");
         feedbackMessage = stripIndent`${feedbackMessage}`;
 
-        beastiaryClient.discordClient.shard.broadcastEval(`
-            this.emit("feedbackmessage", "${parsedMessage.sender.tag}", "${parsedMessage.sender.avatarURL()}", \`${feedbackMessage}\`);
-        `);
+        beastiaryClient.discordClient.shard.broadcastEval(async client => client.emit("feedbackmessage", parsedMessage.sender.tag, parsedMessage.sender.avatarURL(), feedbackMessage));
 
         betterSend(parsedMessage.channel, "Feedback sent!");
 

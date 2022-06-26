@@ -103,7 +103,7 @@ export class PlayerGuild extends GameObject {
             this.encounterChannelId = undefined;
         }
 
-        return encounterGuildChannel;
+        return encounterGuildChannel as GuildChannel;
     }
 
     public get announcementGuildChannel(): GuildChannel | undefined {
@@ -117,7 +117,7 @@ export class PlayerGuild extends GameObject {
             this.announcementChannelId = undefined;
         }
 
-        return announcementGuildChannel;
+        return announcementGuildChannel as GuildChannel;
     }
 
     public async fetchAnnouncementChannel(): Promise<TextChannel | undefined> {

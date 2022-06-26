@@ -129,7 +129,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             releaseEmbed.setFooter("");
 
             try {
-                await confirmMessage.edit(releaseEmbed);
+                await confirmMessage.edit({ embeds: [releaseEmbed] });
             }
             catch (error) {
                 throw new Error(stripIndent`
@@ -151,7 +151,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             releaseEmbed.setDescription("Release canceled.");
             releaseEmbed.setFooter("");
             try {
-                await confirmMessage.edit(releaseEmbed);
+                await confirmMessage.edit({embeds: [releaseEmbed] });
             }
             catch (error) {
                 throw new Error(stripIndent`

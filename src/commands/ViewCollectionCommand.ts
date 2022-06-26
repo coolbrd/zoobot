@@ -7,7 +7,6 @@ import handleUserError from "../discordUtility/handleUserError";
 import CommandReceipt from "../structures/Command/CommandReceipt";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import { getCleanIdFromText } from "../discordUtility/idUtility";
-import { betterSend } from "../discordUtility/messageMan";
 
 class ViewCollectionCommand extends GuildCommand {
     public readonly names = ["collection", "col", "c"];
@@ -50,7 +49,7 @@ class ViewCollectionCommand extends GuildCommand {
             player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            handleUserError(parsedMessage.channel, error);
+            handleUserError(parsedMessage.channel, error as Error);
             return commandReceipt;
         }
 

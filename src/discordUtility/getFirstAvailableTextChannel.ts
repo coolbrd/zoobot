@@ -4,7 +4,7 @@ import { inspect } from "util";
 
 export default async function getFirstAvailableTextChannel(guild: Guild): Promise<TextChannel | undefined> {
     for (const guildChannel of guild.channels.cache.values()) {
-        if (guildChannel.type === "text") {
+        if (guildChannel.type === "GUILD_TEXT") {
             let channel: Channel;
             try {
                 channel = await guildChannel.fetch();

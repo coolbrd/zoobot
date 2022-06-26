@@ -56,9 +56,9 @@ class Emojis {
             `);
         }
 
-        if (emojiGuild) {
+        if (emojiGuild.available) {
             for (const emoji of emojiGuild.emojis.cache.values()) {
-                Object.defineProperty(this.emojis, emoji.name, {
+                Object.defineProperty(this.emojis, emoji.name ? emoji.name : "null", {
                     value: emoji.toString(),
                     writable: false,
                     enumerable: true
@@ -71,9 +71,7 @@ class Emojis {
                 `);
             }
 
-            beastiaryClient.discordClient.shard.broadcastEval(`
-                this.emit("emojisfound", ${inspect(this.emojis)});
-            `);
+            beastiaryClient.discordClient.shard.broadcastEval(async client => client.emit("emojisfound", inspect(client.emojis)));
         }
         else {
             beastiaryClient.discordClient.once("emojisfound", emojis => {

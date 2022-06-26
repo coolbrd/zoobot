@@ -1,4 +1,3 @@
-import { stripIndent } from "common-tags";
 import BeastiaryClient from "../bot/BeastiaryClient";
 import handleUserError from "../discordUtility/handleUserError";
 import { betterSend } from "../discordUtility/messageMan";
@@ -45,7 +44,7 @@ class GivePremiumCommand extends Command {
             await beastiaryClient.beastiary.playerGuilds.givePremium(id, permanent);
         }
         catch (error) {
-            handleUserError(parsedMessage.channel, error);
+            handleUserError(parsedMessage.channel, error as Error);
             return receipt;
         }
         

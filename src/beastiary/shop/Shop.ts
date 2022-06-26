@@ -16,7 +16,7 @@ export interface ShopReceipt {
 }
 
 export default abstract class Shop {
-    protected abstract readonly itemClasses: (new (shop: Shop) => ShopItem)[] = [];
+    protected abstract readonly itemClasses: (new (shop: Shop) => ShopItem)[];
 
     public abstract buildEmbed(player: Player): MessageEmbed;
 

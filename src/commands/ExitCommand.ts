@@ -21,9 +21,7 @@ class ExitCommand extends Command {
             throw new Error("A client's shard value was undefined at the time the exit command was run.");
         }
 
-        beastiaryClient.discordClient.shard.broadcastEval(`
-            this.emit("exit");
-        `);
+        beastiaryClient.discordClient.shard.broadcastEval(async client => client.emit("exit"));
 
         commandReceipt.reactConfirm = true;
         return commandReceipt;

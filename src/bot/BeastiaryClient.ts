@@ -16,7 +16,8 @@ export default class BeastiaryClient {
     private readyForInput = false;
 
     constructor() {
-        this.discordClient = new Client();
+        const intents_int = 46593;
+        this.discordClient = new Client({intents: intents_int});
         this.beastiary = new Beastiary(this);
         this.commandHandler = new CommandHandler(this);
         this.interactiveMessageHandler = new InteractiveMessageHandler(this.discordClient);
@@ -77,13 +78,7 @@ export default class BeastiaryClient {
             console.log("Logged into Discord");
 
             if (this.discordClient.user) {
-                this.discordClient.user.setActivity("b/commands").catch(error => {
-                    throw new Error(stripIndent`
-                        There was an error attempting to set a client's activity.
-
-                        ${error}
-                    `);
-                });
+                this.discordClient.user.setActivity("b/commands");
             }
 
             preLoad.connectedToDiscord = true;
@@ -105,7 +100,7 @@ export default class BeastiaryClient {
         });
 
 
-        this.discordClient.on("message", async (message: Message) => {
+        this.discordClient.on("messageCreate", async (message: Message) => {
             if (!this.readyForInput) {
                 return;
             }

@@ -22,13 +22,13 @@ export default async function reactionInput(message: Message, timeOut: number, e
     }
 
     const reactionCollectorFilter = (reaction: MessageReaction, user: User) => {
-        return !user.bot && emojis.includes(reaction.emoji.name);
+        return !user.bot && emojis.includes(reaction.emoji.name || "null");
     };
-    const reactionCollectorOptions = { max: 1, time: timeOut, errors: ["time"] };
+    const reactionCollectorOptions = { filter: reactionCollectorFilter, max: 1, time: timeOut, errors: ["time"] };
 
     let userReaction;
     try {
-        userReaction = await message.awaitReactions(reactionCollectorFilter, reactionCollectorOptions);
+        userReaction = await message.awaitReactions(reactionCollectorOptions);
     }
     // If the timer expires before anybody reacts
     catch {
@@ -45,5 +45,5 @@ export default async function reactionInput(message: Message, timeOut: number, e
         return;
     }
 
-    return emojiReaction.emoji.name;
+    return emojiReaction.emoji.name || "null";
 }

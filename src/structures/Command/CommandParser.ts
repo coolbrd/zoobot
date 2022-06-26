@@ -148,7 +148,7 @@ export class GuildCommandParser extends CommandParser {
     constructor(message: Message, prefixUsed: string, beastiaryClient: BeastiaryClient) {
         super(message, prefixUsed, beastiaryClient);
 
-        if (message.channel.type !== "text") {
+        if (message.channel.type !== "GUILD_TEXT") {
             throw new Error(stripIndent`
                 A message within a non-text channel was given to a guild command parser.
 

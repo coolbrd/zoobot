@@ -32,8 +32,8 @@ export default function buildSpeciesInfo(embed: MessageEmbed, species: Species, 
 
         embed.addField("Essence", `${speciesRecord.data.essence}${Emojis.essence}`, true);
 
-        embed.addField("Max level", player.getSpeciesLevelCap(species.id), true);
+        embed.addField("Max level", player.getSpeciesLevelCap(species.id).toString(), true);
 
-        embed.addField("Captured", speciesRecord.data.captures, true);
+        embed.addField("Captured", speciesRecord.data.captures.toString(), true);
     }
 }

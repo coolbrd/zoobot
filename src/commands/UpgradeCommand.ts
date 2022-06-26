@@ -43,7 +43,7 @@ class UpgradeCommand extends GuildCommand {
                 purchaseReceipt = upgradeShop.attemptToPurchase(upgradeIdentifier, player);
             }
             catch (error) {
-                handleUserError(parsedMessage.channel, error);
+                handleUserError(parsedMessage.channel, error as Error);
                 return receipt;
             }
 

@@ -51,7 +51,7 @@ class ShopBuySubCommand extends GuildCommand {
             purchaseReceipt = beastiaryClient.beastiary.shops.itemShop.attemptToPurchase(itemIdentifier, player, itemQuantity);
         }
         catch (error) {
-            handleUserError(parsedMessage.channel, error);
+            handleUserError(parsedMessage.channel, error as Error);
             return commandReceipt;
         }
 

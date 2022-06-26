@@ -33,7 +33,7 @@ class ViewPlayerProfileCommand extends GuildCommand {
             player = await beastiaryClient.beastiary.players.fetchByGuildCommandParser(parsedMessage);
         }
         catch (error) {
-            handleUserError(parsedMessage.channel, error);
+            handleUserError(parsedMessage.channel, error as Error);
             return commandReceipt;
         }
 
