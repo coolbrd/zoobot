@@ -50,7 +50,7 @@ export default class CommandListMessage extends PagedListMessage<Command> {
         
         const prefixHelpString = `Prefix commands with "${prefix}", or by pinging me!`;
         const footerText = embed.footer ? embed.footer.text : "";
-        embed.setFooter(prefixHelpString + "\n" + footerText);
+        embed.setFooter({  text: prefixHelpString + "\n" + footerText })
 
         return embed;
     }

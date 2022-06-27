@@ -181,7 +181,7 @@ export default class EDocMessage extends InteractiveMessage {
             this.disableButton("back");
         }
 
-        embed.setFooter(this.getButtonHelpString());
+        embed.setFooter({  text: this.getButtonHelpString() })
 
         return embed;
     }

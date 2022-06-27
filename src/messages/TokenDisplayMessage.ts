@@ -44,9 +44,9 @@ export default class TokenDisplayMessage extends PagedListMessage<LoadableCachea
 
         const embed = await super.buildEmbed();
 
-        embed.setAuthor(`${this.player.username}'s tokens`, this.player.avatarURL);
+        embed.setAuthor({ name: `${this.player.username}'s tokens`, iconURL: this.player.avatarURL });
         embed.setColor(0x008888);
-        embed.setFooter(`${this.elements.length} tokens collected`);
+        embed.setFooter({  text: `${this.elements.length} tokens collected` })
 
         return embed;
     }

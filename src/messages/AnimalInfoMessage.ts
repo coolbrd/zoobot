@@ -47,7 +47,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
     
         if (this.animalObject.owner) {
             const userAvatar = this.animalObject.owner.avatarURL;
-            embed.setAuthor(`Belongs to ${this.animalObject.owner.username}`, userAvatar);
+            embed.setAuthor({ name: `Belongs to ${this.animalObject.owner.username}`, iconURL: userAvatar });
         }
         
         if (!this.cardMode) {
@@ -57,7 +57,7 @@ export default class AnimalInfoMessage extends InteractiveMessage {
             buildAnimalCard(embed, this.animalObject);
         }
 
-        embed.setFooter(this.getButtonHelpString());
+        embed.setFooter({  text: this.getButtonHelpString() })
 
         return embed;
     }

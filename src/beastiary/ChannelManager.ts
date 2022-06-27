@@ -57,7 +57,7 @@ export default class ChannelManager {
 
         const feedbackEmbed = new SmartEmbed();
 
-        feedbackEmbed.setAuthor(`Feedback from ${userTag}`, userAvatarUrl);
+        feedbackEmbed.setAuthor({ name: `Feedback from ${userTag}`, iconURL: userAvatarUrl });
         feedbackEmbed.setDescription(content);
 
         betterSend(this.feedbackChannel, feedbackEmbed);

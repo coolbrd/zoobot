@@ -38,7 +38,7 @@ class PremiumInfoCommand extends Command {
         embed.addField("More prize balls", "The daily pep command gets an upgrade, and gives you a random number of prize balls too!", true);
         embed.addField("*Support the creator!*", "Hey, this all takes a lot of effort to make, not to mention the fees for keeping it up! If you help me out in this way, I'd really appreciate it. :)");
 
-        embed.setFooter("Pretty please?");
+        embed.setFooter({  text: "Pretty please?" })
 
         betterSend(parsedMessage.channel, embed);
 

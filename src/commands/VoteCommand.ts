@@ -28,7 +28,7 @@ class VoteCommand extends Command {
         embed.addField("Discord Boats", "[Vote](https://discord.boats/bot/737387258683850892/vote)", true);
         embed.addField("Discord Bot List", "[Vote](https://discordbotlist.com/bots/the-beastiary/upvote)", true);
         embed.addField("Bots For Discord", "[Vote](https://botsfordiscord.com/bot/737387258683850892/vote)", true);
-        embed.setFooter(`Prize balls can be opened with the '${OpenPrizeBallCommand.primaryName}' command.`);
+        embed.setFooter({  text: `Prize balls can be opened with the '${OpenPrizeBallCommand.primaryName}' command.` })
 
         betterSend(parsedMessage.channel, embed);
 

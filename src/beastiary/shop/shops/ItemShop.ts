@@ -20,7 +20,7 @@ export default class ItemShop extends Shop {
     public buildEmbed(player: Player): MessageEmbed {
         const embed = new SmartEmbed();
 
-        embed.setAuthor(`Balance: ${player.pep} pep`, player.avatarURL);
+        embed.setAuthor({ name: `Balance: ${player.pep} pep`, iconURL: player.avatarURL });
         embed.setTitle("Item Shop");
         embed.setColor(0xaf7028);
 
@@ -31,7 +31,7 @@ export default class ItemShop extends Shop {
         }
 
         embed.setDescription(itemString);
-        embed.setFooter(`Use '${ShopCommand.primaryName} ${ShopBuySubCommand.primaryName} <item name> <quantity>' to buy items from the shop.`);
+        embed.setFooter({  text: `Use '${ShopCommand.primaryName} ${ShopBuySubCommand.primaryName} <item name> <quantity>' to buy items from the shop.` })
 
         return embed;
     }

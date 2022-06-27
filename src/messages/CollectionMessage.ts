@@ -42,7 +42,7 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         else {
             headerString = `Animals with "${this.tag}" tag`;
         }
-        embed.setAuthor(headerString, userAvatar);
+        embed.setAuthor({ name: headerString, iconURL: userAvatar });
 
         let footerString: string;
         if (!this.tag) {
@@ -51,10 +51,10 @@ export default class CollectionMessage extends AnimalDisplayMessage {
         else {
             footerString = `${collection.length} tagged animals`;
         }
-        embed.setFooter(stripIndent`
+        embed.setFooter({ text: stripIndent`
             ${footerString}
             ${this.getButtonHelpString()}
-        `);
+        `});
 
         if (collection.length < 1) {
             if (!this.tag) {

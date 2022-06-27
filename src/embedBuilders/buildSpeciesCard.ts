@@ -19,5 +19,5 @@ export default function buildSpeciesCard(embed: MessageEmbed, species: Species, 
 
     embed.setImage(card.url);
 
-    embed.setFooter(`Card #${species.indexOfCard(card._id) + 1} of ${species.cardCount}`);
+    embed.setFooter({  text: `Card #${species.indexOfCard(card._id) + 1} of ${species.cardCount}` })
 }

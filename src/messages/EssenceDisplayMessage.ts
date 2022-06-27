@@ -69,7 +69,7 @@ export default class EssenceDisplayMessage extends LoadableGameObjectDisplayMess
             `);
         }
 
-        embed.setAuthor(`${this.player.username}'s essence`, this.player.avatarURL);
+        embed.setAuthor({ name: `${this.player.username}'s essence`, iconURL: this.player.avatarURL });
         embed.setColor(0x3861a9);
 
         return embed;

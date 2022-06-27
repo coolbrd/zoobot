@@ -38,7 +38,7 @@ class SubmitSpeciesCommand extends Command {
         infoEmbed.addField("Description", "A brief description of the animal's appearance, attributes, and behaviors.");
         infoEmbed.addField("Natural habitat", "A brief description of the animal's natural environment, both in ecological traits and geographic location.");
         infoEmbed.addField("Wikipedia page", "The link to the animal's species' wikipedia page.");
-        infoEmbed.setFooter("Press the reaction button to initiate the submission process when you're ready.");
+        infoEmbed.setFooter({  text: "Press the reaction button to initiate the submission process when you're ready." })
 
         const infoMessage = await betterSend(parsedMessage.channel, infoEmbed);
 

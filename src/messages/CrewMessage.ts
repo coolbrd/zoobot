@@ -31,11 +31,11 @@ export default class CrewMessage extends AnimalDisplayMessage {
 
         const userAvatar = this.player.avatarURL;
 
-        embed.setAuthor(`${this.player.username}'s crew`, userAvatar);
-        embed.setFooter(stripIndent`
+        embed.setAuthor({ name: `${this.player.username}'s crew`, iconURL: userAvatar });
+        embed.setFooter({ text: stripIndent`
             ${crew.length} in crew
             ${this.getButtonHelpString()}
-        `);
+        `});
 
         if (crew.length < 1) {
             const guildPrefix = this.beastiaryClient.commandHandler.getPrefixByGuild(this.channel.guild);

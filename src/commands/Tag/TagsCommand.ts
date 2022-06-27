@@ -46,7 +46,7 @@ class TagsCommand extends GuildCommand {
         }
 
         const embed = new SmartEmbed();
-        embed.setAuthor(`${animal.displayNameSimple}'s tags`, animal.card.url);
+        embed.setAuthor({ name: `${animal.displayNameSimple}'s tags`, iconURL: animal.card.url });
         embed.setColor(0x798be5);
         if (animal.tags.list.length > 0) {
             embed.setDescription(animal.tags.list.join(", "));
@@ -54,7 +54,7 @@ class TagsCommand extends GuildCommand {
         else {
             embed.setDescription("This animal doesn't have any tags yet. Assign some with the `tag` `add` command.");
         }
-        embed.setFooter("Use the 'tag add' or 'tag remove' commands to add or remove tags, respectively");
+        embed.setFooter({  text: "Use the 'tag add' or 'tag remove' commands to add or remove tags, respectively" })
         betterSend(parsedMessage.channel, embed);
 
         return receipt;

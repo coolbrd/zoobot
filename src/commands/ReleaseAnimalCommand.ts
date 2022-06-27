@@ -45,7 +45,7 @@ class ReleaseAnimalCommand extends GuildCommand {
         releaseEmbed.setTitle(`Release ${animal.displayName}?`);
         releaseEmbed.setThumbnail(animal.card.url);
         releaseEmbed.setDescription("Confirm this release by responding with \"yes\".");
-        releaseEmbed.setFooter("This release will automatically cancel if no response is given.");
+        releaseEmbed.setFooter({  text: "This release will automatically cancel if no response is given." })
         releaseEmbed.setColor(0xFF0000);
 
         let confirmMessage: Message | undefined;
@@ -126,7 +126,7 @@ class ReleaseAnimalCommand extends GuildCommand {
             }
 
             releaseEmbed.setDescription("Release confirmed.");
-            releaseEmbed.setFooter("");
+            releaseEmbed.setFooter({  text: "" })
 
             try {
                 await confirmMessage.edit({ embeds: [releaseEmbed] });
@@ -149,7 +149,7 @@ class ReleaseAnimalCommand extends GuildCommand {
         // If the user didn't respond, or responded with anything other than yes
         else {
             releaseEmbed.setDescription("Release canceled.");
-            releaseEmbed.setFooter("");
+            releaseEmbed.setFooter({  text: "" })
             try {
                 await confirmMessage.edit({embeds: [releaseEmbed] });
             }

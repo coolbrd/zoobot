@@ -445,7 +445,7 @@ export default abstract class InteractiveMessage extends EventEmitter {
                 newFooter = this.deactivationText;
             }
 
-            embed.setFooter(newFooter);
+            embed.setFooter({  text: newFooter })
             this.setEmbed(embed);
         }
 

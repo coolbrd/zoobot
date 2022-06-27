@@ -42,10 +42,10 @@ export default abstract class PagedMessage extends InteractiveMessage {
     protected async buildEmbed(): Promise<MessageEmbed> {
         const embed = new SmartEmbed();
 
-        embed.setFooter(stripIndent`
+        embed.setFooter({ text: stripIndent`
             Page ${this.page + 1}/${this.pageCount}
             ${this.getButtonHelpString()}
-        `);
+        `});
 
         return embed;
     }

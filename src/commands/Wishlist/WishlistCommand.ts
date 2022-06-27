@@ -40,7 +40,7 @@ class WishlistCommand extends GuildCommand {
 
         const embed = new SmartEmbed();
         embed.setColor(0xfffb38);
-        embed.setAuthor(`${player.username}'s wishlist`, player.avatarURL);
+        embed.setAuthor({ name: `${player.username}'s wishlist`, iconURL: player.avatarURL });
 
         let descriptionString: string;
         if (wishedSpecies.length > 0) {
@@ -54,10 +54,10 @@ class WishlistCommand extends GuildCommand {
             descriptionString = "You don't have any wished species. Add some with the `wishlist` `add` command!";
         }
         embed.setDescription(descriptionString);
-        embed.setFooter(stripIndent`
+        embed.setFooter({ text: stripIndent`
             ${wishedSpecies.length} wished species (max ${player.maxWishlistSize})
             Wished species appear more often for you in encounters.
-        `);
+        `});
 
         betterSend(parsedMessage.channel, embed);
 

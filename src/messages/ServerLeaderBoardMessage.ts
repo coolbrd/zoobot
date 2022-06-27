@@ -71,7 +71,7 @@ export default class ServerLeaderBoardMessage extends PagedMessage {
 
         this.players.sort((player1, player2) => ranking.value(player2) - ranking.value(player1));
 
-        embed.setAuthor(`Top players: ${capitalizeFirstLetter(ranking.name)}`);
+        embed.setAuthor({ name: `Top players: ${capitalizeFirstLetter(ranking.name)}` });
         embed.setColor(0xfc372d);
         
         const guildIcon = (this.channel as TextChannel).guild.iconURL();

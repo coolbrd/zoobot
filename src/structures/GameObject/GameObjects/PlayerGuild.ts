@@ -174,7 +174,7 @@ export class PlayerGuild extends GameObject {
         embed.setTitle("Announcement");
         embed.setColor(0xFF0000);
         embed.setDescription(text);
-        embed.setFooter(`You can change the channel these are sent in with the '${SetAnnouncementChannelCommand.primaryName}' command.`);
+        embed.setFooter({  text: `You can change the channel these are sent in with the '${SetAnnouncementChannelCommand.primaryName}' command.` })
 
         betterSend(announcementTextChannel, embed);
     }

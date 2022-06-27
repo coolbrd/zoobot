@@ -98,7 +98,7 @@ export default class EncounterMessage extends InteractiveMessage {
             embed.addField("Special", capitalizeFirstLetter(card.special), true);
         }
 
-        embed.setFooter("Wild encounter");
+        embed.setFooter({  text: "Wild encounter" })
 
         if (this.initiatingPlayer) {
             if (this.initiatingPlayer.getCaptures(this.animal.species.id) > 0) {

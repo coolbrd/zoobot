@@ -27,7 +27,7 @@ export default class SpeciesDisambiguationMessage extends PagedListMessage<Speci
 
         embed.setColor(0xFFFF00);
         embed.setTitle("Multiple species found");
-        embed.setFooter("Try again using the full name of the desired species");
+        embed.setFooter({  text: "Try again using the full name of the desired species" })
 
         return embed;
     }
