@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { stripIndent } from 'common-tags';
 import { Guild } from 'discord.js';
 import { inspect } from "util";
@@ -71,7 +72,11 @@ class Emojis {
                 `);
             }
 
-            beastiaryClient.discordClient.shard.broadcastEval(async client => client.emit("emojisfound", inspect(client.emojis)));
+            beastiaryClient.discordClient.shard.broadcastEval(async client => {
+                const util = require("util");
+
+                client.emit("emojisfound", util.inspect(client.emojis))
+            });
         }
         else {
             beastiaryClient.discordClient.once("emojisfound", emojis => {

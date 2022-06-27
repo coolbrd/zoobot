@@ -231,7 +231,7 @@ export default class CommandHandler {
                 }
 
                 if (commandReceipt.reactConfirm) {
-                    parsedMessage.originalMessage.react("✅").catch(error => {
+                    parsedMessage.originalMessage.react("✅").catch((error: Error) => {
                         errorHandler.handleError(error, "There was an error attempting to react to a message after a command was completed.");
                     });
                 }
@@ -303,6 +303,12 @@ export default class CommandHandler {
                 
                 ${error}
             `);
+        }
+
+        if (guildDocuments == null) {
+        throw new Error(stripIndent`
+            There was an error attempting to load guild prefixes from the database, guildDocuments is null.
+        `);
         }
 
         this.guildPrefixes.clear();
